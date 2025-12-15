@@ -10,6 +10,19 @@ import { getUserById } from "./data/user"
 import bcrypt from "bcrypt" // or bcryptjs if you installed that
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
+  //TODO: sign in with credentials
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/error" // Error code passed in query string as ?error= 
+  },
+  events: {
+    async linkAccount({user}) {
+      await db.user.update({
+        where: {id: user.id},
+        data: {emailVerified: new Date()} // Mark email as verified when linking account
+      })
+    }
+  },
   callbacks: {
     async session({ session, token }) {
       if (session.user && token.sub) {

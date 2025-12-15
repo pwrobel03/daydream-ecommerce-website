@@ -7,6 +7,7 @@ import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { generateVerificationToken } from "@/lib/token";
 import { getUserByEmail } from "@/data/user";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
   // Validate input fields based on LoginSchema
@@ -30,6 +31,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   if (!existingUser.emailVerified) {
     // Generate a new verification token
     const verificationToken = await generateVerificationToken(existingUser.email)
+    await sendVerificationEmail(verificationToken.email, verificationToken.token)
     return { error: "Email not verified! A new verification email has been sent."}
   }
 

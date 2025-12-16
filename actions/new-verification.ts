@@ -20,7 +20,7 @@ export const newVerification = async (token: string) => {
   // Get the user associated with the verification token
   const user = await getUserByEmail(verificationToken.email)
   if (!user) {
-    return { error: "User not found." }
+    return { error: "Email doesn't associate with any user." }
   }
 
   // Update user's email verification status

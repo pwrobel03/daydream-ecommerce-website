@@ -19,6 +19,8 @@ import { Button } from "../ui/button";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { login } from "@/actions/login";
+import Link from "next/link";
+import { Link as LinkIcon } from "lucide-react";
 export const LoginForm = () => {
   // error from url params
   const searchParams = useSearchParams();
@@ -91,6 +93,16 @@ export const LoginForm = () => {
                       type="password"
                     />
                   </FormControl>
+                  <Button
+                    variant="link"
+                    className="px-0 pt-2 pb-0 ml-auto gap-1"
+                    asChild
+                  >
+                    <div className="flex flex-row items-center">
+                      <LinkIcon className="size-4 font-normal text-black" />
+                      <Link href="/auth/forgot-password">Forgot password?</Link>
+                    </div>
+                  </Button>
                   <FormMessage />
                 </FormItem>
               )}

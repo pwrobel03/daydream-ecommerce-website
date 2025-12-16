@@ -8,7 +8,6 @@ import { newVerification } from "@/actions/new-verification";
 import { useState } from "react";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
-import { Form } from "react-hook-form";
 
 // New verification form component
 const NewVerificationForm = () => {
@@ -25,6 +24,7 @@ const NewVerificationForm = () => {
       setError("Verification token is missing.");
       return;
     }
+    // Call the server action to resend verification email
     newVerification(token)
       .then((data) => {
         setError(data.error || null);

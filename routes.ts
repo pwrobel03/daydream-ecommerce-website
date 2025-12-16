@@ -5,7 +5,7 @@
  **/ 
 export const publicRoutes = [
   "/",
-  "/auth/new-verification",
+  "/auth/new-verification", // accessed if user is logged in/out but has a verification token
 ]
 
 /**
@@ -18,6 +18,7 @@ export const authRoutes = [
   "/auth/register",
   "/auth/error",
   "/auth/forgot-password",
+  "/auth/new-password",
 ]
 
 /**

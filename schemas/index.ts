@@ -11,11 +11,24 @@ export const LoginSchema = z.object({
   })
 })
 
-// New schema for reset password
+// Schema for reset password
 export const ResetPasswordSchema = z.object({
   email: z.string().email({
   message: "Email is required"
   })
+})
+
+// Schema for new password
+export const NewPasswordSchema = z.object({
+  password: z.string().min(8, {
+    message: "Minimum password length is 8 characters"
+  }),
+  confirmPassword: z.string().min(8, {
+    message: "Minimum password length is 8 characters"
+  })
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"], // set the path of the error to confirmPassword field
 })
 
 // Schema for registration

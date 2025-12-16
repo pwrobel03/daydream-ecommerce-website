@@ -71,7 +71,7 @@ export const ResetForm = () => {
           <FormError message={error} />
           <FormSuccess message={success} />
           <Button disabled={isPending} type="submit" className="w-full py-6">
-            Reset Password
+            Send reset link
           </Button>
         </form>
       </Form>

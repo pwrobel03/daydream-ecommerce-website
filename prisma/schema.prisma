@@ -67,6 +67,7 @@ model Sale {
   description   String?
   couponCode    String   @unique // cupon code
   discountValue Int      // value of discount (np. 15 for 15%)
+  image         String?
   isActive      Boolean  @default(true)
   validFrom     DateTime @default(now())
   validTo       DateTime

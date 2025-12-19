@@ -24,27 +24,28 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   const session = await auth();
 
   return (
     <SessionProvider session={session}>
-      {/* suppressHydrationWarning jest kluczowe przy zmianie motywów */}
       <html lang="en" suppressHydrationWarning>
+        {/* Dodajemy min-h-screen do body, aby tło zawsze wypełniało ekran */}
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         >
           <ThemeProvider
             attribute="class"
-            defaultTheme="light" // Rekomendowane "light" dla sklepu z muesli
+            defaultTheme="light"
             enableSystem
             disableTransitionOnChange
           >
             <Toaster />
             <Header />
-            {children}
+            {/* Owijamy children w tag main, aby poprawnie zarządzać przestrzenią */}
+            <main className="flex-1">{children}</main>
           </ThemeProvider>
         </body>
       </html>

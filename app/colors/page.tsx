@@ -54,7 +54,7 @@ const ColorsPage = () => {
   ];
 
   return (
-    <div className="p-8 space-y-8 bg-background min-h-screen">
+    <div className="p-8 space-y-8 bg-background">
       <div className="max-w-5xl mx-auto space-y-12">
         <div className="space-y-2">
           <h1 className="text-4xl font-bold text-foreground">

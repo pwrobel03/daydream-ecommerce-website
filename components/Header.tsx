@@ -1,69 +1,77 @@
-import Image from "next/image";
-import logo from "@/assets/brand/logo.jpeg";
-
-import { db } from "@/lib/db";
-import Form from "next/form";
-import { ModeToggle } from "./mode-toggle";
 import Link from "next/link";
-import { Button } from "./ui/button";
 import { ShoppingBasket, User } from "lucide-react";
+import { ModeToggle } from "./mode-toggle";
+import { Button } from "./ui/button";
+import { MobileNav } from "./mobile-nav";
+import { DesktopNav } from "./desktop-nav";
+import Container from "./Container";
+import logo from "@/assets/Brand/logo.jpeg";
+import Image from "next/image";
 
 const Header = async () => {
-  const categories = [
+  // Przykładowa lista - może być ich nawet 20
+  const allCategories = [
     { id: "1", name: "Granola", slug: "granola" },
     { id: "2", name: "Muesli", slug: "muesli" },
     { id: "3", name: "Płatki owsiane", slug: "oats" },
+    { id: "4", name: "Orzechy", slug: "nuts" },
+    { id: "5", name: "Owoce", slug: "fruits" },
+    { id: "6", name: "Miód", slug: "honey" },
+    { id: "7", name: "Superfoods", slug: "superfoods" },
+    { id: "8", name: "Płatki owsiane", slug: "oats" },
+    { id: "9", name: "Orzechy", slug: "nuts" },
+    { id: "10", name: "Owoce", slug: "fruits" },
+    { id: "11", name: "Miód", slug: "honey" },
+    { id: "12", name: "Superfoods", slug: "superfoods" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <div className="container mx-auto flex h-20 items-center justify-between px-4">
-        {/* LOGO */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl font-bold tracking-tight text-primary uppercase">
-            Day<span className="text-foreground">Dream</span>
-          </span>
-        </Link>
-
-        {/* DYNAMICZNE KATEGORIE - Środek */}
-        <nav className="hidden md:flex items-center gap-10 relative z-10">
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/category/${cat.slug}`}
-              className="text-sm font-bold uppercase text-foreground hover:text-primary transition-colors"
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </nav>
-
-        {/* AKCJE - Prawa strona */}
+    <header className="sticky top-0 z-50 w-full border-b border-secondary bg-background/80 backdrop-blur-md supports-backdrop-filter:bg-background/60 transition-all">
+      <Container className="container mx-auto flex h-16 sm:h-20 items-center justify-between px-4">
+        {/* LEWA STRONA: Hamburger + Logo */}
         <div className="flex items-center gap-4">
+          <Link href="/" className="group flex items-center gap-2">
+            <Image src={logo} alt="DayDream Logo" className="h-12 w-auto" />
+            {/* <span className="text-xl sm:text-2xl font-black tracking-tighter text-primary uppercase italic leading-none transition-transform group-hover:scale-105">
+              Day
+              <span className="text-foreground group-hover:text-primary transition-colors">
+                Dream
+              </span>
+            </span> */}
+          </Link>
+        </div>
+
+        {/* ŚRODEK: Desktop Nav z Twoim formatowaniem */}
+        <DesktopNav categories={allCategories} />
+
+        {/* PRAWA STRONA: Akcje z lepszym hoverem */}
+        <div className="flex items-center gap-2 sm:gap-4">
           <ModeToggle />
 
           <Button
             variant="ghost"
             size="icon"
-            className="relative text-foreground hover:bg-accent"
+            className="relative text-foreground hover:bg-primary/10 hover:text-primary transition-all rounded-full"
           >
             <ShoppingBasket className="h-6 w-6" />
-            {/* Badge koszyka w kolorze secondary (zieleń) */}
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-secondary text-[10px] font-bold text-secondary-foreground border border-border">
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-secondary text-[10px] font-bold text-secondary-foreground border-2 border-background shadow-sm">
               3
             </span>
           </Button>
 
           <Button
-            variant="secondary"
+            variant="default"
             size="sm"
-            className="hidden sm:flex gap-2 rounded-full px-6"
+            className="hidden sm:flex rounded-full bg-primary text-primary-foreground px-6 font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95"
           >
-            <User className="h-4 w-4" />
+            <User className="h-4 w-4 mr-2" />
             Konto
           </Button>
+          <div className="xl:hidden">
+            <MobileNav categories={allCategories} />
+          </div>
         </div>
-      </div>
+      </Container>
     </header>
   );
 };

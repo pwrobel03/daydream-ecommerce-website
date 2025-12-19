@@ -3,7 +3,6 @@
 
 html, body, :root {
   height: 100%;
-  background-color: #333;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -52,72 +51,99 @@ html, body, :root {
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.75rem;
+  /* Podstawowe kolory - Naturalny krem i ciemny brąz */
+  --background: rgb(252, 250, 245);
+  --foreground: rgb(43, 34, 28);
+  
+  /* Karty i Popovery */
+  --card: rgb(255, 255, 255);
+  --card-foreground: rgb(43, 34, 28);
+  --popover: rgb(255, 255, 255);
+  --popover-foreground: rgb(43, 34, 28);
+  
+  /* Primary - Kolor prażonego ziarna */
+  /* --primary: rgb(143, 90, 36); */
+  --primary: rgb(159, 169, 83);
+  --primary-foreground: rgb(252, 250, 245);
+  
+  /* Secondary - Szałwiowa zieleń (Eko/Bio) */
+  /* --secondary: rgb(221, 231, 203); */
+  --secondary: rgb(76, 103, 66);
+  --secondary-foreground: rgb(252, 250, 245);
+
+  
+  /* Muted i Accent */
+  --muted: rgb(241, 236, 226);
+  --muted-foreground: rgb(120, 110, 100);
+  --accent: rgb(255, 245, 225);
+  --accent-foreground: rgb(143, 90, 36);
+  
+  --destructive: rgb(200, 50, 50);
+  --border: rgb(228, 220, 205);
+  --input: rgb(228, 220, 205);
+  --ring: rgb(143, 90, 36);
+
+  /* Wykresy (utrzymane w tonacji ziemistej) */
+  --chart-1: rgb(143, 90, 36);
+  --chart-2: rgb(85, 107, 47);
+  --chart-3: rgb(210, 180, 140);
+  --chart-4: rgb(139, 69, 19);
+  --chart-5: rgb(188, 143, 143);
+
+  /* Sidebar */
+  --sidebar: rgb(250, 248, 242);
+  --sidebar-foreground: rgb(43, 34, 28);
+  --sidebar-primary: rgb(143, 90, 36);
+  --sidebar-primary-foreground: rgb(252, 250, 245);
+  --sidebar-accent: rgb(221, 231, 203);
+  --sidebar-accent-foreground: rgb(45, 60, 35);
+  --sidebar-border: rgb(228, 220, 205);
+  --sidebar-ring: rgb(143, 90, 36);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Tryb ciemny - Głęboki, ziemisty brąz/czarny */
+  --background: rgb(28, 25, 23);
+  --foreground: rgb(252, 250, 245);
+  
+  --card: rgb(43, 34, 28);
+  --card-foreground: rgb(252, 250, 245);
+  --popover: rgb(43, 34, 28);
+  --popover-foreground: rgb(252, 250, 245);
+  
+  --primary: rgb(76, 103, 66);
+  --primary-foreground: rgb(252, 250, 245);
+  
+  --secondary: rgb(60, 70, 45);
+  --secondary-foreground: rgb(221, 231, 203);
+  
+  --muted: rgb(50, 45, 40);
+  --muted-foreground: rgb(180, 170, 160);
+  --accent: rgb(65, 55, 45);
+  --accent-foreground: rgb(252, 250, 245);
+  
+  --destructive: rgb(150, 40, 40);
+  --border: rgb(65, 55, 50);
+  --input: rgb(65, 55, 50);
+  --ring: rgb(190, 130, 70);
+
+  /* Wykresy Dark Mode */
+  --chart-1: rgb(190, 130, 70);
+  --chart-2: rgb(120, 140, 80);
+  --chart-3: rgb(160, 120, 90);
+  --chart-4: rgb(200, 160, 100);
+  --chart-5: rgb(140, 100, 80);
+
+  /* Sidebar Dark Mode */
+  --sidebar: rgb(35, 30, 28);
+  --sidebar-foreground: rgb(252, 250, 245);
+  --sidebar-primary: rgb(190, 130, 70);
+  --sidebar-primary-foreground: rgb(28, 25, 23);
+  --sidebar-accent: rgb(60, 70, 45);
+  --sidebar-accent-foreground: rgb(221, 231, 203);
+  --sidebar-border: rgb(65, 55, 50);
+  --sidebar-ring: rgb(190, 130, 70);
 }
 
 @layer base {

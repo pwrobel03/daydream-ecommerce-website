@@ -6,6 +6,7 @@
 export const publicRoutes = [
   "/",
   "/auth/new-verification", // accessed if user is logged in/out but has a verification token
+  "/colors"
 ]
 
 /**

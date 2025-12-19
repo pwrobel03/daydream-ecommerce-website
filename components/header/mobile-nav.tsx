@@ -43,7 +43,7 @@ export const MobileNav = ({ categories }: { categories: Category[] }) => {
           <div className="flex items-center justify-between p-2 px-4 border-b border-secondary">
             <SheetTitle className="text-2xl font-black text-primary italic uppercase tracking-tighter">
               <Link href="/" className="group flex items-center gap-2">
-                <Image src={logo} alt="DayDream Logo" className="h-12 w-auto" />
+                <Image src={logo} alt="DayDream Logo" className="h-16 w-auto" />
               </Link>
             </SheetTitle>
             <SheetClose className="absolute right-4 rounded-full hover:bg-accent transition-colors">
@@ -59,7 +59,7 @@ export const MobileNav = ({ categories }: { categories: Category[] }) => {
                   href={`/category/${cat.slug}`}
                   className="group flex flex-col items-center gap-1"
                 >
-                  <span className="text-xl md:text-3xl font-bold uppercase tracking-[0.2em] text-foreground transition-all group-hover:text-primary group-hover:scale-110">
+                  <span className="text-xl md:text-2xl font-bold uppercase tracking-[0.2em] text-foreground transition-all group-hover:text-primary group-hover:scale-110">
                     {cat.name}
                   </span>
                   {/* Subtelna linia pod nazwą pojawiająca się przy hoverze */}

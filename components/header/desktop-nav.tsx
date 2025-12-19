@@ -18,18 +18,18 @@ interface Category {
 
 export function DesktopNav({ categories }: { categories: Category[] }) {
   // Tutaj ustawiamy limit - ile kategorii widać od razu
-  const limit = 4;
+  const limit = 3;
   const visibleCategories = categories.slice(0, limit);
   const hiddenCategories = categories.slice(limit);
 
   return (
-    <nav className="hidden xl:flex items-center gap-8">
+    <nav className="hidden lg:flex items-center gap-8">
       {/* Kategorie widoczne na sztywno */}
       {visibleCategories.map((cat) => (
         <Link
           key={cat.id}
           href={`/category/${cat.slug}`}
-          className="text-sm font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary whitespace-nowrap"
+          className="text-md font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary whitespace-nowrap"
         >
           {cat.name}
         </Link>
@@ -38,8 +38,8 @@ export function DesktopNav({ categories }: { categories: Category[] }) {
       {/* Menu "Więcej" tylko gdy są dodatkowe kategorie */}
       {hiddenCategories.length > 0 && (
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-bold uppercase tracking-widest text-muted-foreground hover:text-primary outline-none cursor-pointer">
-            Więcej <ChevronDown className="h-4 w-4" />
+          <DropdownMenuTrigger className="flex items-center gap-1 text-md font-bold uppercase tracking-widest text-muted-foreground hover:text-primary outline-none cursor-pointer">
+            More <ChevronDown className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="start"
@@ -49,7 +49,7 @@ export function DesktopNav({ categories }: { categories: Category[] }) {
               <DropdownMenuItem key={cat.id} asChild>
                 <Link
                   href={`/category/${cat.slug}`}
-                  className="w-full cursor-pointer px-2 py-2 text-xs font-bold uppercase tracking-tight hover:text-primary"
+                  className="w-full cursor-pointer px-2 py-2 text-sm font-bold uppercase tracking-tight hover:text-primary"
                 >
                   {cat.name}
                 </Link>

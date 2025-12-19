@@ -4,8 +4,9 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
-import Header from "@/components/Header";
-import { ThemeProvider } from "@/components/theme-provider"; // importuj swój nowy provider
+import Header from "@/components/header/Header";
+import { ThemeProvider } from "@/components/header/theme-provider"; // importuj swój nowy provider
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +47,7 @@ export default async function RootLayout({
             <Header />
             {/* Owijamy children w tag main, aby poprawnie zarządzać przestrzenią */}
             <main className="flex-1">{children}</main>
+            <Footer />
           </ThemeProvider>
         </body>
       </html>

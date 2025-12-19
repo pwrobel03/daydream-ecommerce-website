@@ -6,8 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect } from "react";
 import { newVerification } from "@/actions/new-verification";
 import { useState } from "react";
-import { FormError } from "../form-error";
-import { FormSuccess } from "../form-success";
+import { FormError } from "./form-error";
+import { FormSuccess } from "./form-success";
 
 // New verification form component
 const NewVerificationForm = () => {

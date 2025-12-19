@@ -10,25 +10,12 @@ const font = Poppins({
 
 export default function Home() {
   return (
-    <main className="flex h-full flex-col items-center justify-center">
-      <div className="spacy-y-6 text-center gap-4 flex flex-col">
-        <h1
-          className={cn(
-            "text-6xl font-semibold drop-shadow-md",
-            font.className
-          )}
-        >
-          🔐 Auth
-        </h1>
-        <p className="text-lg">A simple authentication service.</p>
-        <div>
-          <LoginButton mode="modal" asChild>
-            <Button variant="secondary" size="lg">
-              Sign in
-            </Button>
-          </LoginButton>
-        </div>
+    <div className="bg-card border p-4 rounded-2xl hoverEffect cursor-pointer">
+      <div className="aspect-square bg-accent rounded-xl mb-4">
+        {/* Miejsce na zdjęcie Granoli */}
       </div>
-    </main>
+      <h3 className="font-bold text-lg">Granola Orzechowa</h3>
+      <p className="text-primary font-bold">24.90 zł</p>
+    </div>
   );
 }

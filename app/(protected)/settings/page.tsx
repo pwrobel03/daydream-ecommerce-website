@@ -19,8 +19,8 @@ import {
   FormDescription,
   FormMessage,
 } from "@/components/ui/form";
-import { FormError } from "@/components/form-error";
-import { FormSuccess } from "@/components/form-success";
+import { FormError } from "@/components/auth/form-error";
+import { FormSuccess } from "@/components/auth/form-success";
 import { Input } from "@/components/ui/input";
 // TODO: now it working weird, need to fix that
 // on redirect user data didn;t show imediately after login

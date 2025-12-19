@@ -15,8 +15,8 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { FormError } from "../form-error";
-import { FormSuccess } from "../form-success";
+import { FormError } from "./form-error";
+import { FormSuccess } from "./form-success";
 import { resetPassword } from "@/actions/reset";
 export const ResetForm = () => {
   // form state

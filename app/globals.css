@@ -160,3 +160,28 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Twój dedykowany efekt hover - zróbmy go w stylu "Organic & Soft" */
+.hoverEffect {
+    /* transition-all musi mieć zdefiniowany czas, aby nie "skakało" */
+    @apply transition-all duration-300 ease-out;
+    
+    /* Stan spoczynku - opcjonalnie lekki cień, by odróżnić od tła */
+    @apply shadow-sm;
+  }
+
+  .hoverEffect:hover {
+    /* Wyraźniejsze powiększenie (1.02 -> 1.04) */
+    @apply scale-[1.02] -translate-y-1;
+    
+    /* Mocniejszy, widoczny cień (zmień /5 na /15 lub /20) */
+    @apply shadow-xl shadow-accent/20;
+    
+    /* Zmiana koloru obramowania na brązowy przy najechaniu */
+    @apply border-accent/30;
+  }
+
+  .hoverEffect:active {
+    /* Efekt "wciśnięcia" przy kliknięciu */
+    @apply scale-95 duration-100;
+  }

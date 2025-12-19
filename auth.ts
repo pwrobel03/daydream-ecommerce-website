@@ -8,6 +8,8 @@ import { LoginSchema } from "./schemas"
 import { getUserByEmail } from "./data/user"
 import { getUserById } from "./data/user"
 import bcrypt from "bcrypt" // or bcryptjs if you installed that
+import { getAccountByUserId } from "./data/account"
+import { log } from "console"
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   //TODO: sign in with credentials
@@ -32,7 +34,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       // For credentials provider, check if email is verified
       const existingUser = await getUserById(user.id)
       if (existingUser && !existingUser.emailVerified) return false // Block sign-in if email not verified
-      // TODO: add 2FA check here in future
       return true
     },
     async session({ session, token }) {
@@ -43,13 +44,38 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (token.role && session.user) {
         session.user.role = token.role
       }
+
+      if (session.user && token.name) {
+        session.user.name = token.name
+      }
+
+      if (session.user && token.email) {
+        session.user.email = token.email
+      }
+
+      if (session.user) {
+        console.log(token);
+        session.user.isOAuth = token.isOAuth as boolean
+      }
       return session
     },
-    async jwt({ token }) {
+    async jwt({ token, trigger, session}) {
       if (!token.sub) return token
+
+      if (trigger === "update" && session) {
+        return { ...token, ...session };
+      }
+
       const existingUser = await getUserById(token.sub)
       if (!existingUser) return token
+
+      const existingAccount = await getAccountByUserId(existingUser.id)
+
+
+      token.name = existingUser.name
+      token.email = existingUser.email
       token.role = existingUser.role
+      token.isOAuth = !!existingAccount
       return token
     }
   },

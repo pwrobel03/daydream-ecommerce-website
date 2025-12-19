@@ -3,7 +3,7 @@ import { CardWrapper } from "./card-wrapper";
 import { useForm } from "react-hook-form";
 import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import * as z from "zod";
 import { LoginSchema } from "@/schemas";
 import {
@@ -21,6 +21,9 @@ import { FormSuccess } from "../form-success";
 import { login } from "@/actions/login";
 import Link from "next/link";
 import { Link as LinkIcon } from "lucide-react";
+import { signIn } from "next-auth/react";
+import Router from "next/router";
+
 export const LoginForm = () => {
   // error from url params
   const searchParams = useSearchParams();
@@ -44,13 +47,31 @@ export const LoginForm = () => {
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setError("");
     setSuccess("");
-    startTransition(() => {
-      login(values).then((data) => {
+
+    startTransition(async () => {
+      const data = await login(values);
+
+      if (data?.error) {
         setError(data.error);
-        setSuccess(data.success);
-      });
+        return;
+      }
+
+      if (data?.success) {
+        const result = await signIn("credentials", {
+          email: values.email,
+          password: values.password,
+          redirect: false, // Zmieniamy na false, żeby otrzymać wynik w 'result'
+        });
+
+        if (result?.error) {
+          setError("Invalid credentials!");
+        } else {
+          redirect("/settings");
+        }
+      }
     });
   };
+
   return (
     <CardWrapper
       headerLabel="Welcome back"

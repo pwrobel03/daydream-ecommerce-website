@@ -2,19 +2,7 @@ import { MdFavoriteBorder } from "react-icons/md";
 import { FaRegEye } from "react-icons/fa";
 import { TbArrowsRightLeft } from "react-icons/tb";
 import { RiShoppingBag4Line } from "react-icons/ri";
-
-export interface ProductType {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  promoPrice?: number;
-  stock: number;
-  weight: string | null;
-  status?: string | null;
-  images: { url: string }[];
-  ingredients: { id: string; name: string; image: string | null }[];
-}
+import { ProductType } from "@/types/product";
 
 interface ProductCartBarProps {
   product: ProductType;

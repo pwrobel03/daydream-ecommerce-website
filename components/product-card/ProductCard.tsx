@@ -7,7 +7,8 @@ import ProductCartBar from "./ProductCartBar";
 import PriceView from "./PriceView";
 import { is } from "zod/v4/locales";
 import { LuStar } from "react-icons/lu";
-import { ProductType } from "./ProductCartBar";
+import { ProductType } from "@/types/product";
+import AddToCartButton from "./AddToCartButton";
 
 interface ProductCardProps {
   product: ProductType;
@@ -95,6 +96,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           />
           <p className="semibold">{product.weight}</p>
         </div>
+        <AddToCartButton product={product} />
       </div>
       {/* description */}
     </div>

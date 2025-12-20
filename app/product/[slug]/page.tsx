@@ -1,10 +1,13 @@
-"use server";
-import { getProductBySlug } from "@/lib/db-products";
-import { notFound } from "next/navigation";
-import Container from "@/components/Container";
-import ProductGallery from "@/components/product/product-gallery";
-import ProductDetails from "@/components/product/product-details";
+// app/product/[slug]/page.tsx
+
 import ReviewsSection from "@/components/product/reviews-section";
+import Image from "next/image";
+import Container from "@/components/Container";
+import ProductDetails from "@/components/product/product-details";
+import ProductGallery from "@/components/product/product-gallery";
+import ProductHero from "@/components/product/product-hero";
+import { notFound } from "next/navigation";
+import { getProductBySlug } from "@/lib/db-products";
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { slug } = await params;
@@ -25,24 +28,33 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
 
-  if (!product) {
-    return <>No product</>;
-  }
+  if (!product) notFound();
 
   return (
-    <Container className="py-8 sm:py-12">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Lewa: Galeria zdjęć */}
-        <ProductGallery images={product.images} />
+    <main className="relative min-h-screen overflow-hidden">
+      {/* BACKGROUND DECORATION - Dynamiczny tekst w tle */}
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 select-none pointer-events-none">
+        <h1 className="text-[20vw] font-black text-black/[0.03] dark:text-white/[0.02] leading-none uppercase italic">
+          {product.name.split(" ")[0]}
+        </h1>
+      </div>
 
-        {/* Prawa: Informacje i przyciski */}
+      <Container className="relative z-10 pt-12 pb-24">
+        <div className="grid grid-cols-12 gap-4 lg:gap-16">
+          {/* GALERIA - Lewa strona (7 kolumn) */}
+          <div className="col-span-12 lg:col-span-7 self-start lg:sticky lg:top-32">
+            <ProductGallery images={product.images} status={product.status} />
+          </div>
+
+          {/* INFO - Prawa strona (5 kolumn) */}
+          <div className="col-span-12 lg:col-span-5 flex flex-col justify-center">
+            <ProductHero product={product} />
+          </div>
+        </div>
         <ProductDetails product={product} />
-      </div>
-
-      {/* Dół: Składniki i Opinie */}
-      <div className="mt-16 space-y-16">
-        <ReviewsSection reviews={product.reviews} productId={product.id} />
-      </div>
-    </Container>
+        {/* SEKCJA SKŁADNIKÓW - Bento Grid Style */}
+        <ReviewsSection reviews={product.reviews} />
+      </Container>
+    </main>
   );
 }

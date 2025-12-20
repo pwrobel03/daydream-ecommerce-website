@@ -185,6 +185,7 @@ body {
     /* Efekt "wciśnięcia" przy kliknięciu */
     @apply scale-95 duration-100;
   }
+  
 @layer components {
   .glass-layer {
     /* Rozmycie jest STAŁE, nie animujemy go */

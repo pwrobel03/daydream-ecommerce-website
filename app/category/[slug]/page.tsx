@@ -2,7 +2,9 @@
 import { notFound } from "next/navigation";
 import { getCategoryWithProducts } from "@/lib/db-products";
 // Importuj Twój komponent ProductCard, jeśli już go masz
-import { ProductCard } from "@/components/ProductCard";
+import ProductCard from "@/components/product-card/ProductCard";
+
+import { ProductType } from "@/components/product-card/ProductCartBar";
 
 export default async function CategoryPage({
   params,
@@ -20,7 +22,7 @@ export default async function CategoryPage({
 
   return (
     <main className="min-h-screen bg-background pb-20">
-      <header className="max-w-7xl mx-auto px-6 pt-32 pb-16">
+      <header className="max-w-7xl mx-auto px-6 pt-12 pb-12">
         <div className="max-w-2xl">
           <span className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">
             DayDream World
@@ -38,7 +40,7 @@ export default async function CategoryPage({
       <section className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {category.products.length > 0 ? (
-            category.products.map((product) => (
+            category.products.map((product: ProductType) => (
               /* Tu wstawimy naszą kartę produktu "bilet" */
               <ProductCard key={product.id} product={product} />
             ))

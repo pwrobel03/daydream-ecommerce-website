@@ -8,15 +8,16 @@ export const getCategoryWithProducts = async (slug: string) => {
       include: {
         products: {
           include: {
-            images: true, // get all photos of products
-            ingredients: true, // get all ingredients
+            images: true,
+            ingredients: true,
           },
         },
-        children: true, // get the category of the products
       },
     });
 
-    return category;
+    if (!category) return null;
+    return JSON.parse(JSON.stringify(category));
+    
   } catch (error) {
     console.error("Error fetching category products:", error);
     return null;

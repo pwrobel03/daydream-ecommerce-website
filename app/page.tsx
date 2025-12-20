@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { LoginButton } from "@/components/auth/login-button";
 import DiscountBanner from "@/components/discount-banner";
 import Container from "@/components/Container";
+import { CategorySection } from "@/components/category-section";
+import { getMainCategories } from "@/lib/db-categories";
 
 const font = Poppins({
   subsets: ["latin"],
@@ -14,6 +16,7 @@ import { getAllSales } from "@/lib/db-sales";
 
 export default async function Home() {
   const sales = await getAllSales();
+  const categories = await getMainCategories();
 
   if (sales.length === 0) return null;
   return (
@@ -25,7 +28,8 @@ export default async function Home() {
     //   <p className="text-primary font-bold">24.90 zł</p>
     // </div>
     <Container>
-      <DiscountBanner sales={sales} />
+      {sales && <DiscountBanner sales={sales} />}
+      {categories && <CategorySection categories={categories} />}
     </Container>
   );
 }

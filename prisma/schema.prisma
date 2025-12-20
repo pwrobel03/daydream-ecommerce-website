@@ -74,3 +74,49 @@ model Sale {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  image       String?   // category picture
+  description String?
+  
+  // LOGIC OF subCategories (Self-relation):
+  parentId    String?
+  parent      Category?  @relation("CategoryToSub", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children    Category[] @relation("CategoryToSub")
+
+  products    Product[]
+  createdAt   DateTime   @default(now())
+}
+
+model Ingredient {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  image     String?   // picture of ingredient
+  products  Product[] // relation many to many with products
+}
+
+model Product {
+  id             String         @id @default(cuid())
+  name           String
+  slug           String         @unique
+  description    String?
+  price          Decimal
+  weight         String?
+  stock          Int            @default(0)
+  
+  images         ProductImage[]
+  categories     Category[]
+  ingredients    Ingredient[]
+  
+  createdAt      DateTime       @default(now())
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  url       String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}

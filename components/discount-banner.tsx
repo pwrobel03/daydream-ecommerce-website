@@ -5,7 +5,6 @@ import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { Sparkles, ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -63,7 +62,7 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
 
               {/* TREŚĆ: SZKLANY PANEL NACHODZĄCY NA OBRAZ */}
               <div className="relative z-10 h-full w-full flex items-stretch">
-                <div className="w-full md:w-[50%] lg:w-[45%] p-8 md:p-16 flex flex-col justify-center bg-background/60 backdrop-blur-xl border-r border-white/20 shadow-2xl">
+                <div className="w-full md:w-[50%] lg:w-[45%] p-8 md:p-16 flex flex-col justify-center bg-background/60 backdrop-blur-xs border-r border-white/20 shadow-2xl">
                   <div className="space-y-6">
                     <Badge
                       variant="outline"

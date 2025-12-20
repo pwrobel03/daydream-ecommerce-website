@@ -16,10 +16,8 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   // product.stock = 0;
+  console.log(product);
   const isStock = product.stock !== 0;
-  product.status = "New";
-  product.promoPrice = 12.3;
-
   return (
     <div className="border border-border rounded-lg overflow-hidden group text-sm">
       <div className="overflow-hidden relative">

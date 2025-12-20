@@ -18,7 +18,7 @@ export default async function Home() {
   const sales = await getAllSales();
   const categories = await getMainCategories();
 
-  if (sales.length === 0) return null;
+
   return (
     // <div className="bg-card border p-4 rounded-2xl hoverEffect cursor-pointer">
     //   <div className="aspect-square bg-accent rounded-xl mb-4">

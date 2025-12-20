@@ -10,6 +10,16 @@ export const getCategoryWithProducts = async (slug: string) => {
           include: {
             images: true,
             ingredients: true,
+            reviews: {
+              include: {
+                user: {
+                  select: {
+                    name: true,
+                    image: true,
+                  }
+                }
+              }
+            }
           },
         },
       },

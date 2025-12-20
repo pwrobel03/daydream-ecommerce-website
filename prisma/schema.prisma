@@ -20,8 +20,9 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  role          UserRole @default(USER)
+  role          UserRole  @default(USER)
   accounts      Account[]
+  reviews       Review[]  // Relacja: Użytkownik ma wiele recenzji
 }
 
 model Account {
@@ -98,20 +99,48 @@ model Ingredient {
   products  Product[] // relation many to many with products
 }
 
+model Status {
+  id       String    @id @default(cuid())
+  name     String    @unique // np. "Nowość", "Bestseller"
+  slug     String    @unique // np. "new", "hot"
+  color    String?   @default("#000000") // Kod HEX dla frontendu
+  products Product[]
+  
+  createdAt DateTime @default(now())
+}
+
 model Product {
-  id             String         @id @default(cuid())
-  name           String
-  slug           String         @unique
-  description    String?
-  price          Decimal
-  weight         String?
-  stock          Int            @default(0)
+  id          String         @id @default(cuid())
+  name        String
+  slug        String         @unique
+  description String?
+  price       Decimal
+  promoPrice  Decimal?
+  statusId    String?
+  status      Status?        @relation(fields: [statusId], references: [id], onDelete: SetNull)
+  weight      String?
+  stock       Int            @default(0)
   
-  images         ProductImage[]
-  categories     Category[]
-  ingredients    Ingredient[]
+  images      ProductImage[]
+  categories  Category[]
+  ingredients Ingredient[]
+  reviews     Review[]       // Relacja: Produkt ma wiele recenzji
   
-  createdAt      DateTime       @default(now())
+  createdAt   DateTime       @default(now())
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  rating    Int      @default(5) // Ocena 1-5
+  userId    String
+  productId String
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ProductImage {

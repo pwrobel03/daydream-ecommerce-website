@@ -12,11 +12,12 @@ import AddToCartButton from "./AddToCartButton";
 
 interface ProductCardProps {
   product: ProductType;
+  categoryName: string;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, categoryName }: ProductCardProps) => {
   // product.stock = 0;
-  console.log(product);
+  // console.log(product, categoryName);
   const isStock = product.stock !== 0;
   return (
     <div className="border border-border rounded-lg overflow-hidden group text-sm">
@@ -44,9 +45,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
         )}
         {/* Possible product status now moderate handle */}
-        {product.status && isStock && (
+        {product.status && product.status.name && isStock && (
           <div className="absolute top-2 left-2 flex flex-col gap-1">
-            {product.status.split("").map((char, index) => (
+            {product.status.name.split("").map((char, index) => (
               <span
                 key={index}
                 className="font-extrabold text-xl rounded-full capitalize text-center group-hover:opacity-0 transition-opacity duration-300"
@@ -69,7 +70,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       </div>
       <div className="p-5 bg-border flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <p>Snacks</p>
+          <p>{categoryName}</p>
           <div className="text-lightText flex items-center gap-1">
             {Array.from({ length: 5 }).map((_, index) => {
               const isLastStar = index === 4;
@@ -89,7 +90,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <div className="flex flex-row justify-between items-center">
           <PriceView
             price={product.price}
-            discount={product.promoPrice}
+            discount={product.promoPrice ?? undefined}
             className="text-primary"
           />
           <p className="semibold">{product.weight}</p>

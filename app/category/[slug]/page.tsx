@@ -41,7 +41,11 @@ export default async function CategoryPage({
           {category.products.length > 0 ? (
             category.products.map((product: ProductType) => (
               /* Tu wstawimy naszą kartę produktu "bilet" */
-              <ProductCard key={product.id} product={product} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                categoryName={category.name}
+              />
             ))
           ) : (
             <div className="col-span-full py-20 text-center border-2 border-dashed border-accent/20 rounded-[3rem]">

@@ -34,3 +34,27 @@ export const getCategoryWithProducts = async (slug: string) => {
     return null;
   }
 };
+
+export const getProductBySlug = async (slug: string) => {
+  try {
+    const product = await db.product.findUnique({
+      where: { slug },
+      include: {
+        images: true,
+        ingredients: true,
+        status: true,
+        reviews: {
+          include: {
+            user: { select: { name: true, image: true } }
+          },
+          orderBy: { createdAt: "desc" }
+        }
+      }
+    });
+
+    if (!product) return null;
+    return JSON.parse(JSON.stringify(product));
+  } catch (error) {
+    return null;
+  }
+};

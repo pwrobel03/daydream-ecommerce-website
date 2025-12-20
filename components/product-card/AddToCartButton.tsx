@@ -4,7 +4,7 @@ import { ProductType } from "@/types/product";
 import React from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import PriceFormatter from "./PriceFormatter";
 import QuantityButtons from "./QuantityButtons";
@@ -20,76 +20,57 @@ const AddToCartButton = ({
   const { addItem, getItemCount, isMounted } = useCart();
   const itemCount = isMounted ? getItemCount(product.id) : 0;
 
-  // LOGIKA CENOWA
-  const hasPromo =
-    product.promoPrice !== null && product.promoPrice !== undefined;
-  const currentPrice = hasPromo
+  const currentPrice = product.promoPrice
     ? Number(product.promoPrice)
     : Number(product.price);
-
-  // Kalkulacja sumy dla tej linii (ilość * cena aktualna)
   const lineSubtotal = currentPrice * itemCount;
-
-  // Kalkulacja sumy "starej" (ilość * cena bazowa) - tylko jeśli jest promocja
-  const lineBaseTotal = Number(product.price) * itemCount;
 
   const handleAddToCart = () => {
     addItem(product);
-    toast.success(`Added ${product.name} to cart`);
+    toast.success(`Added ${product.name} to cart`, {
+      style: { borderRadius: "20px", fontWeight: "bold" },
+    });
   };
 
   return (
-    <div
-      className={cn("w-full, min-h-26 flex flex-col justify-center", className)}
-    >
+    <div className={cn("w-full transition-all duration-500", className)}>
       {itemCount === 0 ? (
         <Button
-          className="w-full bg-primary/40 border-2 border-primary hover:bg-primary text-foreground hover:text-white transition-all duration-300 font-bold capitalize"
+          className="w-full h-14 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-primary dark:hover:bg-primary hover:text-white transition-all duration-500 group overflow-hidden shadow-xl shadow-black/5"
           onClick={handleAddToCart}
           disabled={product.stock === 0 || !isMounted}
         >
-          <ShoppingCart className="w-4 h-4 mr-2" />
-          add to cart
+          <div className="relative z-10 flex items-center justify-center gap-3 font-black uppercase italic tracking-tighter text-lg">
+            <ShoppingBag className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+            <span>Grab the dream</span>
+          </div>
         </Button>
       ) : (
-        <div className="text-sm p-3 bg-card/30 rounded-md animate-in fade-in slide-in-from-bottom-2 overflow-hidden">
-          {/* SEKCJA ILOŚCI */}
-          <div className="flex items-center justify-between pb-2">
-            <span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">
-              Quantity
+        <div className="bg-white dark:bg-zinc-900/50 backdrop-blur-xl border border-black/5 dark:border-white/5 rounded-[2.5rem] p-4 shadow-2xl animate-in zoom-in-95 duration-500">
+          {/* NAGŁÓWEK SEKCJI (Mini Editorial Style) */}
+          <div className="flex items-center justify-between mb-4 px-2">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary italic">
+              In your dream
             </span>
             <QuantityButtons product={product} />
           </div>
 
-          {/* SEKCJA PODSUMOWANIA LINII */}
-          <div className="flex flex-col border-t border-foreground/50 gap-1">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] self-end uppercase font-black tracking-widest">
-                Sub Total
-              </span>
+          {/* PODSUMOWANIE CENY */}
+          <div className="pt-3 border-t border-black/5 dark:border-white/10 flex items-center justify-between px-2">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
+              Subtotal
+            </span>
 
-              <div className="flex flex-col items-end pt-1">
-                {/* Cena Bazowa (Przekreślona) - pokazujemy tylko przy promocji */}
-                {hasPromo && (
-                  <div className="text-[10px] text-muted-foreground line-through decoration-primary/50">
-                    <PriceFormatter amount={lineBaseTotal} />
-                  </div>
-                )}
-
-                {/* Cena Faktyczna (Subtotal) */}
-                <div className="font-black italic text-lg leading-none text-primary">
-                  <PriceFormatter amount={lineSubtotal} />
+            <div className="text-right">
+              {product.promoPrice && (
+                <div className="text-[10px] text-muted-foreground line-through opacity-50 font-light">
+                  <PriceFormatter amount={Number(product.price) * itemCount} />
                 </div>
+              )}
+              <div className="text-2xl font-black italic tracking-tighter text-zinc-900 dark:text-white">
+                <PriceFormatter amount={lineSubtotal} />
               </div>
             </div>
-
-            {/* Informacja o oszczędności (opcjonalnie) */}
-            {/* {hasPromo && (
-              <div className="text-[9px] text-right font-bold text-emerald-600 uppercase">
-                You save:{" "}
-                <PriceFormatter amount={lineBaseTotal - lineSubtotal} />
-              </div>
-            )} */}
           </div>
         </div>
       )}

@@ -1,97 +1,71 @@
 "use client";
 
 import React from "react";
-import { HiMinus, HiPlus } from "react-icons/hi2";
-import { twMerge } from "tailwind-merge";
+import { Plus, Minus } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { ProductType } from "@/types/product";
 import { useCart } from "@/hooks/use-cart";
+import { cn } from "@/lib/utils";
 
-interface Props {
-  product: ProductType;
-  className?: string;
-  borderStyle?: string;
-}
-
-const QuantityButtons = ({ product, className, borderStyle }: Props) => {
+const QuantityButtons = ({ product }: { product: ProductType }) => {
   const { addItem, removeItem, getItemCount, isMounted } = useCart();
-
   const itemCount = isMounted ? getItemCount(product?.id) : 0;
-  const stockLimit = product?.stock ?? 0;
-  const isAtLimit = itemCount >= stockLimit;
+  const isAtLimit = itemCount >= (product?.stock ?? 0);
 
   const handleIncrease = () => {
-    // KLUCZOWA ZMIANA: Zamiast disabled w buttonie, obsługujemy limit tutaj
     if (isAtLimit) {
-      toast.error(`Limit reached: Only ${stockLimit} units available`, {
-        description: "We don't have more of this item in our daydream storage.",
-        duration: 2000,
+      toast.error("Daydream Storage Limit Reached", {
+        description: "We're holding the last units for you.",
       });
       return;
     }
-
+    toast.success("Quantity increased");
     addItem(product);
-    toast.success("Quantity increased!");
-  };
-
-  const handleDecrease = () => {
-    if (itemCount === 0) return;
-
-    removeItem(product?.id);
-    if (itemCount > 1) {
-      toast.success("Quantity decreased");
-    } else {
-      toast.success("Removed from cart");
-    }
   };
 
   return (
-    <div className={twMerge("flex items-center gap-1", borderStyle, className)}>
-      {isAtLimit && (
-        <span className="text-[8px] uppercase font-bold text-destructive flex justify-center items-center">
-          Limit reached
-        </span>
-      )}
-      {/* PRZYCISK MINUS */}
+    <div className="flex items-center p-1 rounded-full border ">
+      {/* MINUS */}
       <Button
-        variant="outline"
+        variant="ghost"
         size="icon"
-        className="w-6 h-6"
-        onClick={handleDecrease}
+        className="h-8 w-8 rounded-full hover:bg-white dark:hover:bg-zinc-800 hover:shadow-sm transition-all text-zinc-500 hover:text-primary"
+        onClick={() => {
+          removeItem(product.id);
+          toast.success("Quantity decreased");
+        }}
         disabled={itemCount === 0 || !isMounted}
       >
-        <HiMinus className="w-3 h-3" />
+        <Minus className="w-3 h-3" />
       </Button>
 
       {/* LICZNIK */}
-      <div className="flex flex-col items-center min-w-8 select-none">
+      <div className="px-3 min-w-[2.5rem] flex flex-col items-center">
         <span
-          className={twMerge(
-            "font-bold text-sm leading-none transition-colors",
-            isAtLimit ? "text-destructive" : "text-foreground"
+          className={cn(
+            "text-sm font-black italic transition-colors",
+            isAtLimit ? "text-primary" : "text-zinc-900 dark:text-white"
           )}
         >
           {itemCount}
         </span>
       </div>
 
-      {/* PRZYCISK PLUS (Zmieniony) */}
+      {/* PLUS */}
       <Button
-        variant="outline"
+        variant="ghost"
         size="icon"
-        // Nie używamy atrybutu 'disabled', aby onClick mógł odpalić toast
-        className={twMerge(
-          "w-6 h-6 transition-all",
-          isAtLimit &&
-            "opacity-50 cursor-not-allowed bg-secondary/50 border-destructive"
+        className={cn(
+          "h-8 w-8 rounded-full transition-all text-zinc-500 hover:text-primary",
+          isAtLimit
+            ? "opacity-30 cursor-not-allowed"
+            : "hover:bg-white dark:hover:bg-zinc-800 hover:shadow-sm"
         )}
         onClick={handleIncrease}
-        disabled={!isMounted} // Wyłączony tylko gdy system nie jest gotowy
+        disabled={!isMounted}
       >
-        <HiPlus
-          className={twMerge("w-3 h-3", isAtLimit && "text-destructive")}
-        />
+        <Plus className="w-3 h-3" />
       </Button>
     </div>
   );

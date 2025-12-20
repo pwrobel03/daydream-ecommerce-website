@@ -4,6 +4,8 @@ import { getCategoryWithProducts } from "@/lib/db-products";
 // Importuj Twój komponent ProductCard, jeśli już go masz
 import ProductCard from "@/components/product-card/ProductCard";
 
+import SubTitle from "@/components/sub-title";
+
 import { ProductType } from "@/types/product";
 export default async function CategoryPage({
   params,
@@ -23,9 +25,7 @@ export default async function CategoryPage({
     <main className="min-h-screen bg-background pb-20">
       <header className="max-w-7xl mx-auto px-6 pt-12 pb-12">
         <div className="max-w-2xl">
-          <span className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4 block">
-            DayDream World
-          </span>
+          <SubTitle text="daydream world" className="uppercase font-bold" />
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-6">
             {category.name}
           </h1>

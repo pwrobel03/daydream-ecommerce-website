@@ -1,9 +1,12 @@
+"use client";
+
 import React from "react";
 import { HiMinus, HiPlus } from "react-icons/hi2";
 import { twMerge } from "tailwind-merge";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { ProductType } from "@/types/product";
+import { useCart } from "@/hooks/use-cart";
 
 interface Props {
   product: ProductType;
@@ -12,52 +15,83 @@ interface Props {
 }
 
 const QuantityButtons = ({ product, className, borderStyle }: Props) => {
-  // const { addItem, removeItem, getItemCount } = undefined;
-  // const itemCount = getItemCount(product?.id);
-  const isOutOfStock = product?.stock === 0;
-  const itemCount = 5;
-  const addItem = () => {};
-  const removeItem = () => {};
+  const { addItem, removeItem, getItemCount, isMounted } = useCart();
 
-  const handleRemoveProduct = () => {
-    // removeItem(product?.id);
+  const itemCount = isMounted ? getItemCount(product?.id) : 0;
+  const stockLimit = product?.stock ?? 0;
+  const isAtLimit = itemCount >= stockLimit;
+
+  const handleIncrease = () => {
+    // KLUCZOWA ZMIANA: Zamiast disabled w buttonie, obsługujemy limit tutaj
+    if (isAtLimit) {
+      toast.error(`Limit reached: Only ${stockLimit} units available`, {
+        description: "We don't have more of this item in our daydream storage.",
+        duration: 2000,
+      });
+      return;
+    }
+
+    addItem(product);
+    toast.success("Quantity increased!");
+  };
+
+  const handleDecrease = () => {
+    if (itemCount === 0) return;
+
+    removeItem(product?.id);
     if (itemCount > 1) {
-      toast.success("Quantity Decreased successfully!");
+      toast.success("Quantity decreased");
     } else {
-      toast.success(`${product?.name?.substring(0, 12)} removed successfully!`);
+      toast.success("Removed from cart");
     }
   };
+
   return (
-    <div
-      className={twMerge(
-        "flex items-center gap-1 pb-1 text-base",
-        borderStyle,
-        className
+    <div className={twMerge("flex items-center gap-1", borderStyle, className)}>
+      {isAtLimit && (
+        <span className="text-[8px] uppercase font-bold text-destructive flex justify-center items-center">
+          Limit reached
+        </span>
       )}
-    >
+      {/* PRZYCISK MINUS */}
       <Button
         variant="outline"
         size="icon"
         className="w-6 h-6"
-        onClick={handleRemoveProduct}
-        // disabled={itemCount === 0 || isOutOfStock}
+        onClick={handleDecrease}
+        disabled={itemCount === 0 || !isMounted}
       >
-        <HiMinus />
+        <HiMinus className="w-3 h-3" />
       </Button>
-      <span className="font-semibold w-8 text-center text-darkBlue">
-        {itemCount}
-      </span>
+
+      {/* LICZNIK */}
+      <div className="flex flex-col items-center min-w-8 select-none">
+        <span
+          className={twMerge(
+            "font-bold text-sm leading-none transition-colors",
+            isAtLimit ? "text-destructive" : "text-foreground"
+          )}
+        >
+          {itemCount}
+        </span>
+      </div>
+
+      {/* PRZYCISK PLUS (Zmieniony) */}
       <Button
         variant="outline"
         size="icon"
-        className="w-6 h-6"
-        onClick={() => {
-          // addItem(product);
-          toast.success("Quantity increased successfully!");
-        }}
-        disabled={isOutOfStock}
+        // Nie używamy atrybutu 'disabled', aby onClick mógł odpalić toast
+        className={twMerge(
+          "w-6 h-6 transition-all",
+          isAtLimit &&
+            "opacity-50 cursor-not-allowed bg-secondary/50 border-destructive"
+        )}
+        onClick={handleIncrease}
+        disabled={!isMounted} // Wyłączony tylko gdy system nie jest gotowy
       >
-        <HiPlus />
+        <HiPlus
+          className={twMerge("w-3 h-3", isAtLimit && "text-destructive")}
+        />
       </Button>
     </div>
   );

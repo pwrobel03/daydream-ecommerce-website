@@ -4,8 +4,7 @@ import { getCategoryWithProducts } from "@/lib/db-products";
 // Importuj Twój komponent ProductCard, jeśli już go masz
 import ProductCard from "@/components/product-card/ProductCard";
 
-import { ProductType } from "@/components/product-card/ProductCartBar";
-
+import { ProductType } from "@/types/product";
 export default async function CategoryPage({
   params,
 }: {
@@ -38,7 +37,7 @@ export default async function CategoryPage({
       </header>
 
       <section className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
           {category.products.length > 0 ? (
             category.products.map((product: ProductType) => (
               /* Tu wstawimy naszą kartę produktu "bilet" */

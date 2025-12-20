@@ -33,10 +33,10 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
   if (!sales || sales.length === 0) return null;
 
   return (
-    <section className="w-full px-4 md:px-8 mt-6 mb-10">
+    <section className="w-full sm:px-4 md:px-8 mt-20 mb-10">
       <Carousel
         plugins={[plugin.current]}
-        className="w-full max-w-7xl mx-auto relative group overflow-hidden rounded-[2.5rem] shadow-2xl bg-accent/10"
+        className="w-full max-w-7xl mx-auto relative group overflow-hidden rounded-[2.5rem] shadow-2xl bg-card/50"
       >
         <CarouselContent>
           {sales.map((sale) => (
@@ -66,7 +66,7 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
                   <div className="space-y-6">
                     <Badge
                       variant="outline"
-                      className="bg-primary/20 text-primary border-primary/30 px-4 py-1.5 rounded-full uppercase tracking-[0.2em] text-[10px] font-black w-fit backdrop-blur-md"
+                      className="bg-primary/20 text-primary border-primary/30 py-1.5 rounded-full uppercase tracking-[0.2em] text-[10px] font-black w-fit backdrop-blur-md"
                     >
                       <Sparkles className="h-3.5 w-3.5 mr-2" />
                       Limited Time Offer

@@ -1,8 +1,9 @@
+import Container from "@/components/Container";
 const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="h-full flex items-center justify-center bg-slate-700">
+    <Container className="mt-20 flex items-center justify-center">
       {children}
-    </div>
+    </Container>
   );
 };
 

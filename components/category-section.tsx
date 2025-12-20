@@ -23,7 +23,7 @@ export const CategorySection = ({ categories }: { categories: any[] }) => {
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row h-[600px] w-full gap-4 overflow-hidden">
+        <div className="flex flex-col md:flex-row h-150 w-full gap-4 overflow-hidden">
           {categories.map((category, index) => {
             const isActive = activeIndex === index;
             const flexBasis = isActive ? "flex-[5]" : "flex-[0.4]";
@@ -33,7 +33,7 @@ export const CategorySection = ({ categories }: { categories: any[] }) => {
                 key={category.id}
                 href={`/category/${category.slug}`}
                 onMouseEnter={() => setActiveIndex(index)}
-                className={`relative h-full transition-[flex] duration-700 ease-[cubic-bezier(0.4, 0, 0.2, 1)] overflow-hidden rounded-[2.5rem] group ${flexBasis} will-change-[flex]`}
+                className={`relative bg-card/60 h-full transition-[flex] duration-700 ease-[cubic-bezier(0.4, 0, 0.2, 1)] overflow-hidden rounded-[2.5rem] group ${flexBasis} will-change-[flex]`}
               >
                 {/* 1. TŁO: ZDJĘCIE */}
                 {category.image && (

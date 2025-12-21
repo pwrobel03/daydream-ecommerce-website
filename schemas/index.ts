@@ -76,3 +76,11 @@ export const ReviewSchema = z.object({
   rating: z.number().min(1).max(5),
   content: z.string().min(3, "You're story is a little too short..."),
 });
+
+export const categorySchema = z.object({
+  name: z.string().min(2, "Name is too short"),
+  description: z.string().optional(),
+  isSubcategory: z.boolean().default(false),
+  parentId: z.string().optional(),
+  image: z.any().optional(), // Tu trafi plik
+});

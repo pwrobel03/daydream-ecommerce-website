@@ -1,4 +1,5 @@
 // app/product/[slug]/page.tsx
+"use server";
 
 import ReviewsSection from "@/components/product/reviews-section";
 import Image from "next/image";
@@ -29,6 +30,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const product = await getProductBySlug(slug);
 
   if (!product) notFound();
+  console.log(product);
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -53,7 +55,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
         <ProductDetails product={product} />
         {/* SEKCJA SKŁADNIKÓW - Bento Grid Style */}
-        <ReviewsSection reviews={product.reviews} />
+        <ReviewsSection
+          productId={product.id}
+          initialReviews={product.reviews}
+          totalCount={product._count.reviews}
+        />
       </Container>
     </main>
   );

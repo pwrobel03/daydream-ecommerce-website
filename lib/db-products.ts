@@ -44,10 +44,14 @@ export const getProductBySlug = async (slug: string) => {
         ingredients: true,
         status: true,
         reviews: {
-          include: {
-            user: { select: { name: true, image: true } }
-          },
-          orderBy: { createdAt: "desc" }
+          take: 9, 
+          orderBy: { createdAt: 'desc' },
+          include: { 
+              user: { select: { name: true, image: true } }
+           }
+        },
+        _count: {
+          select: { reviews: true }
         }
       }
     });

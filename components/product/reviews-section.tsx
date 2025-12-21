@@ -10,14 +10,18 @@ import { UserType, ReviewType } from "@/types/product";
 
 interface ReviewsSectionProps {
   productId: string;
+  productSlug: string;
   userReview: ReviewType | null;
   initialReviews: ReviewType[];
   totalCount: number;
   user: UserType | null;
 }
 
+import UserReviewCard from "./user-review-card";
+
 export default function ReviewsSection({
   productId,
+  productSlug,
   userReview,
   initialReviews,
   totalCount,
@@ -27,6 +31,7 @@ export default function ReviewsSection({
   const [currentUserReview, setCurrentUserReview] = useState<ReviewType | null>(
     userReview
   );
+  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Bezpieczne obliczanie średniej - używamy useMemo, żeby uniknąć błędów przy pustej liście
@@ -82,7 +87,7 @@ export default function ReviewsSection({
         </div>
       </div>
 
-      <div className="mb-24">
+      {/* <div className="mb-24">
         {user ? (
           currentUserReview ? (
             <div className="animate-in fade-in zoom-in-95 duration-700">
@@ -130,6 +135,32 @@ export default function ReviewsSection({
               Log in to add review
             </p>
           </div>
+        )}
+      </div> */}
+      <div className="mb-24">
+        {user ? (
+          currentUserReview && !isEditing ? (
+            <UserReviewCard
+              review={currentUserReview}
+              productSlug={productSlug}
+              onEdit={() => setIsEditing(true)}
+              onDelete={() => setCurrentUserReview(null)}
+            />
+          ) : (
+            <AddReviewForm
+              productId={productId}
+              productSlug={productSlug}
+              user={user}
+              initialData={isEditing ? currentUserReview : null} // Przekazujemy dane do edycji
+              onSuccess={(newReview) => {
+                setCurrentUserReview(newReview);
+                setIsEditing(false);
+              }}
+              onCancel={isEditing ? () => setIsEditing(false) : undefined}
+            />
+          )
+        ) : (
+          <>Login</>
         )}
       </div>
 

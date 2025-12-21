@@ -60,6 +60,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         {/* SEKCJA SKŁADNIKÓW - Bento Grid Style */}
         <ReviewsSection
           productId={product.id}
+          productSlug={product.slug}
           userReview={product.userReview}
           initialReviews={product.reviews}
           totalCount={product._count.reviews}

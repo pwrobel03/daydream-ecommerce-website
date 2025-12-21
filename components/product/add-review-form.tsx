@@ -1,12 +1,12 @@
 "use client";
 
 import * as z from "zod";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Star, SendHorizontal, Loader2 } from "lucide-react";
+import { Star, SendHorizontal, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
-import { UserType } from "@/types/product";
+import { UserType, ReviewType } from "@/types/product";
 
 import {
   Form,
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { createReview } from "@/actions/create-review";
+import { updateReview } from "@/actions/review-actions"; // Zakładamy, że tu jest akcja update
 
 // Schemat walidacji
 const formSchema = z.object({
@@ -29,58 +30,91 @@ const formSchema = z.object({
 
 interface AddReviewFormProps {
   productId: string;
+  productSlug: string; // Dodane dla rewalidacji w akcji update
   user: UserType;
+  initialData?: ReviewType | null; // Dane do edycji
   onSuccess: (review: any) => void;
+  onCancel?: () => void; // Funkcja do wyjścia z trybu edycji
 }
 
 export default function AddReviewForm({
   productId,
+  productSlug,
   user,
+  initialData,
   onSuccess,
+  onCancel,
 }: AddReviewFormProps) {
   const [isPending, startTransition] = useTransition();
   const [hoverRating, setHoverRating] = useState(0);
 
-  // 1. Inicjalizacja formularza
+  const isEditing = !!initialData;
+
+  // 1. Inicjalizacja formularza z wartościami początkowymi (jeśli edytujemy)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       productId: productId,
       userId: user.id,
-      rating: 0,
-      content: "",
+      rating: initialData?.rating || 0,
+      content: initialData?.content || "",
     },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      // Jeśli wchodzimy w tryb edycji, ładujemy dane
+      form.reset({
+        productId: productId,
+        userId: user.id,
+        rating: initialData.rating,
+        content: initialData.content,
+      });
+    } else {
+      // Jeśli wychodzimy z edycji, czyścimy formularz do wartości domyślnych
+      form.reset({
+        productId: productId,
+        userId: user.id,
+        rating: 0,
+        content: "",
+      });
+    }
+  }, [initialData, form, productId, user.id]);
 
   // 2. Obsługa wysyłki
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     startTransition(async () => {
-      const result = await createReview(values);
+      const result = isEditing
+        ? await updateReview(initialData.id, values, productSlug)
+        : await createReview(values);
+
       if (result.success) {
         toast.success(result.success);
-        // WYWOŁUJEMY AKTUALIZACJĘ UI
         onSuccess({
-          id: Math.random().toString(), // Tymczasowe ID
+          id: isEditing ? initialData.id : Math.random().toString(),
           content: values.content,
           rating: values.rating,
-          createdAt: new Date(),
+          createdAt: isEditing ? initialData.createdAt : new Date(),
           user: {
             name: user.name,
             image: user.image,
           },
         });
 
-        form.reset({
-          ...form.getValues(),
-          content: "",
-          rating: 5,
-        });
-        window.scrollTo({
-          top: document.getElementById("voices-top")?.offsetTop
-            ? document.getElementById("voices-top")!.offsetTop - 100
-            : 0,
-          behavior: "smooth",
-        });
+        if (!isEditing) {
+          form.reset({
+            ...form.getValues(),
+            content: "",
+            rating: 0,
+          });
+
+          window.scrollTo({
+            top: document.getElementById("voices-top")?.offsetTop
+              ? document.getElementById("voices-top")!.offsetTop - 100
+              : 0,
+            behavior: "smooth",
+          });
+        }
       } else {
         toast.error(result.error || "Coś poszło nie tak");
       }
@@ -88,9 +122,24 @@ export default function AddReviewForm({
   };
 
   return (
-    <div className="bg-accent/10 border p-8 md:p-12 rounded-[3rem] shadow-2xl mt-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div
+      className={cn(
+        "bg-accent/10 border p-8 md:p-12 rounded-[3rem] shadow-2xl mt-16 animate-in fade-in slide-in-from-bottom-4 duration-700 relative",
+        isEditing && "border-primary/30 bg-primary/[0.02]"
+      )}
+    >
+      {/* Cancel button only in edit mode */}
+      {isEditing && (
+        <button
+          onClick={onCancel}
+          className="absolute top-8 right-8 p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
+        >
+          <X className="w-6 h-6 opacity-40" />
+        </button>
+      )}
+
       <h3 className="text-3xl font-black italic uppercase tracking-tighter mb-12 text-foreground/80">
-        Share your{" "}
+        {isEditing ? "Refine your" : "Share your"}{" "}
         <span className="text-primary underline decoration-primary/20 underline-offset-8">
           Voice
         </span>
@@ -98,7 +147,7 @@ export default function AddReviewForm({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
-          {/* SEKCJA GWIAZDEK (Integrated FormField) */}
+          {/* SEKCJA GWIAZDEK */}
           <FormField
             control={form.control}
             name="rating"
@@ -121,7 +170,6 @@ export default function AddReviewForm({
                           disabled={isPending}
                           className="relative transition-all duration-500 hover:scale-125 active:scale-90 outline-none disabled:opacity-50"
                         >
-                          {/* Glow effect */}
                           <div
                             className={cn(
                               "absolute inset-0 bg-primary/20 blur-xl rounded-full transition-opacity duration-700",
@@ -146,7 +194,7 @@ export default function AddReviewForm({
             )}
           />
 
-          {/* SEKCJA TEKSTU */}
+          {/* TEXT SECTION */}
           <FormField
             control={form.control}
             name="content"
@@ -168,29 +216,41 @@ export default function AddReviewForm({
             )}
           />
 
-          {/* PRZYCISK WYSYŁANIA */}
-          <button
-            type="submit"
-            disabled={isPending}
-            className="group relative w-full md:w-fit px-16 h-20 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full overflow-hidden transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
-          >
-            {/* Animowane tło przycisku */}
-            <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+          {/* UPDATE BUTTON */}
+          <div className="flex flex-col md:flex-row gap-4">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="group relative w-full md:w-fit px-16 h-20 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full overflow-hidden transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+            >
+              <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
 
-            <div className="relative z-10 flex items-center justify-center gap-4 text-xl font-black uppercase italic tracking-tighter">
-              {isPending ? (
-                <>
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                  <span>Recording...</span>
-                </>
-              ) : (
-                <>
-                  <span>Publish Voice</span>
-                  <SendHorizontal className="h-5 w-5 group-hover:translate-x-3 transition-transform duration-500" />
-                </>
-              )}
-            </div>
-          </button>
+              <div className="relative z-10 flex items-center justify-center gap-4 text-xl font-black uppercase italic tracking-tighter">
+                {isPending ? (
+                  <>
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                    <span>{isEditing ? "Updating..." : "Recording..."}</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{isEditing ? "Update Voice" : "Publish Voice"}</span>
+                    <SendHorizontal className="h-5 w-5 group-hover:translate-x-3 transition-transform duration-500" />
+                  </>
+                )}
+              </div>
+            </button>
+
+            {isEditing && (
+              <button
+                type="button"
+                onClick={onCancel}
+                disabled={isPending}
+                className="px-8 h-20 rounded-full border border-black/10 dark:border-white/10 font-black uppercase italic tracking-widest text-xs hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              >
+                Cancel Edit
+              </button>
+            )}
+          </div>
         </form>
       </Form>
     </div>

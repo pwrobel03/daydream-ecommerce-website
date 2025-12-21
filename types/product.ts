@@ -1,5 +1,12 @@
 // types/product.ts
 
+export interface UserType {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+}
+
 export interface ReviewType {
   id: string;
   content: string;

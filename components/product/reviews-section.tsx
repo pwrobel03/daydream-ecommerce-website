@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import AddReviewForm from "./add-review-form";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { UserType } from "@/types/product";
 
 export default function ReviewsSection({
   productId,
@@ -34,6 +35,11 @@ export default function ReviewsSection({
     setLoading(false);
   };
 
+  // function, initialize after success in form
+  const handleAddOptimisticReview = (newReview: any) => {
+    setReviews((prev) => [newReview, ...prev]);
+  };
+
   return (
     <div className="border-t border-black/5 pt-20 mt-20">
       {/* Nagłówek sekcji */}
@@ -41,7 +47,7 @@ export default function ReviewsSection({
         <h2 className="text-5xl text-foreground/80 font-extrabold italic uppercase">
           Voices
         </h2>
-        <div className="text-right flex flex-col items-end">
+        <div id="voices-top" className="text-right flex flex-col items-end">
           <div className="flex items-center gap-2">
             <Star className="fill-primary text-primary h-6 w-6" />
             <span className="text-3xl font-black">
@@ -96,7 +102,11 @@ export default function ReviewsSection({
       </div>
 
       {user && user.id ? (
-        <AddReviewForm productId={productId} userId={user.id} />
+        <AddReviewForm
+          productId={productId}
+          user={user as UserType}
+          onSuccess={handleAddOptimisticReview}
+        />
       ) : (
         <div className="mt-16 p-12 border-2 border-dashed rounded-[3rem] text-center">
           <p className="italic uppercase tracking-widest text-sm font-bold">

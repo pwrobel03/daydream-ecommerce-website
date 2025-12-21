@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Star, SendHorizontal, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { UserType } from "@/types/product";
 
 import {
   Form,
@@ -28,12 +29,14 @@ const formSchema = z.object({
 
 interface AddReviewFormProps {
   productId: string;
-  userId: string;
+  user: UserType;
+  onSuccess: (review: any) => void;
 }
 
 export default function AddReviewForm({
   productId,
-  userId,
+  user,
+  onSuccess,
 }: AddReviewFormProps) {
   const [isPending, startTransition] = useTransition();
   const [hoverRating, setHoverRating] = useState(0);
@@ -43,7 +46,7 @@ export default function AddReviewForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       productId: productId,
-      userId: userId,
+      userId: user.id,
       rating: 0,
       content: "",
     },
@@ -55,10 +58,28 @@ export default function AddReviewForm({
       const result = await createReview(values);
       if (result.success) {
         toast.success(result.success);
+        // WYWOŁUJEMY AKTUALIZACJĘ UI
+        onSuccess({
+          id: Math.random().toString(), // Tymczasowe ID
+          content: values.content,
+          rating: values.rating,
+          createdAt: new Date(),
+          user: {
+            name: user.name,
+            image: user.image,
+          },
+        });
+
         form.reset({
           ...form.getValues(),
           content: "",
           rating: 5,
+        });
+        window.scrollTo({
+          top: document.getElementById("voices-top")?.offsetTop
+            ? document.getElementById("voices-top")!.offsetTop - 100
+            : 0,
+          behavior: "smooth",
         });
       } else {
         toast.error(result.error || "Coś poszło nie tak");

@@ -42,7 +42,7 @@ export default function ProductDetails({ product }: { product: any }) {
           {product.ingredients.map((ing: any) => (
             <div
               key={ing.id}
-              className="group relative w-40 h-40 bg-card/60 rounded-[2rem] p-4 flex flex-col items-center justify-between border hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.05)]"
+              className="group relative w-40 h-40 bg-accent/20 rounded-[2rem] p-4 flex flex-col items-center justify-between border hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.05)]"
             >
               {/* Delikatny cień/blask pod ikoną składnika */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-primary/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />

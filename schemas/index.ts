@@ -69,3 +69,10 @@ export const SettingsSchema = z.object({
   message: "Password is required",
   path: ["password"]
 })
+
+export const ReviewSchema = z.object({
+  productId: z.string(),
+  userId: z.string(),
+  rating: z.number().min(1).max(5),
+  content: z.string().min(3, "You're story is a little too short..."),
+});

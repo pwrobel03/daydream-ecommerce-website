@@ -5,6 +5,8 @@ import { Star, Plus, Loader2 } from "lucide-react";
 import { getMoreReviews } from "@/actions/get-more-reviews";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import AddReviewForm from "./add-review-form";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 export default function ReviewsSection({
   productId,
@@ -17,7 +19,7 @@ export default function ReviewsSection({
 }) {
   const [reviews, setReviews] = useState(initialReviews);
   const [loading, setLoading] = useState(false);
-
+  const user = useCurrentUser();
   const hasMore = reviews.length < totalCount;
 
   const handleLoadMore = async () => {
@@ -93,17 +95,27 @@ export default function ReviewsSection({
         ))}
       </div>
 
+      {user && user.id ? (
+        <AddReviewForm productId={productId} userId={user.id} />
+      ) : (
+        <div className="mt-16 p-12 border-2 border-dashed rounded-[3rem] text-center">
+          <p className="italic uppercase tracking-widest text-sm font-bold">
+            Log in to add review
+          </p>
+        </div>
+      )}
+
       {/* Load More Button */}
       {hasMore && (
         <div className="mt-24 flex flex-col items-center gap-8">
-          <div className="h-20 w-px bg-gradient-to-b from-border to-transparent" />
+          <div className="h-20 w-px bg-linear-to-b from-border to-transparent" />
 
           <button
             onClick={handleLoadMore}
             disabled={loading}
             className="group flex flex-col items-center gap-4 transition-all active:scale-95"
           >
-            <div className="w-16 h-16 rounded-full border border-black/10 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all duration-500 shadow-xl">
+            <div className="w-16 h-16 rounded-full border flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all duration-500 shadow-xl">
               {loading ? (
                 <Loader2 className="w-6 h-6 animate-spin" />
               ) : (

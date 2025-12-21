@@ -41,13 +41,21 @@ export default function UserReviewCard({
             <span className="px-4 py-1.5 w-fit bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-primary/20">
               Your Voice
             </span>
-            <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest ml-1">
-              {new Date(review.createdAt).toLocaleDateString()}
+            <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest ml-1 gap-4 flex">
+              <span>
+                {new Date(review.updatedAt).toLocaleDateString("pl-PL")}
+              </span>
+              <span>
+                {new Date(review.updatedAt).toLocaleTimeString("pl-PL", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
             </span>
           </div>
 
           {/* AKCJE: Edit & Delete */}
-          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex gap-2 transition-opacity">
             <button
               onClick={onEdit}
               className="p-3 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-primary hover:text-white transition-all"
@@ -57,7 +65,7 @@ export default function UserReviewCard({
             <button
               onClick={handleDelete}
               disabled={isPending}
-              className="p-3 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
+              className="p-3 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-destructive hover:text-white transition-all disabled:opacity-50"
             >
               <Trash2 className="w-4 h-4" />
             </button>

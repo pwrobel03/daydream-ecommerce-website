@@ -4,41 +4,48 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { ReviewSchema } from "@/schemas";
+import { ReviewType } from "@/types/product";
 
+export type CreateReviewResponse = {
+  success?: string;
+  error?: string;
+  review?: ReviewType;
+};
 
-export async function createReview(values: z.infer<typeof ReviewSchema>) {
+export async function createReview(
+  values: z.infer<typeof ReviewSchema>
+): Promise<CreateReviewResponse> {
   const validatedFields = ReviewSchema.safeParse(values);
 
-  if (!validatedFields.success) {
-    return { error: "Invalid fields!" };
-  }
+  if (!validatedFields.success) return { error: "Invalid fields!" };
 
   const { productId, userId, rating, content } = validatedFields.data;
 
   try {
-    // every user can add only one review for each product
     const existingReview = await db.review.findFirst({
-      where: {
-        productId: values.productId,
-        userId: values.userId,
-      },
+      where: { productId, userId },
     });
-    if (existingReview) {
-      return { error: "You already share your story!" };
-    }
 
-    await db.review.create({
-      data: {
-        productId,
-        userId,
-        rating,
-        content,
-      },
+    if (existingReview) return { error: "You already shared your story!" };
+
+    // KLUCZ: Tworzymy i od razu pobieramy z relacją user
+    const newReview = await db.review.create({
+      data: { productId, userId, rating, content },
+      include: {
+        user: {
+          select: { name: true, image: true }
+        }
+      }
     });
 
     revalidatePath(`/product/[slug]`, "page");
-    return { success: "Thanks for sharing your story! Now other users can see it" };
+
+    // Zwracamy czysty obiekt JSON z PRAWDZIWYM ID z bazy
+    return { 
+      success: "Story shared!", 
+      review: JSON.parse(JSON.stringify(newReview)) as ReviewType 
+    };
   } catch (error) {
-    return { error: "Something went wrong! Try again later." };
+    return { error: "Failed to save review." };
   }
 }

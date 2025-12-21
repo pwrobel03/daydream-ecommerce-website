@@ -88,18 +88,9 @@ export default function AddReviewForm({
         ? await updateReview(initialData.id, values, productSlug)
         : await createReview(values);
 
-      if (result.success) {
+      if (result.success && result.review) {
         toast.success(result.success);
-        onSuccess({
-          id: isEditing ? initialData.id : Math.random().toString(),
-          content: values.content,
-          rating: values.rating,
-          createdAt: isEditing ? initialData.createdAt : new Date(),
-          user: {
-            name: user.name,
-            image: user.image,
-          },
-        });
+        onSuccess(result.review);
 
         if (!isEditing) {
           form.reset({

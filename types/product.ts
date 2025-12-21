@@ -11,7 +11,8 @@ export interface ReviewType {
   content: string;
   rating: number;
   userId: string;
-  createdAt: string | Date; // Kluczowa zmiana: akceptujemy oba typy
+  createdAt: string | Date;
+  updatedAt: string | Date;
   user: {
     name: string | null;
     image: string | null;

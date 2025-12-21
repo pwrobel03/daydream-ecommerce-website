@@ -195,6 +195,9 @@ export default function ReviewsSection({
                   ))}
                 </div>
               </div>
+              <p className="ml-auto text-foreground/20">
+                {new Date(rev.updatedAt).toLocaleDateString()}
+              </p>
             </div>
             <p className="text-xl leading-snug font-medium italic">
               "{rev.content}"

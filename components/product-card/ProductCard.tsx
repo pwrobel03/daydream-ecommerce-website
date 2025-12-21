@@ -9,6 +9,7 @@ import { Star } from "lucide-react";
 import { ProductType } from "@/types/product";
 import AddToCartButton from "./AddToCartButton";
 import { cn } from "@/lib/utils";
+import ProductStatusBadge from "@/components/product-status-badge";
 
 interface ProductCardProps {
   product: ProductType;
@@ -19,9 +20,9 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
   const isStock = product.stock !== 0;
 
   return (
-    <div className="group relative flex flex-col bg-card/20 rounded-[2.5rem] border overflow-hidden transition-all duration-700 hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)]">
+    <div className="group relative flex flex-col rounded-[2.5rem] border overflow-hidden transition-all duration-700 hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] bg-card/60">
       {/* MEDIA CONTAINER */}
-      <div className="relative aspect-square overflow-hidden rounded-[2rem]">
+      <div className="relative aspect-square overflow-hidden rounded-[2rem] border-b">
         {product?.images?.length > 0 && (
           <Link
             href={`/product/${product.slug}`}
@@ -41,7 +42,7 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
 
         {/* OUT OF STOCK OVERLAY */}
         {!isStock && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center p-6 text-center rounded-[2rem]">
             <span className="text-white text-2xl font-black uppercase italic tracking-tighter leading-none border-y border-white/20 py-4">
               Sold Out
             </span>
@@ -50,13 +51,11 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
 
         {/* LUXURY STATUS BADGE */}
         {product.status && isStock && (
-          <div
-            style={{ backgroundColor: product.status.color || "" }}
-            className="absolute top-4 left-4 px-4 py-1.5 rounded-full shadow-lg"
-          >
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">
-              {product.status.name}
-            </span>
+          <div className="absolute top-4 left-4 opacity-80">
+            <ProductStatusBadge
+              name={product.status.name}
+              color={product.status.color || ""}
+            />
           </div>
         )}
 

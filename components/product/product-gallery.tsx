@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import ProductStatusBadge from "../product-status-badge";
 
 export default function ProductGallery({
   images,
@@ -58,8 +59,12 @@ export default function ProductGallery({
 
       {/* 3. STATUS BADGE (Bez zmian) */}
       {status && (
-        <div className="absolute text-background text-base top-6 left-6 z-30 px-5 py-3 rounded-full font-black uppercase tracking-[0.3em] bg-foreground shadow-xl shadow-black/10">
-          {status.name}
+        <div className="absolute top-6 left-6 z-10">
+          <ProductStatusBadge
+            name={status.name}
+            color={status.color}
+            className="px-8 py-5 text-xl opacity-80"
+          />
         </div>
       )}
     </div>

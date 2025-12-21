@@ -5,6 +5,7 @@ import { useCart } from "@/hooks/use-cart";
 import { ArrowRight } from "lucide-react";
 import SubTitle from "@/components/sub-title";
 import PriceFormatter from "../product-card/PriceFormatter";
+import ProductStatusBadge from "../product-status-badge";
 
 export default function ProductHero({ product }: { product: any }) {
   const { addItem } = useCart();
@@ -12,11 +13,13 @@ export default function ProductHero({ product }: { product: any }) {
   return (
     <div className="space-y-8">
       <header>
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-4 mb-4 w-16">
           {product.status && (
-            <span className="font-black tracking-[0.4em] uppercase py-2 px-4 rounded-full bg-foreground text-background">
-              {product.status.name}
-            </span>
+            <ProductStatusBadge
+              name={product.status.name}
+              color={product.status.color || ""}
+              className="px-8 py-5 text-xl opacity-80"
+            />
           )}
         </div>
         <SubTitle text={product.name} />

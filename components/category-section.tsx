@@ -9,7 +9,7 @@ export const CategorySection = ({ categories }: { categories: any[] }) => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   return (
-    <section className="w-full px-4 md:px-8 py-12 bg-background">
+    <section className="w-full px-4 md:px-8 py-12">
       <div className="max-w-7xl mx-auto">
         <div className="mb-12 space-y-2">
           <span className="text-primary font-black uppercase tracking-[0.4em] text-[10px]">
@@ -46,7 +46,7 @@ export const CategorySection = ({ categories }: { categories: any[] }) => {
                       className="object-cover transition-transform duration-1000 ease-out scale-105"
                     />
                     <div
-                      className={`absolute inset-0 bg-input/90 transition-opacity duration-700 ${
+                      className={`absolute inset-0 bg-foreground/50 transition-opacity duration-700 ${
                         isActive ? "opacity-0" : "opacity-40"
                       }`}
                     />

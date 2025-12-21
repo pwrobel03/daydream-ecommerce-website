@@ -14,7 +14,7 @@ export default function ProductDetails({ product }: { product: any }) {
     <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-start my-16 lg:my-24 pt-16">
       {/* LEWA STRONA: Opis (Editorial Copy) */}
       <div className="w-full flex-1">
-        <div className="relative flex items-center justify-center lg:justify-start mb-12">
+        <div className="relative flex items-center justify-center mb-12">
           {/* Sama linia */}
           <div className="absolute w-full h-px bg-border/50" />
           {/* Tekst - ważne: bg-[#fafafa] musi być identyczne z tłem Twojej strony */}
@@ -22,14 +22,14 @@ export default function ProductDetails({ product }: { product: any }) {
             Product Story
           </h3>
         </div>
-        <p className="text-lg md:text-2xl font-light leading-snug tracking-tight text-zinc-800 dark:text-zinc-200 italic">
+        <p className="text-lg md:text-xl font-light leading-snug tracking-tight  italic">
           {product.description}
         </p>
       </div>
 
       {/* PRAWA STRONA: Składniki (Dynamic Cluster) */}
       <div className="w-full flex-1">
-        <div className="relative flex items-center justify-center lg:justify-start mb-12">
+        <div className="relative flex items-center justify-center mb-12">
           {/* Sama linia */}
           <div className="absolute w-full h-px bg-border/50" />
           {/* Tekst - ważne: bg-[#fafafa] musi być identyczne z tłem Twojej strony */}
@@ -42,7 +42,7 @@ export default function ProductDetails({ product }: { product: any }) {
           {product.ingredients.map((ing: any) => (
             <div
               key={ing.id}
-              className="group relative w-40 h-40 bg-white dark:bg-zinc-900 rounded-[2rem] p-4 flex flex-col items-center justify-between border border-black/[0.03] dark:border-white/[0.03] hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.05)]"
+              className="group relative w-40 h-40 bg-card/60 rounded-[2rem] p-4 flex flex-col items-center justify-between border hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.05)]"
             >
               {/* Delikatny cień/blask pod ikoną składnika */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-primary/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />

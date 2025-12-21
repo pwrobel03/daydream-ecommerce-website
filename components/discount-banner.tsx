@@ -36,7 +36,7 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
     <section className="w-full sm:px-4 md:px-8 mt-20 mb-10">
       <Carousel
         plugins={[plugin.current]}
-        className="w-full max-w-7xl mx-auto relative group overflow-hidden rounded-[2.5rem] shadow-2xl bg-card/50"
+        className="w-full max-w-7xl mx-auto relative group overflow-hidden rounded-[2.5rem] shadow-2xl bg-card/60"
       >
         <CarouselContent>
           {sales.map((sale) => (
@@ -56,7 +56,7 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
                     sizes="(max-width: 768px) 100vw, 70vw"
                   />
                   {/* Gradient maskujący, by obrazek "wtapiał się" w szklany panel */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-transparent to-transparent hidden md:block" />
+                  <div className="absolute inset-0 from-accent/20 via-transparent to-transparent hidden md:block" />
                 </div>
               )}
 
@@ -91,8 +91,6 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
                         <span className="text-3xl font-mono font-black text-primary tracking-tight italic">
                           {sale.couponCode}
                         </span>
-                        <div className="absolute -left-2 top-1/2 -translate-y-1/2 h-4 w-4 bg-accent/40 rounded-full border-r border-primary/20" />
-                        <div className="absolute -right-2 top-1/2 -translate-y-1/2 h-4 w-4 bg-accent/40 rounded-full border-l border-primary/20" />
                       </div>
 
                       <div className="flex flex-col">

@@ -17,6 +17,7 @@ interface CartState {
   getSubTotalPrice: () => number;
   getItemCount: (productId: string) => number;
   getGroupedItems: () => CartItem[];
+  syncItems: (freshData: any[]) => void;
 }
 
 const useCartStore = create<CartState>()(
@@ -60,6 +61,20 @@ const useCartStore = create<CartState>()(
           ),
         })),
       resetCart: () => set({ items: [] }),
+      syncItems: (freshData) => {
+        set((state) => ({
+          items: state.items.map((item) => {
+            const fresh = freshData.find((p) => p.id === item.product.id);
+            if (fresh) {
+              return {
+                ...item,
+                product: { ...item.product, ...fresh } // Aktualizujemy stock i ceny z bazy
+              };
+            }
+            return item;
+          }),
+        }))
+      },
       getTotalPrice: () => {
         return get().items.reduce((total, item) => {
           // Jeśli jest promoPrice, bierzemy ją, jeśli nie - zwykłą cenę

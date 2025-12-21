@@ -4,7 +4,7 @@
 import { useCart } from "@/hooks/use-cart";
 import { ArrowRight } from "lucide-react";
 import SubTitle from "@/components/sub-title";
-import PriceFormatter from "../product-card/PriceFormatter";
+import PriceFormatter from "../PriceFormatter";
 import ProductStatusBadge from "../product-status-badge";
 
 export default function ProductHero({ product }: { product: any }) {

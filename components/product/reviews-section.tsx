@@ -65,7 +65,7 @@ export default function ReviewsSection({
   };
 
   return (
-    <div className="border-t border-black/5 pt-20 mt-20">
+    <div className="border-t border-black/5 pt-6 md:pt-16 mt-20">
       <div className="flex justify-between items-end mb-16">
         <div className="space-y-1">
           <h2 className="text-5xl font-black italic uppercase tracking-tighter">
@@ -137,7 +137,7 @@ export default function ReviewsSection({
           </div>
         )}
       </div> */}
-      <div className="mb-24">
+      <div className="mb-8 md:mb-24">
         {user ? (
           currentUserReview && !isEditing ? (
             <UserReviewCard

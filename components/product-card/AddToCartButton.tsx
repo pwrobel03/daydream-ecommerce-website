@@ -6,7 +6,7 @@ import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
-import PriceFormatter from "./PriceFormatter";
+import PriceFormatter from "../PriceFormatter";
 import QuantityButtons from "./QuantityButtons";
 import { useCart } from "@/hooks/use-cart";
 

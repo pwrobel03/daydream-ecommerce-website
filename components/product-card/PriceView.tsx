@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge";
-import PriceFormatter from "./PriceFormatter";
+import PriceFormatter from "../PriceFormatter";
 
 interface PriceViewProps {
   price: number | undefined;

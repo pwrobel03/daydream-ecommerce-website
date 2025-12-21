@@ -114,7 +114,7 @@ const CartPage = () => {
 
         {/* SUMMARY */}
         <div className="lg:col-span-4">
-          <div className="sticky top-10 p-12 rounded-[2rem] shadow-2xl space-y-10">
+          <div className="sticky top-10 p-12 shadow-2xl space-y-10 bg-card rounded-[2rem]">
             <h2 className="text-5xl font-black italic uppercase tracking-tighter leading-tight">
               Summary
             </h2>

@@ -7,7 +7,7 @@ import { UserButton } from "@/components/auth/user-button";
 export const Navbar = () => {
   const pathname = usePathname();
   return (
-    <div className="bg-secondary flex justify-between items-center p-4 rounded-xl w-150 shadow-md">
+    <div className="bg-card flex justify-between items-center p-4 rounded-xl w-150 shadow-md">
       <div className="flex gap-x-2">
         <Button
           variant={pathname === "/settings" ? "default" : "outline"}

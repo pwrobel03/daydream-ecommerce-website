@@ -35,7 +35,7 @@ export const getCategoryWithProducts = async (slug: string) => {
   }
 };
 
-export const getProductBySlug = async (slug: string) => {
+export const getProductBySlug = async (slug: string, currentUserId?: string) => {
   try {
     const product = await db.product.findUnique({
       where: { slug },
@@ -43,13 +43,7 @@ export const getProductBySlug = async (slug: string) => {
         images: true,
         ingredients: true,
         status: true,
-        reviews: {
-          take: 9, 
-          orderBy: { createdAt: 'desc' },
-          include: { 
-              user: { select: { name: true, image: true } }
-           }
-        },
+        // Pobieramy informację o całkowitej liczbie recenzji
         _count: {
           select: { reviews: true }
         }
@@ -57,8 +51,39 @@ export const getProductBySlug = async (slug: string) => {
     });
 
     if (!product) return null;
-    return JSON.parse(JSON.stringify(product));
+
+    // Pobieramy opinię zalogowanego użytkownika (jeśli podano ID)
+    const userReview = currentUserId 
+      ? await db.review.findFirst({
+          where: { productId: product.id, userId: currentUserId },
+          include: { user: { select: { name: true, image: true } } }
+        })
+      : null;
+
+    // Pobieramy 9 pozostałych opinii (wykluczając tę od userReview)
+    const otherReviews = await db.review.findMany({
+      where: { 
+        productId: product.id,
+        // KLUCZ: Wykluczamy opinię użytkownika, jeśli ją znaleźliśmy
+        NOT: userReview ? { id: userReview.id } : undefined 
+      },
+      take: 9,
+      orderBy: { createdAt: 'desc' },
+      include: { 
+        user: { select: { name: true, image: true } } 
+      }
+    });
+
+    // Składamy to w jeden obiekt dla frontendu
+    const result = {
+      ...product,
+      userReview, // Twoja opinia (osobno)
+      reviews: otherReviews, // Pozostałe 9 (osobno)
+    };
+
+    return JSON.parse(JSON.stringify(result));
   } catch (error) {
+    console.error("Error in getProductBySlug:", error);
     return null;
   }
 };

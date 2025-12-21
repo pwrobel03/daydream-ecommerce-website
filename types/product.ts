@@ -3,7 +3,6 @@
 export interface UserType {
   id: string;
   name: string | null;
-  email: string | null;
   image: string | null;
 }
 
@@ -12,7 +11,11 @@ export interface ReviewType {
   content: string;
   rating: number;
   userId: string;
-  createdAt: string | Date;
+  createdAt: string | Date; // Kluczowa zmiana: akceptujemy oba typy
+  user: {
+    name: string | null;
+    image: string | null;
+  };
 }
 
 export interface StatusType {

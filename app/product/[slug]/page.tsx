@@ -9,11 +9,14 @@ import ProductGallery from "@/components/product/product-gallery";
 import ProductHero from "@/components/product/product-hero";
 import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/lib/db-products";
+import { getCurrentUser } from "@/lib/auth";
+import { auth } from "@/auth";
+import { ReviewType, UserType } from "@/types/product";
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  if (!product) return { title: "Produkt nie znaleziony" };
+  if (!product) return { title: "Product not found" };
 
   return {
     title: `${product.name} | DayDream Store`,
@@ -27,11 +30,11 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const session = await auth();
+  const currentUserId = session?.user?.id;
+  const product = await getProductBySlug(slug, currentUserId);
 
   if (!product) notFound();
-  console.log(product);
-
   return (
     <main className="relative min-h-screen overflow-hidden">
       {/* BACKGROUND DECORATION - Dynamiczny tekst w tle */}
@@ -57,8 +60,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
         {/* SEKCJA SKŁADNIKÓW - Bento Grid Style */}
         <ReviewsSection
           productId={product.id}
+          userReview={product.userReview}
           initialReviews={product.reviews}
           totalCount={product._count.reviews}
+          user={session?.user as UserType}
         />
       </Container>
     </main>

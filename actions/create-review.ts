@@ -16,6 +16,17 @@ export async function createReview(values: z.infer<typeof ReviewSchema>) {
   const { productId, userId, rating, content } = validatedFields.data;
 
   try {
+    // every user can add only one review for each product
+    const existingReview = await db.review.findFirst({
+      where: {
+        productId: values.productId,
+        userId: values.userId,
+      },
+    });
+    if (existingReview) {
+      return { error: "You already share your story!" };
+    }
+
     await db.review.create({
       data: {
         productId,

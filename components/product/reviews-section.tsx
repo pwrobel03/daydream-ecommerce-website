@@ -1,74 +1,143 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Star, Plus, Loader2 } from "lucide-react";
 import { getMoreReviews } from "@/actions/get-more-reviews";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import AddReviewForm from "./add-review-form";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { UserType } from "@/types/product";
+import { UserType, ReviewType } from "@/types/product";
+
+interface ReviewsSectionProps {
+  productId: string;
+  userReview: ReviewType | null;
+  initialReviews: ReviewType[];
+  totalCount: number;
+  user: UserType | null;
+}
 
 export default function ReviewsSection({
   productId,
+  userReview,
   initialReviews,
   totalCount,
-}: {
-  productId: string;
-  initialReviews: any[];
-  totalCount: number;
-}) {
-  const [reviews, setReviews] = useState(initialReviews);
+  user,
+}: ReviewsSectionProps) {
+  const [reviews, setReviews] = useState<ReviewType[]>(initialReviews);
+  const [currentUserReview, setCurrentUserReview] = useState<ReviewType | null>(
+    userReview
+  );
   const [loading, setLoading] = useState(false);
-  const user = useCurrentUser();
-  const hasMore = reviews.length < totalCount;
+
+  // Bezpieczne obliczanie średniej - używamy useMemo, żeby uniknąć błędów przy pustej liście
+  const averageRating = useMemo(() => {
+    const allReviews = [...reviews];
+    if (currentUserReview) allReviews.push(currentUserReview);
+
+    if (allReviews.length === 0) return 0;
+    const sum = allReviews.reduce((acc, curr) => acc + curr.rating, 0);
+    return (sum / allReviews.length).toFixed(1);
+  }, [reviews, currentUserReview]);
+
+  const displayedCount = reviews.length + (currentUserReview ? 1 : 0);
+  const hasMore = displayedCount < totalCount;
 
   const handleLoadMore = async () => {
     if (loading) return;
     setLoading(true);
-
-    // Wywołujemy Server Action
-    const nextReviews = await getMoreReviews(productId, reviews.length);
-
-    // Dodajemy nowe opinie do istniejących
-    setReviews((prev) => [...prev, ...nextReviews]);
+    const nextReviews = await getMoreReviews(
+      productId,
+      reviews.length,
+      9,
+      user?.id
+    );
+    setReviews((prev) => [...prev, ...(nextReviews as ReviewType[])]);
     setLoading(false);
   };
 
-  // function, initialize after success in form
   const handleAddOptimisticReview = (newReview: any) => {
-    setReviews((prev) => [newReview, ...prev]);
+    setCurrentUserReview(newReview);
   };
 
   return (
     <div className="border-t border-black/5 pt-20 mt-20">
-      {/* Nagłówek sekcji */}
       <div className="flex justify-between items-end mb-16">
-        <h2 className="text-5xl text-foreground/80 font-extrabold italic uppercase">
-          Voices
-        </h2>
-        <div id="voices-top" className="text-right flex flex-col items-end">
+        <div className="space-y-1">
+          <h2 className="text-5xl font-black italic uppercase tracking-tighter">
+            Voices
+          </h2>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 ml-1">
+            Stories ({totalCount})
+          </p>
+        </div>
+
+        <div className="text-right flex flex-col items-end">
           <div className="flex items-center gap-2">
             <Star className="fill-primary text-primary h-6 w-6" />
-            <span className="text-3xl font-black">
-              {(
-                reviews.reduce((a, b) => a + b.rating, 0) / reviews.length || 0
-              ).toFixed(1)}
-            </span>
+            <span className="text-4xl font-black">{averageRating}</span>
           </div>
           <span className="text-[10px] font-black uppercase tracking-widest opacity-40 mt-1">
-            Showing {reviews.length} of {totalCount} reviews
+            Showing {displayedCount} of {totalCount}
           </span>
         </div>
       </div>
 
-      {/* Masonry Grid (reviews view) */}
-      <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+      <div className="mb-24">
+        {user ? (
+          currentUserReview ? (
+            <div className="animate-in fade-in zoom-in-95 duration-700">
+              <div className="bg-white dark:bg-zinc-900 border border-primary/20 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
+                <div className="flex justify-between items-start mb-8">
+                  <span className="px-4 py-1.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full">
+                    Your Voice
+                  </span>
+                  <div className="flex gap-1 text-primary">
+                    {[...Array(currentUserReview.rating)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-current" />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-3xl font-medium italic leading-tight">
+                  "{currentUserReview.content}"
+                </p>
+                <div className="mt-8 flex items-center gap-3 opacity-50">
+                  <div className="w-8 h-8 rounded-full bg-accent overflow-hidden relative">
+                    {user.image && (
+                      <Image
+                        src={user.image}
+                        alt="U"
+                        fill
+                        className="object-cover"
+                      />
+                    )}
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest">
+                    {user.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <AddReviewForm
+              productId={productId}
+              user={user}
+              onSuccess={handleAddOptimisticReview}
+            />
+          )
+        ) : (
+          <div className="p-12 border-2 border-dashed rounded-[3rem] text-center opacity-50">
+            <p className="italic uppercase tracking-widest text-sm font-bold">
+              Log in to add review
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
         {reviews.map((rev) => (
-          // single review
           <div
             key={rev.id}
-            className="break-inside-avoid bg-card/60 p-8 rounded-[2.5rem] border border-black/5 animate-in fade-in zoom-in-95 duration-500"
+            className="break-inside-avoid bg-card/60 p-10 rounded-[2.5rem] border border-black/5"
           >
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-full bg-accent overflow-hidden relative">
@@ -80,60 +149,46 @@ export default function ReviewsSection({
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-primary/10 text-[10px] font-black italic">
-                    {rev.user.name.substring(0, 2)}
+                  <div className="w-full h-full flex items-center justify-center font-bold text-xs">
+                    U
                   </div>
                 )}
               </div>
-              <span className="font-bold text-sm tracking-tighter uppercase">
-                {rev.user.name}
-              </span>
+              <div className="flex flex-col">
+                <span className="font-black text-[10px] tracking-widest uppercase">
+                  {rev.user.name}
+                </span>
+                <div className="flex gap-0.5 text-primary">
+                  {[...Array(rev.rating)].map((_, i) => (
+                    <Star key={i} className="h-2.5 w-2.5 fill-current" />
+                  ))}
+                </div>
+              </div>
             </div>
-            <p className="text-xl leading-snug font-medium mb-4">
+            <p className="text-xl leading-snug font-medium italic">
               "{rev.content}"
             </p>
-            <div className="flex gap-1 text-primary">
-              {[...Array(rev.rating)].map((_, i) => (
-                <Star key={i} className="h-3 w-3 fill-current" />
-              ))}
-            </div>
           </div>
         ))}
       </div>
 
-      {user && user.id ? (
-        <AddReviewForm
-          productId={productId}
-          user={user as UserType}
-          onSuccess={handleAddOptimisticReview}
-        />
-      ) : (
-        <div className="mt-16 p-12 border-2 border-dashed rounded-[3rem] text-center">
-          <p className="italic uppercase tracking-widest text-sm font-bold">
-            Log in to add review
-          </p>
-        </div>
-      )}
-
-      {/* Load More Button */}
       {hasMore && (
-        <div className="mt-24 flex flex-col items-center gap-8">
-          <div className="h-20 w-px bg-linear-to-b from-border to-transparent" />
-
+        <div className="mt-20 flex flex-col items-center gap-6">
+          <div className="h-20 w-px bg-gradient-to-b from-border to-transparent" />
           <button
             onClick={handleLoadMore}
             disabled={loading}
-            className="group flex flex-col items-center gap-4 transition-all active:scale-95"
+            className="group flex flex-col items-center gap-4"
           >
-            <div className="w-16 h-16 rounded-full border flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all duration-500 shadow-xl">
+            <div className="w-16 h-16 rounded-full border flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-xl">
               {loading ? (
                 <Loader2 className="w-6 h-6 animate-spin" />
               ) : (
                 <Plus className="w-6 h-6" />
               )}
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] italic opacity-60 group-hover:opacity-100 transition-opacity">
-              {loading ? "Summoning more dreams..." : "Load more stories"}
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] italic opacity-60">
+              {loading ? "Searching..." : "Reveal More"}
             </span>
           </button>
         </div>

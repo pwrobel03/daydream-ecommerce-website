@@ -172,7 +172,11 @@ export function ProductForm({
                       Name
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} className="rounded-md font-black" />
+                      <Input
+                        {...field}
+                        disabled={loading}
+                        className="rounded-md font-black"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -213,6 +217,7 @@ export function ProductForm({
                     </FormLabel>
                     <FormControl>
                       <Input
+                        disabled={loading}
                         {...field}
                         value={field.value ?? ""}
                         className="rounded-md font-black"
@@ -233,6 +238,7 @@ export function ProductForm({
                       Status
                     </FormLabel>
                     <Select
+                      disabled={loading}
                       onValueChange={field.onChange}
                       defaultValue={field.value ?? ""}
                     >
@@ -242,7 +248,9 @@ export function ProductForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="rounded-md">
-                        <SelectItem value="none">No Status</SelectItem>
+                        <SelectItem disabled={loading} value="none">
+                          No Status
+                        </SelectItem>
                         {statuses.map((s) => (
                           <SelectItem key={s.id} value={s.id}>
                             {s.name}
@@ -266,6 +274,7 @@ export function ProductForm({
                   </FormLabel>
                   <FormControl>
                     <Textarea
+                      disabled={loading}
                       {...field}
                       value={field.value ?? ""}
                       className="rounded-md min-h-30 font-black"
@@ -288,6 +297,7 @@ export function ProductForm({
               <label className="cursor-pointer max-w-40 bg-zinc-900 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:bg-primary transition-all">
                 Upload{" "}
                 <input
+                  disabled={loading}
                   type="file"
                   multiple
                   className="hidden"
@@ -303,6 +313,7 @@ export function ProductForm({
                 >
                   <Image src={url} alt="" fill className="object-cover" />
                   <button
+                    disabled={loading}
                     type="button"
                     onClick={() =>
                       setExistingImages((p) => p.filter((u) => u !== url))
@@ -351,6 +362,7 @@ export function ProductForm({
                     </FormLabel>
                     <FormControl>
                       <Input
+                        disabled={loading}
                         {...field}
                         className="rounded-md h-12 capitalize font-black"
                         placeholder="set default price"
@@ -370,6 +382,7 @@ export function ProductForm({
                     </FormLabel>
                     <FormControl>
                       <Input
+                        disabled={loading}
                         {...field}
                         value={field.value ?? ""}
                         className="rounded-md h-12 capitalize font-black"
@@ -391,6 +404,7 @@ export function ProductForm({
                   </FormLabel>
                   <FormControl>
                     <Input
+                      disabled={loading}
                       type="number"
                       {...field}
                       value={field.value as number}
@@ -439,6 +453,7 @@ export function ProductForm({
                     className="flex items-center gap-3 p-2 rounded-md hover:bg-input/40 cursor-pointer"
                   >
                     <Checkbox
+                      disabled={loading}
                       id={cat.id}
                       checked={form.watch("categoryIds")?.includes(cat.id)}
                       onCheckedChange={(checked) => {
@@ -475,6 +490,7 @@ export function ProductForm({
                 {ingredients.map((ing: any) => (
                   <button
                     type="button"
+                    disabled={loading}
                     key={ing.id}
                     onClick={() => {
                       const cur = form.getValues("ingredientIds") || [];

@@ -89,6 +89,9 @@ export async function deleteProduct(id: string) {
 
 import { writeFile, unlink, mkdir } from "fs/promises";
 import path from "path";
+import { existsSync } from "fs";
+import crypto from "crypto";
+import sharp from "sharp"; // Importujemy sharp
 
 export async function upsertProduct(id: string, formData: FormData) {
   try {
@@ -96,7 +99,7 @@ export async function upsertProduct(id: string, formData: FormData) {
 
     const isNew = id === "new";
     
-    // Wyciąganie danych z FormData
+    // 1. Pobieranie danych
     const name = formData.get("name") as string;
     const slug = formData.get("slug") as string;
     const description = formData.get("description") as string;
@@ -111,96 +114,82 @@ export async function upsertProduct(id: string, formData: FormData) {
     const existingImages = JSON.parse(formData.get("existingImages") as string) as string[];
     const newImageFiles = formData.getAll("newImages") as File[];
 
-    // 1. Zarządzanie plikami obrazów (usuwanie starych)
-    if (!isNew) {
-      const currentImages = await db.productImage.findMany({ where: { productId: id } });
-      const imagesToDelete = currentImages.filter(img => !existingImages.includes(img.url));
-      
-      for (const img of imagesToDelete) {
-        try {
-          const filePath = path.join(process.cwd(), "public", img.url);
-          await unlink(filePath);
-        } catch (e) {
-          console.error("Could not delete file:", img.url);
-        }
-      }
-      
-      await db.productImage.deleteMany({
-        where: { url: { in: imagesToDelete.map(i => i.url) } }
-      });
-    }
-
-    // 2. Zapisywanie nowych obrazów na dysku
-    const uploadDir = path.join(process.cwd(), "public/products");
-    await mkdir(uploadDir, { recursive: true });
-    
-    const newImageUrls: string[] = [];
-    for (const file of newImageFiles) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-      await writeFile(path.join(uploadDir, fileName), buffer);
-      newImageUrls.push(`/products/${fileName}`);
-    }
-
-    // 3. Budowanie wspólnych danych relacyjnych
-    const categoriesLogic = {
-      set: categoryIds.map(id => ({ id }))
-    };
-
-    const ingredientsLogic = {
-      set: ingredientIds.map(id => ({ id }))
-    };
-
-    const imagesLogic = {
-      create: newImageUrls.map(url => ({ url }))
-    };
-
-    // 4. Wykonanie operacji Create lub Update
+    // 2. Logika ID i Folderu
+    let productId = id;
     if (isNew) {
-      await db.product.create({
-        data: {
-          name,
-          slug,
-          description,
-          price: parseFloat(price),
-          promoPrice: promoPrice ? parseFloat(promoPrice) : null,
-          weight,
-          stock,
-          // Przy create używamy tylko connect, jeśli statusId istnieje
-          ...(statusId ? { status: { connect: { id: statusId } } } : {}),
-          categories: { connect: categoryIds.map(id => ({ id })) },
-          ingredients: { connect: ingredientIds.map(id => ({ id })) },
-          images: imagesLogic,
-        }
+      const tempProduct = await db.product.create({
+        data: { name: "Temp", slug: `temp-${Date.now()}`, price: 0, stock: 0 }
       });
-    } else {
-      await db.product.update({
-        where: { id },
-        data: {
-          name,
-          slug,
-          description,
-          price: parseFloat(price),
-          promoPrice: promoPrice ? parseFloat(promoPrice) : null,
-          weight,
-          stock,
-          // Przy update musimy obsłużyć connect LUB disconnect
-          status: statusId 
-            ? { connect: { id: statusId } } 
-            : { disconnect: true },
-          categories: categoriesLogic,
-          ingredients: ingredientsLogic,
-          images: imagesLogic,
-        }
-      });
+      productId = tempProduct.id;
     }
+
+    const productDir = `/products/${productId}`;
+    const absoluteUploadDir = path.join(process.cwd(), "public", productDir);
+
+    if (!existsSync(absoluteUploadDir)) {
+      await mkdir(absoluteUploadDir, { recursive: true });
+    }
+
+    // 3. Usuwanie starych zdjęć
+    const currentImages = await db.productImage.findMany({ where: { productId } });
+    const imagesToDelete = currentImages.filter(img => !existingImages.includes(img.url));
+    
+    for (const img of imagesToDelete) {
+      try {
+        await unlink(path.join(process.cwd(), "public", img.url));
+      } catch (e) {
+        console.error("Delete error:", img.url);
+      }
+    }
+    
+    await db.productImage.deleteMany({
+      where: { url: { in: imagesToDelete.map(i => i.url) } }
+    });
+
+    // 4. Przetwarzanie zdjęć przez SHARP
+    const newImageUrls: string[] = [];
+    
+    for (const file of newImageFiles) {
+      const fileName = `${crypto.randomUUID()}.webp`; // Zawsze .webp
+      const buffer = Buffer.from(await file.arrayBuffer());
+      
+      // Optymalizacja: zmiana rozmiaru i konwersja
+      const optimizedBuffer = await sharp(buffer)
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 80 }) // Balans między jakością a rozmiarem
+        .toBuffer();
+
+      await writeFile(path.join(absoluteUploadDir, fileName), optimizedBuffer);
+      newImageUrls.push(`${productDir}/${fileName}`);
+    }
+
+    // 5. Finalny Upsert
+    const commonData = {
+      name,
+      slug,
+      description,
+      price: parseFloat(price),
+      promoPrice: promoPrice ? parseFloat(promoPrice) : null,
+      weight,
+      stock,
+      status: statusId ? { connect: { id: statusId } } : { disconnect: true },
+      categories: { set: categoryIds.map(id => ({ id })) },
+      ingredients: { set: ingredientIds.map(id => ({ id })) },
+      images: {
+        create: newImageUrls.map(url => ({ url }))
+      },
+    };
+
+    await db.product.update({
+      where: { id: productId },
+      data: commonData
+    });
 
     revalidatePath("/dashboard/inventory");
-    return { success: isNew ? "Artifact Forged" : "Essence Updated" };
+    return { success: isNew ? "Artifact Forged" : "Essence Updated", id: productId };
 
   } catch (error: any) {
     console.error("UPSERT_ERROR:", error);
-    return { error: error.message || "An unexpected error occurred" };
+    return { error: error.message || "Unexpected error" };
   }
 }

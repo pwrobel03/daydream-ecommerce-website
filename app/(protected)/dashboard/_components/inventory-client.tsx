@@ -83,6 +83,7 @@ export default function InventoryClient({ categories }: { categories: any[] }) {
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 group-focus-within:text-primary transition-colors" />
           <input
             type="text"
+            disabled={loading}
             placeholder="Search by name..."
             className="w-full bg-card/60 border rounded-full py-5 pl-14 pr-8 font-black italic uppercase text-[10px] tracking-widest outline-none focus:ring-2 ring-primary/10 transition-all"
             onChange={(e) => setSearch(e.target.value)}
@@ -96,6 +97,7 @@ export default function InventoryClient({ categories }: { categories: any[] }) {
             stockStatus !== "all" &&
               "bg-primary text-white border-primary shadow-lg shadow-primary/20"
           )}
+          disabled={loading}
         >
           <option value="all">Stock: All</option>
           <option value="low">Stock: Low (≤5)</option>
@@ -103,6 +105,7 @@ export default function InventoryClient({ categories }: { categories: any[] }) {
         </select>
 
         <select
+          disabled={loading || !selectedCat}
           onChange={(e) => {
             setSelectedCat(e.target.value);
             setSelectedSub("");
@@ -118,7 +121,7 @@ export default function InventoryClient({ categories }: { categories: any[] }) {
         </select>
 
         <select
-          disabled={!selectedCat}
+          disabled={!selectedCat || loading}
           onChange={(e) => setSelectedSub(e.target.value)}
           value={selectedSub}
           className="border rounded-full px-6 font-black italic uppercase text-[10px] tracking-widest outline-none h-[62px] disabled:opacity-20 cursor-pointer"

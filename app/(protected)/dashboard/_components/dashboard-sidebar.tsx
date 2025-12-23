@@ -32,7 +32,7 @@ export default function DashboardSidebar() {
       icon: MessageSquare,
     },
     { title: "Categories", href: "/dashboard/categories", icon: Layers },
-    { title: "Inventory", href: "/dashboard/products", icon: Package },
+    { title: "Inventory", href: "/dashboard/inventory", icon: Package },
   ];
 
   return (

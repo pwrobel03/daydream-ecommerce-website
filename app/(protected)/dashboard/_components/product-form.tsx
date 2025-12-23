@@ -31,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Typ wygenerowany ze schematu
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -100,7 +101,7 @@ export function ProductForm({
 
   const watchedName = form.watch("name");
   useEffect(() => {
-    if (!initialData && watchedName) {
+    if (watchedName) {
       const slug = watchedName
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
@@ -153,28 +154,25 @@ export function ProductForm({
         className="grid grid-cols-1 lg:grid-cols-12 gap-12"
       >
         <div className="lg:col-span-7 space-y-8">
-          <div className="bg-card/60 p-10 rounded-[2.5rem] border border-black/5 space-y-6">
+          <div className="bg-card/60 p-10 rounded-[2rem] border space-y-6">
             <div className="flex items-center gap-3">
               <Tag size={18} className="text-primary" />
-              <h2 className="text-xl font-black italic uppercase tracking-tight text-zinc-900">
+              <h2 className="text-xl font-black italic uppercase tracking-tight">
                 Artifact Essence
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               <FormField
                 control={form.control as any}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-zinc-900 opacity-40">
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
                       Name
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        className="rounded-xl h-12 border-black/5"
-                      />
+                      <Input {...field} className="rounded-md font-black" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -185,13 +183,17 @@ export function ProductForm({
                 name="slug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-zinc-900 opacity-40">
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
                       Slug
                     </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        className="rounded-xl h-12 border-black/5"
+                        className="rounded-md h-12 border-none font-black cursor-not-allowed"
+                        readOnly
+                        onClick={(e) => {
+                          e.preventDefault();
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -206,14 +208,16 @@ export function ProductForm({
                 name="weight"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-zinc-900 opacity-40">
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
                       Weight
                     </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         value={field.value ?? ""}
-                        className="rounded-xl h-12 border-black/5"
+                        className="rounded-md font-black"
+                        placeholder="Like: 500g"
+                        autoComplete="off"
                       />
                     </FormControl>
                     <FormMessage />
@@ -225,7 +229,7 @@ export function ProductForm({
                 name="statusId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-zinc-900 opacity-40">
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
                       Status
                     </FormLabel>
                     <Select
@@ -233,11 +237,11 @@ export function ProductForm({
                       defaultValue={field.value ?? ""}
                     >
                       <FormControl>
-                        <SelectTrigger className="rounded-xl h-12 border-black/5 text-zinc-900">
+                        <SelectTrigger className="rounded-md font-black w-full">
                           <SelectValue placeholder="Status" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="rounded-xl">
+                      <SelectContent className="rounded-md">
                         <SelectItem value="none">No Status</SelectItem>
                         {statuses.map((s) => (
                           <SelectItem key={s.id} value={s.id}>
@@ -257,14 +261,14 @@ export function ProductForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[10px] font-black uppercase tracking-widest text-zinc-900 opacity-40">
+                  <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
                     Description
                   </FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
                       value={field.value ?? ""}
-                      className="rounded-2xl border-black/5 min-h-[120px]"
+                      className="rounded-md min-h-30 font-black"
                     />
                   </FormControl>
                   <FormMessage />
@@ -273,15 +277,15 @@ export function ProductForm({
             />
           </div>
 
-          <div className="bg-card/60 p-10 rounded-[2.5rem] border border-black/5">
-            <div className="flex items-center justify-between mb-8">
+          <div className="bg-card/60 p-10 rounded-[2rem] border">
+            <div className="flex justify-between mb-8 flex-row flex-wrap gap-2">
               <div className="flex items-center gap-3">
                 <ImageIcon size={18} className="text-primary" />
-                <h2 className="text-xl font-black italic uppercase tracking-tight text-zinc-900">
+                <h2 className="text-xl font-black italic uppercase tracking-tight">
                   Media
                 </h2>
               </div>
-              <label className="cursor-pointer bg-zinc-900 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:bg-primary transition-all">
+              <label className="cursor-pointer max-w-40 bg-zinc-900 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:bg-primary transition-all">
                 Upload{" "}
                 <input
                   type="file"
@@ -291,11 +295,11 @@ export function ProductForm({
                 />
               </label>
             </div>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid sm:grid-cols-3 md:grid-cols-2 gap-4">
               {existingImages.map((url, idx) => (
                 <div
                   key={idx}
-                  className="relative aspect-square rounded-2xl overflow-hidden border"
+                  className="relative aspect-square rounded-md overflow-hidden border"
                 >
                   <Image src={url} alt="" fill className="object-cover" />
                   <button
@@ -303,7 +307,7 @@ export function ProductForm({
                     onClick={() =>
                       setExistingImages((p) => p.filter((u) => u !== url))
                     }
-                    className="absolute top-2 right-2 bg-white rounded-full p-1 text-red-500 shadow-sm"
+                    className="absolute top-2 right-2 bg-white rounded-full p-1 text-destructive/50 shadow-sm"
                   >
                     <X size={14} />
                   </button>
@@ -312,7 +316,7 @@ export function ProductForm({
               {previews.map((url, idx) => (
                 <div
                   key={idx}
-                  className="relative aspect-square rounded-2xl overflow-hidden border-primary/20 border"
+                  className="relative aspect-square rounded-md overflow-hidden border-primary/20 border"
                 >
                   <Image src={url} alt="" fill className="object-cover" />
                   <button
@@ -321,7 +325,7 @@ export function ProductForm({
                       setPreviews((p) => p.filter((_, i) => i !== idx));
                       setNewImageFiles((p) => p.filter((_, i) => i !== idx));
                     }}
-                    className="absolute top-2 right-2 bg-white rounded-full p-1 text-red-500 shadow-sm"
+                    className="absolute top-2 right-2 bg-white rounded-full p-1 text-destructive/50 shadow-sm"
                   >
                     <X size={14} />
                   </button>
@@ -332,23 +336,25 @@ export function ProductForm({
         </div>
 
         <div className="lg:col-span-5 space-y-8">
-          <div className="bg-zinc-900 text-white p-10 rounded-[2.5rem] shadow-2xl space-y-6">
+          <div className="p-10 rounded-[2rem] shadow-2xl space-y-6 bg-card/60">
             <h2 className="text-xl font-black italic uppercase tracking-tight text-primary">
               Economics
             </h2>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               <FormField
                 control={form.control as any}
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-white/40">
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
                       Price
                     </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        className="bg-white/5 border-none rounded-xl h-12 text-white"
+                        className="rounded-md h-12 capitalize font-black"
+                        placeholder="set default price"
+                        autoComplete="off"
                       />
                     </FormControl>
                   </FormItem>
@@ -359,14 +365,16 @@ export function ProductForm({
                 name="promoPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-white/40">
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
                       Promo
                     </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         value={field.value ?? ""}
-                        className="bg-white/5 border-none rounded-xl h-12 text-white"
+                        className="rounded-md h-12 capitalize font-black"
+                        placeholder="promo price"
+                        autoComplete="off"
                       />
                     </FormControl>
                   </FormItem>
@@ -378,7 +386,7 @@ export function ProductForm({
               name="stock"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[10px] font-black uppercase tracking-widest text-white/40">
+                  <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
                     Inventory Stock
                   </FormLabel>
                   <FormControl>
@@ -386,7 +394,8 @@ export function ProductForm({
                       type="number"
                       {...field}
                       value={field.value as number}
-                      className="bg-white/5 border-none rounded-xl h-12 text-2xl font-black italic"
+                      className="rounded-md text-sm font-black italic"
+                      min={0}
                     />
                   </FormControl>
                 </FormItem>
@@ -394,35 +403,61 @@ export function ProductForm({
             />
           </div>
 
-          <div className="bg-card/60 p-10 rounded-[2.5rem] border border-black/5 space-y-8">
+          <div className="bg-card/60 p-10 rounded-[2rem] border space-y-8">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Layers size={16} className="text-primary" />
-                <h3 className="font-black uppercase italic text-sm text-zinc-900">
+                <h3 className="font-black uppercase italic text-sm">
                   Taxonomy
                 </h3>
               </div>
               <div className="max-h-60 overflow-y-auto pr-2 space-y-2">
                 {categories.map((cat: any) => (
-                  <div key={cat.id}>
-                    <label className="flex items-center gap-3 p-2 rounded-xl hover:bg-zinc-100 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={form.watch("categoryIds")?.includes(cat.id)}
-                        onChange={(e) => {
-                          const current = form.getValues("categoryIds") || [];
-                          form.setValue(
-                            "categoryIds",
-                            e.target.checked
-                              ? [...current, cat.id]
-                              : current.filter((id) => id !== cat.id)
-                          );
-                        }}
-                        className="w-4 h-4 rounded border-black/20"
-                      />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-zinc-900">
-                        {cat.name}
-                      </span>
+                  // <div key={cat.id}>
+                  //   <label className="flex items-center gap-3 p-2 rounded-md hover:bg-input/40 cursor-pointer">
+                  //     <input
+                  //       type="checkbox"
+                  //       checked={form.watch("categoryIds")?.includes(cat.id)}
+                  //       onChange={(e) => {
+                  //         const current = form.getValues("categoryIds") || [];
+                  //         form.setValue(
+                  //           "categoryIds",
+                  //           e.target.checked
+                  //             ? [...current, cat.id]
+                  //             : current.filter((id) => id !== cat.id)
+                  //         );
+                  //       }}
+                  //       className="w-4 h-4 rounded"
+                  //     />
+                  //     <span className="text-xs font-black uppercase tracking-widest">
+                  //       {cat.name}
+                  //     </span>
+                  //   </label>
+                  // </div>
+                  <div
+                    key={cat.id}
+                    className="flex items-center gap-3 p-2 rounded-md hover:bg-input/40 cursor-pointer"
+                  >
+                    <Checkbox
+                      id={cat.id}
+                      checked={form.watch("categoryIds")?.includes(cat.id)}
+                      onCheckedChange={(checked) => {
+                        const current = form.getValues("categoryIds") || [];
+                        form.setValue(
+                          "categoryIds",
+                          checked
+                            ? [...current, cat.id]
+                            : current.filter((id) => id !== cat.id)
+                        );
+                      }}
+                      // Stylizujemy tło przez klasę:
+                      className="border data-[state=checked]:bg-primary data-[state=checked]:text-white"
+                    />
+                    <label
+                      htmlFor={cat.id}
+                      className="text-xs font-black uppercase tracking-widest cursor-pointer select-none"
+                    >
+                      {cat.name}
                     </label>
                   </div>
                 ))}
@@ -432,7 +467,7 @@ export function ProductForm({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Beaker size={16} className="text-primary" />
-                <h3 className="font-black uppercase italic text-sm text-zinc-900">
+                <h3 className="font-black uppercase italic text-sm">
                   Ingredients
                 </h3>
               </div>
@@ -453,8 +488,8 @@ export function ProductForm({
                     className={cn(
                       "px-4 py-2 rounded-full text-[8px] font-black uppercase tracking-widest border transition-all",
                       form.watch("ingredientIds")?.includes(ing.id)
-                        ? "bg-zinc-900 text-white"
-                        : "bg-white opacity-40 text-zinc-900"
+                        ? "bg-primary text-white"
+                        : "bg-input/50"
                     )}
                   >
                     {ing.name}
@@ -467,7 +502,7 @@ export function ProductForm({
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-24 bg-zinc-900 text-white rounded-[2.5rem] font-black uppercase italic text-xl hover:bg-primary transition-all shadow-2xl"
+            className="w-full h-24 bg-zinc-900 text-white rounded-[2rem] font-black uppercase italic text-xl hover:bg-primary transition-all shadow-2xl"
           >
             {loading ? (
               <Loader2 className="animate-spin mx-auto" />

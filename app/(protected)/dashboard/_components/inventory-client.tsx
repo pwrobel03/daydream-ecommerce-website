@@ -206,7 +206,11 @@ export default function InventoryClient({ categories }: { categories: any[] }) {
                       Market Value
                     </p>
                     <div className="text-3xl font-black tracking-tighter text-foreground">
-                      <PriceFormatter amount={product.price} />
+                      {product.promoPrice ? (
+                        <PriceFormatter amount={product.promoPrice} />
+                      ) : (
+                        <PriceFormatter amount={product.price} />
+                      )}
                     </div>
                   </div>
 

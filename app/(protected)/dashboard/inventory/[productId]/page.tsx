@@ -48,8 +48,8 @@ export default async function ProductPage({
 
   return (
     <div className="space-y-12 pb-20 p-10">
-      <header className="flex flex-col gap-2 border-b border-black/5 pb-10">
-        <h1 className="text-7xl font-black italic uppercase tracking-tighter text-zinc-900">
+      <header className="flex flex-col gap-2 border-b pb-10">
+        <h1 className="text-5xl sm:text-7xl font-black italic uppercase tracking-tighter">
           {isNew ? "New Artifact" : "Edit Essence"}
         </h1>
         <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 ml-1">

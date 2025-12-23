@@ -28,17 +28,6 @@ export default async function InventoryPage() {
             Global Artifact Control
           </p>
         </div>
-
-        <Link
-          href="/dashboard/inventory/new"
-          className="group relative px-10 py-5 rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95 border hover:text-white shadow-xl flex items-center gap-3 bg-card/90"
-        >
-          <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-          <PackagePlus className="relative z-10 w-4 h-4" />
-          <span className="relative z-10 font-black uppercase italic tracking-tighter text-sm">
-            Add Product
-          </span>
-        </Link>
       </header>
 
       {/* Przekazujemy kategorie do klienta dla filtrów */}

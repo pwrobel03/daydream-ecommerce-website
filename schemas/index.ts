@@ -84,3 +84,16 @@ export const categorySchema = z.object({
   parentId: z.string().optional(),
   image: z.any().optional(), // Tu trafi plik
 });
+
+export const productSchema = z.object({
+  name: z.string().min(2, "Name is required"),
+  slug: z.string().min(2, "Slug is required"),
+  description: z.string().optional(),
+  price: z.string().min(1, "Price is required"),
+  promoPrice: z.string().optional(),
+  weight: z.string().optional(),
+  stock: z.coerce.number().min(0),
+  statusId: z.string().optional(),
+  categoryIds: z.array(z.string()).default([]),
+  ingredientIds: z.array(z.string()).default([]),
+});

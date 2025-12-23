@@ -85,3 +85,122 @@ export async function deleteProduct(id: string) {
     return { error: "Failed to delete product." };
   }
 }
+
+
+import { writeFile, unlink, mkdir } from "fs/promises";
+import path from "path";
+
+export async function upsertProduct(id: string, formData: FormData) {
+  try {
+    await checkAdmin();
+
+    const isNew = id === "new";
+    
+    // Wyciąganie danych z FormData
+    const name = formData.get("name") as string;
+    const slug = formData.get("slug") as string;
+    const description = formData.get("description") as string;
+    const price = formData.get("price") as string;
+    const promoPrice = formData.get("promoPrice") as string;
+    const weight = formData.get("weight") as string;
+    const stock = parseInt(formData.get("stock") as string);
+    const statusId = formData.get("statusId") as string;
+    
+    const categoryIds = JSON.parse(formData.get("categoryIds") as string) as string[];
+    const ingredientIds = JSON.parse(formData.get("ingredientIds") as string) as string[];
+    const existingImages = JSON.parse(formData.get("existingImages") as string) as string[];
+    const newImageFiles = formData.getAll("newImages") as File[];
+
+    // 1. Zarządzanie plikami obrazów (usuwanie starych)
+    if (!isNew) {
+      const currentImages = await db.productImage.findMany({ where: { productId: id } });
+      const imagesToDelete = currentImages.filter(img => !existingImages.includes(img.url));
+      
+      for (const img of imagesToDelete) {
+        try {
+          const filePath = path.join(process.cwd(), "public", img.url);
+          await unlink(filePath);
+        } catch (e) {
+          console.error("Could not delete file:", img.url);
+        }
+      }
+      
+      await db.productImage.deleteMany({
+        where: { url: { in: imagesToDelete.map(i => i.url) } }
+      });
+    }
+
+    // 2. Zapisywanie nowych obrazów na dysku
+    const uploadDir = path.join(process.cwd(), "public/products");
+    await mkdir(uploadDir, { recursive: true });
+    
+    const newImageUrls: string[] = [];
+    for (const file of newImageFiles) {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+      await writeFile(path.join(uploadDir, fileName), buffer);
+      newImageUrls.push(`/products/${fileName}`);
+    }
+
+    // 3. Budowanie wspólnych danych relacyjnych
+    const categoriesLogic = {
+      set: categoryIds.map(id => ({ id }))
+    };
+
+    const ingredientsLogic = {
+      set: ingredientIds.map(id => ({ id }))
+    };
+
+    const imagesLogic = {
+      create: newImageUrls.map(url => ({ url }))
+    };
+
+    // 4. Wykonanie operacji Create lub Update
+    if (isNew) {
+      await db.product.create({
+        data: {
+          name,
+          slug,
+          description,
+          price: parseFloat(price),
+          promoPrice: promoPrice ? parseFloat(promoPrice) : null,
+          weight,
+          stock,
+          // Przy create używamy tylko connect, jeśli statusId istnieje
+          ...(statusId ? { status: { connect: { id: statusId } } } : {}),
+          categories: { connect: categoryIds.map(id => ({ id })) },
+          ingredients: { connect: ingredientIds.map(id => ({ id })) },
+          images: imagesLogic,
+        }
+      });
+    } else {
+      await db.product.update({
+        where: { id },
+        data: {
+          name,
+          slug,
+          description,
+          price: parseFloat(price),
+          promoPrice: promoPrice ? parseFloat(promoPrice) : null,
+          weight,
+          stock,
+          // Przy update musimy obsłużyć connect LUB disconnect
+          status: statusId 
+            ? { connect: { id: statusId } } 
+            : { disconnect: true },
+          categories: categoriesLogic,
+          ingredients: ingredientsLogic,
+          images: imagesLogic,
+        }
+      });
+    }
+
+    revalidatePath("/dashboard/inventory");
+    return { success: isNew ? "Artifact Forged" : "Essence Updated" };
+
+  } catch (error: any) {
+    console.error("UPSERT_ERROR:", error);
+    return { error: error.message || "An unexpected error occurred" };
+  }
+}

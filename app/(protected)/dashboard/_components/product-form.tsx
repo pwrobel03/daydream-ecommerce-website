@@ -32,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
+import GiveInNotice from "./give-in-notice";
 
 // Typ wygenerowany ze schematu
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -114,6 +115,28 @@ export function ProductForm({
   const onSubmit: SubmitHandler<ProductFormValues> = async (values) => {
     setLoading(true);
     try {
+      const MAX_SINGLE_FILE_SIZE = 8 * 1024 * 1024; // 8 MB
+      const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50 MB
+
+      let currentTotalSize = 0;
+
+      for (const file of newImageFiles) {
+        // Sprawdzenie pojedynczego pliku
+        if (file.size > MAX_SINGLE_FILE_SIZE) {
+          toast.error(`Plik ${file.name} jest za duży (max 8MB)`);
+          setLoading(false);
+          return; // Przerywamy wysyłanie
+        }
+        currentTotalSize += file.size;
+      }
+
+      // Sprawdzenie łącznego rozmiaru
+      if (currentTotalSize > MAX_TOTAL_SIZE) {
+        toast.error("Łączny rozmiar nowych zdjęć przekracza 50MB");
+        setLoading(false);
+        return;
+      }
+
       const formData = new FormData();
 
       Object.entries(values).forEach(([key, val]) => {
@@ -124,6 +147,13 @@ export function ProductForm({
           );
         }
       });
+
+      if (
+        values.promoPrice &&
+        values.price &&
+        values.price <= values.promoPrice
+      )
+        return toast.error("You're price cannot be lower than promo price");
 
       formData.append("categoryIds", JSON.stringify(values.categoryIds));
       formData.append("ingredientIds", JSON.stringify(values.ingredientIds));
@@ -345,6 +375,7 @@ export function ProductForm({
             </div>
           </div>
         </div>
+        <GiveInNotice note="Note: The recommended image resolution is up to 2048x2048 pixels. Photos with square aspect ratio will look the best." />
 
         <div className="lg:col-span-5 space-y-8">
           <div className="p-10 rounded-[2rem] shadow-2xl space-y-6 bg-card/60">

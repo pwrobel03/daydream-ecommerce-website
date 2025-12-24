@@ -105,7 +105,7 @@ export default function InventoryClient({ categories }: { categories: any[] }) {
         </select>
 
         <select
-          disabled={loading || !selectedCat}
+          disabled={loading}
           onChange={(e) => {
             setSelectedCat(e.target.value);
             setSelectedSub("");
@@ -179,9 +179,11 @@ export default function InventoryClient({ categories }: { categories: any[] }) {
               <div className="relative z-10 flex-grow flex flex-col md:flex-row gap-8 w-full">
                 {/* Info o produkcie */}
                 <div className="w-full space-y-3">
-                  <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-[0.8]">
-                    {product.name}
-                  </h3>
+                  <Link href={`/product/${product.name}`}>
+                    <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-[0.8] cursor-pointer">
+                      {product.name}
+                    </h3>
+                  </Link>
                   <div className="flex flex-wrap gap-2 pt-2">
                     {product.categories.map((cat: any) => (
                       <ProductStatusBadge

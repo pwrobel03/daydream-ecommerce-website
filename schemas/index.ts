@@ -86,12 +86,12 @@ export const categorySchema = z.object({
 });
 
 export const productSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  slug: z.string().min(2, "Slug is required"),
-  description: z.string().optional(),
+  name: z.string().min(4, "Name is too short..."),
+  slug: z.string().min(4, "Slug is too short..."),
+  description: z.string().min(40, "Description must contianst at least 40 characters"),
   price: z.string().min(1, "Price is required"),
   promoPrice: z.string().optional(),
-  weight: z.string().optional(),
+  weight: z.string().min(2, "Weight is required."),
   stock: z.coerce.number().min(0),
   statusId: z.string().optional(),
   categoryIds: z.array(z.string()).default([]),

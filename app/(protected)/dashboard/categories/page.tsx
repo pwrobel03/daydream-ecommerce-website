@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { CategoryForm } from "../_components/category-form";
 import { FolderTree, Info } from "lucide-react";
 import CategoryList from "../_components/category-list";
+import GiveInNotice from "../_components/give-in-notice";
 export default async function CategoriesPage() {
   const allCategories = await db.category.findMany({
     include: {
@@ -44,14 +45,7 @@ export default async function CategoriesPage() {
           </div>
 
           <CategoryForm parentCategories={mainCategories} />
-
-          <div className="p-6 bg-blue-50 border border-blue-100 rounded-[2rem] flex gap-4">
-            <Info className="text-blue-500 shrink-0" size={20} />
-            <p className="text-[10px] font-medium leading-relaxed text-blue-700 uppercase tracking-wider italic">
-              Note: Deleting a parent category will not delete its products, but
-              they will become uncategorized.
-            </p>
-          </div>
+          <GiveInNotice note="NOTE: Deleting a parent category will not delete its products, but they will become uncategorized." />
         </div>
 
         {/* KOLUMNA PRAWA: LISTA */}

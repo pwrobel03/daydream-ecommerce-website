@@ -70,6 +70,7 @@ export async function getInventoryProducts({
   }
 }
 
+// TODO: handle removing images connected with product
 export async function deleteProduct(id: string) {
   try {
     await checkAdmin();
@@ -108,6 +109,14 @@ export async function upsertProduct(id: string, formData: FormData) {
     const weight = formData.get("weight") as string;
     const stock = parseInt(formData.get("stock") as string);
     const statusId = formData.get("statusId") as string;
+
+    // check if product with that name already exist
+    const existingProduct = await db.product.findUnique({
+      where: { slug }
+    });
+    if (existingProduct && (isNew || existingProduct.id !== id)) {
+      return { error: "A product with this name/slug already exists. Please choose a unique name." };
+    }
     
     const categoryIds = JSON.parse(formData.get("categoryIds") as string) as string[];
     const ingredientIds = JSON.parse(formData.get("ingredientIds") as string) as string[];

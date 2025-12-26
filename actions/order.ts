@@ -122,6 +122,7 @@ export async function finalizeAndPay(orderId: string, addressData: any) {
 
       // 3. TWORZYMY SESJĘ STRIPE
       const stripeSession = await stripe.checkout.sessions.create({
+        expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         line_items: order.items.map(item => ({
           price_data: {
             currency: "USD",

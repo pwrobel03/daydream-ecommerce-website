@@ -8,10 +8,13 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, Truck } from "lucide-react";
 import { finalizeAndPay } from "@/actions/order";
+import useCartStore from "@/store";
+import { set } from "zod";
 
 export function DeliveryClient({ order, savedAddress }: any) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { resetCart } = useCartStore();
 
   const onSubmit = async (values: any) => {
     setLoading(true);
@@ -24,8 +27,9 @@ export function DeliveryClient({ order, savedAddress }: any) {
       return;
     }
 
-    // Tutaj TS jest już pewien, że res.url to string
     toast.success("Redirecting to Secure Payment...");
+    resetCart();
+    setLoading(false);
     window.location.assign(res.url);
   };
 

@@ -9,6 +9,7 @@ export const publicRoutes = [
   "/colors",
   "/category",
   "/product",
+  "/api/webhook/stripe"
 ]
 
 /**

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Edit, Trash2, ArrowRight } from "lucide-react";
+import { Plus, Edit, Trash2, ArrowRight, Edit3 } from "lucide-react";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -16,27 +16,28 @@ export default async function IngredientsListPage() {
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-12">
       {/* Header w stylu NEXUS */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="flex justify-between items-end border-b">
-          <div className="space-y-1">
-            <h1 className="text-6xl font-black italic uppercase tracking-tighter">
-              Alchemical library
-            </h1>
-          </div>
+      <header className="flex justify-between items-end border-b pb-10">
+        <div className="space-y-1">
+          <h1 className="text-7xl font-black italic uppercase tracking-tighter">
+            Alchemical library
+          </h1>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 ml-1">
+            Manage your recipe
+          </p>
         </div>
-        <Link href="/dashboard/ingredients/new">
-          <Button className="rounded-full h-14 px-8 bg-black hover:bg-gray-800 text-white shadow-2xl transition-all hover:scale-105 active:scale-95 group">
-            <Plus className="mr-2 h-5 w-5 transition-transform group-hover:rotate-90" />
-            Forge New Essence
-          </Button>
-        </Link>
-      </div>
+      </header>
+      <Link href="/dashboard/ingredients/new" className="flex mb-10">
+        <Button className="rounded-full h-14 px-8 transition-all hover:scale-105 active:scale-95 group">
+          <Plus className="mr-2 h-5 w-5 transition-transform group-hover:rotate-90" />
+          Forge New Essence
+        </Button>
+      </Link>
 
       {/* Grid Składników */}
       {ingredients.length === 0 ? (
-        <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-[3rem] bg-gray-50/50">
-          <p className="text-gray-400 font-medium italic">
-            Your library is currently empty...
+        <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed">
+          <p className="font-medium italic">
+            Your ingredients library is currently empty...
           </p>
         </div>
       ) : (
@@ -44,12 +45,12 @@ export default async function IngredientsListPage() {
           {ingredients.map((item) => (
             <div
               key={item.id}
-              className="group relative bg-white border border-gray-100 rounded-[2.5rem] p-6 shadow-sm hover:shadow-xl hover:border-blue-100 transition-all duration-300"
+              className="group relative rounded-[1rem] p-6 shadow-sm hover:shadow-xl transition-all bg-card/60 duration-300"
             >
               {/* Ikona Składnika */}
               <div className="flex justify-center mb-6">
-                <div className="relative w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-blue-50 to-white shadow-inner">
-                  <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-white shadow-sm">
+                <div className="relative w-24 h-24 rounded-full p-1 shadow-inner">
+                  <div className="relative w-full h-full rounded-full overflow-hidden border-2 shadow-sm">
                     <Image
                       src={item.image || fallbackImage}
                       alt={item.name}
@@ -62,7 +63,7 @@ export default async function IngredientsListPage() {
 
               {/* Treść */}
               <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
                   {item.name}
                 </h3>
               </div>
@@ -71,22 +72,19 @@ export default async function IngredientsListPage() {
               <div className="mt-8 flex items-center justify-center gap-3">
                 <Link href={`/dashboard/ingredients/${item.id}`}>
                   <Button
-                    variant="secondary"
+                    variant="default"
                     size="sm"
-                    className="rounded-full bg-gray-50 hover:bg-blue-50 hover:text-blue-600 transition-all border-none"
+                    className="w-10 h-10 rounded-full border bg-card flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-500 shadow-sm group/btn text-foreground"
                   >
-                    <Edit size={16} className="mr-2" />
-                    Edit
+                    <Edit3
+                      size={16}
+                      className="group-hover/btn:rotate-12 transition-transform"
+                    />
                   </Button>
                 </Link>
 
                 {/* Osobny komponent dla usuwania, by obsłużyć Client Side Action */}
                 <DeleteIngredientButton id={item.id} />
-              </div>
-
-              {/* Dekoracyjny element NEXUS */}
-              <div className="absolute top-4 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                <ArrowRight className="text-blue-200" size={20} />
               </div>
             </div>
           ))}

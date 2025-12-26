@@ -30,7 +30,7 @@ export const DeleteIngredientButton = ({ id }: { id: string }) => {
       size="sm"
       onClick={onDelete}
       disabled={loading}
-      className="rounded-full bg-destructive/50 hover:text-white border-none transition-all hover:bg-destructive text-destructive"
+      className="w-10 h-10 rounded-full border bg-card hover:text-white transition-all hover:bg-destructive text-foreground dark:bg-card dark:hover:bg-destructive"
     >
       {loading ? (
         <Loader2 size={16} className="animate-spin" />

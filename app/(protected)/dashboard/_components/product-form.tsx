@@ -374,9 +374,8 @@ export function ProductForm({
               ))}
             </div>
           </div>
+          <GiveInNotice note="Note: The recommended image resolution is up to 2048x2048 pixels. Photos with square aspect ratio will look the best." />
         </div>
-        <GiveInNotice note="Note: The recommended image resolution is up to 2048x2048 pixels. Photos with square aspect ratio will look the best." />
-
         <div className="lg:col-span-5 space-y-8">
           <div className="p-10 rounded-[2rem] shadow-2xl space-y-6 bg-card/60">
             <h2 className="text-xl font-black italic uppercase tracking-tight text-primary">

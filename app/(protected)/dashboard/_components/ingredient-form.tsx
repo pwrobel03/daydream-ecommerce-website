@@ -87,7 +87,7 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 flex flex-col items-center">
-      <GiveInNotice note="Edytując składnik, zmieniasz go we wszystkich produktach, które go zawierają!" />
+      <GiveInNotice note="When you edit an ingredient, you change it in all products that contain it!" />
 
       <form
         onSubmit={form.handleSubmit(onSubmit)}
@@ -96,13 +96,13 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
         <div className="flex flex-col gap-8">
           {/* Sekcja Tekstowa */}
           <div className="space-y-8">
-            <div>
+            <div className="flex flex-col gap-4">
               <label className="text-sm uppercase tracking-widest font-black">
                 Ingredient name
               </label>
               <Input
                 {...form.register("name")}
-                placeholder="np. Erytrytol"
+                placeholder="etc. Erytrytol"
                 className="font-black"
                 disabled={loading}
               />
@@ -115,7 +115,7 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
           </div>
 
           {/* Sekcja Zdjęcia */}
-          <div className="space-y-4 gap-2">
+          <div className="space-y-4 gap-4 flex flex-col">
             <label className="text-sm uppercase tracking-widest font-black mb-10">
               Ingredient icon
             </label>
@@ -168,12 +168,17 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
             variant="outline"
             onClick={() => router.back()}
             disabled={loading}
+            className="cursor-pointer"
           >
-            Anuluj
+            Cancel
           </Button>
-          <Button type="submit" disabled={loading} className="min-w-[150px]">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="min-w-[150px] cursor-pointer"
+          >
             {loading ? <Loader2 className="animate-spin mr-2" /> : null}
-            Zapisz Składnik
+            Save Ingredient
           </Button>
         </div>
       </form>

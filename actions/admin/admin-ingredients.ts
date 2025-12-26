@@ -104,7 +104,7 @@ export async function deleteIngredient(id: string) {
 
     if (ingredient.products.length > 0) {
       return { 
-        error: `You cannot delete this ingredient because it's used in${ingredient.products.length} products.` 
+        error: `You cannot delete this ingredient because it's used in ${ingredient.products.length} products recipe.` 
       };
     }
 

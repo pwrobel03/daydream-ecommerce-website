@@ -7,6 +7,7 @@ import PriceFormatter from "@/components/PriceFormatter";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, Truck } from "lucide-react";
+import { finalizeAndPay } from "@/actions/order";
 
 export function DeliveryClient({ order, savedAddress }: any) {
   const [loading, setLoading] = useState(false);
@@ -14,16 +15,18 @@ export function DeliveryClient({ order, savedAddress }: any) {
 
   const onSubmit = async (values: any) => {
     setLoading(true);
-    const res = await finalizeOrderAddress(order.id, values);
+    const res = await finalizeAndPay(order.id, values);
 
-    if (res.success) {
-      toast.success("Address secured. Moving to payment.");
-      // Tu w przyszłości przekierujemy do Stripe
-      router.push(`/checkout/payment/${order.id}`);
-    } else {
-      toast.error(res.error);
+    // Sprawdzamy, czy wystąpił błąd lub czy URL nie przyszedł
+    if (res.error || !res.url) {
+      toast.error(res.error || "Coś poszło nie tak");
       setLoading(false);
+      return;
     }
+
+    // Tutaj TS jest już pewien, że res.url to string
+    toast.success("Redirecting to Secure Payment...");
+    window.location.assign(res.url);
   };
 
   return (

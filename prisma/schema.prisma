@@ -185,6 +185,7 @@ model Order {
 
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  stripeSessionId  String?  @unique // Stripe payment sessionId
 }
 
 model Address {

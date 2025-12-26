@@ -23,6 +23,7 @@ model User {
   role          UserRole  @default(USER)
   accounts      Account[]
   reviews       Review[]  // Relacja: Użytkownik ma wiele recenzji
+  orders        Order[]
 }
 
 model Account {
@@ -125,6 +126,7 @@ model Product {
   categories  Category[]
   ingredients Ingredient[]
   reviews     Review[]       // Relacja: Produkt ma wiele recenzji
+  orderItems  OrderItem[]    // Relacja: Produkt ma wiele zamówień
   
   createdAt   DateTime       @default(now())
 }
@@ -148,4 +150,55 @@ model ProductImage {
   url       String
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  
+  items        OrderItem[]
+  totalAmount  Decimal
+  
+  status       OrderStatus @default(PENDING)
+  isPaid       Boolean     @default(false)
+  
+  // addressId jest teraz opcjonalny (?) na etapie inicjalizacji
+  addressId    String?     @unique 
+  address      Address?    @relation(fields: [addressId], references: [id])
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  fullName    String   // Imię i nazwisko odbiorcy
+  street      String
+  city        String
+  zipCode     String
+  phone       String
+  
+  // Relacja zwrotna
+  order       Order?
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  
+  quantity  Int
+  price     Decimal // TO JEST "ZAMROŻONA" CENA (Snapshot)
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }

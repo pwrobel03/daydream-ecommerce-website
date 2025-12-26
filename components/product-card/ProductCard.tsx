@@ -20,7 +20,7 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
   const isStock = product.stock !== 0;
 
   return (
-    <div className="group relative flex flex-col rounded-[2.5rem] border overflow-hidden transition-all duration-700 hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] bg-card/60">
+    <div className="group relative flex flex-col rounded-[2rem] border overflow-hidden transition-all duration-700 hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] bg-card/60">
       {/* MEDIA CONTAINER */}
       <div className="relative aspect-square overflow-hidden rounded-[2rem] border-b">
         {product?.images?.length > 0 && (

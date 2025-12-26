@@ -1,9 +1,16 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, BadgeAlert, Car, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  BadgeAlert,
+  Car,
+  Trash2,
+  Image as ImageIcon,
+} from "lucide-react";
 import PriceFormatter from "@/components/PriceFormatter";
 import QuantityButtons from "@/components/product-card/QuantityButtons";
 import { CartItem } from "@/store";
+import Image from "next/image";
 
 interface CartItemProps {
   item: CartItem;
@@ -20,6 +27,8 @@ const ProductCard = ({
   isOverLimit,
   deleteCartProduct,
 }: CartItemProps) => {
+  console.log(item);
+
   return (
     <div
       key={item.product.id}
@@ -29,11 +38,30 @@ const ProductCard = ({
       )}
     >
       {/* Image Placeholder */}
-      <div className="relative w-16 h-32 md:w-40 md:h-40 bg-zinc-100 md:rounded-[1rem] overflow-hidden flex-shrink-0 grayscale">
-        <div className="w-full h-full flex items-center justify-center text-[10px] font-black opacity-10">
-          IMAGE
+      {item.product.images?.[0]?.url ? (
+        <></>
+      ) : (
+        <div className="relative w-16 h-32 md:w-40 md:h-40 border md:rounded-[1rem] overflow-hidden flex-shrink-0 grayscale">
+          <div className="w-full h-full flex items-center justify-center text-[10px] font-black opacity-10">
+            IMAGE
+          </div>
         </div>
+      )}
+      <div className="h-24 sm:h-40 aspect-square rounded-[1.5rem] overflow-hidden flex-shrink-0 relative border">
+        {item.product.images?.[0]?.url ? (
+          <Image
+            src={item.product.images[0].url}
+            alt=""
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <ImageIcon size={20} />
+          </div>
+        )}
       </div>
+
       {/* Content */}
       <div className="w-full flex flex-col xs:flex-row gap-4">
         {/* Details */}
@@ -75,7 +103,7 @@ const ProductCard = ({
           </div>
 
           <div className="flex items-center gap-8">
-            {/* UŻYWAMY TWOJEGO KOMPONENTU DO ZMIANY ILOŚCI */}
+            {/* UŻYWAMY KOMPONENTU DO ZMIANY ILOŚCI */}
             <QuantityButtons product={item.product} />
 
             <button
@@ -92,7 +120,7 @@ const ProductCard = ({
           <div
             className={cn(
               "text-4xl font-black tracking-tighter",
-              isOutOfStock ? "line-through opacity-20" : "text-zinc-900"
+              isOutOfStock ? "line-through opacity-20" : ""
             )}
           >
             <PriceFormatter

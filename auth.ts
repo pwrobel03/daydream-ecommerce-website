@@ -26,59 +26,71 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     }
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
-      // If there's no user ID, block sign-in
-      if (!user.id) return false
-      // If the provider is not credentials, allow sign-in
-      if (account?.provider !== "credentials") return true
-      // For credentials provider, check if email is verified
-      const existingUser = await getUserById(user.id)
-      if (existingUser && !existingUser.emailVerified) return false // Block sign-in if email not verified
-      return true
-    },
-    async session({ session, token }) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub
-      }
+  async signIn({ user, account }) {
+    // 1. Blokada logowania bez ID
+    if (!user.id) return false;
 
-      if (token.role && session.user) {
-        session.user.role = token.role
-      }
+    // 2. OAuth przechodzi bez dodatkowej weryfikacji maila (zazwyczaj zweryfikowane u dostawcy)
+    if (account?.provider !== "credentials") return true;
 
-      if (session.user && token.name) {
-        session.user.name = token.name
-      }
+    // 3. Weryfikacja adresu email dla metody Credentials
+    const existingUser = await getUserById(user.id);
+    if (existingUser && !existingUser.emailVerified) return false;
 
-      if (session.user && token.email) {
-        session.user.email = token.email
-      }
-
-      if (session.user) {
-        console.log(token);
-        session.user.isOAuth = token.isOAuth as boolean
-      }
-      return session
-    },
-    async jwt({ token, trigger, session}) {
-      if (!token.sub) return token
-
-      if (trigger === "update" && session) {
-        return { ...token, ...session };
-      }
-
-      const existingUser = await getUserById(token.sub)
-      if (!existingUser) return token
-
-      const existingAccount = await getAccountByUserId(existingUser.id)
-
-
-      token.name = existingUser.name
-      token.email = existingUser.email
-      token.role = existingUser.role
-      token.isOAuth = !!existingAccount
-      return token
-    }
+    return true;
   },
+
+  async jwt({ token, trigger, session }) {
+    // Jeśli brak sub (ID użytkownika), nie przetwarzamy tokena
+    if (!token.sub) return token;
+
+    // Obsługa ręcznej aktualizacji sesji (np. zmiana nazwy profilu przez użytkownika)
+    if (trigger === "update" && session) {
+      return { ...token, ...session };
+    }
+
+    // POBIERANIE ŚWIEŻYCH DANYCH Z BAZY
+    const existingUser = await getUserById(token.sub);
+    
+    // KLUCZOWE: Jeśli użytkownik został usunięty z bazy, czyścimy token
+    if (!existingUser) {
+      return null as any; 
+    }
+
+    const existingAccount = await getAccountByUserId(existingUser.id);
+
+    // Synchronizacja danych z bazy do tokena (zawsze aktualne role i dane)
+    token.name = existingUser.name;
+    token.email = existingUser.email;
+    token.role = existingUser.role;
+    token.isOAuth = !!existingAccount;
+
+    return token;
+  },
+
+  async session({ session, token }) {
+    // 1. OSTATECZNA WERYFIKACJA: Jeśli token wyparował w kroku JWT (bo user usunięty)
+    if (!token) return null as any;
+
+    // 2. Mapowanie danych z tokena do sesji
+    if (session.user) {
+      if (token.sub) session.user.id = token.sub;
+      if (token.role) session.user.role = token.role as any;
+      if (token.name) session.user.name = token.name;
+      if (token.email) session.user.email = token.email;
+      
+      session.user.isOAuth = !!token.isOAuth;
+    }
+
+    // 3. DODATKOWA WERYFIKACJA BAZY (Dla absolutnej pewności przed Ghost Session)
+    const userInDb = await getUserById(token.sub as string);
+    if (!userInDb) {
+      return null as any; // Wylogowuje użytkownika natychmiast
+    }
+
+    return session;
+  },
+},
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
   ...authConfig, // Inherit basic config

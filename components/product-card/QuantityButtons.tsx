@@ -30,7 +30,7 @@ const QuantityButtons = ({ product }: { product: ProductType }) => {
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 rounded-full hover:bg-white dark:hover:bg-zinc-800 hover:shadow-sm transition-all text-zinc-500 hover:text-primary"
+        className="h-8 w-8 rounded-full hover:bg-card hover:shadow-sm transition-all hover:text-primary"
         onClick={() => {
           removeItem(product.id);
           toast.success("Quantity decreased");
@@ -45,7 +45,7 @@ const QuantityButtons = ({ product }: { product: ProductType }) => {
         <span
           className={cn(
             "text-sm font-black italic transition-colors",
-            isAtLimit ? "text-primary" : "text-zinc-900 dark:text-white"
+            isAtLimit ? "text-primary" : ""
           )}
         >
           {itemCount}
@@ -57,10 +57,8 @@ const QuantityButtons = ({ product }: { product: ProductType }) => {
         variant="ghost"
         size="icon"
         className={cn(
-          "h-8 w-8 rounded-full transition-all text-zinc-500 hover:text-primary",
-          isAtLimit
-            ? "opacity-30 cursor-not-allowed"
-            : "hover:bg-white dark:hover:bg-zinc-800 hover:shadow-sm"
+          "h-8 w-8 rounded-full transition-all bg-card hover:text-primary",
+          isAtLimit ? "opacity-30 cursor-not-allowed" : ""
         )}
         onClick={handleIncrease}
         disabled={!isMounted}

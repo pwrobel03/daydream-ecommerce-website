@@ -88,7 +88,7 @@ const CartPage = () => {
 
   return (
     <div className="container mx-auto px-6 py-20 max-w-7xl">
-      <div className="flex justify-between items-end mb-16 border-b border-black/5 pb-10 font-black italic uppercase tracking-tighter">
+      <div className="flex justify-between items-end mb-16 border-b pb-10 font-black italic uppercase tracking-tighter">
         <h1 className="text-7xl">Your Bag</h1>
       </div>
 

@@ -15,6 +15,9 @@ import {
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import ProductCard from "@/components/cart/product-card";
+import { useRouter } from "next/navigation";
+import { initializeOrder } from "@/actions/order";
+import { toast } from "sonner";
 
 const CartPage = () => {
   const {
@@ -25,6 +28,8 @@ const CartPage = () => {
     getSubTotalPrice,
     isMounted,
   } = useCart();
+  const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
   const [isSyncing, setIsSyncing] = useState(true);
 
   useEffect(() => {
@@ -50,6 +55,20 @@ const CartPage = () => {
       </div>
     );
   }
+
+  const handleSecureFlow = async () => {
+    setIsPending(true);
+
+    const res = await initializeOrder(items);
+
+    if (res.error) {
+      toast.error(res.error);
+      setIsPending(false);
+    } else {
+      toast.success("Stock Reserved. Redirecting...");
+      router.push(`/cart/delivery/${res.orderId}`);
+    }
+  };
 
   // Looking for error inside cart
   // Product now can be out of stock or we can have more items than in stock
@@ -137,7 +156,8 @@ const CartPage = () => {
             )}
 
             <button
-              disabled={hasErrors}
+              disabled={hasErrors || isPending}
+              onClick={handleSecureFlow}
               className={cn(
                 "group relative w-full h-24 rounded-full overflow-hidden transition-all shadow-xl active:scale-95",
                 hasErrors

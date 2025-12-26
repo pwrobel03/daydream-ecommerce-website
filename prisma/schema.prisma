@@ -1,4 +1,3 @@
-// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,10 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// --- ENUMERACJE ---
+
 enum UserRole {
   ADMIN
   USER
 }
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+// --- SYSTEM UŻYTKOWNIKÓW I AUTORYZACJI ---
 
 model User {
   id            String    @id @default(cuid())
@@ -21,70 +32,94 @@ model User {
   image         String?
   password      String?
   role          UserRole  @default(USER)
+  
+  // Relacje NextAuth
   accounts      Account[]
-  reviews       Review[]  // Relacja: Użytkownik ma wiele recenzji
+  
+  // Relacje biznesowe
+  reviews       Review[]
   orders        Order[]
+  
+  // Adres profilowy (domyślny)
+  addressId     String?   @unique
+  address       Address?  @relation("UserDefaultAddress", fields: [addressId], references: [id])
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String  @map("provider_account_id")
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
- 
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@unique([provider, providerAccountId])
 }
 
 model VerificationToken {
-  id String @id @default(cuid())
-  email String
-  token String @unique
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
   expires DateTime
 
-  @@unique([email, token]) 
+  @@unique([email, token])
 }
 
 model PasswordResetToken {
-  id String @id @default(cuid())
-  email String
-  token String @unique
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
   expires DateTime
 
-  @@unique([email, token]) 
+  @@unique([email, token])
 }
 
-model Sale {
-  id            String   @id @default(cuid())
-  name          String
-  description   String?
-  couponCode    String   @unique // cupon code
-  discountValue Int      // value of discount (np. 15 for 15%)
-  image         String?
-  isActive      Boolean  @default(true)
-  validFrom     DateTime @default(now())
-  validTo       DateTime
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+// --- KATALOG PRODUKTÓW ---
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  price       Decimal
+  promoPrice  Decimal?
+  weight      String?
+  stock       Int      @default(0)
+  
+  // Relacja do statusu (np. Nowość, Hit)
+  statusId    String?
+  status      Status?  @relation(fields: [statusId], references: [id], onDelete: SetNull)
+  
+  // Relacje Many-to-Many i One-to-Many
+  images      ProductImage[]
+  categories  Category[]
+  ingredients Ingredient[]
+  reviews     Review[]
+  orderItems  OrderItem[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Category {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  slug        String    @unique
-  image       String?   // category picture
+  slug        String   @unique
+  image       String?
   description String?
   
-  // LOGIC OF subCategories (Self-relation):
+  // Samorelacja dla podkategorii
   parentId    String?
   parent      Category?  @relation("CategoryToSub", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children    Category[] @relation("CategoryToSub")
@@ -93,48 +128,34 @@ model Category {
   createdAt   DateTime   @default(now())
 }
 
-model Ingredient {
+model Status {
   id        String    @id @default(cuid())
   name      String    @unique
-  image     String?   // picture of ingredient
-  products  Product[] // relation many to many with products
+  slug      String    @unique
+  color     String?   @default("#000000")
+  products  Product[]
+
+  createdAt DateTime  @default(now())
 }
 
-model Status {
+model Ingredient {
   id       String    @id @default(cuid())
-  name     String    @unique // np. "Nowość", "Bestseller"
-  slug     String    @unique // np. "new", "hot"
-  color    String?   @default("#000000") // Kod HEX dla frontendu
+  name     String    @unique
+  image    String?
   products Product[]
-  
-  createdAt DateTime @default(now())
 }
 
-model Product {
-  id          String         @id @default(cuid())
-  name        String
-  slug        String         @unique
-  description String?
-  price       Decimal
-  promoPrice  Decimal?
-  statusId    String?
-  status      Status?        @relation(fields: [statusId], references: [id], onDelete: SetNull)
-  weight      String?
-  stock       Int            @default(0)
-  
-  images      ProductImage[]
-  categories  Category[]
-  ingredients Ingredient[]
-  reviews     Review[]       // Relacja: Produkt ma wiele recenzji
-  orderItems  OrderItem[]    // Relacja: Produkt ma wiele zamówień
-  
-  createdAt   DateTime       @default(now())
+model ProductImage {
+  id        String  @id @default(cuid())
+  url       String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Review {
   id        String   @id @default(cuid())
   content   String   @db.Text
-  rating    Int      @default(5) // Ocena 1-5
+  rating    Int      @default(5)
   userId    String
   productId String
   
@@ -145,42 +166,40 @@ model Review {
   updatedAt DateTime @updatedAt
 }
 
-model ProductImage {
-  id        String  @id @default(cuid())
-  url       String
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-}
+// --- SYSTEM ZAMÓWIEŃ ---
 
 model Order {
-  id           String      @id @default(cuid())
-  userId       String
-  user         User        @relation(fields: [userId], references: [id])
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
   
-  items        OrderItem[]
-  totalAmount  Decimal
+  items       OrderItem[]
+  totalAmount Decimal
   
-  status       OrderStatus @default(PENDING)
-  isPaid       Boolean     @default(false)
+  status      OrderStatus @default(PENDING)
+  isPaid      Boolean     @default(false)
   
-  // addressId jest teraz opcjonalny (?) na etapie inicjalizacji
-  addressId    String?     @unique 
-  address      Address?    @relation(fields: [addressId], references: [id])
+  // Adres dostawy (opcjonalny na etapie draftu/rezerwacji)
+  addressId   String?
+  address     Address?    @relation(fields: [addressId], references: [id])
 
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Address {
-  id          String   @id @default(cuid())
-  fullName    String   // Imię i nazwisko odbiorcy
-  street      String
-  city        String
-  zipCode     String
-  phone       String
+  id       String @id @default(cuid())
+  fullName String
+  street   String
+  city     String
+  zipCode  String
+  phone    String
   
-  // Relacja zwrotna
-  order       Order?
+  // Relacja do użytkownika (jako domyślny adres profilu)
+  user     User?  @relation("UserDefaultAddress")
+  
+  // Relacja do zamówień (jako adres przypisany do konkretnych zakupów)
+  orders   Order[]
 }
 
 model OrderItem {
@@ -192,13 +211,22 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   
   quantity  Int
-  price     Decimal // TO JEST "ZAMROŻONA" CENA (Snapshot)
+  price     Decimal // Snapshot ceny z momentu zakupu
 }
 
-enum OrderStatus {
-  PENDING
-  PAID
-  SHIPPED
-  DELIVERED
-  CANCELLED
+// --- INNE ---
+
+model Sale {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  couponCode    String   @unique
+  discountValue Int
+  image         String?
+  isActive      Boolean  @default(true)
+  validFrom     DateTime @default(now())
+  validTo       DateTime
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

@@ -23,6 +23,7 @@ export default function DashboardSidebar() {
     { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { title: "My Profile", href: "/dashboard/profile", icon: User },
     { title: "Settings", href: "/dashboard/settings", icon: Settings },
+    { title: "Orders", href: "/dashboard/orders", icon: Settings },
   ];
 
   const adminMenuItems = [

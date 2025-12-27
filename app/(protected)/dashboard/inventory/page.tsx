@@ -20,8 +20,8 @@ export default async function InventoryPage() {
     <div className="space-y-16 pb-20">
       {/* HEADER - Identyczny styl co w Categories */}
       <header className="flex justify-between items-end border-b pb-10">
-        <div className="space-y-1">
-          <h1 className="text-7xl font-black italic uppercase tracking-tighter">
+        <div className="space-y-1 overflow-hidden">
+          <h1 className="text-5xl sm:text-7xl font-black italic uppercase tracking-tighter">
             Inventory
           </h1>
           <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 ml-1">

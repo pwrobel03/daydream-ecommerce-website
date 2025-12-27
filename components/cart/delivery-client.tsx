@@ -1,106 +1,223 @@
+// components/checkout/delivery-client.tsx
 "use client";
 
-import { useState } from "react";
-import { AddressForm } from "./address-form";
-import { finalizeOrderAddress } from "@/actions/order";
-import PriceFormatter from "@/components/PriceFormatter";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { AddressSchema } from "@/schemas/index";
+import { finalizeAndPay } from "@/actions/order"; // Twoja akcja Stripe
+import { useCart } from "@/hooks/use-cart";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { ShieldCheck, Truck } from "lucide-react";
-import { finalizeAndPay } from "@/actions/order";
-import useCartStore from "@/store";
-import { set } from "zod";
+import { useState } from "react";
 
-export function DeliveryClient({ order, savedAddress }: any) {
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { CreditCard, Loader2, BookmarkCheck } from "lucide-react";
+
+interface DeliveryClientProps {
+  order: any;
+  savedAddress: any; // Adres z profilu użytkownika
+}
+
+export function DeliveryClient({ order, savedAddress }: DeliveryClientProps) {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const { resetCart } = useCartStore();
+  const { resetCart } = useCart();
 
-  const onSubmit = async (values: any) => {
+  const form = useForm<z.infer<typeof AddressSchema>>({
+    resolver: zodResolver(AddressSchema),
+    defaultValues: savedAddress || {
+      fullName: "",
+      street: "",
+      city: "",
+      zipCode: "",
+      phone: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof AddressSchema>) {
     setLoading(true);
+
+    // Wywołujemy akcję Stripe, przekazując ID zamówienia i dane adresowe
     const res = await finalizeAndPay(order.id, values);
 
-    // Sprawdzamy, czy wystąpił błąd lub czy URL nie przyszedł
-    if (res.error || !res.url) {
-      toast.error(res.error || "Coś poszło nie tak");
+    if (res.url) {
       setLoading(false);
-      return;
+      resetCart();
+      toast.success("Redirecting to secure vault...");
+      window.location.assign(res.url);
+    } else {
+      toast.error(res.error || "Acquisition failed");
+      setLoading(false);
     }
+  }
 
-    toast.success("Redirecting to Secure Payment...");
-    resetCart();
-    setLoading(false);
-    window.location.assign(res.url);
-  };
+  const artifactInputStyle =
+    "bg-input/40 rounded-[1rem] h-14 text-lg font-black italic tracking-tighter transition-all";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-      {/* LEWA: FORMULARZ */}
-      <div className="lg:col-span-7 space-y-12">
-        <div className="flex items-center gap-4 text-primary">
-          <Truck size={32} />
-          <h2 className="text-3xl font-black italic uppercase tracking-tight">
-            Destination
-          </h2>
+    <div className="space-y-12">
+      {/* OPCJONALNY BANER: Jeśli znaleziono zapisany adres */}
+      {savedAddress && (
+        <div className="flex items-center gap-4 p-6 bg-primary/10 border border-primary/20 rounded-[1.5rem] italic font-bold text-sm">
+          <BookmarkCheck className="text-primary" />
+          <span>
+            Artifact Registry recognized. Shipping coordinates pre-loaded.
+          </span>
         </div>
+      )}
 
-        <AddressForm
-          initialData={savedAddress}
-          onSubmit={onSubmit}
-          isLoading={loading}
-        />
-      </div>
-
-      {/* PRAWA: PODSUMOWANIE REZERWACJI */}
-      <div className="lg:col-span-5">
-        <div className="sticky top-10 bg-zinc-900 text-white p-12 rounded-[2.5rem] shadow-2xl space-y-8">
-          <div className="flex items-center gap-3 text-primary">
-            <ShieldCheck size={20} />
-            <h2 className="text-xl font-black italic uppercase tracking-widest">
-              Reserved Items
-            </h2>
-          </div>
-
-          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-4 scrollbar-hide">
-            {order.items.map((item: any) => (
-              <div
-                key={item.id}
-                className="flex justify-between items-center border-b border-white/10 pb-4"
-              >
-                <div>
-                  <p className="font-black uppercase italic text-sm tracking-tight">
-                    {item.product.name}
-                  </p>
-                  <p className="text-[10px] opacity-40 font-black uppercase">
-                    Qty: {item.quantity}
-                  </p>
-                </div>
-                <p className="font-black italic text-primary">
-                  <PriceFormatter amount={Number(item.price) * item.quantity} />
-                </p>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+          {/* SEKCJA 1: IDENTITY (Taka sama jak w Dashboardzie) */}
+          <Card className="bg-card/60 rounded-[2rem] overflow-hidden border-none shadow-none">
+            <CardContent className="p-8 md:p-12 space-y-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-2 w-2 bg-primary rounded-full animate-pulse" />
+                <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-40">
+                  Consignee Identity
+                </h2>
               </div>
-            ))}
-          </div>
 
-          <div className="pt-6 border-t border-white/20">
-            <div className="flex justify-between items-end">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
-                Total Value
-              </span>
-              <span className="text-5xl font-black italic tracking-tighter text-primary">
-                <PriceFormatter amount={order.totalAmount} />
-              </span>
-            </div>
-          </div>
+              <FormField
+                control={form.control}
+                name="fullName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
+                      Full Identity
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className={artifactInputStyle}
+                        placeholder="Enter Name..."
+                      />
+                    </FormControl>
+                    <FormMessage className="text-sm font-bold uppercase italic" />
+                  </FormItem>
+                )}
+              />
 
-          <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-            <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed opacity-60 text-center">
-              Your items are currently locked in our vault. Complete address
-              details to proceed to secure checkout.
-            </p>
-          </div>
-        </div>
-      </div>
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
+                      Contact Signal
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className={artifactInputStyle}
+                        placeholder="+48 --- --- ---"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-sm font-bold uppercase italic" />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* SEKCJA 2: LOGISTICS */}
+          <Card className="bg-card/60 rounded-[2rem] overflow-hidden border-none shadow-none">
+            <CardContent className="p-8 md:p-12 space-y-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-2 w-2 bg-zinc-900 rounded-full" />
+                <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-40">
+                  Logistics Coordinates
+                </h2>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="street"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
+                      Street Address
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className={artifactInputStyle}
+                        placeholder="Street & Number..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="zipCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
+                        Postal Code
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className={artifactInputStyle}
+                          placeholder="00-000"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
+                        Sector / City
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className={artifactInputStyle}
+                          placeholder="City Name..."
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* PRZYCISK PŁATNOŚCI */}
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full h-24 bg-black hover:bg-primary text-white rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98]"
+          >
+            {loading ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <div className="flex items-center gap-4">
+                Pay with Stripe <CreditCard size={28} />
+              </div>
+            )}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }

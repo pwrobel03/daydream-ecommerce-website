@@ -11,6 +11,7 @@ import {
   Settings,
   Package,
   ShieldCheck,
+  Van,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,8 +23,9 @@ export default function DashboardSidebar() {
   const userMenuItems = [
     { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { title: "My Profile", href: "/dashboard/profile", icon: User },
+    { title: "Delivery address", href: "/dashboard/address", icon: Van },
     { title: "Settings", href: "/dashboard/settings", icon: Settings },
-    { title: "Orders", href: "/dashboard/orders", icon: Settings },
+    { title: "Orders", href: "/dashboard/orders", icon: Package },
   ];
 
   const adminMenuItems = [

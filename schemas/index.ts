@@ -97,3 +97,11 @@ export const productSchema = z.object({
   categoryIds: z.array(z.string()).default([]),
   ingredientIds: z.array(z.string()).default([]),
 });
+
+export const AddressSchema = z.object({
+  fullName: z.string().min(3, "Identity required"),
+  street: z.string().min(5, "Coordinates required"),
+  city: z.string().min(2, "Sector required"),
+  zipCode: z.string().min(5, "Postal code required"),
+  phone: z.string().min(9, "Contact signal required"),
+});

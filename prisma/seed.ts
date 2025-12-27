@@ -8,6 +8,7 @@ import { categories } from "./data/categories";
 import { statuses } from "./data/statuses";
 import { ingredients } from "./data/ingredients";
 import { products } from "./data/products";
+import { reviewTemplates } from "./data/reviews";
 
 const prisma = new PrismaClient();
 
@@ -25,7 +26,7 @@ async function main() {
   await prisma.address.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log("👥 Synthesizing User Identities...");
+  console.log(`👥 Synthesizing ${users.length} User Identities...`);
   const hashedPassword = await bcrypt.hash("password123", 12);
   const now = new Date();
 
@@ -63,15 +64,10 @@ async function main() {
   const createdStats = await Promise.all(statuses.map(s => prisma.status.create({ data: s })));
   const createdIngs = await Promise.all(ingredients.map(i => prisma.ingredient.create({ data: i })));
 
-  console.log("💎 Forging Artifacts (Multi-Category Support)...");
+  console.log("💎 Forging Artifacts & Personalized Reviews...");
   for (const p of products) {
-    // SZUKANIE WIELU KATEGORII
     const matchedCats = createdCats.filter(c => p.categorySlugs.includes(c.slug));
     const stat = createdStats.find(s => s.slug === p.statusSlug);
-
-    if (matchedCats.length === 0) {
-      console.warn(`⚠️ Warning: No valid categories found for product "${p.name}". Required slugs: ${p.categorySlugs.join(", ")}`);
-    }
 
     const product = await prisma.product.create({
       data: {
@@ -83,37 +79,42 @@ async function main() {
         weight: p.weight,
         stock: p.stock,
         statusId: stat?.id || null,
-        
-        // POPRAWKA: Connect dla wielu kategorii naraz
         categories: {
           connect: matchedCats.map(cat => ({ id: cat.id }))
         },
-
         ingredients: {
           connect: createdIngs
             .filter(ing => p.ingredientNames.includes(ing.name))
             .map(ing => ({ id: ing.id }))
         },
-
         images: {
-          create: p.images.map((url) => ({
-            url: url
-          }))
+          create: p.images.map((url) => ({ url }))
         }
       }
     });
 
-    console.log(`✅ Artifact Created: ${product.name} (linked to ${matchedCats.length} categories)`);
+    // --- SEKCJA DYNAMICZNYCH RECENZJI ---
+    const reviewCount = Math.floor(Math.random() * 6) + 10; // Od 10 do 15 recenzji na produkt
+    const shuffledUsers = [...createdUsers].sort(() => 0.5 - Math.random());
+    const selectedUsers = shuffledUsers.slice(0, reviewCount);
 
-    const randomUser = createdUsers[Math.floor(Math.random() * createdUsers.length)];
-    await prisma.review.create({
-      data: {
-        content: "Integration complete. Artifact quality exceeds expectations.",
-        rating: 5,
-        userId: randomUser.id,
-        productId: product.id
-      }
-    });
+    for (const user of selectedUsers) {
+      const template = reviewTemplates[Math.floor(Math.random() * reviewTemplates.length)];
+      
+      // KLUCZOWE: Podmiana nazwy produktu w treści recenzji
+      const dynamicContent = template.content.replace(/{productName}/g, product.name);
+
+      await prisma.review.create({
+        data: {
+          content: dynamicContent,
+          rating: template.rating,
+          userId: user.id,
+          productId: product.id
+        }
+      });
+    }
+
+    console.log(`✅ ${product.name}: Live with ${reviewCount} personalized user logs.`);
   }
 
   console.log("\n✨ NEXUS DATABASE SYNCHRONIZED ✨\n");

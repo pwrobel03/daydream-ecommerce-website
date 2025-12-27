@@ -1,98 +1,127 @@
+// prisma/seed.ts
+
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
+
+import { users } from "./data/users";
+import { categories } from "./data/categories";
+import { statuses } from "./data/statuses";
+import { ingredients } from "./data/ingredients";
+import { products } from "./data/products";
+
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🧹 Czyszczenie bazy danych (zachowując kolejność relacji)...");
-  
-  // 1. Najpierw usuwamy tabele zależne (dzieci)
+  console.log("🧹 System Purge: Cleaning Nexus Database...");
+
+  await prisma.review.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
-  await prisma.address.deleteMany();
-  await prisma.review.deleteMany();
   await prisma.productImage.deleteMany();
-  
-  // 2. Potem tabele główne (rodzice)
-  await prisma.sale.deleteMany();
-  await prisma.ingredient.deleteMany();
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.status.deleteMany();
-  await prisma.account.deleteMany();
+  await prisma.ingredient.deleteMany();
+  await prisma.address.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log("👤 Tworzenie użytkownika testowego...");
-  const testUser = await prisma.user.create({
-    data: { 
-        name: "Jan Kowalski", 
-        email: "jan@example.com", 
-        role: "ADMIN" // Zmieniam na ADMIN, żebyś mógł testować dashboard
-    },
-  });
+  console.log("👥 Synthesizing User Identities...");
+  const hashedPassword = await bcrypt.hash("password123", 12);
+  const now = new Date();
 
-  console.log("🏷️ Tworzenie statusów...");
-  const sNew = await prisma.status.create({ data: { name: "Nowość", slug: "new", color: "#10b981" } });
-  const sHot = await prisma.status.create({ data: { name: "Hit", slug: "hot", color: "#f97316" } });
-  const sSale = await prisma.status.create({ data: { name: "Wyprzedaż", slug: "sale", color: "#ef4444" } });
+  const createdUsers = [];
+  for (const u of users) {
+    const addr = await prisma.address.create({ data: u.address });
+    const user = await prisma.user.create({
+      data: {
+        name: u.name,
+        email: u.email,
+        password: hashedPassword,
+        role: u.role,
+        emailVerified: now,
+        addressId: addr.id,
+      }
+    });
+    createdUsers.push(user);
+  }
 
-  console.log("🌱 Tworzenie składników...");
-  const ingredients = await Promise.all([
-    prisma.ingredient.create({ data: { name: "Dark Chocolate", image: "/ingredients/dark-chocolate.png" } }),
-    prisma.ingredient.create({ data: { name: "Roasted Almonds", image: "/ingredients/almonds.png" } }),
-    prisma.ingredient.create({ data: { name: "Organic Honey", image: "/ingredients/honey.png" } }),
-    prisma.ingredient.create({ data: { name: "Dried Cranberries", image: "/ingredients/almonds.png" } }),
-    prisma.ingredient.create({ data: { name: "Pumpkin Seeds", image: "/ingredients/dark-chocolate.png" } }),
-    prisma.ingredient.create({ data: { name: "Coconut Flakes", image: "/ingredients/almonds.png" } }),
-    prisma.ingredient.create({ data: { name: "Chia Seeds", image: "/ingredients/honey.png" } }),
-  ]);
+  console.log("📂 Mapping Categories...");
+  const createdCats = await Promise.all(
+    categories.map((c) =>
+      prisma.category.create({
+        data: {
+          name: c.name,
+          slug: c.slug,
+          description: c.description || "",
+          image: c.image || null,
+        },
+      })
+    )
+  );
 
-  console.log("📂 Tworzenie kategorii...");
-  const muesli = await prisma.category.create({ data: { name: "Muesli", slug: "muesli", image: "/categories/muesli.png" } });
-  const granola = await prisma.category.create({ data: { name: "Granola", slug: "granola", image: "/categories/granola.png" } });
-  const keto = await prisma.category.create({ data: { name: "KETO", slug: "keto", image: "/categories/keto-special.png" } });
-  const chocoMuesli = await prisma.category.create({ data: { name: "Chocolate Muesli", slug: "chocolate-muesli", parentId: muesli.id } });
+  console.log("🏷️ Forging Statuses & Ingredients...");
+  const createdStats = await Promise.all(statuses.map(s => prisma.status.create({ data: s })));
+  const createdIngs = await Promise.all(ingredients.map(i => prisma.ingredient.create({ data: i })));
 
-  console.log("🏷️ Tworzenie produktów...");
-  const productConfigs = [
-    { name: "Choco-Almond Dream", slug: "choco-almond", price: 24.99, promoPrice: 19.99, statusId: sSale.id, cat: [muesli.id, chocoMuesli.id], ing: [0, 1] },
-    { name: "Honey Nut Crunch", slug: "honey-nut", price: 29.99, promoPrice: null, statusId: sNew.id, cat: [granola.id], ing: [2, 1, 4] },
-    { name: "Keto Berry Blast", slug: "keto-berry", price: 34.99, promoPrice: 28.50, statusId: sHot.id, cat: [keto.id], ing: [3, 4, 5] },
-    { name: "Tropical Coconut", slug: "tropical-coconut", price: 27.50, promoPrice: null, statusId: null, cat: [granola.id], ing: [5, 2] },
-    { name: "Double Dark Choco", slug: "double-dark", price: 31.00, promoPrice: 25.00, statusId: sSale.id, cat: [granola.id, chocoMuesli.id], ing: [0, 6] },
-  ];
+  console.log("💎 Forging Artifacts (Multi-Category Support)...");
+  for (const p of products) {
+    // SZUKANIE WIELU KATEGORII
+    const matchedCats = createdCats.filter(c => p.categorySlugs.includes(c.slug));
+    const stat = createdStats.find(s => s.slug === p.statusSlug);
 
-  for (const p of productConfigs) {
+    if (matchedCats.length === 0) {
+      console.warn(`⚠️ Warning: No valid categories found for product "${p.name}". Required slugs: ${p.categorySlugs.join(", ")}`);
+    }
+
     const product = await prisma.product.create({
       data: {
         name: p.name,
         slug: p.slug,
-        description: `Wyjątkowy produkt ${p.name} stworzony dla Twojego zdrowia.`,
+        description: p.description,
         price: p.price,
         promoPrice: p.promoPrice,
-        statusId: p.statusId,
-        weight: "500g",
-        stock: Math.floor(Math.random() * 50) + 10,
-        categories: { connect: p.cat.map(id => ({ id })) },
-        ingredients: { connect: p.ing.map(idx => ({ id: ingredients[idx].id })) },
-        images: { create: [{ url: "/product/main.png" }] }
+        weight: p.weight,
+        stock: p.stock,
+        statusId: stat?.id || null,
+        
+        // POPRAWKA: Connect dla wielu kategorii naraz
+        categories: {
+          connect: matchedCats.map(cat => ({ id: cat.id }))
+        },
+
+        ingredients: {
+          connect: createdIngs
+            .filter(ing => p.ingredientNames.includes(ing.name))
+            .map(ing => ({ id: ing.id }))
+        },
+
+        images: {
+          create: p.images.map((url) => ({
+            url: url
+          }))
+        }
       }
     });
 
+    console.log(`✅ Artifact Created: ${product.name} (linked to ${matchedCats.length} categories)`);
+
+    const randomUser = createdUsers[Math.floor(Math.random() * createdUsers.length)];
     await prisma.review.create({
       data: {
-        content: `Świetna tekstura i smak. Mój ulubiony to ${p.name}.`,
+        content: "Integration complete. Artifact quality exceeds expectations.",
         rating: 5,
-        userId: testUser.id,
-        productId: product.id,
+        userId: randomUser.id,
+        productId: product.id
       }
     });
   }
 
-  console.log("✅ Baza danych została pomyślnie zasilona!");
+  console.log("\n✨ NEXUS DATABASE SYNCHRONIZED ✨\n");
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Błąd podczas seedowania:", e);
+    console.error("❌ Seeding Error:", e);
     process.exit(1);
   })
   .finally(async () => {

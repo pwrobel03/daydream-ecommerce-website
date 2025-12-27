@@ -6,6 +6,7 @@ import DiscountBanner from "@/components/discount-banner";
 import Container from "@/components/Container";
 import { CategorySection } from "@/components/category-section";
 import { getMainCategories } from "@/lib/db-categories";
+import Image from "next/image";
 
 const font = Poppins({
   subsets: ["latin"],
@@ -17,7 +18,6 @@ import { getAllSales } from "@/lib/db-sales";
 export default async function Home() {
   const sales = await getAllSales();
   const categories = await getMainCategories();
-
 
   return (
     // <div className="bg-card border p-4 rounded-2xl hoverEffect cursor-pointer">

@@ -9,6 +9,7 @@ import logo from "@/assets/Brand/logo.jpeg";
 import Image from "next/image";
 import { db } from "@/lib/db";
 import { CartCounter } from "../CartCounter";
+import { UserButton } from "../auth/user-button";
 
 const Header = async () => {
   // Pobieramy kategorie bezpośrednio z bazy danych
@@ -48,14 +49,7 @@ const Header = async () => {
             </Button>
           </Link>
 
-          <Button
-            variant="default"
-            size="sm"
-            className="hidden sm:flex rounded-full px-6 font-semibold"
-          >
-            <User className="h-4 w-4 mr-2" />
-            Account
-          </Button>
+          <UserButton />
 
           <div className="lg:hidden">
             <MobileNav categories={categories} />

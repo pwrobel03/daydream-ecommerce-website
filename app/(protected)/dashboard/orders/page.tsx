@@ -44,14 +44,24 @@ export default async function OrdersPage() {
     })),
   }));
 
+  console.log("--- DEBUG START ---");
+  serializedOrders.forEach((order, i) => {
+    order.items.forEach((item, j) => {
+      console.log(`Zamówienie ${i}, Produkt ${j} (${item.product.name}):`);
+      console.log("Czy ma klucz images?", "images" in item.product);
+      console.log("Zawartość images:", item.product.images);
+    });
+  });
+  console.log("--- DEBUG END ---");
+
   return (
-    <div className="container mx-auto px-6 py-20 max-w-7xl flex flex-col space-y-16">
+    <div className="container mx-auto py-20 flex flex-col space-y-16">
       <header className="flex justify-between items-end border-b pb-10">
         <div className="space-y-1 overflow-hidden">
           <h1 className="text-5xl sm:text-7xl font-black italic uppercase tracking-tighter">
             Archive
           </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 ml-1">
+          <p className="text-md font-black uppercase tracking-[0.4em] opacity-40 ml-1">
             Order History & Status Tracking
           </p>
         </div>

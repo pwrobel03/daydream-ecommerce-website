@@ -17,7 +17,7 @@ export default function DashboardLayout({
 
       {/* MAIN CONTENT */}
       <main className="flex-grow overflow-y-auto">
-        <div className="p-4 md:p-8 xl:p-12 mx-auto">{children}</div>
+        <div className="md:p-8 xl:p-12 mx-auto">{children}</div>
       </main>
     </Container>
   );

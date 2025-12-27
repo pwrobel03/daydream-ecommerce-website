@@ -154,3 +154,51 @@ export async function finalizeAndPay(orderId: string, addressData: any) {
     return { url: null, error: "Stripe Session Error" }; // Błąd: url to null
   }
 }
+
+export async function recreateStripeSession(orderId: string) {
+  const sessionAuth = await auth();
+  if (!sessionAuth?.user?.id) return { error: "Unauthorized" };
+
+  try {
+    const order = await db.order.findUnique({
+      where: { 
+        id: orderId,
+        userId: sessionAuth.user.id,
+        status: "PENDING", // Tylko dla zamówień oczekujących
+        isPaid: false 
+      },
+      include: { items: { include: { product: true } } }
+    });
+
+    if (!order) return { error: "Order not found or already processed" };
+
+    // Tworzymy nową sesję Stripe (logika identyczna jak przy pierwszym razie)
+    const stripeSession = await stripe.checkout.sessions.create({
+      line_items: order.items.map(item => ({
+        price_data: {
+          currency: "USD",
+          product_data: { name: item.product.name },
+          unit_amount: Math.round(Number(item.price) * 100),
+        },
+        quantity: item.quantity,
+      })),
+      mode: "payment",
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/order/success/${orderId}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/orders/${orderId}`,
+      metadata: { orderId }
+    });
+
+    if (!stripeSession.url) throw new Error("Stripe session failed");
+
+    // Aktualizujemy ID sesji w bazie danych
+    await db.order.update({
+      where: { id: orderId },
+      data: { stripeSessionId: stripeSession.id }
+    });
+
+    return { url: stripeSession.url };
+  } catch (error) {
+    console.error(error);
+    return { error: "Failed to recreate payment session" };
+  }
+}

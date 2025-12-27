@@ -32,7 +32,7 @@ export default async function DashboardPage() {
     {
       title: "Account Settings",
       description: "Update your profile and security details.",
-      href: "/dashboard/settings",
+      href: "/dashboard/profile",
       icon: UserCog,
       color: "bg-orange-500",
     },

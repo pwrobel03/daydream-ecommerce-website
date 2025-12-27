@@ -24,7 +24,6 @@ export default function DashboardSidebar() {
     { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
     { title: "My Profile", href: "/dashboard/profile", icon: User },
     { title: "Delivery address", href: "/dashboard/address", icon: Van },
-    { title: "Settings", href: "/dashboard/settings", icon: Settings },
     { title: "Orders", href: "/dashboard/orders", icon: Package },
   ];
 

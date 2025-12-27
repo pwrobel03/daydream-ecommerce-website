@@ -1,6 +1,6 @@
 // prisma/seed.ts
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, OrderStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 import { users } from "./data/users";
@@ -15,6 +15,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🧹 System Purge: Cleaning Nexus Database...");
 
+  // Kolejność usuwania: najpierw dzieci, potem rodzice
   await prisma.review.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
@@ -64,7 +65,8 @@ async function main() {
   const createdStats = await Promise.all(statuses.map(s => prisma.status.create({ data: s })));
   const createdIngs = await Promise.all(ingredients.map(i => prisma.ingredient.create({ data: i })));
 
-  console.log("💎 Forging Artifacts & Personalized Reviews...");
+  console.log("💎 Forging Artifacts & Reviews...");
+  const createdProducts = [];
   for (const p of products) {
     const matchedCats = createdCats.filter(c => p.categorySlugs.includes(c.slug));
     const stat = createdStats.find(s => s.slug === p.statusSlug);
@@ -79,31 +81,24 @@ async function main() {
         weight: p.weight,
         stock: p.stock,
         statusId: stat?.id || null,
-        categories: {
-          connect: matchedCats.map(cat => ({ id: cat.id }))
-        },
+        categories: { connect: matchedCats.map(cat => ({ id: cat.id })) },
         ingredients: {
           connect: createdIngs
             .filter(ing => p.ingredientNames.includes(ing.name))
             .map(ing => ({ id: ing.id }))
         },
-        images: {
-          create: p.images.map((url) => ({ url }))
-        }
+        images: { create: p.images.map((url) => ({ url })) }
       }
     });
+    createdProducts.push(product);
 
-    // --- SEKCJA DYNAMICZNYCH RECENZJI ---
-    const reviewCount = Math.floor(Math.random() * 6) + 10; // Od 10 do 15 recenzji na produkt
-    const shuffledUsers = [...createdUsers].sort(() => 0.5 - Math.random());
-    const selectedUsers = shuffledUsers.slice(0, reviewCount);
+    // Dodawanie recenzji
+    const reviewCount = Math.floor(Math.random() * 6) + 10;
+    const selectedUsers = [...createdUsers].sort(() => 0.5 - Math.random()).slice(0, reviewCount);
 
     for (const user of selectedUsers) {
       const template = reviewTemplates[Math.floor(Math.random() * reviewTemplates.length)];
-      
-      // KLUCZOWE: Podmiana nazwy produktu w treści recenzji
       const dynamicContent = template.content.replace(/{productName}/g, product.name);
-
       await prisma.review.create({
         data: {
           content: dynamicContent,
@@ -113,11 +108,68 @@ async function main() {
         }
       });
     }
-
-    console.log(`✅ ${product.name}: Live with ${reviewCount} personalized user logs.`);
   }
 
-  console.log("\n✨ NEXUS DATABASE SYNCHRONIZED ✨\n");
+  // --- NOWA SEKCJA: GENEROWANIE ZAMÓWIEŃ (ORDERS) ---
+  console.log("📦 Generating Logistics History (Orders)...");
+  
+  const possibleStatuses: OrderStatus[] = ["PAID", "DELIVERED", "SHIPPED", "PENDING"];
+
+  for (const user of createdUsers) {
+    // Każdy użytkownik ma od 2 do 4 zamówień
+    const orderCount = Math.floor(Math.random() * 3) + 2;
+
+    for (let i = 0; i < orderCount; i++) {
+      // Każde zamówienie ma od 1 do 5 różnych produktów
+      const itemCount = Math.floor(Math.random() * 5) + 1;
+      const shuffledProducts = [...createdProducts].sort(() => 0.5 - Math.random()).slice(0, itemCount);
+      
+      const status = possibleStatuses[Math.floor(Math.random() * possibleStatuses.length)];
+      const isPaid = status === "PAID" || status === "DELIVERED" || status === "SHIPPED";
+
+      // Tworzymy zamówienie
+      const order = await prisma.order.create({
+        data: {
+          userId: user.id,
+          addressId: user.addressId, // Korzystamy z przypisaného adresu użytkownika
+          status: status,
+          isPaid: isPaid,
+          totalAmount: 0, // Zaktualizujemy za chwilę
+          createdAt: new Date(Date.now() - Math.floor(Math.random() * 1000000000)), // Losowa data z przeszłości
+        }
+      });
+
+      let calculatedTotal = 0;
+
+      // Dodajemy przedmioty do zamówienia
+      for (const product of shuffledProducts) {
+        const quantity = Math.floor(Math.random() * 3) + 1;
+        const priceAtPurchase = product.promoPrice ? product.promoPrice : product.price;
+        const subtotal = Number(priceAtPurchase) * quantity;
+        calculatedTotal += subtotal;
+
+        await prisma.orderItem.create({
+          data: {
+            orderId: order.id,
+            productId: product.id,
+            quantity: quantity,
+            price: priceAtPurchase,
+          }
+        });
+      }
+
+      // Aktualizujemy kwotę całkowitą zamówienia
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { totalAmount: calculatedTotal }
+      });
+    }
+  }
+
+  console.log(`\n✨ NEXUS DATABASE SYNCHRONIZED ✨`);
+  console.log(`✅ ${createdUsers.length} Users active.`);
+  console.log(`✅ ${createdProducts.length} Artifacts forged.`);
+  console.log(`✅ History of logistics established.`);
 }
 
 main()

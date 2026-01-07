@@ -9,14 +9,15 @@ export const CategorySection = ({ categories }: { categories: any[] }) => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   return (
-    <section className="w-full px-4 md:px-8 py-12">
+    <section className="w-full px-4 md:px-8 py-16">
       <div className="max-w-7xl mx-auto">
         <div className="mb-12 space-y-2">
           <span className="text-primary font-black uppercase tracking-[0.4em] text-[10px]">
             Choose Your Base
           </span>
-          <h2 className="text-4xl md:text-6xl font-black italic uppercase">
-            Explore Worlds!
+          <h2 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-[0.8] mb-8">
+            Explore Our
+            <span className="text-primary"> Worlds.</span>
           </h2>
           <p className="italic">
             Click content to explore your favourite category

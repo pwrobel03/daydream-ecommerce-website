@@ -7,13 +7,10 @@ import Container from "@/components/Container";
 import { CategorySection } from "@/components/category-section";
 import { getMainCategories } from "@/lib/db-categories";
 import Image from "next/image";
-
-const font = Poppins({
-  subsets: ["latin"],
-  weight: ["600"],
-});
+import AboutUs from "@/components/home/about-us";
 
 import { getAllSales } from "@/lib/db-sales";
+import HandcraftedProcess from "@/components/home/handcrafted-process";
 
 export default async function Home() {
   const sales = await getAllSales();
@@ -29,7 +26,9 @@ export default async function Home() {
     // </div>
     <Container>
       {sales && <DiscountBanner sales={sales} />}
+      <AboutUs />
       {categories && <CategorySection categories={categories} />}
+      <HandcraftedProcess />
     </Container>
   );
 }

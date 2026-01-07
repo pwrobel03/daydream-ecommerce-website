@@ -93,7 +93,7 @@ const SettingsPage = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
             {/* SEKCJA 1: PUBLIC IDENTITY */}
-            <Card className="bg-card/60 rounded-[2.5rem] border-none shadow-none overflow-hidden">
+            <Card className="bg-card/60 rounded-[2.5rem] border shadow-none overflow-hidden">
               <CardContent className="p-8 md:p-12 space-y-8">
                 <div className="flex items-center gap-3 mb-4">
                   <UserCog className="text-primary" size={20} />
@@ -153,7 +153,7 @@ const SettingsPage = () => {
 
             {/* SEKCJA 2: SECURITY (Ukryta dla OAuth) */}
             {user?.isOAuth !== true && (
-              <Card className="bg-card/60 rounded-[2.5rem] border-none shadow-none overflow-hidden">
+              <Card className="bg-card/60 rounded-[2.5rem] shadow-none overflow-hidden border">
                 <CardContent className="p-8 md:p-12 space-y-8">
                   <div className="flex items-center gap-3 mb-4">
                     <ShieldCheck className="text-primary" size={20} />

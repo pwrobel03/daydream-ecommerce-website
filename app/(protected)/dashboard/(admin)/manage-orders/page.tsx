@@ -1,88 +1,50 @@
 // app/admin/orders/page.tsx
-import { auth } from "@/auth";
-import { db } from "@/lib/db";
-import { redirect } from "next/navigation";
+import { getAdminOrders } from "@/actions/admin/admin-orders";
 import { AdminOrdersList } from "../../_components/admin-orders-list";
+import { PaginationControls } from "@/components/pagination-controls";
+import { SearchOrders } from "@/components/search-orders";
 
-export default async function AdminOrdersPage() {
-  const session = await auth();
+export default async function AdminOrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; q?: string }>;
+}) {
+  // Rozpakowanie parametrów - BEZ TEGO NIE ZADZIAŁA W NEXT 15
+  const sParams = await searchParams;
+  const page = sParams.page;
+  const q = sParams.q;
 
-  // 1. GUARD: Tylko dla ADMINA
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
-    redirect("/");
-  }
+  const currentPage = parseInt(page || "1", 10);
+  const searchQuery = q || "";
 
-  // 2. Pobieramy WSZYSTKIE zamówienia wraz z danymi klienta
-  const orders = await db.order.findMany({
-    include: {
-      user: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
-      address: true,
-      items: {
-        include: {
-          product: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  // 3. Serializacja (Decimal -> Number, Date -> String)
-  const serializedOrders = orders.map((order) => ({
-    ...order,
-    totalAmount: Number(order.totalAmount),
-    createdAt: order.createdAt.toISOString(),
-    updatedAt: order.updatedAt.toISOString(),
-    items: order.items.map((item) => ({
-      ...item,
-      price: Number(item.price),
-    })),
-  }));
+  const { orders, totalPages, totalCount } = await getAdminOrders(
+    currentPage,
+    15,
+    searchQuery
+  );
 
   return (
-    <div className="container mx-auto py-20 flex flex-col space-y-16">
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b pb-10 gap-6">
-        <div className="space-y-1 overflow-hidden">
-          <h1 className="text-5xl sm:text-8xl font-black italic uppercase tracking-tighter leading-[0.8]">
-            Master Control
+    <div className="container mx-auto py-20 space-y-12">
+      <header className="flex flex-col md:flex-row justify-between items-end gap-8 border-b pb-10">
+        <div className="space-y-1">
+          <h1 className="text-6xl font-black italic uppercase tracking-tighter">
+            Terminal
           </h1>
-          <p className="text-md font-black uppercase tracking-[0.4em] text-primary ml-1">
-            Global Logistics & Order Management
+          <p className="text-xs font-black uppercase tracking-[0.4em] text-primary">
+            Active Records: {totalCount}
           </p>
         </div>
-
-        {/* Statystyka w stylu Nexus */}
-        <div className="flex gap-8">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold uppercase opacity-40">
-              Total Volume
-            </span>
-            <span className="text-2xl font-black italic">
-              {serializedOrders.length}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold uppercase opacity-40">
-              Active Tasks
-            </span>
-            <span className="text-2xl font-black italic text-primary">
-              {serializedOrders.filter((o) => o.status === "PENDING").length}
-            </span>
-          </div>
-        </div>
+        <SearchOrders defaultValue={searchQuery} />
       </header>
 
-      <AdminOrdersList orders={serializedOrders} />
+      {/* Wyświetlamy listę - sprawdzamy czy orders to tablica */}
+      <AdminOrdersList orders={orders || []} />
+
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        searchQuery={searchQuery}
+      />
     </div>
   );
 }

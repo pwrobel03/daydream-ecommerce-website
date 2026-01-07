@@ -32,7 +32,7 @@ export const UserButton = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
         <DropdownMenuItem>
-          <Link href={"/settings"} className="flex">
+          <Link href={"/dashboard/profile"} className="flex">
             <UserRoundPen className="w-4 h-4 mr-1" />
             <p>Profile</p>
           </Link>

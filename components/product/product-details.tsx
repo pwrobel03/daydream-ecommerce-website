@@ -11,7 +11,7 @@ export default function ProductDetails({ product }: { product: any }) {
   }));
 
   return (
-    <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-start my-16 lg:my-24 pt-16">
+    <div className="flex flex-col lg:flex-row gap-16 items-start my-12 pt-8">
       {/* LEWA STRONA: Opis (Editorial Copy) */}
       <div className="w-full flex-1">
         <div className="relative flex items-center justify-center mb-12">

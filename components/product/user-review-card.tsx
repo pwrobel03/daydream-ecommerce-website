@@ -33,9 +33,9 @@ export default function UserReviewCard({
 
   return (
     <div className="group relative animate-in fade-in zoom-in-95 duration-700">
-      <div className="absolute -inset-1 bg-gradient-to-r from-primary/10 to-transparent rounded-[3.5rem] blur-xl opacity-50 transition duration-1000" />
+      <div className="absolute rounded-[3.5rem] blur-xl opacity-50 transition duration-1000" />
 
-      <div className="relative bg-white dark:bg-zinc-950 border border-primary/20 p-10 rounded-[3rem] shadow-2xl">
+      <div className="relative bg-card/60 border border-primary/20 p-10 rounded-[3rem] shadow-2xl">
         <div className="flex justify-between items-start mb-8">
           <div className="flex flex-col gap-2">
             <span className="px-4 py-1.5 w-fit bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-primary/20">
@@ -58,14 +58,14 @@ export default function UserReviewCard({
           <div className="flex gap-2 transition-opacity">
             <button
               onClick={onEdit}
-              className="p-3 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-primary hover:text-white transition-all"
+              className="p-3 rounded-full bg-card border-border border hover:bg-primary hover:text-white transition-all"
             >
               <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={handleDelete}
               disabled={isPending}
-              className="p-3 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-destructive hover:text-white transition-all disabled:opacity-50"
+              className="p-3 rounded-full bg-card border-border border hover:bg-destructive hover:text-white transition-all disabled:opacity-50"
             >
               <Trash2 className="w-4 h-4" />
             </button>

@@ -77,141 +77,143 @@ export function DeliveryClient({ order, savedAddress }: DeliveryClientProps) {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
-          {/* SEKCJA 1: IDENTITY (Taka sama jak w Dashboardzie) */}
-          <Card className="bg-card/60 rounded-[2rem] overflow-hidden border-none shadow-none">
-            <CardContent className="p-8 md:p-12 space-y-6">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-2 w-2 bg-primary rounded-full animate-pulse" />
-                <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-40">
-                  Consignee Identity
-                </h2>
-              </div>
+          <div className="flex flex-col md:flex-row gap-10">
+            {/* SEKCJA 1: IDENTITY (Taka sama jak w Dashboardzie) */}
+            <Card className="bg-card/60 rounded-[2rem] overflow-hidden border-none shadow-none flex-1">
+              <CardContent className="p-8 md:p-12 space-y-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="h-2 w-2 bg-primary rounded-full animate-pulse" />
+                  <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-40">
+                    Consignee Identity
+                  </h2>
+                </div>
 
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
-                      Full Identity
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        className={artifactInputStyle}
-                        placeholder="Enter Name..."
-                      />
-                    </FormControl>
-                    <FormMessage className="text-sm font-bold uppercase italic" />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
-                      Contact Signal
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        className={artifactInputStyle}
-                        placeholder="+48 --- --- ---"
-                      />
-                    </FormControl>
-                    <FormMessage className="text-sm font-bold uppercase italic" />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* SEKCJA 2: LOGISTICS */}
-          <Card className="bg-card/60 rounded-[2rem] overflow-hidden border-none shadow-none">
-            <CardContent className="p-8 md:p-12 space-y-6">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-2 w-2 bg-zinc-900 rounded-full" />
-                <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-40">
-                  Logistics Coordinates
-                </h2>
-              </div>
-
-              <FormField
-                control={form.control}
-                name="street"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
-                      Street Address
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        className={artifactInputStyle}
-                        placeholder="Street & Number..."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="zipCode"
+                  name="fullName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
-                        Postal Code
+                        Full Identity
                       </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           className={artifactInputStyle}
-                          placeholder="00-000"
+                          placeholder="Enter Name..."
+                        />
+                      </FormControl>
+                      <FormMessage className="text-sm font-bold uppercase italic" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
+                        Contact Signal
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className={artifactInputStyle}
+                          placeholder="+48 --- --- ---"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-sm font-bold uppercase italic" />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* SEKCJA 2: LOGISTICS */}
+            <Card className="bg-card/60 rounded-[2rem] overflow-hidden border-none shadow-none flex-1">
+              <CardContent className="p-8 md:p-12 space-y-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="h-2 w-2 bg-zinc-900 rounded-full" />
+                  <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-40">
+                    Logistics Coordinates
+                  </h2>
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="street"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
+                        Street Address
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className={artifactInputStyle}
+                          placeholder="Street & Number..."
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
-                        Sector / City
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          className={artifactInputStyle}
-                          placeholder="City Name..."
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="zipCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
+                          Postal Code
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className={artifactInputStyle}
+                            placeholder="00-000"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
+                          Sector / City
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className={artifactInputStyle}
+                            placeholder="City Name..."
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* PRZYCISK PŁATNOŚCI */}
           <Button
             type="submit"
             disabled={loading}
-            className="w-full h-24 bg-black hover:bg-primary text-white rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98]"
+            className="w-full h-24 hover:bg-primary hover:text-white rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98] bg-foreground text-background"
           >
             {loading ? (
               <Loader2 className="animate-spin" />
             ) : (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 ">
                 Pay with Stripe <CreditCard size={28} />
               </div>
             )}

@@ -183,7 +183,7 @@ export default function AdminCommentsPage() {
             disabled={loadMoreLoading}
             className="group flex flex-col items-center gap-4"
           >
-            <div className="w-16 h-16 rounded-full border border-black/5 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500">
+            <div className="w-16 h-16 rounded-full border border-border/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500">
               {loadMoreLoading ? (
                 <Loader2 className="animate-spin" />
               ) : (

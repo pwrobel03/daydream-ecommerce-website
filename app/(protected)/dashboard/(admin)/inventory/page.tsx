@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import InventoryClient from "../_components/inventory-client";
+import InventoryClient from "../../_components/inventory-client";
 import { PackagePlus } from "lucide-react";
 import Link from "next/link";
 

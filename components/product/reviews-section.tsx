@@ -86,57 +86,6 @@ export default function ReviewsSection({
           </span>
         </div>
       </div>
-
-      {/* <div className="mb-24">
-        {user ? (
-          currentUserReview ? (
-            <div className="animate-in fade-in zoom-in-95 duration-700">
-              <div className="bg-white dark:bg-zinc-900 border border-primary/20 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
-                <div className="flex justify-between items-start mb-8">
-                  <span className="px-4 py-1.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full">
-                    Your Voice
-                  </span>
-                  <div className="flex gap-1 text-primary">
-                    {[...Array(currentUserReview.rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-current" />
-                    ))}
-                  </div>
-                </div>
-                <p className="text-3xl font-medium italic leading-tight">
-                  "{currentUserReview.content}"
-                </p>
-                <div className="mt-8 flex items-center gap-3 opacity-50">
-                  <div className="w-8 h-8 rounded-full bg-accent overflow-hidden relative">
-                    {user.image && (
-                      <Image
-                        src={user.image}
-                        alt="U"
-                        fill
-                        className="object-cover"
-                      />
-                    )}
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest">
-                    {user.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <AddReviewForm
-              productId={productId}
-              user={user}
-              onSuccess={handleAddOptimisticReview}
-            />
-          )
-        ) : (
-          <div className="p-12 border-2 border-dashed rounded-[3rem] text-center opacity-50">
-            <p className="italic uppercase tracking-widest text-sm font-bold">
-              Log in to add review
-            </p>
-          </div>
-        )}
-      </div> */}
       <div className="mb-8 md:mb-24">
         {user ? (
           currentUserReview && !isEditing ? (
@@ -160,7 +109,9 @@ export default function ReviewsSection({
             />
           )
         ) : (
-          <>Login</>
+          <p className="font-medium italic text-muted-foreground">
+            You need to login if you want to share your voice!
+          </p>
         )}
       </div>
 

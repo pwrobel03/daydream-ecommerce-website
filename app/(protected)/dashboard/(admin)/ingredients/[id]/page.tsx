@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
-import { IngredientForm } from "../../_components/ingredient-form";
+import { IngredientForm } from "../../../_components/ingredient-form";
 
 interface IngredientPageProps {
   params: Promise<{ id: string }>; // Zmiana typu na Promise

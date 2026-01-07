@@ -47,6 +47,6 @@ export default auth((req) => {
 // TEN BLOK MUSI ZOSTAĆ:
 export const config = {
   // Wyklucza pliki statyczne (obrazy, pdf, itp.) oraz foldery systemowe Next.js
-  // Middleware nie uruchomi się dla Twoich zdjęć granoli, co oszczędza serwer
+  // Middleware nie uruchomi się dla zdjęć, to oszczędza serwer
   matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 }

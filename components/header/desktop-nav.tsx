@@ -20,6 +20,7 @@ export function DesktopNav({ categories }: { categories: Category[] }) {
   // Tutaj ustawiamy limit - ile kategorii widać od razu
   const limit = 3;
   const visibleCategories = categories.slice(0, limit);
+  visibleCategories.push({ id: "all", name: "All products", slug: "all" });
   const hiddenCategories = categories.slice(limit);
 
   return (

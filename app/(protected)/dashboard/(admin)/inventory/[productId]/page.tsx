@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { ProductForm } from "../../_components/product-form";
+import { ProductForm } from "../../../_components/product-form";
 import { notFound } from "next/navigation";
 import { ProductType } from "@/types/product";
 

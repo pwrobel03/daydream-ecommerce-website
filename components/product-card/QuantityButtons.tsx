@@ -30,7 +30,7 @@ const QuantityButtons = ({ product }: { product: ProductType }) => {
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 rounded-full hover:bg-card hover:shadow-sm transition-all hover:text-primary"
+        className="h-8 w-8 rounded-full bg-card/60 hover:shadow-sm transition-all hover:text-primary"
         onClick={() => {
           removeItem(product.id);
           toast.success("Quantity decreased");
@@ -57,7 +57,7 @@ const QuantityButtons = ({ product }: { product: ProductType }) => {
         variant="ghost"
         size="icon"
         className={cn(
-          "h-8 w-8 rounded-full transition-all bg-card hover:text-primary",
+          "h-8 w-8 rounded-full transition-all bg-card/60 hover:text-primary",
           isAtLimit ? "opacity-30 cursor-not-allowed" : ""
         )}
         onClick={handleIncrease}

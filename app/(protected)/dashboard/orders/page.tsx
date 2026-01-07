@@ -44,16 +44,6 @@ export default async function OrdersPage() {
     })),
   }));
 
-  console.log("--- DEBUG START ---");
-  serializedOrders.forEach((order, i) => {
-    order.items.forEach((item, j) => {
-      console.log(`Zamówienie ${i}, Produkt ${j} (${item.product.name}):`);
-      console.log("Czy ma klucz images?", "images" in item.product);
-      console.log("Zawartość images:", item.product.images);
-    });
-  });
-  console.log("--- DEBUG END ---");
-
   return (
     <div className="container mx-auto py-20 flex flex-col space-y-16">
       <header className="flex justify-between items-end border-b pb-10">

@@ -1,48 +1,50 @@
 // types/product.ts
 
-export interface UserType {
+export interface ProductImage {
   id: string;
-  name: string | null;
-  image: string | null;
+  url: string;
 }
 
-export interface ReviewType {
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string | null;
+  description?: string | null;
+}
+
+export interface Status {
+  id: string;
+  name: string;
+  slug: string;
+  color?: string | null;
+}
+
+export interface Review {
   id: string;
   content: string;
   rating: number;
   userId: string;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-  user: {
-    name: string | null;
-    image: string | null;
-  };
-}
-
-export interface StatusType {
-  id: string;
-  name: string;
-  slug: string;
-  color: string | null;
+  createdAt: Date;
 }
 
 export interface ProductType {
   id: string;
   name: string;
   slug: string;
-  description: string | null;
-  price: number;       // Uwaga: Decimal z Prisma po JSON.stringify staje się number/string
-  promoPrice: number | null; 
+  description?: string | null;
+  price: any; // Decimal z Prisma traktowany jako liczba/string
+  promoPrice?: any | null;
+  weight?: string | null;
   stock: number;
-  weight: string | null;
+  statusId?: string | null;
   
-  // Zmiana: status to teraz obiekt, a nie prosty string
-  status: StatusType | null; 
+  // RELACJE (To tutaj brakowało kategorii i recenzji)
+  status?: Status | null;
+  images: ProductImage[];
+  categories: Category[];
+  reviews: Review[];
   
-  // Relacje
-  images: { id: string; url: string }[];
-  ingredients: { id: string; name: string; image: string | null }[];
-  reviews: ReviewType[]; // DODANE: lista recenzji
-  
-  createdAt: string | Date;
+  createdAt: Date;
+  updatedAt: Date;
 }

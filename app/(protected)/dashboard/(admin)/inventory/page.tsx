@@ -1,7 +1,5 @@
 import { db } from "@/lib/db";
 import InventoryClient from "../../_components/inventory-client";
-import { PackagePlus } from "lucide-react";
-import Link from "next/link";
 
 export default async function InventoryPage() {
   // Pobieramy kategorie dla filtrów (tak samo jak w CategoriesPage)

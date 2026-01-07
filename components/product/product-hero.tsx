@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import SubTitle from "@/components/sub-title";
 import PriceFormatter from "../PriceFormatter";
 import ProductStatusBadge from "../product-status-badge";
+import AddToCartButton from "../product-card/AddToCartButton";
 
 export default function ProductHero({ product }: { product: any }) {
   const { addItem } = useCart();
@@ -40,7 +41,8 @@ export default function ProductHero({ product }: { product: any }) {
         )}
       </div>
       <div className="pt-10">
-        <button
+        <AddToCartButton product={product} />
+        {/* <button
           onClick={() => addItem(product)}
           className="group relative w-full h-20 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full overflow-hidden transition-all hover:scale-[1.02] active:scale-95"
         >
@@ -49,7 +51,7 @@ export default function ProductHero({ product }: { product: any }) {
             <span>Grab this dream</span>
             <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
           </div>
-        </button>
+        </button> */}
       </div>
     </div>
   );

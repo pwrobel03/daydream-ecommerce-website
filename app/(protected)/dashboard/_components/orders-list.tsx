@@ -40,7 +40,7 @@ export function OrdersList({ orders }: OrdersListProps) {
             {/* Sekcja 1: Główne Info */}
             <div className="space-y-6 flex-grow flex">
               <div className="flex flex-wrap items-center gap-4">
-                <span className="text-[10px] font-black uppercase tracking-widest px-4 py-2 bg-zinc-900 text-white rounded-full">
+                <span className="text-[10px] font-black uppercase tracking-widest px-4 py-2 bg-primary/60 text-white rounded-full">
                   #{order.id.slice(-8)}
                 </span>
                 <div className="flex items-center gap-2 text-[10px] font-black uppercase opacity-40 italic">

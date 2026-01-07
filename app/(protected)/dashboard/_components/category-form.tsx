@@ -219,7 +219,7 @@ export function CategoryForm({
         <button
           type="submit"
           disabled={loading}
-          className="w-full h-16 bg-zinc-900 text-white rounded-full font-black italic uppercase tracking-widest hover:bg-primary transition-all disabled:opacity-50 active:scale-95"
+          className="w-full h-16 bg-foreground text-background hover:text-white rounded-full font-black italic uppercase tracking-widest hover:bg-primary transition-all disabled:opacity-50 active:scale-95"
         >
           {loading ? "Forging..." : "Forge Category"}
         </button>

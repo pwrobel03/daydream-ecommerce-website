@@ -93,7 +93,7 @@ const CartPage = () => {
           </div>
           <Link
             href="/"
-            className="group relative px-12 py-6 bg-zinc-900 text-white rounded-full overflow-hidden transition-all hover:scale-105"
+            className="group relative px-12 py-6 bg-foreground text-background hover:text-white rounded-full overflow-hidden transition-all hover:scale-105"
           >
             <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
             <span className="relative z-10 font-black uppercase italic tracking-tighter text-xl">
@@ -140,10 +140,10 @@ const CartPage = () => {
 
             <div className="space-y-4">
               <div className="flex justify-between items-end border-t  pt-8 mt-8">
-                <span className="text-lg font-black uppercase tracking-[0.4em] opacity-40">
+                <span className="text-md font-black uppercase tracking-[0.4em] opacity-40">
                   Grand Total
                 </span>
-                <span className="text-5xl font-black italic tracking-tighter text-primary">
+                <span className="text-3xl font-black italic tracking-tighter text-primary">
                   <PriceFormatter amount={getTotalPrice()} />
                 </span>
               </div>

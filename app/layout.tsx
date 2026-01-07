@@ -32,7 +32,7 @@ export default async function RootLayout({
 
   return (
     <SessionProvider session={session}>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en" suppressHydrationWarning data-scrool-behavior="smooth">
         {/* Dodajemy min-h-screen do body, aby tło zawsze wypełniało ekran */}
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}

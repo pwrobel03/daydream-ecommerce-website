@@ -53,6 +53,7 @@ export default function ProductDetails({ product }: { product: any }) {
                     src={ing.image}
                     alt={ing.name}
                     fill
+                    sizes="64px"
                     className="object-contain"
                   />
                 )}

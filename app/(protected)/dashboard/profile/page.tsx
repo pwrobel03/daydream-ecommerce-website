@@ -218,7 +218,7 @@ const SettingsPage = () => {
               <Button
                 disabled={isPending}
                 type="submit"
-                className="w-full h-24 bg-black hover:bg-primary text-white rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98]"
+                className="w-full h-24 bg-foreground hover:bg-primary text-background hover:text-white rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98]"
               >
                 {isPending ? <Loader2 className="animate-spin" /> : "Update"}
               </Button>

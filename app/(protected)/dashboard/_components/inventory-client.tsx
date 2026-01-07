@@ -179,7 +179,7 @@ export default function InventoryClient({ categories }: { categories: any[] }) {
               <div className="relative z-10 flex-grow flex flex-col md:flex-row gap-8 w-full">
                 {/* Info o produkcie */}
                 <div className="w-full space-y-3">
-                  <Link href={`/product/${product.name}`}>
+                  <Link href={`/product/${product.slug}`}>
                     <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-[0.8] cursor-pointer">
                       {product.name}
                     </h3>

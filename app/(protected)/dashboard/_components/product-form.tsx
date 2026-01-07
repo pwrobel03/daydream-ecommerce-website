@@ -123,7 +123,7 @@ export function ProductForm({
       for (const file of newImageFiles) {
         // Sprawdzenie pojedynczego pliku
         if (file.size > MAX_SINGLE_FILE_SIZE) {
-          toast.error(`Plik ${file.name} jest za duży (max 8MB)`);
+          toast.error(`File ${file.name} is to large (max 8MB)`);
           setLoading(false);
           return; // Przerywamy wysyłanie
         }
@@ -132,7 +132,7 @@ export function ProductForm({
 
       // Sprawdzenie łącznego rozmiaru
       if (currentTotalSize > MAX_TOTAL_SIZE) {
-        toast.error("Łączny rozmiar nowych zdjęć przekracza 50MB");
+        toast.error("The capacity image size couldn't be higher than 50MB");
         setLoading(false);
         return;
       }
@@ -324,7 +324,7 @@ export function ProductForm({
                   Media
                 </h2>
               </div>
-              <label className="cursor-pointer max-w-40 bg-zinc-900 text-white px-8 py-2 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:bg-primary transition-all">
+              <label className="cursor-pointer max-w-40 bg-foreground text-background hover:text-white px-8 py-2 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:bg-primary transition-all">
                 Upload{" "}
                 <input
                   disabled={loading}
@@ -457,27 +457,6 @@ export function ProductForm({
               </div>
               <div className="max-h-60 overflow-y-auto pr-2 space-y-2">
                 {categories.map((cat: any) => (
-                  // <div key={cat.id}>
-                  //   <label className="flex items-center gap-3 p-2 rounded-md hover:bg-input/40 cursor-pointer">
-                  //     <input
-                  //       type="checkbox"
-                  //       checked={form.watch("categoryIds")?.includes(cat.id)}
-                  //       onChange={(e) => {
-                  //         const current = form.getValues("categoryIds") || [];
-                  //         form.setValue(
-                  //           "categoryIds",
-                  //           e.target.checked
-                  //             ? [...current, cat.id]
-                  //             : current.filter((id) => id !== cat.id)
-                  //         );
-                  //       }}
-                  //       className="w-4 h-4 rounded"
-                  //     />
-                  //     <span className="text-xs font-black uppercase tracking-widest">
-                  //       {cat.name}
-                  //     </span>
-                  //   </label>
-                  // </div>
                   <div
                     key={cat.id}
                     className="flex items-center gap-3 p-2 rounded-md hover:bg-input/40 cursor-pointer"
@@ -516,7 +495,7 @@ export function ProductForm({
                   Ingredients
                 </h3>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 overflow-y-auto max-h-60">
                 {ingredients.map((ing: any) => (
                   <button
                     type="button"
@@ -548,7 +527,7 @@ export function ProductForm({
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-24 bg-zinc-900 text-white rounded-[2rem] font-black uppercase italic text-xl hover:bg-primary transition-all shadow-2xl"
+            className="w-full h-24 bg-foreground text-background hover:text-white rounded-[2rem] font-black uppercase italic text-xl hover:bg-primary transition-all shadow-2xl"
           >
             {loading ? (
               <Loader2 className="animate-spin mx-auto" />

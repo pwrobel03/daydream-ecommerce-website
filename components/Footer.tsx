@@ -69,7 +69,7 @@ export default function Footer() {
           </div>
 
           {/* DANE FIRMOWE (Business Logic) */}
-          <div className="flex flex-col items-end text-right space-y-1">
+          <div className="flex flex-col md:items-end text-center md:text-right space-y-1 w-full">
             <span className="text-[10px] font-black uppercase tracking-widest italic">
               © {currentYear} DayDream Food Archive
             </span>

@@ -11,6 +11,8 @@ import {
   Settings,
   Package,
   ShieldCheck,
+  Sprout,
+  Cctv,
   Van,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,8 +37,8 @@ export default function DashboardSidebar() {
     },
     { title: "Categories", href: "/dashboard/categories", icon: Layers },
     { title: "Inventory", href: "/dashboard/inventory", icon: Package },
-    { title: "Ingredients", href: "/dashboard/ingredients", icon: Package },
-    { title: "Manage Orders", href: "/dashboard/manage-orders", icon: Package },
+    { title: "Ingredients", href: "/dashboard/ingredients", icon: Sprout },
+    { title: "Manage Orders", href: "/dashboard/manage-orders", icon: Cctv },
   ];
 
   return (

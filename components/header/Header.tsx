@@ -5,7 +5,8 @@ import { Button } from "../ui/button";
 import { MobileNav } from "./mobile-nav";
 import { DesktopNav } from "./desktop-nav";
 import Container from "../Container";
-import logo from "@/assets/Brand/logo.jpeg";
+import logoLight from "@/public/static/logo-light.png";
+import logoDark from "@/public/static/logo-dark.png";
 import Image from "next/image";
 import { db } from "@/lib/db";
 import { CartCounter } from "../CartCounter";
@@ -24,9 +25,16 @@ const Header = async () => {
         <div className="flex items-center gap-4">
           <Link href="/" className="group flex items-center gap-2">
             <Image
-              src={logo}
-              alt="DayDream Logo"
-              className="h-16 w-auto"
+              src={logoDark}
+              alt="DayDream Logo Light"
+              className="h-16 w-auto block dark:hidden group-hover:scale-x-105 transition-transform"
+              priority
+            />
+            {/* Logo dla trybu Ciemnego (widoczne tylko w trybie dark) */}
+            <Image
+              src={logoLight}
+              alt="DayDream Logo Dark"
+              className="h-16 w-auto hidden dark:block group-full group-hover:scale-x-105 transition-transform"
               priority
             />
           </Link>

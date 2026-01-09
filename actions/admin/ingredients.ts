@@ -1,11 +1,10 @@
-// actions/admin/ingredients.ts
 "use server";
 
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import path from "path";
-import { writeFile, unlink, mkdir, rm } from "fs/promises";
+import { writeFile, unlink, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import crypto from "crypto";
 import sharp from "sharp";
@@ -21,7 +20,6 @@ export async function upsertIngredient(id: string, formData: FormData) {
 
     const isNew = id === "new";
     const name = formData.get("name") as string;
-    const description = formData.get("description") as string;
     const imageFile = formData.get("image") as File | null;
     const removeExistingImage = formData.get("removeImage") === "true";
 
@@ -31,105 +29,93 @@ export async function upsertIngredient(id: string, formData: FormData) {
       return { error: "Ingredient with this name already exists." };
     }
 
-    // 2. Obsługa ID i folderu
-    let ingredientId = id;
-    if (isNew) {
-      const temp = await db.ingredient.create({ data: { name: "Temp" } });
-      ingredientId = temp.id;
+    // 2. Przygotowanie ID i katalogu głównego
+    // Jeśli nowy, generujemy UUID od razu, zamiast tworzyć "Temp" w bazie
+    let ingredientId = isNew ? crypto.randomUUID() : id;
+    
+    const baseDir = path.join(process.cwd(), "public", "ingredients");
+    if (!existsSync(baseDir)) {
+      await mkdir(baseDir, { recursive: true });
     }
 
-    const ingredientDir = `/ingredients/${ingredientId}`;
-    const absoluteDir = path.join(process.cwd(), "public", ingredientDir);
-
-    if (!existsSync(absoluteDir)) {
-      await mkdir(absoluteDir, { recursive: true });
-    }
-
-    let image: string | null | undefined = undefined; // undefined oznacza "nie zmieniaj"
+    let imagePath: string | null | undefined = undefined;
 
     // 3. Procesowanie zdjęcia
     if (imageFile && imageFile.size > 0) {
-      // Usuwamy stary folder/pliki przed wgraniem nowego
-      const current = await db.ingredient.findUnique({ where: { id: ingredientId } });
+      // Nazwa pliku to po prostu ID.webp - zawsze nadpisujemy lub tworzymy nowy
+      const fileName = `${ingredientId}.webp`;
+      const absolutePath = path.join(baseDir, fileName);
+
+      const buffer = Buffer.from(await imageFile.arrayBuffer());
+      const optimized = await sharp(buffer)
+        .resize(400, 400, { fit: 'cover' }) // Składniki są zazwyczaj ikonami/małymi fotkami
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      await writeFile(absolutePath, optimized);
+      imagePath = `/ingredients/${fileName}`;
+    } else if (removeExistingImage) {
+      // Jeśli usuwamy zdjęcie, musimy usunąć plik fizyczny
+      const current = !isNew ? await db.ingredient.findUnique({ where: { id } }) : null;
       if (current?.image) {
         try { await unlink(path.join(process.cwd(), "public", current.image)); } catch (e) {}
       }
-
-      const fileName = `${crypto.randomUUID()}.webp`;
-      const buffer = Buffer.from(await imageFile.arrayBuffer());
-      const optimized = await sharp(buffer)
-        .resize(600, 600, { fit: 'cover' }) // Składniki są zazwyczaj małe
-        .webp({ quality: 85 })
-        .toBuffer();
-
-      await writeFile(path.join(absoluteDir, fileName), optimized);
-      image = `${ingredientDir}/${fileName}`;
-    } else if (removeExistingImage) {
-      image = null; // Użytkownik chce usunąć zdjęcie i użyć placeholdera
+      imagePath = null;
     }
 
-    // 4. Update bazy
-    await db.ingredient.update({
+    // 4. Update lub Create w bazie (Upsert)
+    await db.ingredient.upsert({
       where: { id: ingredientId },
-      data: {
+      update: {
         name,
-        ...(image !== undefined && { image })
+        ...(imagePath !== undefined && { image: imagePath })
+      },
+      create: {
+        id: ingredientId,
+        name,
+        image: imagePath ?? null
       }
     });
 
     revalidatePath("/dashboard/ingredients");
-    return { success: isNew ? "Ingredient created successfully!" : "Ingredient updated successfully!" };
+    return { success: "Ingredient saved successfully!" };
 
   } catch (error: any) {
-    return { error: "Invalid error!" };
+    console.error("UPSERT_INGREDIENT_ERROR:", error);
+    return { error: "Failed to save ingredient." };
   }
 }
 
 export async function deleteIngredient(id: string) {
   try {
-    // 1. Weryfikacja uprawnień
     await checkAdmin();
 
-    // 2. Pobranie danych składnika, aby sprawdzić czy istnieje
     const ingredient = await db.ingredient.findUnique({
       where: { id },
-      include: {
-        products: true, // Sprawdzamy, czy składnik jest używany w produktach
-      },
+      include: { products: true }
     });
 
-    if (!ingredient) {
-      return { error: "Ingredient not found." };
-    }
-
+    if (!ingredient) return { error: "Ingredient not found." };
     if (ingredient.products.length > 0) {
-      return { 
-        error: `You cannot delete this ingredient because it's used in ${ingredient.products.length} products recipe.` 
-      };
+      return { error: "Cannot delete: ingredient is used in products." };
     }
 
-    const ingredientDir = path.join(process.cwd(), "public", "ingredients", id);
-
-    if (existsSync(ingredientDir)) {
+    // Usuwamy tylko konkretny plik, nie folder
+    if (ingredient.image) {
+      const absolutePath = path.join(process.cwd(), "public", ingredient.image);
       try {
-        await rm(ingredientDir, { recursive: true, force: true });
+        if (existsSync(absolutePath)) await unlink(absolutePath);
       } catch (err) {
-        console.error("Error during delete ingredient image removal.", err);
+        console.error("File delete error:", err);
       }
     }
 
-    await db.ingredient.delete({
-      where: { id },
-    });
+    await db.ingredient.delete({ where: { id } });
 
-    // 6. Odświeżenie widoków
     revalidatePath("/dashboard/ingredients");
-    revalidatePath("/dashboard/inventory"); // Produkty mogą wyświetlać składniki
-
-    return { success: "Ingredient removed successfully." };
+    return { success: "Ingredient removed." };
 
   } catch (error: any) {
-    console.error("DELETE_INGREDIENT_ERROR:", error);
-    return { error: "Wystąpił błąd podczas usuwania składnika." };
+    return { error: "Error during deletion." };
   }
 }

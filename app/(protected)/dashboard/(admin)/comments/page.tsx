@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { getVoices, deleteVoice } from "@/actions/admin/admin-voices";
+import { getVoices, deleteVoice } from "@/actions/admin/reviews";
 import { Trash2, Star, Search, Plus, Loader2, FilterX } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";

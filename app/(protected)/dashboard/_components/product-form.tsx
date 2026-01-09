@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 import { productSchema } from "@/schemas";
-import { upsertProduct } from "@/actions/admin/admin-inventory";
+import { upsertProduct } from "@/actions/admin/inventory";
 import { ProductType, StatusType } from "@/types/product";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";

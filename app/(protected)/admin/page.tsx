@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import RoleGate from "@/components/auth/role-gate";
 import { Button } from "@/components/ui/button";
-import { admin } from "@/actions/admin";
+import { admin } from "@/actions/admin/admin";
 
 const AdminPage = () => {
   const roleFromHook = useCurrentRole();

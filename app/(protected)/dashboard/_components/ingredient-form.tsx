@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import GiveInNotice from "./give-in-notice";
 
-import { upsertIngredient } from "@/actions/admin/admin-ingredients";
+import { upsertIngredient } from "@/actions/admin/ingredients";
 import { Button } from "@/components/ui/button"; // Zakładam shadcn/ui
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

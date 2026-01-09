@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SettingsSchema } from "@/schemas";
-import { settings } from "@/actions/settings";
+import { settings } from "@/actions/user/settings";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
 import {

@@ -4,7 +4,7 @@ import { Trash2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { deleteIngredient } from "@/actions/admin/admin-ingredients"; // Twoja akcja
+import { deleteIngredient } from "@/actions/admin/ingredients"; // Twoja akcja
 
 export const DeleteIngredientButton = ({ id }: { id: string }) => {
   const [loading, setLoading] = useState(false);

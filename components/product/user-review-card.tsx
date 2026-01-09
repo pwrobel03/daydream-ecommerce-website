@@ -1,13 +1,13 @@
 "use client";
 
 import { Star, Pencil, Trash2 } from "lucide-react";
-import { ReviewType } from "@/types/product";
-import { deleteReview } from "@/actions/review-actions";
+import { Review } from "@/types/product";
 import { toast } from "sonner";
 import { useTransition } from "react";
+import { deleteReview } from "@/actions/store/reviews";
 
 interface UserReviewCardProps {
-  review: ReviewType;
+  review: Review;
   productSlug: string;
   onEdit: () => void;
   onDelete: () => void;
@@ -43,10 +43,10 @@ export default function UserReviewCard({
             </span>
             <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest ml-1 gap-4 flex">
               <span>
-                {new Date(review.updatedAt).toLocaleDateString("pl-PL")}
+                {new Date(review.createdAt).toLocaleDateString("pl-PL")}
               </span>
               <span>
-                {new Date(review.updatedAt).toLocaleTimeString("pl-PL", {
+                {new Date(review.createdAt).toLocaleTimeString("pl-PL", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}

@@ -11,7 +11,7 @@ import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/lib/db-products";
 import { getCurrentUser } from "@/lib/auth";
 import { auth } from "@/auth";
-import { ReviewType, UserType } from "@/types/product";
+import { UserType } from "@/types/user";
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { slug } = await params;

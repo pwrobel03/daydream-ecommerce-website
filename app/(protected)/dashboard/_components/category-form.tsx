@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { categorySchema } from "@/schemas";
-import { createCategory } from "@/actions/admin/admin-categories";
+import { createCategory } from "@/actions/admin/categories";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";

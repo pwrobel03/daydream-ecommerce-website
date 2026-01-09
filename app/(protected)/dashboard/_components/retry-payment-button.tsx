@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { recreateStripeSession } from "@/actions/order";
+import { recreateStripeSession } from "@/actions/order/order";
 import { toast } from "sonner"; // lub inna biblioteka do powiadomień
 import { CreditCard, Loader2 } from "lucide-react";
 

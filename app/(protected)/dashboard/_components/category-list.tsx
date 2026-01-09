@@ -7,7 +7,7 @@ import {
   Package,
   Image as ImageIcon,
 } from "lucide-react";
-import { deleteCategory } from "@/actions/admin/admin-categories";
+import { deleteCategory } from "@/actions/admin/categories";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useRouter } from "next/navigation";

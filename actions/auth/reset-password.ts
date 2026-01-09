@@ -5,6 +5,9 @@ import { getPasswordResetTokenByToken } from "@/data/password-reset-token";
 import { getUserByEmail } from "@/data/user";
 import bcrypt from "bcrypt";
 import { db } from "@/lib/db";
+import { sendPasswordResetEmail } from "@/lib/mail";
+import { generatePasswordResetToken } from "@/lib/token";
+import { ResetPasswordSchema } from "@/schemas";
 
 export const newPassword = async (values: z.infer<typeof NewPasswordSchema>, token: string) => {
   if (!token) return { error: "Missing password reset token"}
@@ -40,3 +43,21 @@ export const newPassword = async (values: z.infer<typeof NewPasswordSchema>, tok
   })
   return {success: "Your password has been successfully updated!"}
 }
+
+export const resetPassword = async (values: z.infer<typeof ResetPasswordSchema>) => {
+  // Validate input fields based on ResetPasswordSchema
+  const validatedFields = ResetPasswordSchema.safeParse(values)
+  if (!validatedFields.success) return { error: "Invalid fields!"}
+
+  // Extract email from validated data
+  const {email} = validatedFields.data
+  const existingUser = await getUserByEmail(email)
+
+  // Check if user exists
+  if (!existingUser) return { error: "No account associated with this email"}
+
+  // Generate password reset token and send email
+  const passwordResetToken = await generatePasswordResetToken(email)
+  await sendPasswordResetEmail(passwordResetToken.email, passwordResetToken.token)
+  return {success: "Password reset link has been sent to your email!"}
+} 

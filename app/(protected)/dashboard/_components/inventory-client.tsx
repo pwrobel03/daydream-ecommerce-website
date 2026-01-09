@@ -9,10 +9,7 @@ import {
   Loader2,
   Image as ImageIcon,
 } from "lucide-react";
-import {
-  getInventoryProducts,
-  deleteProduct,
-} from "@/actions/admin/admin-inventory";
+import { getInventoryProducts, deleteProduct } from "@/actions/admin/inventory";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";

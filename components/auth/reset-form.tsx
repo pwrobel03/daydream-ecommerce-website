@@ -17,7 +17,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { FormError } from "./form-error";
 import { FormSuccess } from "./form-success";
-import { resetPassword } from "@/actions/reset";
+import { resetPassword } from "@/actions/auth/reset-password";
 import Link from "next/link";
 import { Zap, Radio, Cpu, ArrowRight, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";

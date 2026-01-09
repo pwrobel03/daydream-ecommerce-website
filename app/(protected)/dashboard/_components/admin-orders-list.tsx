@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { format, toDate } from "date-fns";
-import { updateOrderStatus } from "@/actions/admin/admin-orders";
+import { updateOrderStatus } from "@/actions/admin/orders";
 import PriceFormatter from "@/components/PriceFormatter";
 import { cn } from "@/lib/utils";
 import {

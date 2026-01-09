@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { AddressSchema } from "@/schemas/index";
-import { saveUserAddress } from "@/actions/address";
+import { saveUserAddress } from "@/actions/user/address";
 import { toast } from "sonner";
 import { useState } from "react";
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useCart } from "@/hooks/use-cart";
-import { getFreshCartData } from "@/actions/sync-cart";
+import { getFreshCartData } from "@/actions/store/sync-cart";
 import PriceFormatter from "@/components/PriceFormatter";
 import QuantityButtons from "@/components/product-card/QuantityButtons";
 import {
@@ -16,7 +16,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import ProductCard from "@/components/cart/product-card";
 import { useRouter } from "next/navigation";
-import { initializeOrder } from "@/actions/order";
+import { initializeOrder } from "@/actions/order/order";
 import { toast } from "sonner";
 
 const CartPage = () => {

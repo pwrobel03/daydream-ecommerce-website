@@ -2,17 +2,18 @@
 
 import { useState, useMemo } from "react";
 import { Star, Plus, Loader2 } from "lucide-react";
-import { getMoreReviews } from "@/actions/get-more-reviews";
+import { getMoreReviews } from "@/actions/store/reviews";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import AddReviewForm from "./add-review-form";
-import { UserType, ReviewType } from "@/types/product";
+import { Review } from "@/types/product";
+import { UserType } from "@/types/user";
 
 interface ReviewsSectionProps {
   productId: string;
   productSlug: string;
-  userReview: ReviewType | null;
-  initialReviews: ReviewType[];
+  userReview: Review | null;
+  initialReviews: Review[];
   totalCount: number;
   user: UserType | null;
 }
@@ -27,8 +28,8 @@ export default function ReviewsSection({
   totalCount,
   user,
 }: ReviewsSectionProps) {
-  const [reviews, setReviews] = useState<ReviewType[]>(initialReviews);
-  const [currentUserReview, setCurrentUserReview] = useState<ReviewType | null>(
+  const [reviews, setReviews] = useState<Review[]>(initialReviews);
+  const [currentUserReview, setCurrentUserReview] = useState<Review | null>(
     userReview
   );
   const [isEditing, setIsEditing] = useState(false);
@@ -56,7 +57,7 @@ export default function ReviewsSection({
       9,
       user?.id
     );
-    setReviews((prev) => [...prev, ...(nextReviews as ReviewType[])]);
+    setReviews((prev) => [...prev, ...(nextReviews as Review[])]);
     setLoading(false);
   };
 
@@ -147,7 +148,7 @@ export default function ReviewsSection({
                 </div>
               </div>
               <p className="ml-auto text-foreground/20">
-                {new Date(rev.updatedAt).toLocaleDateString()}
+                {new Date(rev.createdAt).toLocaleDateString()}
               </p>
             </div>
             <p className="text-xl leading-snug font-medium italic">

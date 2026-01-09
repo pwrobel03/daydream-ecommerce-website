@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { newVerification } from "@/actions/new-verification";
+import { newVerification } from "@/actions/auth/verify-email";
 import { FormError } from "./form-error";
 import { FormSuccess } from "./form-success";
 import {

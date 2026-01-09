@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Star, SendHorizontal, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
-import { UserType, ReviewType } from "@/types/product";
+import { Review } from "@/types/product";
+import { UserType } from "@/types/user";
 
 import {
   Form,
@@ -17,8 +18,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
-import { createReview } from "@/actions/create-review";
-import { updateReview } from "@/actions/review-actions"; // Zakładamy, że tu jest akcja update
+
+import { updateReview } from "@/actions/store/reviews";
+import { createReview } from "@/actions/store/reviews";
 
 // Schemat walidacji
 const formSchema = z.object({
@@ -32,7 +34,7 @@ interface AddReviewFormProps {
   productId: string;
   productSlug: string; // Dodane dla rewalidacji w akcji update
   user: UserType;
-  initialData?: ReviewType | null; // Dane do edycji
+  initialData?: Review | null; // Dane do edycji
   onSuccess: (review: any) => void;
   onCancel?: () => void; // Funkcja do wyjścia z trybu edycji
 }

@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { AddressSchema } from "@/schemas/index";
-import { finalizeAndPay } from "@/actions/order"; // Twoja akcja Stripe
+import { finalizeAndPay } from "@/actions/order/order"; // Twoja akcja Stripe
 import { useCart } from "@/hooks/use-cart";
 import { toast } from "sonner";
 import { useState } from "react";

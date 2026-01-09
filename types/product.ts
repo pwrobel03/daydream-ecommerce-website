@@ -25,6 +25,10 @@ export interface Review {
   content: string;
   rating: number;
   userId: string;
+  user: {
+    name: string | null;
+    image: string | null;
+  };
   createdAt: Date;
 }
 

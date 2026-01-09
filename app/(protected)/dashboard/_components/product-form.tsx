@@ -7,7 +7,7 @@ import * as z from "zod";
 
 import { productSchema } from "@/schemas";
 import { upsertProduct } from "@/actions/admin/inventory";
-import { ProductType, StatusType } from "@/types/product";
+import { ProductType, Status } from "@/types/product";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { X, ImageIcon, Tag, Layers, Beaker, Loader2 } from "lucide-react";
@@ -41,7 +41,7 @@ interface ProductFormProps {
   initialData: ProductType | null;
   categories: any[];
   ingredients: any[];
-  statuses: StatusType[];
+  statuses: Status[];
 }
 
 export function ProductForm({

@@ -32,6 +32,12 @@ export interface Review {
   createdAt: Date;
 }
 
+export interface Ingredient {
+  id: string;
+  name: string;
+  image?: string | null;
+}
+
 export interface ProductType {
   id: string;
   name: string;
@@ -47,6 +53,7 @@ export interface ProductType {
   status?: Status | null;
   images: ProductImage[];
   categories: Category[];
+  ingredients: Ingredient[]
   reviews: Review[];
   
   createdAt: Date;

@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Daydream Ecommerce Platform
 
-## Getting Started
+Daydream is a premium, full-stack ecommerce solution built with **Next.js 15**. It represents a modern approach to web development, focusing on type safety, server-side logic with React Server Components, and a robust security model.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 🌍 Language Versions
+- [English (Current)](./README.md)
+- [Polski (Polish)](./README-pl.md)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Project Overview
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The goal of this project was to create a production-ready ecommerce architecture. It handles the entire lifecycle of a purchase—from dynamic product discovery and persistent cart management to secure Stripe payments and automated order fulfillment.
 
-## Learn More
+### 🛡️ Technical Excellence & Security
+* **Next.js 15 & React 19:** Utilizing the newest features like asynchronous request APIs and Server Actions for all data mutations.
+* **Authentication (Auth.js v5):** Implemented Role-Based Access Control (RBAC). Sessions are managed via encrypted JWTs stored in secure, HttpOnly cookies to prevent XSS attacks.
+* **Data Integrity:** Strict schema validation using **Prisma ORM** and **Zod**. Database operations are protected by server-side session checks to ensure that only authorized users (Admins) can modify the inventory.
+* **State Management:** Decoupled cart logic using **Zustand** with a custom persistence layer to synchronize the shopping experience across browser sessions.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ✨ Key Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🛒 Client-Facing Logic
+- **Advanced Product Catalog:** Dynamic fetching with category and attribute filtering.
+- **Smart Cart:** Global state management with automatic local storage synchronization.
+- **Secure Checkout:** Integrated **Stripe** payment gateway with server-side validation of stock and prices before session creation.
+- **User Ecosystem:** Personalized dashboards, order history, and a "Voice" system for product reviews.
 
-## Deploy on Vercel
+### 🛡️ Administrative Suite
+- **Full Inventory Control:** Comprehensive CRUD interface for products, categories, and product essences.
+- **Order Management:** Real-time tracking of transaction statuses and delivery coordination.
+- **Media Pipeline:** Automatic image optimization via **Sharp** and hosting on **Cloudinary**.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠 Tech Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Framework** | Next.js 15 (App Router), TypeScript 5 |
+| **Database** | PostgreSQL, Prisma ORM |
+| **Security** | Auth.js v5, Bcrypt, Middleware protection |
+| **Payments** | Stripe (API & Webhooks) |
+| **Styling** | Tailwind CSS, Shadcn UI, Framer Motion |
+
+---
+
+## 📂 Modular Documentation
+
+For a deeper dive into specific parts of the system, please refer to:
+1.  [**Architecture & Routing**](./docs/en/routing.md) - Explaining the `@/app` structure and Server Actions.
+2.  [**Setup Guide**](./docs/en/setup.md) - Step-by-step installation and environment configuration.
+3.  [**Features & Logic**](./docs/en/features.md) - Detailed breakdown of the checkout flow and auth logic.
+
+---
+
+## ⚙️ Quick Start
+
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/pwrobel03/daydream-ecommerce-website.git](https://github.com/pwrobel03/daydream-ecommerce-website.git)
+    cd daydream-ecommerce-website
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Database Setup:**
+    Configure your `.env` file, then run:
+    ```bash
+    npx prisma generate
+    npx prisma db push
+    ```
+
+4.  **Seed the Database (Optional but Recommended):**
+    Populate your database with initial products, categories, and essences to see the app in action immediately:
+    ```bash
+    npx prisma db seed
+    ```
+
+5.  **Run Development Server:**
+    ```bash
+    npm run dev
+    ```

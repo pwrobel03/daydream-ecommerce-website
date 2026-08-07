@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
 import { ProductUpsertSchema } from "@/schemas";
+import { deleteUpload, saveUpload } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
 
 
@@ -85,9 +86,6 @@ export async function deleteProduct(id: string) {
 }
 
 
-import { writeFile, unlink, mkdir } from "fs/promises";
-import path from "path";
-import { existsSync } from "fs";
 import crypto from "crypto";
 import sharp from "sharp"; // Importujemy sharp
 
@@ -154,23 +152,12 @@ export async function upsertProduct(id: string, formData: FormData) {
       productId = tempProduct.id;
     }
 
-    const productDir = `/products/${productId}`;
-    const absoluteUploadDir = path.join(process.cwd(), "public", productDir);
-
-    if (!existsSync(absoluteUploadDir)) {
-      await mkdir(absoluteUploadDir, { recursive: true });
-    }
-
     // 3. Usuwanie starych zdjęć
     const currentImages = await db.productImage.findMany({ where: { productId } });
     const imagesToDelete = currentImages.filter(img => !existingImages.includes(img.url));
     
     for (const img of imagesToDelete) {
-      try {
-        await unlink(path.join(process.cwd(), "public", img.url));
-      } catch (e) {
-        console.error("Delete error:", img.url);
-      }
+      await deleteUpload(img.url);
     }
     
     await db.productImage.deleteMany({
@@ -190,8 +177,9 @@ export async function upsertProduct(id: string, formData: FormData) {
         .webp({ quality: 80 }) // Balans między jakością a rozmiarem
         .toBuffer();
 
-      await writeFile(path.join(absoluteUploadDir, fileName), optimizedBuffer);
-      newImageUrls.push(`${productDir}/${fileName}`);
+      newImageUrls.push(
+        await saveUpload(`products/${productId}`, fileName, optimizedBuffer)
+      );
     }
 
     // 5. Finalny Upsert

@@ -2,11 +2,9 @@
 
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
+import { saveUpload } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
-import { writeFile } from "fs/promises";
-import path from "path";
-import { mkdir } from "fs/promises";
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024; 
 
@@ -30,14 +28,10 @@ export async function createCategory(formData: FormData) {
       const bytes = await imageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       
-      const uploadDir = path.join(process.cwd(), "public/categories");
-      await mkdir(uploadDir, { recursive: true });
+
 
       const fileName = `${Date.now()}-${slugify(imageFile.name, { lower: true })}`;
-      const filePath = path.join(uploadDir, fileName);
-      
-      await writeFile(filePath, buffer);
-      imagePath = `/categories/${fileName}`;
+      imagePath = await saveUpload("categories", fileName, buffer);
     }
 
     const slug = slugify(name, { lower: true, strict: true });

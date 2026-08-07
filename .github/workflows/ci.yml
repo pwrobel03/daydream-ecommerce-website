@@ -14,6 +14,7 @@ concurrency:
 # nic tu nie łączy się z zewnętrznym serwisem.
 env:
   DATABASE_URL: postgresql://daydream:daydream@localhost:5432/daydream_ci
+  UPLOAD_DIR: ./storage/uploads-ci
   REDIS_URL: redis://localhost:6379
   AUTH_SECRET: ci-auth-secret-value
   AUTH_URL: http://localhost:3000

@@ -7,6 +7,7 @@ const BASE_URL = `http://localhost:${PORT}`;
 // podnosi te usługi i wypycha schemat, zanim Playwright wystartuje serwer.
 const E2E_ENV = {
   DATABASE_URL: "postgresql://daydream:daydream@localhost:55432/daydream_e2e",
+  UPLOAD_DIR: "./storage/uploads-e2e",
   REDIS_URL: "redis://localhost:56379",
   AUTH_SECRET: "e2e-auth-secret-value",
   AUTH_URL: BASE_URL,

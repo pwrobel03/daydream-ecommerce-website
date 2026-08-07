@@ -169,6 +169,9 @@ export async function finalizeAndPay(orderId: string, addressData: any) {
         quantity: item.quantity,
       })),
       mode: "payment",
+      // Metadane muszą trafić także do PaymentIntenta — inaczej webhook
+      // payment_intent.payment_failed nie ma jak powiązać zdarzenia z zamówieniem.
+      payment_intent_data: { metadata: { orderId } },
       success_url: `${env.NEXT_PUBLIC_APP_URL}/order/success/${orderId}`,
       cancel_url: `${env.NEXT_PUBLIC_APP_URL}/cart`,
       metadata: { orderId }
@@ -216,6 +219,9 @@ export async function recreateStripeSession(orderId: string) {
         quantity: item.quantity,
       })),
       mode: "payment",
+      // Metadane muszą trafić także do PaymentIntenta — inaczej webhook
+      // payment_intent.payment_failed nie ma jak powiązać zdarzenia z zamówieniem.
+      payment_intent_data: { metadata: { orderId } },
       success_url: `${env.NEXT_PUBLIC_APP_URL}/order/success/${orderId}`,
       cancel_url: `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/${orderId}`,
       metadata: { orderId }

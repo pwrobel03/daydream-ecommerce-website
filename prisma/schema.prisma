@@ -231,3 +231,12 @@ model Sale {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+// Rejestr obsłużonych zdarzeń Stripe.
+// Stripe ponawia dostarczenie eventu do 3 dni, a klucz główny na jego id sprawia,
+// że powtórka odbija się na kolizji zamiast wykonać logikę drugi raz.
+model ProcessedWebhookEvent {
+  id          String   @id
+  type        String
+  processedAt DateTime @default(now())
+}

@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
 import path from "path";
 import { writeFile, unlink, mkdir } from "fs/promises";
@@ -9,14 +9,10 @@ import { existsSync } from "fs";
 import crypto from "crypto";
 import sharp from "sharp";
 
-async function checkAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
-}
 
 export async function upsertIngredient(id: string, formData: FormData) {
   try {
-    await checkAdmin();
+    await requireAdmin();
 
     const isNew = id === "new";
     const name = formData.get("name") as string;
@@ -88,7 +84,7 @@ export async function upsertIngredient(id: string, formData: FormData) {
 
 export async function deleteIngredient(id: string) {
   try {
-    await checkAdmin();
+    await requireAdmin();
 
     const ingredient = await db.ingredient.findUnique({
       where: { id },

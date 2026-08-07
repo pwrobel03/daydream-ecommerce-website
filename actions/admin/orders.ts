@@ -1,22 +1,15 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
 import { OrderStatus } from "@prisma/client";
-
-// Pomocnicza funkcja do weryfikacji admina na serwerze
-
-async function checkAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
-}
 
 /**
  * Pobiera zamówienia dla panelu admina z uwzględnieniem globalnego szukania i stronnicowania.
  */
 export const getAdminOrders = async (page: number = 1, pageSize: number = 15, search?: string) => {
-  await checkAdmin(); // Bezpieczeństwo przede wszystkim
+  await requireAdmin(); // Bezpieczeństwo przede wszystkim
   try {
     const skip = (page - 1) * pageSize;
 
@@ -63,7 +56,7 @@ export const getAdminOrders = async (page: number = 1, pageSize: number = 15, se
 };
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
-  await checkAdmin(); // Sprawdzamy uprawnienia admina
+  await requireAdmin(); // Sprawdzamy uprawnienia admina
   try {
     await db.order.update({
       where: {

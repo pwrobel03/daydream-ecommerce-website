@@ -1,26 +1,18 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { mkdir } from "fs/promises";
 
-// Pomocnicza funkcja do weryfikacji admina na serwerze
-
-async function checkAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
-}
-
 const MAX_FILE_SIZE = 8 * 1024 * 1024; 
 
 export async function createCategory(formData: FormData) {
   try {
-    const session = await auth();
-    if (session?.user?.role !== "ADMIN") return { error: "Unauthorized access." };
+    await requireAdmin();
 
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
@@ -72,7 +64,7 @@ export async function createCategory(formData: FormData) {
 
 export async function getCategories() {
   try {
-    await checkAdmin();
+    await requireAdmin();
     return await db.category.findMany({
       orderBy: { name: "asc" },
       include: {
@@ -86,7 +78,7 @@ export async function getCategories() {
 
 export async function deleteCategory(id: string) {
   try {
-    await checkAdmin();
+    await requireAdmin();
     // Możesz tu dodać sprawdzenie, czy kategoria nie ma przypisanych produktów
     await db.category.delete({ where: { id } });
     revalidatePath("/dashboard/categories");

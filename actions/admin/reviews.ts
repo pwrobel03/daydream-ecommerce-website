@@ -1,16 +1,9 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/auth"; // Zakładam, że tu masz konfigurację NextAuth
+import { requireAdmin } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
 
-// Pomocnicza funkcja do weryfikacji admina na serwerze
-async function checkAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
-    return {error: "You're Anauthorized"}
-  }
-}
 
 export async function getVoices({
   take = 10,
@@ -24,7 +17,7 @@ export async function getVoices({
   search?: string;
 }) {
   try {
-    await checkAdmin(); // Bezpieczeństwo przede wszystkim
+    await requireAdmin(); // Bezpieczeństwo przede wszystkim
 
     const where = {
       ...(rating ? { rating } : {}),
@@ -58,7 +51,7 @@ export async function getVoices({
 
 export async function deleteVoice(id: string) {
   try {
-    await checkAdmin(); // Kluczowe zabezpieczenie
+    await requireAdmin(); // Kluczowe zabezpieczenie
 
     await db.review.delete({ where: { id } });
     revalidatePath("/dashboard/comments");

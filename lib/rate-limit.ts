@@ -10,10 +10,13 @@ const redis =
   globalForRedis.redis ??
   new Redis(env.REDIS_URL, {
     maxRetriesPerRequest: 1,
-    // Bez tego ioredis kolejkuje polecenia w nieskończoność, gdy Redis nie odpowiada,
-    // i akcja logowania wisi zamiast szybko zwrócić wynik.
-    enableOfflineQueue: false,
-    lazyConnect: true,
+    // Kolejka offline musi zostać włączona: ioredis łączy się asynchronicznie,
+    // więc przy `false` pierwsze polecenie po starcie leci, zanim połączenie
+    // wstanie, i zawsze kończy się błędem "Stream isn't writeable" — co przy
+    // fail-open po cichu wyłączało limitowanie. Kolejkę ogranicza czasowo
+    // connectTimeout, więc akcja nie wisi, gdy Redisa naprawdę nie ma.
+    enableOfflineQueue: true,
+    connectTimeout: 3000,
   });
 
 if (env.NODE_ENV !== "production") globalForRedis.redis = redis;

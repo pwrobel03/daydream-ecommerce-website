@@ -125,7 +125,7 @@ const ProductCard = ({
           >
             <PriceFormatter
               amount={
-                Number(item.product.promoPrice || item.product.price) *
+                Number(item.product.promoPrice ?? item.product.price) *
                 item.quantity
               }
             />

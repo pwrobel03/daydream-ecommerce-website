@@ -18,7 +18,7 @@ export async function getFreshCartData(productIds: string[]) {
     return products.map(product => ({
       ...product,
       price: Number(product.price),
-      promoPrice: product.promoPrice ? Number(product.promoPrice) : null,
+      promoPrice: product.promoPrice !== null ? Number(product.promoPrice) : null,
       stock: Number(product.stock)
     }));
   } catch (error) {

@@ -56,7 +56,7 @@ export async function getInventoryProducts({
     const products = rawProducts.map(p => ({
       ...p,
       price: Number(p.price),
-      promoPrice: p.promoPrice ? Number(p.promoPrice) : null,
+      promoPrice: p.promoPrice !== null ? Number(p.promoPrice) : null,
       images: p.images.map(img => ({ url: img.url }))
     }));
 

@@ -2,10 +2,9 @@
 
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
+import { deleteUpload, saveUpload } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
 import path from "path";
-import { writeFile, unlink, mkdir } from "fs/promises";
-import { existsSync } from "fs";
 import crypto from "crypto";
 import sharp from "sharp";
 
@@ -29,10 +28,6 @@ export async function upsertIngredient(id: string, formData: FormData) {
     // Jeśli nowy, generujemy UUID od razu, zamiast tworzyć "Temp" w bazie
     const ingredientId = isNew ? crypto.randomUUID() : id;
     
-    const baseDir = path.join(process.cwd(), "public", "ingredients");
-    if (!existsSync(baseDir)) {
-      await mkdir(baseDir, { recursive: true });
-    }
 
     let imagePath: string | null | undefined = undefined;
 
@@ -40,7 +35,7 @@ export async function upsertIngredient(id: string, formData: FormData) {
     if (imageFile && imageFile.size > 0) {
       // Nazwa pliku to po prostu ID.webp - zawsze nadpisujemy lub tworzymy nowy
       const fileName = `${ingredientId}.webp`;
-      const absolutePath = path.join(baseDir, fileName);
+
 
       const buffer = Buffer.from(await imageFile.arrayBuffer());
       const optimized = await sharp(buffer)
@@ -48,13 +43,12 @@ export async function upsertIngredient(id: string, formData: FormData) {
         .webp({ quality: 80 })
         .toBuffer();
 
-      await writeFile(absolutePath, optimized);
-      imagePath = `/ingredients/${fileName}`;
+      imagePath = await saveUpload("ingredients", fileName, optimized);
     } else if (removeExistingImage) {
       // Jeśli usuwamy zdjęcie, musimy usunąć plik fizyczny
       const current = !isNew ? await db.ingredient.findUnique({ where: { id } }) : null;
       if (current?.image) {
-        try { await unlink(path.join(process.cwd(), "public", current.image)); } catch (e) {}
+        await deleteUpload(current.image);
       }
       imagePath = null;
     }
@@ -98,9 +92,9 @@ export async function deleteIngredient(id: string) {
 
     // Usuwamy tylko konkretny plik, nie folder
     if (ingredient.image) {
-      const absolutePath = path.join(process.cwd(), "public", ingredient.image);
+
       try {
-        if (existsSync(absolutePath)) await unlink(absolutePath);
+        await deleteUpload(ingredient.image);
       } catch (err) {
         console.error("File delete error:", err);
       }

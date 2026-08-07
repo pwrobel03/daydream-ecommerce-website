@@ -37,6 +37,10 @@ const EnvSchema = z.object({
   MAILING_ACCOUNT: z.string().min(1),
   MAILING_ACCOUNT_PROVIDER: z.string().min(1),
 
+  // Upload plików. Katalog musi leżeć poza public/ i być montowany jako wolumen,
+  // inaczej wgrane zdjęcia znikają przy odtworzeniu kontenera.
+  UPLOAD_DIR: z.string().min(1),
+
   // Redis (rate limiting)
   REDIS_URL: z.string().url({
     message: "REDIS_URL musi być poprawnym URL-em, np. redis://localhost:6379"

@@ -3,11 +3,16 @@
 
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { AddressSchema } from "@/schemas";
 import { revalidatePath } from "next/cache";
+import * as z from "zod";
 
-export async function saveUserAddress(values: any) {
+export async function saveUserAddress(values: z.infer<typeof AddressSchema>) {
   const session = await auth();
   if (!session?.user?.id) return { error: "Unauthorized" };
+
+  const validated = AddressSchema.safeParse(values);
+  if (!validated.success) return { error: "Nieprawidłowe dane adresowe." };
 
   try {
     const user = await db.user.findUnique({
@@ -19,12 +24,12 @@ export async function saveUserAddress(values: any) {
       // Aktualizacja istniejącego adresu
       await db.address.update({
         where: { id: user.addressId },
-        data: { ...values }
+        data: validated.data
       });
     } else {
       // Tworzenie nowego i podpięcie pod User
       const newAddress = await db.address.create({
-        data: { ...values }
+        data: validated.data
       });
 
       await db.user.update({

@@ -111,6 +111,23 @@ export const CheckoutItemsSchema = z
   .min(1, "Cart is empty")
   .max(50, "Too many items in a single order");
 
+// Wejście upsertProduct po stronie serwera. Formularz przysyła FormData,
+// więc liczby przychodzą jako stringi — stąd coerce zamiast parseFloat/parseInt,
+// które przy złych danych dawały ciche NaN w zapisie do bazy.
+export const ProductUpsertSchema = z.object({
+  name: z.string().min(4, "Name is too short..."),
+  slug: z.string().min(4, "Slug is too short..."),
+  description: z.string().optional().default(""),
+  price: z.coerce.number().nonnegative("Price must not be negative"),
+  promoPrice: z.coerce.number().nonnegative().nullable().optional(),
+  weight: z.string().optional().default(""),
+  stock: z.coerce.number().int().nonnegative(),
+  statusId: z.string().optional().default(""),
+  categoryIds: z.array(z.string()).default([]),
+  ingredientIds: z.array(z.string()).default([]),
+  existingImages: z.array(z.string()).default([]),
+});
+
 export const AddressSchema = z.object({
   fullName: z.string().min(3, "Identity required"),
   street: z.string().min(5, "Coordinates required"),

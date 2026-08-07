@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
+import { ProductUpsertSchema } from "@/schemas";
 import { revalidatePath } from "next/cache";
 
 
@@ -90,21 +91,49 @@ import { existsSync } from "fs";
 import crypto from "crypto";
 import sharp from "sharp"; // Importujemy sharp
 
+// FormData przenosi tablice jako JSON. Zły payload nie powinien wywalać akcji
+// wyjątkiem — zwracamy pustą tablicę i pozwalamy zdecydować schematowi.
+function parseJsonArray(value: FormDataEntryValue | null): string[] {
+  if (typeof value !== "string") return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((v) => typeof v === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function upsertProduct(id: string, formData: FormData) {
   try {
     await requireAdmin();
 
     const isNew = id === "new";
-    
-    // 1. Pobieranie danych
-    const name = formData.get("name") as string;
-    const slug = formData.get("slug") as string;
-    const description = formData.get("description") as string;
-    const price = formData.get("price") as string;
-    const promoPrice = formData.get("promoPrice") as string;
-    const weight = formData.get("weight") as string;
-    const stock = parseInt(formData.get("stock") as string);
-    const statusId = formData.get("statusId") as string;
+
+    // 1. Pobieranie i walidacja danych.
+    // Pola tablicowe przychodzą jako JSON w FormData — parsujemy je defensywnie,
+    // bo niepoprawny payload rzucał wyjątkiem przed jakąkolwiek walidacją.
+    const parsed = ProductUpsertSchema.safeParse({
+      name: formData.get("name"),
+      slug: formData.get("slug"),
+      description: formData.get("description"),
+      price: formData.get("price"),
+      promoPrice: formData.get("promoPrice") || null,
+      weight: formData.get("weight"),
+      stock: formData.get("stock"),
+      statusId: formData.get("statusId"),
+      categoryIds: parseJsonArray(formData.get("categoryIds")),
+      ingredientIds: parseJsonArray(formData.get("ingredientIds")),
+      existingImages: parseJsonArray(formData.get("existingImages")),
+    });
+
+    if (!parsed.success) {
+      return { error: parsed.error.issues[0]?.message ?? "Invalid product data." };
+    }
+
+    const {
+      name, slug, description, price, promoPrice, weight, stock, statusId,
+      categoryIds, ingredientIds, existingImages,
+    } = parsed.data;
 
     // check if product with that name already exist
     const existingProduct = await db.product.findUnique({
@@ -113,10 +142,7 @@ export async function upsertProduct(id: string, formData: FormData) {
     if (existingProduct && (isNew || existingProduct.id !== id)) {
       return { error: "A product with this name/slug already exists. Please choose a unique name." };
     }
-    
-    const categoryIds = JSON.parse(formData.get("categoryIds") as string) as string[];
-    const ingredientIds = JSON.parse(formData.get("ingredientIds") as string) as string[];
-    const existingImages = JSON.parse(formData.get("existingImages") as string) as string[];
+
     const newImageFiles = formData.getAll("newImages") as File[];
 
     // 2. Logika ID i Folderu
@@ -173,8 +199,8 @@ export async function upsertProduct(id: string, formData: FormData) {
       name,
       slug,
       description,
-      price: parseFloat(price),
-      promoPrice: promoPrice ? parseFloat(promoPrice) : null,
+      price,
+      promoPrice: promoPrice ?? null,
       weight,
       stock,
       status: statusId ? { connect: { id: statusId } } : { disconnect: true },

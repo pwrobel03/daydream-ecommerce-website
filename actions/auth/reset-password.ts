@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { sendPasswordResetEmail } from "@/lib/mail";
 import { generatePasswordResetToken } from "@/lib/token";
 import { ResetPasswordSchema } from "@/schemas";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 export const newPassword = async (values: z.infer<typeof NewPasswordSchema>, token: string) => {
   if (!token) return { error: "Missing password reset token"}
@@ -51,6 +52,14 @@ export const resetPassword = async (values: z.infer<typeof ResetPasswordSchema>)
 
   // Extract email from validated data
   const {email} = validatedFields.data
+
+  // Każde przejście wysyła maila — limit trzyma to poza zasięgiem automatu.
+  const ip = await getClientIp();
+  const limit = await rateLimit(`reset:${email}:${ip}`, 3, 60 * 60);
+  if (!limit.allowed) {
+    return { error: "Too many reset requests. Please try again later." };
+  }
+
   const existingUser = await getUserByEmail(email)
 
   // Check if user exists

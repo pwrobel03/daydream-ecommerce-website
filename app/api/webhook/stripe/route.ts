@@ -1,5 +1,4 @@
 import Stripe from "stripe";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
@@ -18,7 +17,7 @@ const HANDLED_EVENTS = [
 
 export async function POST(req: Request) {
   const body = await req.text();
-  const signature = (await headers()).get("Stripe-Signature") as string;
+  const signature = req.headers.get("Stripe-Signature") ?? "";
 
   let event: Stripe.Event;
   try {

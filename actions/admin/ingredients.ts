@@ -27,7 +27,7 @@ export async function upsertIngredient(id: string, formData: FormData) {
 
     // 2. Przygotowanie ID i katalogu głównego
     // Jeśli nowy, generujemy UUID od razu, zamiast tworzyć "Temp" w bazie
-    let ingredientId = isNew ? crypto.randomUUID() : id;
+    const ingredientId = isNew ? crypto.randomUUID() : id;
     
     const baseDir = path.join(process.cwd(), "public", "ingredients");
     if (!existsSync(baseDir)) {

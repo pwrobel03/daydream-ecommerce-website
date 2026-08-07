@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
+import { releaseOrderReservation } from "@/lib/orders";
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
@@ -101,28 +102,7 @@ export async function POST(req: Request) {
   }
 
   // Płatność nieudana lub sesja wygasła — zwracamy towar na stan.
-  await db.$transaction(async (tx) => {
-    // Zmiana statusu jest warunkowa, więc dwa równoległe zdarzenia dla tego
-    // samego zamówienia nie zwrócą towaru dwa razy.
-    const cancelled = await tx.order.updateMany({
-      where: { id: orderId, status: "PENDING", isPaid: false },
-      data: { status: "CANCELLED" },
-    });
-
-    if (cancelled.count !== 1) return;
-
-    const items = await tx.orderItem.findMany({
-      where: { orderId },
-      select: { productId: true, quantity: true },
-    });
-
-    for (const item of items) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: { stock: { increment: item.quantity } },
-      });
-    }
-  });
+  await releaseOrderReservation(orderId);
 
   return new NextResponse("Webhook received", { status: 200 });
 }

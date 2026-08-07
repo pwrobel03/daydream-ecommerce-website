@@ -59,7 +59,13 @@ const CartPage = () => {
   const handleSecureFlow = async () => {
     setIsPending(true);
 
-    const res = await initializeOrder(items);
+    // Wysyłamy wyłącznie id i ilość — ceny wylicza serwer z bazy.
+    const res = await initializeOrder(
+      items.map((item) => ({
+        productId: item.product.id,
+        quantity: item.quantity,
+      }))
+    );
 
     if (res.error) {
       toast.error(res.error);

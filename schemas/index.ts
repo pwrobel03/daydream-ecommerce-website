@@ -98,6 +98,19 @@ export const productSchema = z.object({
   ingredientIds: z.array(z.string()).default([]),
 });
 
+// Wejście do inicjalizacji zamówienia.
+// Świadomie przyjmujemy wyłącznie id i ilość — ceny są odczytywane z bazy,
+// żeby zawartość localStorage nie miała wpływu na kwotę do zapłaty.
+export const CheckoutItemsSchema = z
+  .array(
+    z.object({
+      productId: z.string().min(1),
+      quantity: z.number().int().positive().max(100),
+    })
+  )
+  .min(1, "Cart is empty")
+  .max(50, "Too many items in a single order");
+
 export const AddressSchema = z.object({
   fullName: z.string().min(3, "Identity required"),
   street: z.string().min(5, "Coordinates required"),

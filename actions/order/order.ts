@@ -4,52 +4,74 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
+import { CheckoutItemsSchema } from "@/schemas";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import Stripe from "stripe";
+import * as z from "zod";
 
-export async function initializeOrder(items: any[]) {
+export async function initializeOrder(items: z.infer<typeof CheckoutItemsSchema>) {
   const session = await auth();
 
   if (!session?.user?.id) {
     return { error: "Musisz być zalogowany, aby kontynuować." };
   }
 
+  const validated = CheckoutItemsSchema.safeParse(items);
+  if (!validated.success) {
+    return { error: "Nieprawidłowa zawartość koszyka." };
+  }
+
+  // Scalamy powtórzone pozycje — inaczej ten sam produkt przysłany dwa razy
+  // przechodziłby dwie niezależne kontrole stanu magazynowego.
+  const quantities = new Map<string, number>();
+  for (const item of validated.data) {
+    quantities.set(
+      item.productId,
+      (quantities.get(item.productId) ?? 0) + item.quantity
+    );
+  }
+
   try {
     const orderId = await db.$transaction(async (tx) => {
-      let total = 0;
+      const products = await tx.product.findMany({
+        where: { id: { in: [...quantities.keys()] } },
+        select: { id: true, name: true, price: true, promoPrice: true },
+      });
 
-      // 1. Walidacja stanów i obliczenie sumy
-      for (const item of items) {
-        const product = await tx.product.findUnique({
-          where: { id: item.product.id },
-        });
-
-        if (!product || product.stock < item.quantity) {
-          throw new Error(`Produkt ${item.product.name} jest już niedostępny.`);
-        }
-
-        const price = product.promoPrice ? Number(product.promoPrice) : Number(product.price);
-        total += price * item.quantity;
-
-        // 2. Odejmujemy stan magazynowy
-        await tx.product.update({
-          where: { id: item.product.id },
-          data: { stock: { decrement: item.quantity } },
-        });
+      if (products.length !== quantities.size) {
+        throw new Error("Któryś z produktów nie jest już dostępny.");
       }
 
-      // 3. Tworzymy zamówienie (PENDING, bez adresu)
+      let total = new Prisma.Decimal(0);
+      const orderItems: { productId: string; quantity: number; price: Prisma.Decimal }[] = [];
+
+      for (const product of products) {
+        const quantity = quantities.get(product.id)!;
+
+        // Warunek na stanie magazynowym jest częścią UPDATE, więc rezerwacja jest
+        // atomowa — dwa równoległe zamówienia nie zejdą poniżej zera.
+        const reserved = await tx.product.updateMany({
+          where: { id: product.id, stock: { gte: quantity } },
+          data: { stock: { decrement: quantity } },
+        });
+
+        if (reserved.count !== 1) {
+          throw new Error(`Produkt ${product.name} jest już niedostępny.`);
+        }
+
+        // Cena zawsze z bazy, nigdy z danych przysłanych przez klienta.
+        const unitPrice = product.promoPrice ?? product.price;
+        total = total.add(unitPrice.mul(quantity));
+        orderItems.push({ productId: product.id, quantity, price: unitPrice });
+      }
+
+      // Tworzymy zamówienie (PENDING, bez adresu)
       const order = await tx.order.create({
         data: {
           userId: session.user.id!,
           totalAmount: total,
-          items: {
-            create: items.map((item) => ({
-              productId: item.product.id,
-              quantity: item.quantity,
-              price: item.product.promoPrice || item.product.price, // Snapshot ceny
-            })),
-          },
+          items: { create: orderItems },
         },
       });
 

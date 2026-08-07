@@ -1,58 +1,94 @@
 # ✨ Key Features & Business Logic
 
-This document provides a deep dive into the core functionalities of the Daydream platform and the technical implementation of its business logic.
+A walk through the core functionality of the Daydream platform and how it is implemented.
 
 ---
 
-## 🛒 Shopping Cart System
+## 🛒 Shopping cart
 
-The cart is managed on the client-side for maximum responsiveness but synchronized with the server logic during checkout.
+The cart lives entirely on the client and is reconciled with the database at checkout.
 
-- **State Management:** Powered by **Zustand**. It handles adding, removing, and updating quantities of products.
-- **Persistence:** Uses Zustand's `persist` middleware to save the cart state in `localStorage`. This ensures that items remain in the cart even after a page refresh.
-- **Dynamic Pricing:** Automatically calculates subtotals and totals, handling decimal precision for various currency formats.
-- **Availability Check:** Before proceeding to checkout, the system verifies the `stock` levels in the database to prevent overselling.
-
----
-
-## 🗣️ Product Reviews ("Voices")
-
-The "Voices" system allows users to share their experiences and provides social proof for products.
-
-- **CRUD Operations:** Logged-in users can create, edit, and delete their own reviews.
-- **Rating System:** Supports 1-5 star ratings, which are aggregated to show the average rating on product cards.
-- **Optimistic Updates:** The UI reflects review changes immediately, providing a seamless user experience.
-- **Moderation:** Admins have access to a dedicated dashboard to manage and moderate all community feedback.
+- **State:** Zustand store in `store.ts`, persisted to `localStorage` under `cart-store`.
+- **Server sync:** `getFreshCartData` (`actions/store/sync-cart.ts`) re-reads price, promo
+  price and stock for the products in the cart, so a stale `localStorage` entry does not
+  drive the UI.
+- **Pricing:** `getTotalPrice` prefers `promoPrice` over `price`; `getSubTotalPrice`
+  always uses the base price, which is what the strike-through total is built from.
+- **Stock:** verified inside the `initializeOrder` transaction before the order is created.
 
 ---
 
-## 💳 Checkout & Payment Flow
+## 🗣️ Product reviews ("Voices")
 
-Daydream implements a secure, production-ready payment pipeline integrated with **Stripe**.
-
-1. **Order Initialization:** A Server Action creates a "Pending" order in the database and reserves the items.
-2. **Stripe Session:** The backend generates a secure Stripe Checkout URL with line items derived from the database (not the client) to prevent price tampering.
-3. **Webhook Processing:** Once the payment is successful, Stripe sends an asynchronous event to our `/api/webhook` endpoint.
-4. **Order Fulfillment:** Upon receiving the webhook, the system updates the order status to "Paid", marks it for fulfillment, and clears the user's cart.
-
----
-
-## 🛡️ Administrative Suite
-
-The admin panel is a powerful tool for managing the entire store ecosystem.
-
-- **Inventory Management:** Full CRUD for products, including multi-image uploads and assignment of categories/ingredients.
-- **Order Monitoring:** A real-time dashboard to track sales, monitor delivery statuses, and manage customer information.
-- **Dynamic Categories:** Admins can create and nest categories to organize the catalog effectively.
-- **Ingredient Tracking:** Specialized management for product "essences" or ingredients, which are displayed as unique attributes on the storefront.
+- **CRUD:** signed-in users create, edit and delete their own reviews
+  (`actions/store/reviews.ts`).
+- **Ratings:** 1–5 stars, aggregated into the average shown on product cards.
+- **Pagination:** `getMoreReviews` loads reviews in pages; the product page shows the
+  current user's own review first, then up to nine others.
+- **Moderation:** admins list and remove any review from `/dashboard/comments`.
 
 ---
 
-## 🔐 Security & Role-Based Access
+## 💳 Checkout & payment
 
-The application enforces strict security boundaries using **Auth.js v5**:
+The flow spans two pages and four Server Actions.
 
-- **Role Differentiation:** Users are assigned `USER` or `ADMIN` roles.
-- **Server-Side Guarding:** All administrative Server Actions perform a role check before executing any database mutation.
-- **Middleware Protection:** Unauthorized users are automatically redirected away from sensitive routes like `/admin` or `/checkout`.
-- **Data Privacy:** Users can only access and manage their own profile data and order history.
+1. **`initializeOrder`** — opens a transaction, validates stock for every item, decrements
+   it, and creates a `PENDING` order with an `OrderItem` price snapshot.
+2. **`finalizeAndPay`** — saves the delivery address, links it to the order and the user
+   profile, creates a Stripe Checkout session (30 minute expiry) and stores
+   `stripeSessionId` on the order.
+3. **`POST /api/webhook/stripe`** — verifies the Stripe signature, then on
+   `checkout.session.completed` marks the order `PAID`, and on
+   `checkout.session.expired` / `payment_intent.payment_failed` returns the reserved stock
+   and cancels the order.
+4. **`recreateStripeSession`** — issues a fresh payment session for a `PENDING`, unpaid
+   order from `/dashboard/orders/[orderId]`, so an interrupted payment can be resumed.
+
+---
+
+## 🛡️ Administrative suite
+
+- **Inventory:** product CRUD with multi-image upload, category and ingredient assignment,
+  and filtering by search term, category and stock state (`all` / `low` / `empty`).
+- **Orders:** all orders with search and pagination, plus status transitions across
+  `PENDING → PAID → SHIPPED → DELIVERED → CANCELLED`.
+- **Categories:** flat and nested categories via a self-relation on `Category.parentId`.
+- **Ingredients:** product "essences", shown as attributes on the storefront.
+- **Media:** uploads are converted to WebP and resized to fit 1200×1200 by Sharp before
+  being written to disk.
+
+---
+
+## 🔐 Security & role-based access
+
+- **Roles:** `USER` and `ADMIN` on the `User` model.
+- **Sessions:** JWT strategy. The `jwt` callback re-reads the user from the database on
+  every call, so a role change or account deletion takes effect immediately.
+- **Server Actions:** each admin action calls `requireAdmin()` from `@/lib/guards`, which
+  throws. This is the layer that matters — Server Actions are publicly reachable POST
+  endpoints, so middleware and layouts cannot protect them.
+- **Passwords:** bcrypt, cost factor 12.
+- **Email verification:** credentials sign-in is refused until `emailVerified` is set.
+  Changing the email address clears it and re-sends a verification link.
+- **Environment:** every variable is validated by `lib/env.ts` at startup, so a missing or
+  malformed key fails fast instead of surfacing as `undefined` mid-request.
+
+---
+
+## ⚠️ Known limitations
+
+Documented deliberately — these are real gaps in the current implementation, tracked in
+`markdown/improvement.md`.
+
+| Area | Limitation |
+| :--- | :--- |
+| **Order pricing** | `initializeOrder` takes the `OrderItem` price snapshot from the client payload rather than the database, so the Stripe line items are derived from client-controlled input. |
+| **Stripe transaction** | The Checkout session is created inside a Prisma interactive transaction, which risks a rollback after the session already exists. |
+| **Webhook** | No idempotency key, so a Stripe retry on `checkout.session.expired` can restock an order more than once. The paid amount is not compared against the order total. |
+| **Stock reservations** | Stock is decremented at `initializeOrder`, but nothing releases it if the customer abandons checkout before a Stripe session is ever created. |
+| **Image storage** | Uploads are written to `public/` on the local filesystem. This works in development and on a VPS with a persistent disk, but not on serverless hosting, where the filesystem is read-only and ephemeral. |
+| **Transactional email** | `sendVerificationEmail` and `sendPasswordResetEmail` ignore their `to` argument and send to the fixed `MAILING_ACCOUNT` address — a workaround for Resend sandbox mode, which requires a verified sending domain to lift. |
+| **Validation** | Zod covers the auth forms. `initializeOrder`, `finalizeAndPay` and `upsertProduct` still accept unvalidated input. |
+| **Rate limiting** | None on the auth actions. |
+| **Tests** | None. |

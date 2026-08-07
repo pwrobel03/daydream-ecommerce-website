@@ -1,99 +1,120 @@
-# 🌌 Platforma Ecommerce Daydream
+# Platforma Ecommerce Daydream
 
-Daydream to zaawansowane rozwiązanie ecommerce typu full-stack zbudowane w oparciu o **Next.js 15**. Projekt prezentuje nowoczesne podejście do tworzenia aplikacji webowych, kładąc nacisk na bezpieczeństwo typów (Type Safety), logikę po stronie serwera (React Server Components) oraz rygorystyczny model bezpieczeństwa.
-
----
-
-### 🌍 Wersje Językowe
-
-- [English (Angielski)](./README.md)
-- [Polski (Obecna)](./README-pl.md)
+Daydream to aplikacja ecommerce typu full-stack zbudowana na **Next.js 16** i **React 19**.
+Obejmuje pełny cykl zakupowy — przeglądanie katalogu, trwały koszyk, rezerwację stanu
+magazynowego, płatności Stripe, realizację zamówień sterowaną webhookiem oraz panel
+administratora.
 
 ---
 
-## 🚀 Przegląd Projektu
+### 🌍 Wersje językowe
 
-Celem projektu było stworzenie architektury gotowej do wdrożenia produkcyjnego. System obsługuje pełny cykl zakupowy — od dynamicznego przeglądania produktów i zarządzania trwałym koszykiem, po bezpieczne płatności Stripe i automatyzację realizacji zamówień.
+- [English (angielski)](./README.md)
+- [Polski (obecna)](./README-pl.md)
 
-### 🛡️ Kluczowe Aspekty Techniczne
+---
 
-- **Next.js 15 & React 19:** Wykorzystanie najnowszych funkcji, takich jak asynchroniczne API żądań oraz Server Actions do wszystkich mutacji danych.
-- **Autoryzacja (Auth.js v5):** Implementacja Role-Based Access Control (RBAC). Sesje są zarządzane przez zaszyfrowane tokeny JWT przechowywane w bezpiecznych ciasteczkach HttpOnly (ochrona przed XSS).
-- **Integralność Danych:** Rygorystyczna walidacja schematów przy użyciu **Prisma ORM** i **Zod**. Operacje bazodanowe są chronione weryfikacją sesji po stronie serwera.
-- **Zarządzanie Stanem:** Logika koszyka odseparowana od UI dzięki **Zustand**, z własną warstwą persistencji synchronizującą stan między sesjami przeglądarki.
+## 🚀 Przegląd projektu
+
+Celem było zbudowanie architektury ecommerce od początku do końca, a nie dema katalogu:
+każda mutacja przechodzi przez Server Action, autoryzacja jest egzekwowana tam, gdzie nie
+da się jej obejść, a proces płatności rezerwuje towar przed obciążeniem karty.
+
+### 🛡️ Kluczowe aspekty techniczne
+
+- **Next.js 16 App Router i React 19** — domyślnie Server Components, Server Actions do
+  każdej mutacji, nigdzie `getServerSideProps`.
+- **Auth.js v5** — kontrola dostępu oparta na rolach, sesje JWT w ciasteczkach HttpOnly.
+  Callback `jwt` odczytuje użytkownika przy każdym wywołaniu, więc zmiana roli i usunięcie
+  konta działają natychmiast.
+- **Prisma + PostgreSQL** — 12 modeli obejmujących użytkowników, katalog, zamówienia
+  i promocje, z rezerwacją stanu magazynowego wewnątrz transakcji.
+- **Walidacja Zod** — formularze autoryzacji oraz, od czasu `lib/env.ts`, samo środowisko:
+  brakujący lub zniekształcony klucz zatrzymuje aplikację przy starcie, zamiast objawiać
+  się jako `undefined` w środku żądania.
+- **Zustand** — stan koszyka odseparowany od UI, utrwalany w `localStorage` i uzgadniany
+  z bazą przed zakupem.
 
 ---
 
 ## ✨ Funkcjonalności
 
-### 🛒 Logika Klienta
+### 🛒 Sklep
 
-- **Zaawansowany Katalog:** Dynamiczne pobieranie danych z filtrowaniem według kategorii i atrybutów.
-- **Inteligentny Koszyk:** Globalny stan z automatyczną synchronizacją z localStorage.
-- **Bezpieczny Checkout:** Integracja z bramką płatniczą **Stripe** z weryfikacją stanów magazynowych i cen przed utworzeniem sesji.
-- **Ekosystem Użytkownika:** Personalizowane pulpity, historia zamówień oraz system opinii "Voices".
+- **Katalog** — zagnieżdżone kategorie, atrybuty składników i statusów, doczytywanie
+  porcjami.
+- **Koszyk** — trwały między sesjami, synchronizowany z aktualnymi cenami i stanem
+  magazynowym.
+- **Zakup** — Stripe Checkout z rezerwacją towaru z góry i możliwością dokończenia
+  przerwanej płatności z poziomu historii zamówień.
+- **Konto** — pulpit, historia zamówień, zapisany adres dostawy oraz system opinii
+  „Voices" z CRUD-em na własnych wpisach.
 
-### 🛡️ Panel Administratora
+### 🛡️ Panel administratora
 
-- **Pełna Kontrola Asortymentu:** Interfejs CRUD dla produktów, kategorii i składników (essences).
-- **Zarządzanie Zamówieniami:** Monitorowanie statusów transakcji i logistyka dostaw w czasie rzeczywistym.
-- **Optymalizacja Mediów:** Automatyczne przetwarzanie obrazów (Sharp) i hosting na Cloudinary.
-
----
-
-## 🛠 Stos Technologiczny
-
-| Warstwa            | Technologia                            |
-| :----------------- | :------------------------------------- |
-| **Framework**      | Next.js 15 (App Router), TypeScript 5  |
-| **Baza Danych**    | PostgreSQL, Prisma ORM                 |
-| **Bezpieczeństwo** | Auth.js v5, Bcrypt, Middleware         |
-| **Płatności**      | Stripe (API & Webhooki)                |
-| **Stylizacja**     | Tailwind CSS, Shadcn UI, Framer Motion |
+- **Asortyment** — CRUD produktów z uploadem wielu zdjęć, filtrowanie po frazie,
+  kategorii i stanie magazynowym.
+- **Zamówienia** — przeszukiwalna, stronicowana lista z możliwością zmiany statusu.
+- **Kategorie i składniki** — drzewo kategorii i „esencje" produktów.
+- **Moderacja** — usuwanie opinii.
+- **Media** — wgrywane pliki konwertowane do WebP i skalowane przez Sharp.
 
 ---
 
-## 📂 Dokumentacja Modułowa
+## 🛠 Stos technologiczny
 
-Aby zgłębić techniczne szczegóły, przejdź do odpowiednich sekcji:
-
-1.  [**Architektura i Routing**](./docs/pl/routing.md) - Wyjaśnienie struktury `@/app` i Server Actions.
-2.  [**Instrukcja Konfiguracji**](./docs/pl/setup.md) - Instalacja krok po kroku i zmienne .env.
-3.  [**Logika Funkcjonalności**](./docs/pl/features.md) - Szczegółowe omówienie procesu płatności i autoryzacji.
+| Warstwa        | Technologia                                          |
+| :------------- | :--------------------------------------------------- |
+| **Framework**  | Next.js 16 (App Router), React 19, TypeScript 5       |
+| **Baza**       | PostgreSQL, Prisma ORM                                |
+| **Autoryzacja**| Auth.js v5, bcrypt, kontrola tras w middleware        |
+| **Płatności**  | Stripe (Checkout i webhooki)                          |
+| **E-mail**     | Resend                                                |
+| **Stylowanie** | Tailwind CSS v4, shadcn/ui, Radix UI, tw-animate-css  |
+| **Stan**       | Zustand                                               |
+| **Walidacja**  | Zod                                                   |
 
 ---
 
-## ⚙️ Szybki Start
+## 📂 Dokumentacja
 
-1.  **Sklonuj repozytorium:**
+1. [**Architektura i routing**](./docs/pl/routing.md) — grupy tras, domeny Server Actions
+   i miejsce, w którym autoryzacja jest faktycznie egzekwowana.
+2. [**Instrukcja konfiguracji**](./docs/pl/setup.md) — instalacja, zmienne środowiskowe,
+   seed bazy, przekierowanie webhooków Stripe.
+3. [**Funkcjonalności i logika**](./docs/pl/features.md) — przepływ zakupu, system opinii,
+   model bezpieczeństwa i lista znanych ograniczeń.
 
-    ```bash
-    git clone [https://github.com/pwrobel03/daydream-ecommerce-website.git](https://github.com/pwrobel03/daydream-ecommerce-website.git)
-    cd daydream-ecommerce-website
-    ```
+---
 
-2.  **Zainstaluj zależności:**
+## ⚙️ Szybki start
 
-    ```bash
-    npm install
-    ```
+```bash
+git clone https://github.com/pwrobel03/daydream-ecommerce-website.git
+cd daydream-ecommerce-website
+npm install
 
-3.  **Konfiguracja Bazy Danych:**
-    Skonfiguruj plik `.env`, a następnie wykonaj:
+cp .env.example .env      # następnie uzupełnij wartości
 
-    ```bash
-    npx prisma generate
-    npx prisma db push
-    ```
+npx prisma generate
+npx prisma db push
+npx prisma db seed        # opcjonalne, ale bez tego sklep jest pusty
 
-4.  **Wypełnianie Bazy Danych (Seed):**
-    Uruchom przygotowany skrypt, aby automatycznie wypełnić bazę przykładowymi produktami, kategoriami i składnikami:
+npm run dev
+```
 
-    ```bash
-    npx prisma db seed
-    ```
+Pełny opis zmiennych środowiskowych i lokalnego przekierowania webhooków Stripe znajduje
+się w [instrukcji konfiguracji](./docs/pl/setup.md).
 
-5.  **Uruchom Serwer Deweloperski:**
-    ```bash
-    npm run dev
-    ```
+---
+
+## 🚧 Status projektu
+
+Aplikacja jest kompletna funkcjonalnie, ale ma znane braki w utwardzeniu. Ścieżka
+płatności zawiera otwarte problemy (snapshot ceny pochodzący od klienta, brak idempotencji
+webhooka, brak wygaszania rezerwacji), upload obrazów trafia na lokalny system plików,
+więc aplikacja nie działa jeszcze na hostingu serverless, i nie ma testów automatycznych.
+
+Te braki są udokumentowane, a nie ukryte: patrz
+[znane ograniczenia](./docs/pl/features.md#-znane-ograniczenia) oraz pełna analiza
+i plan rozwoju w `markdown/improvement.md`.

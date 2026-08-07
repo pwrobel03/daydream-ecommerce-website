@@ -1,114 +1,141 @@
-# 🛠️ Instrukcja Instalacji i Konfiguracji
+# 🛠️ Instalacja i konfiguracja
 
-Ten przewodnik przeprowadzi Cię przez kroki niezbędne do uruchomienia platformy e-commerce Daydream na Twoim lokalnym urządzeniu.
+Jak uruchomić platformę Daydream lokalnie.
 
 ---
 
-## 📋 Wymagania Wstępne
-
-Zanim zaczniesz, upewnij się, że masz zainstalowane:
+## 📋 Wymagania
 
 - **Node.js 20.x** lub nowszy
-- **npm** lub **yarn**
-- **PostgreSQL** (Lokalna instancja lub baza w chmurze, np. Supabase/Neon)
-- **Stripe CLI** (Opcjonalnie, do testowania webhooków lokalnie)
+- **npm**
+- **PostgreSQL** — lokalna instancja albo hostowana (Neon, Supabase)
+- **Stripe CLI** — opcjonalnie, potrzebne do testowania webhooków lokalnie
 
 ---
 
-## ⚙️ Konfiguracja Krok po Kroku
+## ⚙️ Konfiguracja
 
-### 1. Sklonuj Repozytorium
+### 1. Sklonuj repozytorium
 
 ```bash
-git clone [https://github.com/pwrobel03/daydream-ecommerce-website.git](https://github.com/pwrobel03/daydream-ecommerce-website.git)
+git clone https://github.com/pwrobel03/daydream-ecommerce-website.git
 cd daydream-ecommerce-website
 ```
 
-### 2. Zainstaluj Zależności
+### 2. Zainstaluj zależności
 
 ```bash
 npm install
 ```
 
-### 3. Zmienne Środowiskowe
+### 3. Zmienne środowiskowe
 
-Stwórz plik `.env` w głównym katalogu projektu. Możesz wykorzystać poniższy wzór:
+Skopiuj `.env.example` do `.env` i uzupełnij wartości. Każdy klucz jest walidowany przy
+starcie przez `lib/env.ts`, więc brakująca lub zniekształcona wartość zatrzymuje aplikację
+z komunikatem wskazującym konkretną zmienną, zamiast wywalać się później w runtime.
 
 ```env
-# Baza Danych (PostgreSQL)
-DATABASE_URL="postgresql://uzytkownik:haslo@localhost:5432/daydream"
+# Baza danych
+DATABASE_URL="postgresql://user:password@localhost:5432/daydream"
 
-# Autoryzacja (Auth.js / NextAuth)
-AUTH_SECRET="twoj-tajny-klucz" # Wygeneruj przez: npx auth secret
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+# Auth.js — sekret wygenerujesz przez: npx auth secret
+AUTH_SECRET="your_auth_secret_here"
+AUTH_URL="http://localhost:3000"
+AUTH_TRUST_HOST="true"
 
-# Dostawcy OAuth
-GOOGLE_CLIENT_ID="twoje-google-id"
-GOOGLE_CLIENT_SECRET="twoje-google-secret"
-GITHUB_CLIENT_ID="twoje-github-id"
-GITHUB_CLIENT_SECRET="twoje-github-secret"
+# Dostawcy OAuth.
+# Auth.js v5 wykrywa te zmienne po nazwie — klucze nie są przekazywane jawnie
+# w auth.config.ts, więc pisownia AUTH_<PROVIDER>_ID / _SECRET jest wymagana.
+AUTH_GOOGLE_ID="your_google_client_id"
+AUTH_GOOGLE_SECRET="your_google_client_secret"
+AUTH_GITHUB_ID="your_github_client_id"
+AUTH_GITHUB_SECRET="your_github_client_secret"
 
-# Stripe (Płatności)
-STRIPE_API_KEY="sk_test_..."
+# Stripe
+STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_WEBHOOK_SECRET="whsec_..."
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
 
-# Resend (Usługa E-mail)
+# Resend
 RESEND_API_KEY="re_..."
+MAILING_ACCOUNT_PROVIDER="onboarding@resend.dev"
+MAILING_ACCOUNT="twoja_zweryfikowana_skrzynka@example.com"
+
+# Aplikacja
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
+
+> **Uwaga o mailach.** Dopóki nie zweryfikujesz domeny nadawcy w Resend, oba maile
+> transakcyjne trafiają na adres z `MAILING_ACCOUNT`, niezależnie od odbiorcy. Ustaw tam
+> skrzynkę, do której masz dostęp — inaczej linki weryfikacyjne będą nieosiągalne.
 
 ---
 
-## 🗄️ Inicjalizacja Bazy Danych
+## 🗄️ Baza danych
 
-Projekt wykorzystuje **Prisma ORM**. Użyj poniższych komend, aby zsynchronizować schemat i wypełnić bazę danych.
+Projekt korzysta z **Prisma ORM**.
 
-1. **Generowanie Klienta Prisma:**
+1. **Wygeneruj klienta:**
 
    ```bash
    npx prisma generate
    ```
 
-2. **Wysłanie Schematu do Bazy:**
+2. **Wypchnij schemat:**
 
    ```bash
    npx prisma db push
    ```
 
-3. **Wypełnianie Bazy Danych (Seeding):**
-   Projekt zawiera skrypt seedujący, który tworzy domyślne kategorie, statusy oraz przykładowe produkty. Jest to kluczowe dla poprawnego wyświetlania interfejsu przy pierwszym uruchomieniu.
+3. **Seed:**
+   Tworzy kategorie, statusy, składniki, produkty, użytkowników, opinie i przykładowe
+   zamówienia. Zalecane — bez tego sklep renderuje się pusty.
+
    ```bash
    npx prisma db seed
    ```
 
 ---
 
-## 💳 Testowanie Webhooków Stripe
+## 💳 Webhooki Stripe
 
-Aby poprawnie obsługiwać płatności lokalnie, musisz przekierowywać zdarzenia ze Stripe do swojego lokalnego serwera:
+Aby finalizować płatności lokalnie, przekieruj zdarzenia Stripe na serwer deweloperski.
+Zwróć uwagę na pełną ścieżkę — handler leży pod `/api/webhook/stripe`, nie `/api/webhook`:
 
-1. Zaloguj się do Stripe CLI: `stripe login`
-2. Uruchom nasłuchiwanie:
-   ```bash
-   stripe listen --forward-to localhost:3000/api/webhook
-   ```
-3. Skopiuj **Webhook Secret** (zaczynający się od `whsec_`) podany przez CLI i wklej go do pliku `.env` jako `STRIPE_WEBHOOK_SECRET`.
+```bash
+stripe login
+stripe listen --forward-to localhost:3000/api/webhook/stripe
+```
+
+Sekret `whsec_...` wypisany przez CLI wklej do `STRIPE_WEBHOOK_SECRET`.
+
+Karta testowa: `4242 4242 4242 4242`, dowolna przyszła data ważności, dowolny CVC.
 
 ---
 
-## 🚀 Uruchamianie Aplikacji
-
-Gdy wszystko jest skonfigurowane, uruchom serwer deweloperski:
+## 🚀 Uruchomienie
 
 ```bash
 npm run dev
 ```
 
-Aplikacja będzie dostępna pod adresem [http://localhost:3000](http://localhost:3000).
+Aplikacja pod [http://localhost:3000](http://localhost:3000).
+
+Żeby zalogować się jako administrator, ustaw rolę bezpośrednio w bazie — nie ma
+mechanizmu samodzielnego nadania uprawnień:
+
+```sql
+UPDATE "User" SET role = 'ADMIN' WHERE email = 'ty@example.com';
+```
 
 ---
 
-## 🛠️ Rozwiązywanie Problemów
+## 🛠️ Rozwiązywanie problemów
 
-- **Niezgodność Schematu Prisma:** Jeśli zmienisz plik `schema.prisma`, zawsze wykonaj `npx prisma db push`, a następnie `npx prisma generate`.
-- **Błędy Przekierowań Auth:** Upewnij się, że w konsolach deweloperskich Google/GitHub adresy zwrotne (callback URLs) są ustawione na `http://localhost:3000/api/auth/callback/[nazwa-dostawcy]`.
+- **Aplikacja kończy się przy starcie listą zmiennych środowiskowych** — to `lib/env.ts`
+  robi swoją robotę. Komunikat wskazuje każdy problematyczny klucz.
+- **Zmiany w schemacie nie są widoczne** — uruchom ponownie `npx prisma db push`,
+  a potem `npx prisma generate`.
+- **Błędy typów tras po usunięciu strony** — usuń katalog `.next` i powtórz sprawdzanie
+  typów.
+- **`npm run lint` wywala się na `compat is not defined`** — flat config ESLinta jest
+  obecnie zepsuty, patrz `markdown/improvement.md`.

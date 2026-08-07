@@ -1,10 +1,13 @@
 # Daydream Ecommerce Platform
 
-Daydream is a premium, full-stack ecommerce solution built with **Next.js 15**. It represents a modern approach to web development, focusing on type safety, server-side logic with React Server Components, and a robust security model.
+Daydream is a full-stack ecommerce application built with **Next.js 16** and **React 19**.
+It covers the complete purchase lifecycle — catalog browsing, a persistent cart, stock
+reservation, Stripe payments, webhook-driven fulfilment, and an admin back-office.
 
 ---
 
 ### 🌍 Language Versions
+
 - [English (Current)](./README.md)
 - [Polski (Polish)](./README-pl.md)
 
@@ -12,79 +15,103 @@ Daydream is a premium, full-stack ecommerce solution built with **Next.js 15**. 
 
 ## 🚀 Project Overview
 
-The goal of this project was to create a production-ready ecommerce architecture. It handles the entire lifecycle of a purchase—from dynamic product discovery and persistent cart management to secure Stripe payments and automated order fulfillment.
+The goal was to build an ecommerce architecture end to end rather than a catalog demo:
+every mutation goes through a Server Action, authorization is enforced where it can't be
+bypassed, and the payment flow reserves stock before charging.
 
-### 🛡️ Technical Excellence & Security
-* **Next.js 15 & React 19:** Utilizing the newest features like asynchronous request APIs and Server Actions for all data mutations.
-* **Authentication (Auth.js v5):** Implemented Role-Based Access Control (RBAC). Sessions are managed via encrypted JWTs stored in secure, HttpOnly cookies to prevent XSS attacks.
-* **Data Integrity:** Strict schema validation using **Prisma ORM** and **Zod**. Database operations are protected by server-side session checks to ensure that only authorized users (Admins) can modify the inventory.
-* **State Management:** Decoupled cart logic using **Zustand** with a custom persistence layer to synchronize the shopping experience across browser sessions.
+### 🛡️ Technical highlights
+
+- **Next.js 16 App Router & React 19** — Server Components by default, Server Actions for
+  every mutation, no `getServerSideProps` anywhere.
+- **Auth.js v5** — role-based access control with JWT sessions in HttpOnly cookies.
+  The `jwt` callback re-reads the user on every call, so role changes and account
+  deletions take effect immediately.
+- **Prisma + PostgreSQL** — 12 models covering users, catalog, orders and promotions,
+  with stock reservation handled inside a transaction.
+- **Zod validation** — auth forms and, since `lib/env.ts`, the environment itself:
+  a missing or malformed key stops the app at startup instead of surfacing as `undefined`
+  mid-request.
+- **Zustand** — cart state decoupled from the UI, persisted to `localStorage` and
+  reconciled against the database before checkout.
 
 ---
 
-## ✨ Key Features
+## ✨ Features
 
-### 🛒 Client-Facing Logic
-- **Advanced Product Catalog:** Dynamic fetching with category and attribute filtering.
-- **Smart Cart:** Global state management with automatic local storage synchronization.
-- **Secure Checkout:** Integrated **Stripe** payment gateway with server-side validation of stock and prices before session creation.
-- **User Ecosystem:** Personalized dashboards, order history, and a "Voice" system for product reviews.
+### 🛒 Storefront
 
-### 🛡️ Administrative Suite
-- **Full Inventory Control:** Comprehensive CRUD interface for products, categories, and product essences.
-- **Order Management:** Real-time tracking of transaction statuses and delivery coordination.
-- **Media Pipeline:** Automatic image optimization via **Sharp** and hosting on **Cloudinary**.
+- **Catalog** — nested categories, ingredient and status attributes, paginated loading.
+- **Cart** — persistent across sessions, re-synced with live prices and stock.
+- **Checkout** — Stripe Checkout with stock reserved up front, plus the ability to resume
+  an interrupted payment from the order history.
+- **Account** — dashboard, order history, saved delivery address, and the "Voices" review
+  system with per-user CRUD.
+
+### 🛡️ Admin back-office
+
+- **Inventory** — product CRUD with multi-image upload, filtering by search, category and
+  stock state.
+- **Orders** — searchable, paginated order list with status transitions.
+- **Categories & ingredients** — nested category tree and product "essences".
+- **Moderation** — review removal.
+- **Media** — uploads converted to WebP and resized by Sharp.
 
 ---
 
 ## 🛠 Tech Stack
 
-| Layer | Technology |
-| :--- | :--- |
-| **Framework** | Next.js 15 (App Router), TypeScript 5 |
-| **Database** | PostgreSQL, Prisma ORM |
-| **Security** | Auth.js v5, Bcrypt, Middleware protection |
-| **Payments** | Stripe (API & Webhooks) |
-| **Styling** | Tailwind CSS, Shadcn UI, Framer Motion |
+| Layer          | Technology                                          |
+| :------------- | :-------------------------------------------------- |
+| **Framework**  | Next.js 16 (App Router), React 19, TypeScript 5      |
+| **Database**   | PostgreSQL, Prisma ORM                               |
+| **Auth**       | Auth.js v5, bcrypt, middleware-based route gating    |
+| **Payments**   | Stripe (Checkout & webhooks)                         |
+| **Email**      | Resend                                               |
+| **Styling**    | Tailwind CSS v4, shadcn/ui, Radix UI, tw-animate-css |
+| **State**      | Zustand                                              |
+| **Validation** | Zod                                                  |
 
 ---
 
-## 📂 Modular Documentation
+## 📂 Documentation
 
-For a deeper dive into specific parts of the system, please refer to:
-1.  [**Architecture & Routing**](./docs/en/routing.md) - Explaining the `@/app` structure and Server Actions.
-2.  [**Setup Guide**](./docs/en/setup.md) - Step-by-step installation and environment configuration.
-3.  [**Features & Logic**](./docs/en/features.md) - Detailed breakdown of the checkout flow and auth logic.
+1. [**Architecture & Routing**](./docs/en/routing.md) — route groups, the Server Action
+   domains, and where authorization is actually enforced.
+2. [**Setup Guide**](./docs/en/setup.md) — installation, environment variables, database
+   seeding, Stripe webhook forwarding.
+3. [**Features & Logic**](./docs/en/features.md) — checkout flow, review system, security
+   model, and a list of known limitations.
 
 ---
 
 ## ⚙️ Quick Start
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/pwrobel03/daydream-ecommerce-website.git](https://github.com/pwrobel03/daydream-ecommerce-website.git)
-    cd daydream-ecommerce-website
-    ```
+```bash
+git clone https://github.com/pwrobel03/daydream-ecommerce-website.git
+cd daydream-ecommerce-website
+npm install
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+cp .env.example .env      # then fill in the values
 
-3.  **Database Setup:**
-    Configure your `.env` file, then run:
-    ```bash
-    npx prisma generate
-    npx prisma db push
-    ```
+npx prisma generate
+npx prisma db push
+npx prisma db seed        # optional, but the storefront is empty without it
 
-4.  **Seed the Database (Optional but Recommended):**
-    Populate your database with initial products, categories, and essences to see the app in action immediately:
-    ```bash
-    npx prisma db seed
-    ```
+npm run dev
+```
 
-5.  **Run Development Server:**
-    ```bash
-    npm run dev
-    ```
+See the [setup guide](./docs/en/setup.md) for the full environment reference and for
+forwarding Stripe webhooks locally.
+
+---
+
+## 🚧 Project Status
+
+Feature-complete as an application, with known gaps in hardening. The payment path has
+open issues (client-supplied price snapshots, no webhook idempotency, no reservation
+expiry), image uploads target the local filesystem so the app does not yet run on
+serverless hosting, and there are no automated tests.
+
+These are documented rather than hidden: see
+[known limitations](./docs/en/features.md#-known-limitations) and the full analysis and
+roadmap in `markdown/improvement.md`.

@@ -1,113 +1,141 @@
 # 🛠️ Installation and Configuration Guide
 
-This guide will walk you through the steps required to set up the Daydream ecommerce platform on your local machine.
+How to get the Daydream platform running locally.
 
 ---
 
 ## 📋 Prerequisites
 
-Before you begin, ensure you have the following installed:
-
 - **Node.js 20.x** or later
-- **npm** or **yarn**
-- **PostgreSQL** (Local instance or cloud-based like Supabase/Neon)
-- **Stripe CLI** (Optional, for local webhook testing)
+- **npm**
+- **PostgreSQL** — a local instance or a hosted one (Neon, Supabase)
+- **Stripe CLI** — optional, needed to test webhooks locally
 
 ---
 
-## ⚙️ Step-by-Step Setup
+## ⚙️ Setup
 
-### 1. Clone the Repository
+### 1. Clone the repository
 
 ```bash
-git clone [https://github.com/pwrobel03/daydream-ecommerce-website.git](https://github.com/pwrobel03/daydream-ecommerce-website.git)
+git clone https://github.com/pwrobel03/daydream-ecommerce-website.git
 cd daydream-ecommerce-website
 ```
 
-### 2. Install Dependencies
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Environment Variables
+### 3. Environment variables
 
-Create a `.env` file in the root directory. You can use the following template based on the project requirements:
+Copy `.env.example` to `.env` and fill in the values. Every key is validated at startup by
+`lib/env.ts`, so a missing or malformed value stops the app with a message naming the
+offending variable rather than failing later at runtime.
 
 ```env
-# Database (PostgreSQL)
+# Database
 DATABASE_URL="postgresql://user:password@localhost:5432/daydream"
 
-# Authentication (Auth.js / NextAuth)
-AUTH_SECRET="your-secret-key" # Generate with: npx auth secret
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+# Auth.js — generate the secret with: npx auth secret
+AUTH_SECRET="your_auth_secret_here"
+AUTH_URL="http://localhost:3000"
+AUTH_TRUST_HOST="true"
 
-# OAuth Providers
-GOOGLE_CLIENT_ID="your-google-id"
-GOOGLE_CLIENT_SECRET="your-google-secret"
-GITHUB_CLIENT_ID="your-github-id"
-GITHUB_CLIENT_SECRET="your-github-secret"
+# OAuth providers.
+# Auth.js v5 discovers these by name — the keys are not passed explicitly in
+# auth.config.ts, so the AUTH_<PROVIDER>_ID / _SECRET spelling is required.
+AUTH_GOOGLE_ID="your_google_client_id"
+AUTH_GOOGLE_SECRET="your_google_client_secret"
+AUTH_GITHUB_ID="your_github_client_id"
+AUTH_GITHUB_SECRET="your_github_client_secret"
 
-# Stripe (Payments)
-STRIPE_API_KEY="sk_test_..."
+# Stripe
+STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_WEBHOOK_SECRET="whsec_..."
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
 
-# Resend (Email Service)
+# Resend
 RESEND_API_KEY="re_..."
+MAILING_ACCOUNT_PROVIDER="onboarding@resend.dev"
+MAILING_ACCOUNT="your_verified_inbox@example.com"
+
+# Application
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
+
+> **Note on email.** Until you verify a sending domain in Resend, both transactional
+> emails are delivered to `MAILING_ACCOUNT` regardless of the recipient. Set it to an
+> inbox you control, otherwise email verification links will be unreachable.
 
 ---
 
-## 🗄️ Database Initialization
+## 🗄️ Database
 
-This project uses **Prisma ORM**. Follow these commands to sync your schema and populate the database.
+The project uses **Prisma ORM**.
 
-1. **Generate Prisma Client:**
+1. **Generate the client:**
 
    ```bash
    npx prisma generate
    ```
 
-2. **Push Schema to Database:**
+2. **Push the schema:**
 
    ```bash
    npx prisma db push
    ```
 
-3. **Seed Initial Data:**
-   The project includes a seeding script that creates default categories, statuses, and sample products. This is essential for the initial UI preview.
+3. **Seed:**
+   Creates categories, statuses, ingredients, products, users, reviews and sample orders.
+   Recommended — without it the storefront renders empty.
+
    ```bash
    npx prisma db seed
    ```
 
 ---
 
-## 💳 Stripe Webhook Testing
+## 💳 Stripe webhooks
 
-To handle successful payments locally, you need to forward Stripe events to your local server:
+To finalize payments locally, forward Stripe events to your dev server. Note the full
+path — the handler lives at `/api/webhook/stripe`, not `/api/webhook`:
 
-1. Log in to Stripe CLI: `stripe login`
-2. Forward webhooks:
-   ```bash
-   stripe listen --forward-to localhost:3000/api/webhook
-   ```
-3. Copy the **Webhook Secret** provided by the CLI and paste it into your `.env` as `STRIPE_WEBHOOK_SECRET`.
+```bash
+stripe login
+stripe listen --forward-to localhost:3000/api/webhook/stripe
+```
+
+Copy the `whsec_...` secret the CLI prints into `STRIPE_WEBHOOK_SECRET`.
+
+Test card: `4242 4242 4242 4242`, any future expiry, any CVC.
 
 ---
 
-## 🚀 Running the Application
-
-Once everything is configured, start the development server:
+## 🚀 Running
 
 ```bash
 npm run dev
 ```
 
-The application will be available at [http://localhost:3000](http://localhost:3000).
+Available at [http://localhost:3000](http://localhost:3000).
+
+To sign in as an administrator, set the role directly in the database — there is no
+self-service promotion:
+
+```sql
+UPDATE "User" SET role = 'ADMIN' WHERE email = 'you@example.com';
+```
 
 ---
 
-## 🛠️ Common Troubleshooting
+## 🛠️ Troubleshooting
 
-- **Prisma Schema Mismatch:** If you change the `schema.prisma`, always run `npx prisma db push` followed by `npx prisma generate`.
+- **App exits on start with a list of environment variables** — that is `lib/env.ts`
+  doing its job. The message names each offending key.
+- **Schema changes not visible** — re-run `npx prisma db push` followed by
+  `npx prisma generate`.
+- **Stale route type errors after deleting a page** — remove the `.next` directory and
+  re-run the type check.
+- **`npm run lint` fails with `compat is not defined`** — the ESLint flat config is
+  currently broken; see `markdown/improvement.md`.

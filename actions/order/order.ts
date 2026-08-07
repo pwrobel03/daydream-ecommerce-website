@@ -126,52 +126,62 @@ export async function finalizeAndPay(orderId: string, addressData: any) {
   if (!session?.user?.id) return { error: "Unauthorized" };
 
   try {
-    // Wyciągamy sam string URL z transakcji
-    const url = await db.$transaction(async (tx) => {
-      // 1. Zapisujemy adres
+    // Transakcja obejmuje wyłącznie zapisy w bazie. Wywołanie sieciowe do Stripe
+    // trzymałoby połączenie z puli i groziło rollbackiem już po utworzeniu sesji
+    // płatności — czyli obciążeniem klienta za zamówienie, którego nie ma w bazie.
+    const order = await db.$transaction(async (tx) => {
+      const existing = await tx.order.findFirst({
+        where: {
+          id: orderId,
+          userId: session.user!.id,
+          status: "PENDING",
+          isPaid: false,
+        },
+        select: { id: true },
+      });
+
+      if (!existing) throw new Error("Order not found or already processed");
+
       const address = await tx.address.create({ data: { ...addressData } });
 
-      // 2. Aktualizujemy zamówienie i profil
-      const order = await tx.order.update({
-        where: { id: orderId },
+      const updated = await tx.order.update({
+        where: { id: existing.id },
         data: { addressId: address.id },
-        include: { items: { include: { product: true } } }
+        include: { items: { include: { product: true } } },
       });
 
       await tx.user.update({
-        where: { id: session.user.id },
-        data: { address: { connect: { id: address.id } } }
+        where: { id: session.user!.id },
+        data: { address: { connect: { id: address.id } } },
       });
 
-      // 3. TWORZYMY SESJĘ STRIPE
-      const stripeSession = await stripe.checkout.sessions.create({
-        expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-        line_items: order.items.map(item => ({
-          price_data: {
-            currency: "USD",
-            product_data: { name: item.product.name },
-            unit_amount: Math.round(Number(item.price) * 100),
-          },
-          quantity: item.quantity,
-        })),
-        mode: "payment",
-        success_url: `${env.NEXT_PUBLIC_APP_URL}/order/success/${orderId}`,
-        cancel_url: `${env.NEXT_PUBLIC_APP_URL}/cart`,
-        metadata: { orderId }
-      });
-
-      if (!stripeSession.url) throw new Error("Stripe session failed");
-
-      // Zapisujemy ID sesji w zamówieniu
-      await tx.order.update({
-        where: { id: orderId },
-        data: { stripeSessionId: stripeSession.id }
-      });
-
-      return stripeSession.url; // Zwracamy czysty string
+      return updated;
     });
 
-    return { url, error: null }; // Sukces: zwracamy płaski obiekt z url
+    const stripeSession = await stripe.checkout.sessions.create({
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+      line_items: order.items.map(item => ({
+        price_data: {
+          currency: "USD",
+          product_data: { name: item.product.name },
+          unit_amount: Math.round(Number(item.price) * 100),
+        },
+        quantity: item.quantity,
+      })),
+      mode: "payment",
+      success_url: `${env.NEXT_PUBLIC_APP_URL}/order/success/${orderId}`,
+      cancel_url: `${env.NEXT_PUBLIC_APP_URL}/cart`,
+      metadata: { orderId }
+    });
+
+    if (!stripeSession.url) throw new Error("Stripe session failed");
+
+    await db.order.update({
+      where: { id: orderId },
+      data: { stripeSessionId: stripeSession.id }
+    });
+
+    return { url: stripeSession.url, error: null };
   } catch (error: any) {
     console.error(error);
     return { url: null, error: "Stripe Session Error" }; // Błąd: url to null

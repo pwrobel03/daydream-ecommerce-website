@@ -1,13 +1,9 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
 
-async function checkAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
-}
 
 export async function getInventoryProducts({
   take = 5,
@@ -25,7 +21,7 @@ export async function getInventoryProducts({
   stockStatus?: string;
 }) {
   try {
-    await checkAdmin();
+    await requireAdmin();
 
     const where = {
       ...(search ? { name: { contains: search, mode: "insensitive" as const } } : {}),
@@ -73,7 +69,7 @@ export async function getInventoryProducts({
 // TODO: handle removing images connected with product
 export async function deleteProduct(id: string) {
   try {
-    await checkAdmin();
+    await requireAdmin();
     
     await db.product.delete({ 
       where: { id } 
@@ -96,7 +92,7 @@ import sharp from "sharp"; // Importujemy sharp
 
 export async function upsertProduct(id: string, formData: FormData) {
   try {
-    await checkAdmin();
+    await requireAdmin();
 
     const isNew = id === "new";
     

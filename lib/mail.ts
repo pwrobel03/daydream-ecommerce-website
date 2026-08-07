@@ -1,13 +1,14 @@
 import { Resend } from "resend";
+import { env } from "@/lib/env";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+const resend = new Resend(env.RESEND_API_KEY);
 
 export const sendPasswordResetEmail = async (to: string, token: string) => {
-  const resetUrl = `http://localhost:3000/auth/new-password?token=${token}`
+  const resetUrl = `${env.NEXT_PUBLIC_APP_URL}/auth/new-password?token=${token}`
 
   await resend.emails.send({
-    from: process.env.MAILING_ACCOUNT_PROVIDER!,
-    to: process.env.MAILING_ACCOUNT!,
+    from: env.MAILING_ACCOUNT_PROVIDER,
+    to: env.MAILING_ACCOUNT,
     subject: "Reset your password",
     html: `
       <p>You requested a password reset. Click the link below to set a new password:</p>
@@ -18,11 +19,11 @@ export const sendPasswordResetEmail = async (to: string, token: string) => {
 }
 
 export const sendVerificationEmail = async (to: string, token: string) => {
-  const verificationUrl = `http://localhost:3000/auth/new-verification?token=${token}`
+  const verificationUrl = `${env.NEXT_PUBLIC_APP_URL}/auth/new-verification?token=${token}`
 
   await resend.emails.send({
-    from: process.env.MAILING_ACCOUNT_PROVIDER!,
-    to: process.env.MAILING_ACCOUNT!,
+    from: env.MAILING_ACCOUNT_PROVIDER,
+    to: env.MAILING_ACCOUNT,
     subject: "Verify your email address",
     html: `
       <p>Thank you for registering! Please verify your email address by clicking the link below:</p>

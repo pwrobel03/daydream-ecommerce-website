@@ -62,7 +62,7 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
     }
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/dashboard/profile");
   
   if (updateData.emailVerified === null) {
       return { success: "Email updated & verification link sent!" };

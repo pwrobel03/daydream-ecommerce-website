@@ -1,0 +1,61 @@
+# Uruchomienie całego projektu jednym poleceniem:
+#
+#   cp .env.docker.example .env.docker   # uzupełnij klucze Stripe/Resend
+#   docker compose up
+#
+# Aplikacja sama wykona migracje przy starcie. RUN_SEED=true wypełnia bazę
+# katalogiem demonstracyjnym przy pierwszym uruchomieniu.
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: daydream
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-daydream}
+      POSTGRES_DB: daydream
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U daydream -d daydream"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    environment:
+      DATABASE_URL: postgresql://daydream:${POSTGRES_PASSWORD:-daydream}@postgres:5432/daydream
+      REDIS_URL: redis://redis:6379
+      # Katalog uploadu leży na wolumenie, poza obrazem — bez tego wgrane
+      # zdjęcia znikałyby przy każdym odtworzeniu kontenera.
+      UPLOAD_DIR: /data/uploads
+    volumes:
+      - uploads:/data/uploads
+    ports:
+      - "${APP_PORT:-3000}:3000"
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:

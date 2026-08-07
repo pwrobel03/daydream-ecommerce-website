@@ -1,0 +1,22 @@
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+storage
+playwright-report
+test-results
+graphify-out
+markdown
+docs
+*.md
+
+# Harness testowy — nie wchodzi do obrazu. Configi muszą wypaść razem
+# z katalogiem tests/, bo się do niego odwołują.
+tests
+vitest.config.ts
+vitest.integration.config.ts
+playwright.config.ts
+docker-compose.test.yml
+scripts

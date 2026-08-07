@@ -3,6 +3,7 @@
 
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { env } from "@/lib/env";
 import { revalidatePath } from "next/cache";
 import Stripe from "stripe";
 
@@ -96,7 +97,7 @@ export async function finalizeOrderAddress(orderId: string, addressData: any) {
   }
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
 export async function finalizeAndPay(orderId: string, addressData: any) {
   const session = await auth();
@@ -132,8 +133,8 @@ export async function finalizeAndPay(orderId: string, addressData: any) {
           quantity: item.quantity,
         })),
         mode: "payment",
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/order/success/${orderId}`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
+        success_url: `${env.NEXT_PUBLIC_APP_URL}/order/success/${orderId}`,
+        cancel_url: `${env.NEXT_PUBLIC_APP_URL}/cart`,
         metadata: { orderId }
       });
 
@@ -183,8 +184,8 @@ export async function recreateStripeSession(orderId: string) {
         quantity: item.quantity,
       })),
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/order/success/${orderId}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/orders/${orderId}`,
+      success_url: `${env.NEXT_PUBLIC_APP_URL}/order/success/${orderId}`,
+      cancel_url: `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/${orderId}`,
       metadata: { orderId }
     });
 

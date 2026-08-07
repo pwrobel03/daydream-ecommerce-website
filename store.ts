@@ -77,8 +77,8 @@ const useCartStore = create<CartState>()(
       },
       getTotalPrice: () => {
         return get().items.reduce((total, item) => {
-          // Jeśli jest promoPrice, bierzemy ją, jeśli nie - zwykłą cenę
-          const activePrice = item.product.promoPrice || item.product.price || 0;
+          // ?? zamiast ||: promoPrice równe 0 to poprawna promocja, nie brak wartości.
+          const activePrice = item.product.promoPrice ?? item.product.price ?? 0;
           return total + Number(activePrice) * item.quantity;
         }, 0);
       },

@@ -41,7 +41,7 @@ export default async function ProductPage({
     product = {
       ...rawProduct,
       price: Number(rawProduct.price),
-      promoPrice: rawProduct.promoPrice ? Number(rawProduct.promoPrice) : null,
+      promoPrice: rawProduct.promoPrice !== null ? Number(rawProduct.promoPrice) : null,
       createdAt: rawProduct.createdAt.toISOString(),
     } as unknown as ProductType;
   }

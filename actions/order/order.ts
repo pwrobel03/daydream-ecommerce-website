@@ -4,9 +4,8 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import { CheckoutItemsSchema } from "@/schemas";
+import { AddressSchema, CheckoutItemsSchema } from "@/schemas";
 import { Prisma } from "@prisma/client";
-import { revalidatePath } from "next/cache";
 import Stripe from "stripe";
 import * as z from "zod";
 
@@ -91,46 +90,19 @@ export async function initializeOrder(items: z.infer<typeof CheckoutItemsSchema>
   }
 }
 
-export async function finalizeOrderAddress(orderId: string, addressData: any) {
-  const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
-
-  try {
-    const result = await db.$transaction(async (tx) => {
-      // 1. Tworzymy lub aktualizujemy rekord adresu
-      const address = await tx.address.create({
-        data: {
-          ...addressData,
-        },
-      });
-
-      // 2. Łączymy adres z zamówieniem
-      await tx.order.update({
-        where: { id: orderId, userId: session.user.id },
-        data: { addressId: address.id },
-      });
-
-      // 3. Aktualizujemy stały adres w profilu użytkownika
-      await tx.user.update({
-        where: { id: session.user.id },
-        data: { addressId: address.id },
-      });
-
-      return { success: "Delivery details provide correctly!!" };
-    });
-
-    revalidatePath(`/cart/delivery/${orderId}`);
-    return { success: "Delivery details provide correctly!!"};
-  } catch (error) {
-    return { error: "Failed to finalize delivery details." };
-  }
-}
-
 const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
-export async function finalizeAndPay(orderId: string, addressData: any) {
+export async function finalizeAndPay(
+  orderId: string,
+  addressData: z.infer<typeof AddressSchema>
+) {
   const session = await auth();
   if (!session?.user?.id) return { error: "Unauthorized" };
+
+  const validatedAddress = AddressSchema.safeParse(addressData);
+  if (!validatedAddress.success) {
+    return { url: null, error: "Nieprawidłowe dane adresowe." };
+  }
 
   try {
     // Transakcja obejmuje wyłącznie zapisy w bazie. Wywołanie sieciowe do Stripe
@@ -149,18 +121,40 @@ export async function finalizeAndPay(orderId: string, addressData: any) {
 
       if (!existing) throw new Error("Order not found or already processed");
 
-      const address = await tx.address.create({ data: { ...addressData } });
+      // Adres zamówienia jest snapshotem — tak samo jak cena w OrderItem.
+      // Musi być osobnym wierszem, inaczej późniejsza edycja adresu w profilu
+      // przepisałaby adres dostawy na już zrealizowanych zamówieniach.
+      const orderAddress = await tx.address.create({
+        data: validatedAddress.data,
+      });
 
       const updated = await tx.order.update({
         where: { id: existing.id },
-        data: { addressId: address.id },
+        data: { addressId: orderAddress.id },
         include: { items: { include: { product: true } } },
       });
 
-      await tx.user.update({
+      // Adres profilowy aktualizujemy w miejscu, bez tworzenia kolejnego wiersza
+      // przy każdym podejściu do kasy.
+      const user = await tx.user.findUnique({
         where: { id: session.user!.id },
-        data: { address: { connect: { id: address.id } } },
+        select: { addressId: true },
       });
+
+      if (user?.addressId) {
+        await tx.address.update({
+          where: { id: user.addressId },
+          data: validatedAddress.data,
+        });
+      } else {
+        const profileAddress = await tx.address.create({
+          data: validatedAddress.data,
+        });
+        await tx.user.update({
+          where: { id: session.user!.id },
+          data: { addressId: profileAddress.id },
+        });
+      }
 
       return updated;
     });

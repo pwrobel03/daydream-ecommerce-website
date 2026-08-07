@@ -1,92 +1,149 @@
 # 📂 Architektura Projektu i Routing
 
-Niniejszy dokument szczegółowo opisuje system routingu oraz modułową organizację logiki biznesowej w platformie Daydream. Projekt wykorzystuje wzorce **Next.js 15 App Router** z podejściem zorientowanym na domeny (domain-driven) w zakresie Server Actions.
+Dokument opisuje system routingu oraz organizację logiki biznesowej w platformie Daydream.
+Projekt wykorzystuje wzorce **Next.js 16 App Router** z podziałem Server Actions na domeny.
 
 ---
 
-## 🏗️ Grupy Ścieżek i Layouty (Route Groups)
+## 🏗️ Grupy Ścieżek i Layouty
 
-Wykorzystujemy **Grupy Ścieżek** (foldery w nawiasach), aby zarządzać różnymi kontekstami aplikacji i layoutami bez wpływu na strukturę adresów URL.
+Grupy ścieżek (foldery w nawiasach) porządkują aplikację bez wpływu na adresy URL.
 
-| Grupa         | Przeznaczenie Ścieżki   | Szczegóły Layoutu                                                         |
-| :------------ | :---------------------- | :------------------------------------------------------------------------ |
-| `(root)`      | Główny Sklep            | Globalny Navbar, Footer oraz trwały pasek boczny koszyka.                 |
-| `(auth)`      | Zarządzanie Tożsamością | Minimalistyczny, wyśrodkowany układ dla formularzy logowania/rejestracji. |
-| `(admin)`     | Panel Zarządzania       | Nawigacja oparta na pasku bocznym, dostęp ograniczony do administratorów. |
-| `(protected)` | Konto Użytkownika       | Układ dla zamówień i zarządzania profilem.                                |
+| Grupa         | Przeznaczenie      | Layout                                                                    |
+| :------------ | :----------------- | :------------------------------------------------------------------------ |
+| `(protected)` | Obszar zalogowany  | Bez własnego layoutu — sama grupa. Dostępu pilnuje `middleware.ts`.        |
+| `(admin)`     | Panel zarządzania  | `dashboard/(admin)/layout.tsx` sprawdza rolę po stronie serwera i renderuje `NotAllowedView` dla nie-adminów. |
 
----
-
-## ⚡ Server Actions: Logika Zorientowana na Domeny
-
-Rdzeń logiki biznesowej znajduje się w katalogu `@/actions`. Pierwotna „płaska” struktura została zrefaktoryzowana na **Foldery Domenowe**, aby zapewnić skalowalność i łatwość utrzymania kodu.
-
-### 📦 Domeny Akcji
-
-#### 🛡️ Domena Admina (`@/actions/admin/`)
-
-Zastrzeżona logika zarządzania sklepem.
-
-- `inventory.ts` – Operacje CRUD na produktach i zarządzanie stanem magazynowym.
-- `categories.ts` – Zarządzanie hierarchią kategorii i atrybutami.
-- `ingredients.ts` – Zarządzanie składnikami produktów (esencjami).
-- `orders.ts` – Globalne śledzenie zamówień i aktualizacja statusów realizacji.
-- `reviews.ts` – Administracyjna moderacja opinii użytkowników.
-
-#### 🔐 Domena Autoryzacji (`@/actions/auth/`)
-
-Przepływ tożsamości oparty na Auth.js.
-
-- `login.ts` / `logout.ts` – Zarządzanie sesją użytkownika.
-- `register.ts` – Rejestracja nowych użytkowników.
-- `password-reset.ts` – Połączona logika żądań resetowania hasła i ustawiania nowego hasła.
-- `verify-email.ts` – Potwierdzanie adresu e-mail za pomocą tokenów.
-
-#### 🛒 Domena Sklepu (`@/actions/store/`)
-
-Interakcje bezpośrednie z klientem.
-
-- `reviews.ts` – Skonsolidowana logika tworzenia, pobierania i zarządzania opiniami o produktach (Voices).
-- `checkout.ts` – Inicjalizacja sesji Stripe oraz walidacja przedpłatowa.
-- `cart.ts` – Synchronizacja koszyka po stronie serwera.
-
-#### 👤 Domena Użytkownika (`@/actions/user/`)
-
-Zarządzanie danymi osobowymi.
-
-- `address.ts` – Zarządzanie informacjami o wysyłce i rozliczeniach.
-- `settings.ts` – Aktualizacja profilu i preferencji konta.
+Sklep i strony autoryzacji **nie** są w grupach — leżą bezpośrednio w `app/`
+(`app/page.tsx`, `app/category/`, `app/product/`, `app/auth/`). Wspólną powłokę
+(header, footer) daje główny `app/layout.tsx`; `app/auth/layout.tsx` zapewnia
+wyśrodkowany układ formularzy, a `dashboard/layout.tsx` dokłada pasek boczny
+wspólny dla wszystkich zalogowanych.
 
 ---
 
-## 🗺️ Mapa Aplikacji
+## ⚡ Server Actions: logika zorientowana na domeny
 
-### 🌐 Dostęp Publiczny
+Logika biznesowa znajduje się w `@/actions`, podzielona na foldery domenowe.
 
-- `/` – Strona główna z wyróżnionymi kolekcjami.
-- `/category/[categoryName]` – Główny katalog produktów z filtrowaniem wielokryterialnym.
-- `/product/[slug]` – Dynamiczne strony produktów z powiązanymi opiniami.
+### 🛡️ Domena admina (`@/actions/admin/`)
 
-### 🔐 Dostęp Chroniony
+| Plik             | Eksporty                                                    |
+| :--------------- | :---------------------------------------------------------- |
+| `inventory.ts`   | `getInventoryProducts`, `upsertProduct`, `deleteProduct`     |
+| `categories.ts`  | `createCategory`, `getCategories`, `deleteCategory`          |
+| `ingredients.ts` | `upsertIngredient`, `deleteIngredient`                       |
+| `orders.ts`      | `getAdminOrders`, `updateOrderStatus`                        |
+| `reviews.ts`     | `getVoices`, `deleteVoice`                                   |
 
-- `/dashboard` – Zunifikowany profil użytkownika i historia zamówień.
-- `/checkout` – Bezpieczny tunel płatności (integracja ze Stripe).
-- `/dashboard/(admin)/*` – Pełny zestaw narzędzi zarządczych (tylko dla Admina).
+Każdy eksport w tej domenie wywołuje `requireAdmin()` z `@/lib/guards`, które rzuca
+wyjątek, gdy rola w sesji nie jest `ADMIN`. Guard rzuca, zamiast zwracać błąd — dzięki
+temu pominięcie wyniku w miejscu wywołania nie przepuszcza żądania dalej.
+
+### 🔐 Domena autoryzacji (`@/actions/auth/`)
+
+| Plik                | Eksporty                       |
+| :------------------ | :----------------------------- |
+| `login.ts`          | `login`                        |
+| `register.ts`       | `register`                     |
+| `reset-password.ts` | `resetPassword`, `newPassword` |
+| `verify-email.ts`   | `newVerification`              |
+
+Wylogowanie obsługuje bezpośrednio Auth.js przez `signOut()` — nie ma osobnej akcji.
+
+### 🛒 Domena sklepu (`@/actions/store/`)
+
+| Plik           | Eksporty                                                        |
+| :------------- | :--------------------------------------------------------------- |
+| `reviews.ts`   | `createReview`, `updateReview`, `deleteReview`, `getMoreReviews`  |
+| `sync-cart.ts` | `getFreshCartData`                                                |
+
+### 📦 Domena zamówień (`@/actions/order/`)
+
+| Plik       | Eksporty                                                                            |
+| :--------- | :----------------------------------------------------------------------------------- |
+| `order.ts` | `initializeOrder`, `finalizeOrderAddress`, `finalizeAndPay`, `recreateStripeSession`  |
+
+Checkout nie jest osobnym modułem — tworzenie zamówienia, zapis adresu i utworzenie
+sesji Stripe znajdują się tutaj.
+
+### 👤 Domena użytkownika (`@/actions/user/`)
+
+| Plik          | Eksporty          |
+| :------------ | :---------------- |
+| `address.ts`  | `saveUserAddress` |
+| `settings.ts` | `settings`        |
 
 ---
 
-## 🛡️ Bezpieczeństwo i Middleware
+## 🗺️ Mapa aplikacji
 
-Plik `middleware.ts` pełni rolę scentralizowanego strażnika aplikacji:
+### 🌐 Dostęp publiczny
 
-1. **Walidacja RBAC:** Uniemożliwia użytkownikom bez uprawnień administratora dostęp do ścieżek wewnątrz grupy `(admin)`.
-2. **Trwałość Sesji:** Zapewnia, że sesje Auth.js są sprawdzane dla wszystkich chronionych tras.
-3. **Whitelisting Ścieżek:** Definiuje trasy publiczne (Sklep, Strona główna), aby pozostały dostępne dla gości i robotów SEO.
+| Trasa              | Strona                              |
+| :----------------- | :---------------------------------- |
+| `/`                | Strona główna                       |
+| `/category/[slug]` | Katalog, `all` pokazuje wszystko    |
+| `/product/[slug]`  | Karta produktu z opiniami           |
+| `/auth/*`          | login, register, forgot-password, new-password, new-verification, error |
+
+### 🔐 Dostęp zalogowanych
+
+| Trasa                          | Strona                            |
+| :----------------------------- | :-------------------------------- |
+| `/cart`                        | Podsumowanie koszyka              |
+| `/cart/delivery/[orderId]`     | Adres dostawy, start płatności    |
+| `/order/success/[orderId]`     | Potwierdzenie po płatności        |
+| `/dashboard`                   | Przegląd konta                    |
+| `/dashboard/profile`           | Profil i hasło                    |
+| `/dashboard/address`           | Domyślny adres wysyłki            |
+| `/dashboard/orders`            | Historia zamówień                 |
+| `/dashboard/orders/[orderId]`  | Szczegóły zamówienia, ponowna płatność |
+
+Nie ma trasy `/checkout` — zakup prowadzi przez `/cart` → `/cart/delivery/[orderId]`.
+
+### 🛡️ Tylko admin
+
+| Trasa                              | Strona                       |
+| :--------------------------------- | :--------------------------- |
+| `/dashboard/inventory`             | Lista produktów              |
+| `/dashboard/inventory/[productId]` | Formularz produktu (`new` tworzy nowy) |
+| `/dashboard/ingredients`           | Lista składników             |
+| `/dashboard/ingredients/[id]`      | Formularz składnika          |
+| `/dashboard/categories`            | Drzewo kategorii             |
+| `/dashboard/manage-orders`         | Wszystkie zamówienia, zmiana statusów |
+| `/dashboard/comments`              | Moderacja opinii             |
 
 ---
 
-## 🔗 Zewnętrzne Połączenia Zwrotne (API)
+## 🛡️ Warstwy bezpieczeństwa
 
-Standardowe trasy API są zarezerwowane dla integracji zewnętrznych:
+Autoryzacja jest egzekwowana na dwóch różnych poziomach — sam `middleware.ts` **nie**
+jest tym, co chroni panel admina.
 
-- `POST /api/webhook` – **Stripe Webhook**: Przetwarza asynchroniczne zdarzenia płatności w celu finalizacji zamówień i aktualizacji rekordów w bazie danych.
+**1. `middleware.ts` — wyłącznie uwierzytelnienie.** Sprawdza, czy istnieje sesja,
+i przekierowuje anonimowych na `/auth/login`. Trasy publiczne są zdefiniowane
+w `routes.ts` (`publicRoutes`, `authRoutes`, `apiAuthPrefix`). Middleware **nie
+sprawdza roli w ogóle**.
+
+**2. `dashboard/(admin)/layout.tsx` — autoryzacja.** Odczytuje rolę po stronie serwera
+przez `getCurrentRole()` i renderuje `NotAllowedView`, gdy nie jest to `ADMIN`.
+
+**3. Server Actions — warstwa, która faktycznie decyduje.** Każda akcja admina wywołuje
+`requireAdmin()` niezależnie. Server Actions to publicznie osiągalne endpointy POST, więc
+ani middleware, ani layout ich nie chronią — kontrola musi być w samej akcji.
+
+---
+
+## 🔗 Zewnętrzne połączenia zwrotne (API)
+
+| Trasa                      | Przeznaczenie                                                    |
+| :------------------------- | :--------------------------------------------------------------- |
+| `POST /api/webhook/stripe` | Zdarzenia Stripe: `checkout.session.completed` oznacza zamówienie jako opłacone; `checkout.session.expired` i `payment_intent.payment_failed` zwracają towar na stan i anulują zamówienie. |
+| `/api/auth/[...nextauth]`  | Handlery Auth.js                                                  |
+
+Przy lokalnym przekazywaniu zdarzeń wskaż pełną ścieżkę:
+
+```bash
+stripe listen --forward-to localhost:3000/api/webhook/stripe
+```

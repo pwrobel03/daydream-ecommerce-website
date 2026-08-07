@@ -9,7 +9,6 @@ import { getUserByEmail } from "./data/user"
 import { getUserById } from "./data/user"
 import bcrypt from "bcrypt" // or bcryptjs if you installed that
 import { getAccountByUserId } from "./data/account"
-import { log } from "console"
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   //TODO: sign in with credentials

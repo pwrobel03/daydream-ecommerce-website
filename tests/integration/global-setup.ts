@@ -12,7 +12,8 @@ export async function setup() {
   const url = container.getConnectionUri();
   process.env.DATABASE_URL = url;
 
-  execSync("npx prisma db push --skip-generate --accept-data-loss", {
+  // Ta sama ścieżka co produkcja — testy weryfikują migracje, nie tylko schemat.
+  execSync("npx prisma migrate deploy", {
     env: { ...process.env, DATABASE_URL: url },
     stdio: "pipe",
   });

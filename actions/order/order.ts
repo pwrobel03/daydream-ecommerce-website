@@ -10,6 +10,10 @@ import { revalidatePath } from "next/cache";
 import Stripe from "stripe";
 import * as z from "zod";
 
+// Jak długo trzymamy towar zarezerwowany dla niedokończonego zamówienia.
+// Wartość z zapasem względem 30-minutowej ważności sesji Stripe.
+const RESERVATION_MINUTES = 45;
+
 export async function initializeOrder(items: z.infer<typeof CheckoutItemsSchema>) {
   const session = await auth();
 
@@ -66,12 +70,15 @@ export async function initializeOrder(items: z.infer<typeof CheckoutItemsSchema>
         orderItems.push({ productId: product.id, quantity, price: unitPrice });
       }
 
-      // Tworzymy zamówienie (PENDING, bez adresu)
+      // Tworzymy zamówienie (PENDING, bez adresu).
+      // reservedUntil wyznacza moment, po którym zadanie cykliczne zwolni towar,
+      // jeśli klient nigdy nie dojdzie do płatności.
       const order = await tx.order.create({
         data: {
           userId: session.user.id!,
           totalAmount: total,
           items: { create: orderItems },
+          reservedUntil: new Date(Date.now() + RESERVATION_MINUTES * 60 * 1000),
         },
       });
 

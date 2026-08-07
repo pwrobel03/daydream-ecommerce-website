@@ -37,6 +37,11 @@ const EnvSchema = z.object({
   MAILING_ACCOUNT: z.string().min(1),
   MAILING_ACCOUNT_PROVIDER: z.string().min(1),
 
+  // Zadania cykliczne
+  CRON_SECRET: z.string().min(16, {
+    message: "CRON_SECRET musi mieć co najmniej 16 znaków"
+  }),
+
   // Publiczne
   NEXT_PUBLIC_APP_URL: z.string().url({
     message: "NEXT_PUBLIC_APP_URL musi być pełnym URL-em, np. http://localhost:3000"

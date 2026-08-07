@@ -37,6 +37,11 @@ const EnvSchema = z.object({
   MAILING_ACCOUNT: z.string().min(1),
   MAILING_ACCOUNT_PROVIDER: z.string().min(1),
 
+  // Redis (rate limiting)
+  REDIS_URL: z.string().url({
+    message: "REDIS_URL musi być poprawnym URL-em, np. redis://localhost:6379"
+  }),
+
   // Zadania cykliczne
   CRON_SECRET: z.string().min(16, {
     message: "CRON_SECRET musi mieć co najmniej 16 znaków"
@@ -46,6 +51,8 @@ const EnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url({
     message: "NEXT_PUBLIC_APP_URL musi być pełnym URL-em, np. http://localhost:3000"
   }),
+
+  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });
 
 const parsed = EnvSchema.safeParse(process.env);

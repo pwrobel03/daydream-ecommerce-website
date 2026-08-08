@@ -1,6 +1,7 @@
 // lib/rate-limit.ts
 import Redis from "ioredis";
 import { env } from "@/lib/env";
+import { reportError } from "@/lib/logger";
 
 // Jedno połączenie na proces. W dev Next przeładowuje moduły przy każdej zmianie,
 // więc trzymamy instancję na globalThis, żeby nie mnożyć połączeń.
@@ -22,7 +23,7 @@ const redis =
 if (env.NODE_ENV !== "production") globalForRedis.redis = redis;
 
 redis.on("error", (error) => {
-  console.error("Rate limit Redis error:", error.message);
+  reportError(error, { area: "rate-limit.redis" });
 });
 
 export type RateLimitResult = {
@@ -63,7 +64,9 @@ export async function rateLimit(
 
     return { allowed: true, remaining: limit - hits, retryAfterSeconds: 0 };
   } catch (error) {
-    console.error("Rate limit check failed, allowing request:", error);
+    // Fail-open bez sygnału jest niewykrywalny: limitowanie przestaje działać,
+    // a wszystko wygląda normalnie. Zgłaszamy to jako błąd, nie jako szum.
+    reportError(error, { area: "rate-limit.failed-open", key });
     return { allowed: true, remaining: limit, retryAfterSeconds: 0 };
   }
 }

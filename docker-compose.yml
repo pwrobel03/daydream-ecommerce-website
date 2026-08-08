@@ -1,5 +1,11 @@
 # Uruchomienie całego projektu jednym poleceniem:
 #
+# UWAGA: bez interpolacji ${...} celowo. Compose automatycznie wczytuje `.env`
+# z katalogu projektu do podstawiania zmiennych, a deweloperski `.env` zawiera
+# sekrety ze znakami `$`, na których interpolacja się wykłada
+# ("The \"w8JE\" variable is not set"). Konfiguracja aplikacji idzie przez
+# env_file: .env.docker, a wartości poniżej są tu wpisane wprost.
+#
 #   cp .env.docker.example .env.docker   # uzupełnij klucze Stripe/Resend
 #   docker compose up
 #
@@ -11,7 +17,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: daydream
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-daydream}
+      POSTGRES_PASSWORD: daydream
       POSTGRES_DB: daydream
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -45,7 +51,7 @@ services:
     env_file:
       - .env.docker
     environment:
-      DATABASE_URL: postgresql://daydream:${POSTGRES_PASSWORD:-daydream}@postgres:5432/daydream
+      DATABASE_URL: postgresql://daydream:daydream@postgres:5432/daydream
       REDIS_URL: redis://redis:6379
       # Katalog uploadu leży na wolumenie, poza obrazem — bez tego wgrane
       # zdjęcia znikałyby przy każdym odtworzeniu kontenera.
@@ -53,7 +59,7 @@ services:
     volumes:
       - uploads:/data/uploads
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "3000:3000"
 
 volumes:
   pgdata:

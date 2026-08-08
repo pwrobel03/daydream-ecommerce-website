@@ -4,11 +4,27 @@
 set -e
 
 echo "Applying database migrations..."
-./node_modules/.bin/prisma migrate deploy
+node ./node_modules/prisma/build/index.js migrate deploy
 
+# Seed tylko przy pustym katalogu produktów. Skrypt czyści tabele przed zapisem,
+# więc bezwarunkowe uruchamianie go przy każdym starcie kasowałoby dane
+# wprowadzone przez użytkownika.
 if [ "${RUN_SEED}" = "true" ]; then
-  echo "Seeding database..."
-  node prisma/seed.js 2>/dev/null || echo "Seed skipped (no compiled seed in image)"
+  NEEDS_SEED=$(node -e "
+    const { PrismaClient } = require('@prisma/client');
+    const db = new PrismaClient();
+    db.product.count()
+      .then((n) => { console.log(n === 0 ? 'yes' : 'no'); })
+      .catch(() => { console.log('yes'); })
+      .finally(() => db.\$disconnect());
+  ")
+
+  if [ "$NEEDS_SEED" = "yes" ]; then
+    echo "Seeding database..."
+    node seed-dist/seed.js
+  else
+    echo "Seed skipped: catalogue is not empty."
+  fi
 fi
 
 exec "$@"

@@ -9,6 +9,9 @@ RUN npm ci
 # --- Build ------------------------------------------------------------------
 FROM node:20-alpine AS builder
 WORKDIR /app
+
+# Prisma bez openssl na Alpine nie wykrywa wersji libssl i zgaduje binarkę silnika.
+RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -34,9 +37,18 @@ ENV DATABASE_URL="postgresql://build:build@localhost:5432/build" \
 
 RUN npm run build
 
+# Seed jest w TypeScripcie, a warstwa runtime nie ma czym go uruchomić —
+# kompilujemy go tutaj, żeby kontener mógł wypełnić bazę przy pierwszym starcie.
+RUN npx tsc prisma/seed.ts prisma/data/*.ts \
+      --outDir /app/seed-dist --rootDir prisma \
+      --module commonjs --target es2020 \
+      --esModuleInterop --skipLibCheck --resolveJsonModule
+
 # --- Runtime ----------------------------------------------------------------
 FROM node:20-alpine AS runner
 WORKDIR /app
+
+RUN apk add --no-cache openssl
 
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
 
@@ -49,10 +61,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Prisma CLI i schemat są potrzebne, żeby kontener sam wykonał `migrate deploy`.
+# Kopiujemy pakiet, nie shim z .bin — shim szuka swoich plików .wasm
+# względem własnej ścieżki i po przeniesieniu ich nie znajduje.
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/seed-dist ./seed-dist
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 
 COPY --chown=nextjs:nodejs docker/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh

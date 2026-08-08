@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { releaseOrderReservation } from "@/lib/orders";
+import { reportError, logger } from "@/lib/logger";
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
       env.STRIPE_WEBHOOK_SECRET
     );
   } catch (error: any) {
-    console.error(`Webhook signature error: ${error.message}`);
+    reportError(error, { area: "webhook.signature" });
     return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
   }
 
@@ -58,9 +59,7 @@ export async function POST(req: Request) {
 
   if (!orderId) {
     // Ponowienie tego nie naprawi — kwitujemy 200, ale zostawiamy ślad w logach.
-    console.error(
-      `Webhook ${event.type} (${event.id}) without orderId in metadata`
-    );
+    logger.error({ eventId: event.id, eventType: event.type }, "webhook without orderId");
     return new NextResponse("No Order ID", { status: 200 });
   }
 
@@ -73,21 +72,22 @@ export async function POST(req: Request) {
     });
 
     if (!order) {
-      console.error(`Webhook ${event.id}: order ${orderId} not found`);
+      logger.error({ eventId: event.id, orderId }, "webhook order not found");
       return new NextResponse("Order not found", { status: 200 });
     }
 
     // Sesja musi być tą, którą sami utworzyliśmy dla tego zamówienia.
     if (order.stripeSessionId && order.stripeSessionId !== session.id) {
-      console.error(`Webhook ${event.id}: session mismatch for order ${orderId}`);
+      logger.error({ eventId: event.id, orderId }, "webhook session mismatch");
       return new NextResponse("Session mismatch", { status: 200 });
     }
 
     // Kwota zapłacona musi zgadzać się z sumą zamówienia (Stripe liczy w groszach).
     const expected = Math.round(order.totalAmount.mul(100).toNumber());
     if (session.amount_total !== expected) {
-      console.error(
-        `Webhook ${event.id}: amount mismatch for order ${orderId} — paid ${session.amount_total}, expected ${expected}`
+      logger.error(
+        { eventId: event.id, orderId, paid: session.amount_total, expected },
+        "webhook amount mismatch"
       );
       return new NextResponse("Amount mismatch", { status: 200 });
     }

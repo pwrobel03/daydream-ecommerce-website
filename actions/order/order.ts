@@ -4,6 +4,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
+import { reportError } from "@/lib/logger";
 import { AddressSchema, CheckoutItemsSchema } from "@/schemas";
 import { Prisma } from "@prisma/client";
 import Stripe from "stripe";
@@ -187,8 +188,8 @@ export async function finalizeAndPay(
 
     return { url: stripeSession.url, error: null };
   } catch (error: any) {
-    console.error(error);
-    return { url: null, error: "Stripe Session Error" }; // Błąd: url to null
+    reportError(error, { area: "order.finalizeAndPay", orderId });
+    return { url: null, error: "Stripe Session Error" };
   }
 }
 
@@ -238,7 +239,7 @@ export async function recreateStripeSession(orderId: string) {
 
     return { url: stripeSession.url };
   } catch (error) {
-    console.error(error);
+    reportError(error, { area: "order.recreateStripeSession", orderId });
     return { error: "Failed to recreate payment session" };
   }
 }

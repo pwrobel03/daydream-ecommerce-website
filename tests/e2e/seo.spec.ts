@@ -33,7 +33,8 @@ test.describe("seo artifacts", () => {
     const response = await request.get("/product/test-bar");
     const html = await response.text();
 
-    const match = html.match(/application\/ld\+json"[^>]*>(.*?)<\/script>/s);
+    // Bez flagi /s — target ES2017 jej nie wspiera. [\s\S] robi to samo.
+    const match = html.match(/application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/);
     expect(match).not.toBeNull();
 
     const data = JSON.parse(match![1]);

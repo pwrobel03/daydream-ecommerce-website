@@ -1,3 +1,5 @@
+import { ProductGridSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -15,7 +17,7 @@ interface CategoryPageProps {
   searchParams: Promise<{ limit?: string }>;
 }
 
-export default async function CategoryPage({
+async function CategoryPageContent({
   params,
   searchParams,
 }: CategoryPageProps) {
@@ -120,5 +122,14 @@ export default async function CategoryPage({
         )}
       </section>
     </main>
+  );
+}
+
+
+export default function CategoryPage(props: CategoryPageProps) {
+  return (
+    <Suspense fallback={<ProductGridSkeleton />}>
+      <CategoryPageContent {...props} />
+    </Suspense>
   );
 }

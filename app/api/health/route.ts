@@ -6,7 +6,8 @@ import { reportError } from "@/lib/logger";
 
 // Sprawdza zależności, od których zależy działanie sklepu, a nie samo to,
 // czy proces Node odpowiada — ten odpowiada także wtedy, gdy baza jest martwa.
-export const dynamic = "force-dynamic";
+// Handler odpytuje bazę i Redisa przy każdym żądaniu — jest dynamiczny
+// z natury, a cacheComponents nie dopuszcza segmentowego "force-dynamic".
 
 async function checkDatabase() {
   await db.$queryRaw`SELECT 1`;

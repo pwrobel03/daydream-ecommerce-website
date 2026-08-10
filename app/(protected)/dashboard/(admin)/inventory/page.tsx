@@ -1,7 +1,9 @@
+import { ProductGridSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 import { db } from "@/lib/db";
 import InventoryClient from "../../_components/inventory-client";
 
-export default async function InventoryPage() {
+async function InventoryPageContent() {
   // Pobieramy kategorie dla filtrów (tak samo jak w CategoriesPage)
   const allCategories = await db.category.findMany({
     include: {
@@ -31,5 +33,14 @@ export default async function InventoryPage() {
       {/* Przekazujemy kategorie do klienta dla filtrów */}
       <InventoryClient categories={mainCategories} />
     </div>
+  );
+}
+
+
+export default function InventoryPage() {
+  return (
+    <Suspense fallback={<ProductGridSkeleton />}>
+      <InventoryPageContent />
+    </Suspense>
   );
 }

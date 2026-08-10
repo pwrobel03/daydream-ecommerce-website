@@ -12,12 +12,15 @@ import { db } from "@/lib/db";
 import { CartCounter } from "../CartCounter";
 import { UserButton } from "../auth/user-button";
 
-const Header = async () => {
-  // Pobieramy kategorie bezpośrednio z bazy danych
-  const categories = await db.category.findMany({
+async function getNavCategories() {
+  return db.category.findMany({
     where: { parentId: null },
     select: { id: true, name: true, slug: true },
   });
+}
+
+const Header = async () => {
+  const categories = await getNavCategories();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-secondary bg-background/80 backdrop-blur-md transition-all">

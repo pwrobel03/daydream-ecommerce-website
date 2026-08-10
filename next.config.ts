@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
   // thread-stream i wywala build. Zostawiamy je jako zwykłe zależności
   // runtime, ładowane natywnym require.
   serverExternalPackages: ["pino", "thread-stream"],
+  // Cache Components: strony są domyślnie statyczne, a dane niecache'owane
+  // muszą leżeć w granicy <Suspense>. Wymusza to jawne decyzje o tym,
+  // co jest wspólne dla wszystkich, a co per użytkownik.
+  cacheComponents: true,
   experimental: {
     serverActions: {
       bodySizeLimit: "50mb", // upload wielu zdjęć produktu w jednym żądaniu

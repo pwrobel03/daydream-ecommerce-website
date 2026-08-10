@@ -1,3 +1,5 @@
+import { FormSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { IngredientForm } from "../../../_components/ingredient-form";
@@ -6,7 +8,7 @@ interface IngredientPageProps {
   params: Promise<{ id: string }>; // Zmiana typu na Promise
 }
 
-export default async function IngredientPage({ params }: IngredientPageProps) {
+async function IngredientPageContent({ params }: IngredientPageProps) {
   // 1. Musisz użyć await, aby wyciągnąć id z params
   const resolvedParams = await params;
   const id = resolvedParams.id;
@@ -42,5 +44,14 @@ export default async function IngredientPage({ params }: IngredientPageProps) {
 
       <IngredientForm initialData={ingredient} />
     </div>
+  );
+}
+
+
+export default function IngredientPage(props: IngredientPageProps) {
+  return (
+    <Suspense fallback={<FormSkeleton />}>
+      <IngredientPageContent {...props} />
+    </Suspense>
   );
 }

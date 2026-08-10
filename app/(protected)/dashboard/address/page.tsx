@@ -1,10 +1,12 @@
+import { FormSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { AddressForm } from "../_components/address-form";
 import { Globe } from "lucide-react";
 
-export default async function AddressPage() {
+async function AddressPageContent() {
   const session = await auth();
   if (!session?.user?.id) redirect("/auth/login");
 
@@ -35,5 +37,14 @@ export default async function AddressPage() {
         <AddressForm initialData={user?.address ?? null} />
       </div>
     </div>
+  );
+}
+
+
+export default function AddressPage() {
+  return (
+    <Suspense fallback={<FormSkeleton />}>
+      <AddressPageContent />
+    </Suspense>
   );
 }

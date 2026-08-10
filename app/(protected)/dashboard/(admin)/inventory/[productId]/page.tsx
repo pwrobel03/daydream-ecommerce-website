@@ -1,9 +1,11 @@
+import { FormSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 import { db } from "@/lib/db";
 import { ProductForm } from "../../../_components/product-form";
 import { notFound } from "next/navigation";
 import { ProductType } from "@/types/product";
 
-export default async function ProductPage({
+async function ProductPageContent({
   params,
 }: {
   params: Promise<{ productId: string }>;
@@ -64,5 +66,16 @@ export default async function ProductPage({
         statuses={statuses}
       />
     </div>
+  );
+}
+
+
+export default function ProductPage(props: {
+  params: Promise<{ productId: string }>;
+}) {
+  return (
+    <Suspense fallback={<FormSkeleton />}>
+      <ProductPageContent {...props} />
+    </Suspense>
   );
 }

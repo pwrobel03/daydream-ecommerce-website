@@ -1,3 +1,5 @@
+import { RowsSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 import Link from "next/link";
 import { Plus, Edit, Trash2, ArrowRight, Edit3 } from "lucide-react";
 import { db } from "@/lib/db";
@@ -6,7 +8,7 @@ import Image from "next/image";
 
 import { DeleteIngredientButton } from "@/app/(protected)/dashboard/_components/delete-ingredient-button";
 
-export default async function IngredientsListPage() {
+async function IngredientsListPageContent() {
   const ingredients = await db.ingredient.findMany({
     orderBy: { name: "asc" },
   });
@@ -91,5 +93,14 @@ export default async function IngredientsListPage() {
         </div>
       )}
     </div>
+  );
+}
+
+
+export default function IngredientsListPage() {
+  return (
+    <Suspense fallback={<RowsSkeleton />}>
+      <IngredientsListPageContent />
+    </Suspense>
   );
 }

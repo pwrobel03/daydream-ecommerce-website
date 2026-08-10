@@ -1,10 +1,13 @@
+import { Skeleton } from "@/components/ui/skeleton";
+import { RowsSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 // app/admin/orders/page.tsx
 import { getAdminOrders } from "@/actions/admin/orders";
 import { AdminOrdersList } from "../../_components/admin-orders-list";
 import { PaginationControls } from "@/components/pagination-controls";
 import { SearchOrders } from "@/components/search-orders";
 
-export default async function AdminOrdersPage({
+async function AdminOrdersPageContent({
   searchParams,
 }: {
   searchParams: Promise<{ page?: string; q?: string }>;
@@ -34,7 +37,9 @@ export default async function AdminOrdersPage({
             Active Records: {totalCount}
           </p>
         </div>
-        <SearchOrders defaultValue={searchQuery} />
+        <Suspense fallback={<Skeleton className="h-14 w-full rounded-full" />}>
+          <SearchOrders defaultValue={searchQuery} />
+        </Suspense>
       </header>
 
       {/* Wyświetlamy listę - sprawdzamy czy orders to tablica */}
@@ -46,5 +51,16 @@ export default async function AdminOrdersPage({
         searchQuery={searchQuery}
       />
     </div>
+  );
+}
+
+
+export default function AdminOrdersPage(props: {
+  searchParams: Promise<{ page?: string; q?: string }>;
+}) {
+  return (
+    <Suspense fallback={<RowsSkeleton />}>
+      <AdminOrdersPageContent {...props} />
+    </Suspense>
   );
 }

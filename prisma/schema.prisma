@@ -120,6 +120,13 @@ model Product {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Kolumna generowana utrzymywana przez Postgresa (patrz migracja
+  // 20260810120000_product_search). Prisma jej nie zapisuje — zna ją tylko po
+  // to, żeby nie zgłaszać rozjazdu schematu.
+  searchVector Unsupported("tsvector")?
+
+  @@index([searchVector], type: Gin)
 }
 
 model Category {

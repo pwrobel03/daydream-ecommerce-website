@@ -67,7 +67,7 @@ da się jej obejść, a proces płatności rezerwuje towar przed obciążeniem k
 | :------------- | :--------------------------------------------------- |
 | **Framework**  | Next.js 16 (App Router), React 19, TypeScript 5       |
 | **Baza**       | PostgreSQL, Prisma ORM                                |
-| **Autoryzacja**| Auth.js v5, bcrypt, kontrola tras w middleware        |
+| **Autoryzacja**| Auth.js v5, bcrypt, kontrola tras w proxy.ts        |
 | **Płatności**  | Stripe (Checkout i webhooki)                          |
 | **E-mail**     | Resend                                                |
 | **Stylowanie** | Tailwind CSS v4, shadcn/ui, Radix UI, tw-animate-css  |

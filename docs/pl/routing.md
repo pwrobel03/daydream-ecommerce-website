@@ -11,7 +11,7 @@ Grupy ścieżek (foldery w nawiasach) porządkują aplikację bez wpływu na adr
 
 | Grupa         | Przeznaczenie      | Layout                                                                    |
 | :------------ | :----------------- | :------------------------------------------------------------------------ |
-| `(protected)` | Obszar zalogowany  | Bez własnego layoutu — sama grupa. Dostępu pilnuje `middleware.ts`.        |
+| `(protected)` | Obszar zalogowany  | Bez własnego layoutu — sama grupa. Dostępu pilnuje `proxy.ts`.        |
 | `(admin)`     | Panel zarządzania  | `dashboard/(admin)/layout.tsx` sprawdza rolę po stronie serwera i renderuje `NotAllowedView` dla nie-adminów. |
 
 Sklep i strony autoryzacji **nie** są w grupach — leżą bezpośrednio w `app/`
@@ -118,20 +118,19 @@ Nie ma trasy `/checkout` — zakup prowadzi przez `/cart` → `/cart/delivery/[o
 
 ## 🛡️ Warstwy bezpieczeństwa
 
-Autoryzacja jest egzekwowana na dwóch różnych poziomach — sam `middleware.ts` **nie**
+Autoryzacja jest egzekwowana na dwóch różnych poziomach — sam `proxy.ts` **nie**
 jest tym, co chroni panel admina.
 
-**1. `middleware.ts` — wyłącznie uwierzytelnienie.** Sprawdza, czy istnieje sesja,
+**1. `proxy.ts` — wyłącznie uwierzytelnienie.** Sprawdza, czy istnieje sesja,
 i przekierowuje anonimowych na `/auth/login`. Trasy publiczne są zdefiniowane
-w `routes.ts` (`publicRoutes`, `authRoutes`, `apiAuthPrefix`). Middleware **nie
-sprawdza roli w ogóle**.
+w `routes.ts` (`publicRoutes`, `authRoutes`, `apiAuthPrefix`). Proxy **nie sprawdza roli w ogóle**.
 
 **2. `dashboard/(admin)/layout.tsx` — autoryzacja.** Odczytuje rolę po stronie serwera
 przez `getCurrentRole()` i renderuje `NotAllowedView`, gdy nie jest to `ADMIN`.
 
 **3. Server Actions — warstwa, która faktycznie decyduje.** Każda akcja admina wywołuje
 `requireAdmin()` niezależnie. Server Actions to publicznie osiągalne endpointy POST, więc
-ani middleware, ani layout ich nie chronią — kontrola musi być w samej akcji.
+ani proxy, ani layout ich nie chronią — kontrola musi być w samej akcji.
 
 ---
 

@@ -1,4 +1,5 @@
-import authConfig from "./auth.config"; 
+// proxy.ts — następca middleware.ts w Next.js 16.
+import authConfig from "./auth.config";
 import NextAuth from "next-auth";
 import {
   DEFAULT_LOGIN_REDIRECT,
@@ -44,7 +45,6 @@ export default auth((req) => {
   return null
 })
 
-// TEN BLOK MUSI ZOSTAĆ:
 export const config = {
   // Wyklucza pliki statyczne (obrazy, pdf, itp.) oraz foldery systemowe Next.js
   // Middleware nie uruchomi się dla zdjęć, to oszczędza serwer

@@ -13,6 +13,13 @@ out of scope — lint is green and gated in CI.
 
 **Summary:** 3 critical, 6 major, 5 minor.
 
+**Status after the 2026-08-10 refactor commits** (`b3b5bc5`, `f369084`):
+5 items resolved — the duplicated Stripe session, the hand-written ownership
+checks, the three upload paths, the duplicated pricing rule, and the dead
+`getActiveSaleByCouponCode`. Error reporting in the data layer is improved but
+the empty-result returns remain. The three critical structural items are
+deliberately untouched: they need an architectural decision first.
+
 The security and correctness work from phases 1–3 holds up. What is left is
 structural: the codebase has grown three separate conventions for the same
 concerns (serialisation, action results, error swallowing) and never
@@ -84,7 +91,22 @@ applied here.
 answer, distinguish it from failure in the return type rather than by an empty
 array.
 
+> **Partially addressed (`f369084`)**: all 22 `console.error` calls are now
+> `reportError` with an `area` tag, so failures are visible in structured logs.
+> The empty-result returns are unchanged — making them throw alters what a
+> visitor sees during an outage and is bundled with the DTO decision.
+
+
 ## [major] `actions/order/order.ts` is a 303-line module with four responsibilities
+
+> **Partially addressed (`b3b5bc5`)**: the duplicated Stripe session construction
+> is extracted to `lib/checkout-session.ts`, and the file is down to 224 lines.
+> Extracting the rest into `lib/checkout/` is still open and still architectural.
+>
+> Acting on this found a live bug: `recreateStripeSession` rebuilt line items
+> without applying `order.discountAmount`, so retrying an interrupted payment
+> charged the full price and silently dropped the coupon. Covered by a
+> regression test.
 
 **Issue:** stock reservation, coupon validation, address persistence, Stripe
 session creation and payment retry all live in one file. The Stripe session is
@@ -116,6 +138,10 @@ made in three places and was.
 **Recommendation:** one `lib/uploads.ts` helper —
 `processAndStore(file, { dir, maxSize })` — used by all three.
 
+> **Resolved (`f369084`)**: `processAndStore` in `lib/uploads.ts`. The category
+> path, which bypassed sharp entirely, now goes through the same pipeline.
+
+
 ## [major] `product-form.tsx` is 550 lines of mixed concerns
 
 **Issue:** one client component holds form state, image preview state, file
@@ -144,6 +170,9 @@ fourth.
 **Recommendation:** a single `requireOwnedOrder(orderId, { status })` in
 `lib/guards.ts`, alongside `requireAdmin`, that throws when the order is not the
 caller's. One place to audit.
+
+> **Resolved (`b3b5bc5`)**: `requireOwnedOrder` in `lib/guards.ts`.
+
 
 ## [major] Admin lists fetch from client effects, creating a request waterfall — `inventory-client.tsx:61`
 
@@ -184,6 +213,9 @@ helper that nothing uses, and may extend the wrong one.
 **Recommendation:** delete `getActiveSaleByCouponCode`, or use it from
 `initializeOrder` instead of the inline query.
 
+> **Resolved (`f369084`)**: `getActiveSaleByCouponCode` deleted.
+
+
 ## [minor] `errorMessage` helper lives in the wrong module — `lib/action-result.ts:32`
 
 **Issue:** it was appended to `action-result.ts` because that file already
@@ -206,6 +238,9 @@ displayed one total and the order was created with another.
 **Recommendation:** extract `activePrice(product)` into `lib/pricing.ts` and use
 it from both. Small, and it removes a class of divergence that has already
 produced one bug.
+
+> **Resolved (`f369084`)**: `activePrice` / `basePrice` in `lib/pricing.ts`.
+
 
 ## [minor] `types/product.ts` and `types/order.ts` describe query shapes, not the domain
 

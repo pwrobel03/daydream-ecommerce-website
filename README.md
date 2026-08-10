@@ -105,6 +105,63 @@ forwarding Stripe webhooks locally.
 
 ---
 
+## 🐳 Run it with Docker
+
+The fastest way to see the shop running, with a catalogue already in place:
+
+```bash
+cp .env.docker.example .env.docker      # placeholders are fine for a first look
+docker compose --env-file .env.docker up
+```
+
+That brings up PostgreSQL, Redis and the application. On first boot the container
+applies its migrations and seeds the catalogue; on later boots it detects the
+existing data and leaves it alone. Open [http://localhost:3000](http://localhost:3000).
+
+### Demo accounts
+
+Seeded, with their email already verified:
+
+| Role  | Email                          | Password      |
+| :---- | :----------------------------- | :------------ |
+| Admin | `peter@admin.com`              | `password123` |
+| User  | `james.miller@daydream.com`    | `password123` |
+
+The admin account reaches the back-office at `/dashboard/inventory`.
+
+### What works without real API keys
+
+The placeholder values in `.env.docker.example` are enough for the catalogue,
+cart, reviews and the whole admin panel. Two things need real credentials:
+
+- **Stripe** — checkout reaches the payment step and fails there without a test
+  key. Add `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` to go further.
+- **Resend** — registration cannot send its verification email. The seeded
+  accounts are already verified, so signing in works regardless.
+
+### Health and teardown
+
+```bash
+curl localhost:3000/api/health          # checks the database and Redis
+docker compose --env-file .env.docker down       # stop, keep the data
+docker compose --env-file .env.docker down -v    # stop and wipe the volumes
+```
+
+`--env-file` is not optional: without it Compose falls back to the development
+`.env` for interpolation and trips over the `$` characters in the secrets there.
+
+### Production
+
+`docker-compose.prod.yml` layers nginx with TLS, certbot and the reservation
+sweep on top, and stops publishing the application port directly:
+
+```bash
+docker compose --env-file .env.docker \
+  -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+---
+
 ## 🚧 Project Status
 
 Feature-complete as an application, with known gaps in hardening. The payment path has

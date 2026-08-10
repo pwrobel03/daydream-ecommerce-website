@@ -108,6 +108,63 @@ się w [instrukcji konfiguracji](./docs/pl/setup.md).
 
 ---
 
+## 🐳 Uruchomienie przez Dockera
+
+Najszybszy sposób, żeby zobaczyć działający sklep z gotowym katalogiem:
+
+```bash
+cp .env.docker.example .env.docker      # do pierwszego spojrzenia wystarczą wartości domyślne
+docker compose --env-file .env.docker up
+```
+
+Podnosi to PostgreSQL, Redis i aplikację. Przy pierwszym starcie kontener wykonuje
+migracje i wypełnia katalog danymi; przy kolejnych wykrywa istniejące dane i ich nie
+rusza. Otwórz [http://localhost:3000](http://localhost:3000).
+
+### Konta demonstracyjne
+
+Utworzone przez seed, z potwierdzonym adresem e-mail:
+
+| Rola  | E-mail                         | Hasło         |
+| :---- | :----------------------------- | :------------ |
+| Admin | `peter@admin.com`              | `password123` |
+| User  | `james.miller@daydream.com`    | `password123` |
+
+Konto administratora daje dostęp do panelu pod `/dashboard/inventory`.
+
+### Co działa bez prawdziwych kluczy API
+
+Wartości zastępcze z `.env.docker.example` wystarczają do katalogu, koszyka, opinii
+i całego panelu administratora. Dwie rzeczy wymagają prawdziwych danych:
+
+- **Stripe** — zakup dochodzi do kroku płatności i tam się zatrzymuje. Uzupełnij
+  `STRIPE_SECRET_KEY` i `STRIPE_WEBHOOK_SECRET`, żeby przejść dalej.
+- **Resend** — rejestracja nie wyśle maila weryfikacyjnego. Konta z seeda są już
+  zweryfikowane, więc logowanie działa niezależnie.
+
+### Stan zdrowia i zatrzymanie
+
+```bash
+curl localhost:3000/api/health          # sprawdza bazę i Redisa
+docker compose --env-file .env.docker down       # zatrzymaj, zachowaj dane
+docker compose --env-file .env.docker down -v    # zatrzymaj i wyczyść wolumeny
+```
+
+`--env-file` nie jest opcjonalne: bez niego Compose sięga po deweloperski `.env`
+do podstawiania zmiennych i wykłada się na znakach `$` w sekretach.
+
+### Wariant produkcyjny
+
+`docker-compose.prod.yml` dokłada nginx z TLS, certbota i zadanie zwalniające
+rezerwacje, a także przestaje wystawiać port aplikacji na zewnątrz:
+
+```bash
+docker compose --env-file .env.docker \
+  -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+---
+
 ## 🚧 Status projektu
 
 Aplikacja jest kompletna funkcjonalnie, ale ma znane braki w utwardzeniu. Ścieżka

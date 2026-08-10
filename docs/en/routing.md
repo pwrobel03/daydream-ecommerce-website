@@ -12,7 +12,7 @@ Route Groups (folders in parentheses) organize the application without affecting
 
 | Group         | Purpose         | Layout                                                                     |
 | :------------ | :-------------- | :------------------------------------------------------------------------- |
-| `(protected)` | Signed-in area  | No layout of its own — grouping only. Access is enforced by `middleware.ts`. |
+| `(protected)` | Signed-in area  | No layout of its own — grouping only. Access is enforced by `proxy.ts`. |
 | `(admin)`     | Back-office     | `dashboard/(admin)/layout.tsx` checks the role server-side and renders `NotAllowedView` for non-admins. |
 
 The storefront and the auth pages are **not** in route groups — they live directly under
@@ -119,20 +119,19 @@ There is no `/checkout` route — checkout runs through `/cart` → `/cart/deliv
 
 ## 🛡️ Security layers
 
-Authorization is enforced at two distinct layers — `middleware.ts` alone is **not** what
+Authorization is enforced at two distinct layers — `proxy.ts` alone is **not** what
 protects the admin area.
 
-**1. `middleware.ts` — authentication only.** It checks whether a session exists and
+**1. `proxy.ts` — authentication only.** It checks whether a session exists and
 redirects anonymous visitors to `/auth/login`. Public routes are whitelisted in
-`routes.ts` (`publicRoutes`, `authRoutes`, `apiAuthPrefix`). The middleware performs no
-role checking at all.
+`routes.ts` (`publicRoutes`, `authRoutes`, `apiAuthPrefix`). The proxy performs no role checking at all.
 
 **2. `dashboard/(admin)/layout.tsx` — authorization.** Reads the role server-side via
 `getCurrentRole()` and renders `NotAllowedView` when it is not `ADMIN`.
 
 **3. Server Actions — the layer that actually matters.** Every admin action calls
 `requireAdmin()` independently. Server Actions are publicly reachable POST endpoints, so
-neither middleware nor a layout can protect them; the check must live in the action.
+neither the proxy nor a layout can protect them; the check must live in the action.
 
 ---
 

@@ -64,7 +64,7 @@ bypassed, and the payment flow reserves stock before charging.
 | :------------- | :-------------------------------------------------- |
 | **Framework**  | Next.js 16 (App Router), React 19, TypeScript 5      |
 | **Database**   | PostgreSQL, Prisma ORM                               |
-| **Auth**       | Auth.js v5, bcrypt, middleware-based route gating    |
+| **Auth**       | Auth.js v5, bcrypt, proxy-based route gating    |
 | **Payments**   | Stripe (Checkout & webhooks)                         |
 | **Email**      | Resend                                               |
 | **Styling**    | Tailwind CSS v4, shadcn/ui, Radix UI, tw-animate-css |

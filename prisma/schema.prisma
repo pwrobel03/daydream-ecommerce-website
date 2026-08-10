@@ -1,10 +1,20 @@
 generator client {
-  provider = "prisma-client-js"
+  // Prisma 7: generator `prisma-client` zamiast `prisma-client-js`.
+  // Klient trafia do repo pod wskazaną ścieżkę (poza gitem) zamiast do
+  // node_modules, a zapytania kompiluje query compiler — bez silnika w Ruście,
+  // co zdejmuje zależność od libssl w obrazie kontenera.
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+  // Projekt jest CommonJS (brak "type": "module" w package.json). Bez tego
+  // generator emituje ESM, którego Node nie potrafi wczytać w skryptach
+  // uruchamianych poza bundlerem — seed i migracje w kontenerze.
+  moduleFormat = "cjs"
 }
 
 datasource db {
+  // Prisma 7: connection string nie należy już do schematu.
+  // Migracje biorą go z prisma.config.ts, a klient z adaptera w lib/db.ts.
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // --- ENUMERACJE ---

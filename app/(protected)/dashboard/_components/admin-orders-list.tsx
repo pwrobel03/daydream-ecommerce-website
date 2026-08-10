@@ -14,7 +14,7 @@ import {
   Phone,
   ChevronDown,
 } from "lucide-react";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/lib/generated/prisma/client";
 import type { AdminOrderType } from "@/types/order";
 
 export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {

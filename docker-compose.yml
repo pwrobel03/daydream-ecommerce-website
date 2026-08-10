@@ -38,6 +38,23 @@ services:
       timeout: 5s
       retries: 10
 
+  # Migracje i seed wykonują się raz, przed startem aplikacji — nie w każdej
+  # replice przy każdym restarcie. Obraz produkcyjny nie musi przez to wozić
+  # CLI Prismy ani jego zależności.
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrator
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    environment:
+      DATABASE_URL: postgresql://daydream:daydream@postgres:5432/daydream
+    restart: "no"
+
   app:
     build:
       context: .
@@ -48,6 +65,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     env_file:
       - .env.docker
     environment:

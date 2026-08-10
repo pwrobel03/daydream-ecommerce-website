@@ -1,7 +1,8 @@
 // Minimalne dane dla testów E2E: jeden zweryfikowany użytkownik i jeden produkt
 // na stanie. Celowo nie używamy prisma/seed.ts — testy mają zależeć od danych,
 // które same kontrolują, a nie od zawartości katalogu demonstracyjnego.
-import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../../lib/generated/prisma/client";
 import bcrypt from "bcrypt";
 
 export const E2E_USER = {
@@ -18,7 +19,7 @@ export const E2E_PRODUCT = {
 };
 
 async function main() {
-  const db = new PrismaClient();
+  const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 
   await db.orderItem.deleteMany();
   await db.order.deleteMany();

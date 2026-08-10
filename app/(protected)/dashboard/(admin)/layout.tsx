@@ -1,5 +1,5 @@
 import { getCurrentRole } from "@/lib/auth";
-import { UserRole } from "@prisma/client";
+import { UserRole } from "@/lib/generated/prisma/client";
 import { redirect } from "next/navigation";
 import { FormError } from "@/components/auth/form-error";
 import { NotAllowedView } from "../_components/not-allowed-view";

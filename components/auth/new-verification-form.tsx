@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -17,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const NewVerificationForm = () => {
+  const t = useTranslations("auth.verification");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -27,7 +29,7 @@ const NewVerificationForm = () => {
     if (success || error) return;
 
     if (!token) {
-      setError("Verification token is missing.");
+      setError(t("missingToken"));
       return;
     }
 
@@ -37,7 +39,7 @@ const NewVerificationForm = () => {
         setError(data.error || null);
       })
       .catch(() => {
-        setError("An unexpected error occurred.");
+        setError(t("failed"));
       });
   }, [token, success, error]);
 
@@ -93,7 +95,7 @@ const NewVerificationForm = () => {
           <Link href="/auth/login">
             <button className="group flex items-center gap-4 bg-foreground text-background px-8 py-4 rounded-full hover:bg-primary hover:text-white transition-all duration-500">
               <span className="text-[10px] font-black uppercase tracking-widest italic">
-                {success ? "Proceed to Login" : "Abort & Return"}
+                {success ? t("proceed") : t("back")}
               </span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
             </button>

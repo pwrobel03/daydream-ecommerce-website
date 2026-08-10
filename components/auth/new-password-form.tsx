@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { useForm } from "react-hook-form";
 import { useMounted } from "@/hooks/use-mounted";
@@ -31,6 +32,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const NewPasswordForm = () => {
+  const t = useTranslations("auth.newPassword");
   const isMounted = useMounted();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -151,7 +153,7 @@ export const NewPasswordForm = () => {
             >
               <div className="relative z-10 flex items-center justify-center gap-12 w-full px-8">
                 <span className="text-xl md:text-3xl font-black italic uppercase tracking-tighter text-center">
-                  {isPending ? "Regenerating..." : "Update Key"}
+                  {isPending ? t("submitting") : t("submit")}
                 </span>
                 <RefreshCcw
                   className={cn("w-10 h-10", isPending && "animate-spin")}

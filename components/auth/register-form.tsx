@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { useForm } from "react-hook-form";
 import { useState, useTransition } from "react";
@@ -23,6 +24,7 @@ import { Atom, Dna, Globe, UserPlus, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const RegisterForm = () => {
+  const t = useTranslations("auth.register");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
@@ -69,7 +71,7 @@ export const RegisterForm = () => {
         <header className="space-y-4">
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
-              System_Registration
+              {t("systemLabel")}
             </span>
             <div className="w-12 h-1 bg-primary" />
           </div>
@@ -96,7 +98,7 @@ export const RegisterForm = () => {
                       <Input
                         {...field}
                         disabled={isPending}
-                        placeholder="EX: DAYDREAM USER"
+                        placeholder={t("namePlaceholder")}
                         className="bg-transparent border-x-0 border-t-0 border-b-2 border-black/10 dark:border-white/10 rounded-none px-0 text-sm font-black italic uppercase tracking-tighter focus-visible:ring-0 focus-visible:border-primary transition-all"
                       />
                     </FormControl>
@@ -164,7 +166,7 @@ export const RegisterForm = () => {
             >
               <div className="relative z-10 flex items-center justify-center gap-12 w-full px-8">
                 <span className="text-xl md:text-3xl font-black italic uppercase tracking-tighter">
-                  {isPending ? "Synthesizing..." : "Create Account"}
+                  {isPending ? t("submitting") : t("submit")}
                 </span>
                 <Dna
                   className={cn("w-10 h-10", isPending && "animate-spin-slow")}

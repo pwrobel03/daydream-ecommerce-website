@@ -46,5 +46,64 @@
     "invalidAddress": "Dane adresowe są nieprawidłowe.",
     "unauthorized": "Brak uprawnień",
     "generic": "Coś poszło nie tak"
+  },
+  "auth": {
+    "login": {
+      "title": "Logowanie",
+      "submit": "Zaloguj",
+      "submitting": "Sprawdzam...",
+      "email": "E-mail",
+      "password": "Hasło",
+      "emailPlaceholder": "UZYTKOWNIK@DAYDREAM.COM",
+      "noAccount": "Załóż konto",
+      "forgot": "Nie pamiętasz hasła?",
+      "systemLabel": "System_Logowanie",
+      "headline": "SKARBIEC",
+      "headlineAccent": "TOŻSAMOŚCI."
+    },
+    "register": {
+      "title": "Załóż konto",
+      "submit": "Załóż konto",
+      "submitting": "Tworzę...",
+      "name": "Imię",
+      "namePlaceholder": "NP. JAN KOWALSKI",
+      "hasAccount": "Zaloguj się",
+      "systemLabel": "System_Rejestracja",
+      "headline": "NOWY",
+      "headlineAccent": "PROTOKÓŁ."
+    },
+    "reset": {
+      "title": "Reset hasła",
+      "submit": "Wyślij link",
+      "submitting": "Wysyłam...",
+      "backToLogin": "Wróć do logowania"
+    },
+    "newPassword": {
+      "title": "Ustaw nowe hasło",
+      "submit": "Zapisz hasło",
+      "submitting": "Zapisuję...",
+      "password": "Nowe hasło",
+      "confirm": "Powtórz hasło"
+    },
+    "verification": {
+      "pending": "Weryfikuję adres e-mail...",
+      "success": "Tożsamość potwierdzona. Przechodzę dalej...",
+      "missingToken": "Brak tokena weryfikacyjnego.",
+      "failed": "Wystąpił nieoczekiwany błąd.",
+      "proceed": "Przejdź do logowania",
+      "back": "Przerwij i wróć"
+    },
+    "error": {
+      "title": "Błąd uwierzytelniania",
+      "invalidKey": "Nieprawidłowy klucz",
+      "missingToken": "Brak tokena bezpieczeństwa. Operacja przerwana.",
+      "back": "Wróć do logowania"
+    },
+    "user": {
+      "dashboard": "Panel",
+      "profile": "Profil",
+      "logout": "Wyloguj",
+      "avatar": "Awatar użytkownika"
+    }
   }
 }

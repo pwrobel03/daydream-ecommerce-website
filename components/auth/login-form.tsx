@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { useForm } from "react-hook-form";
 import { useState, useTransition } from "react";
@@ -32,6 +33,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const LoginForm = () => {
+  const t = useTranslations("auth.login");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
@@ -73,13 +75,13 @@ export const LoginForm = () => {
           <div className="flex items-center gap-3">
             <div className="w-12 h-1 bg-primary" />
             <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
-              System_Login
+              {t("systemLabel")}
             </span>
           </div>
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
-            IDENTITY
+            {t("headline")}
             <br />
-            <span className="text-primary">VAULT.</span>
+            <span className="text-primary">{t("headlineAccent")}</span>
           </h1>
         </header>
 
@@ -98,7 +100,7 @@ export const LoginForm = () => {
                       <Input
                         {...field}
                         disabled={isPending}
-                        placeholder="USER@DAYDREAM.COM"
+                        placeholder={t("emailPlaceholder")}
                         className="bg-transparent border-x-0 border-t-0 border-b-2 border-black/10 dark:border-white/10 rounded-none px-0 text-sm font-black italic uppercase tracking-tighter focus-visible:ring-0 focus-visible:border-primary transition-all"
                       />
                     </FormControl>
@@ -149,7 +151,7 @@ export const LoginForm = () => {
             >
               <div className="relative z-10 flex items-center justify-center gap-12 w-full px-8">
                 <span className="text-xl md:text-3xl font-black italic uppercase tracking-tighter">
-                  {isPending ? "Validating..." : "Login"}
+                  {isPending ? t("submitting") : t("submit")}
                 </span>
                 <Fingerprint
                   className={cn("w-10 h-10", isPending && "animate-pulse")}

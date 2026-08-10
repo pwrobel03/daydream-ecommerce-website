@@ -46,5 +46,64 @@
     "invalidAddress": "The delivery details are invalid.",
     "unauthorized": "Unauthorized",
     "generic": "Something went wrong"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "submit": "Login",
+      "submitting": "Validating...",
+      "email": "Email",
+      "password": "Password",
+      "emailPlaceholder": "USER@DAYDREAM.COM",
+      "noAccount": "Create Account",
+      "forgot": "Forgot password?",
+      "systemLabel": "System_Login",
+      "headline": "IDENTITY",
+      "headlineAccent": "VAULT."
+    },
+    "register": {
+      "title": "Create Account",
+      "submit": "Create Account",
+      "submitting": "Synthesizing...",
+      "name": "Name",
+      "namePlaceholder": "EX: DAYDREAM USER",
+      "hasAccount": "Login",
+      "systemLabel": "System_Registration",
+      "headline": "NEW",
+      "headlineAccent": "PROTOCOL."
+    },
+    "reset": {
+      "title": "Reset password",
+      "submit": "Send Reset Link",
+      "submitting": "Dispatching...",
+      "backToLogin": "Go back to Login"
+    },
+    "newPassword": {
+      "title": "Set a new password",
+      "submit": "Update Key",
+      "submitting": "Regenerating...",
+      "password": "New password",
+      "confirm": "Confirm password"
+    },
+    "verification": {
+      "pending": "Verifying your email...",
+      "success": "Identity Verified. Accessing Archive...",
+      "missingToken": "Verification token is missing.",
+      "failed": "An unexpected error occurred.",
+      "proceed": "Proceed to Login",
+      "back": "Abort & Return"
+    },
+    "error": {
+      "title": "Authentication Error",
+      "invalidKey": "Invalid Registry Key",
+      "missingToken": "Security token missing. Protocol aborted.",
+      "back": "Go back to Login"
+    },
+    "user": {
+      "dashboard": "Dashboard",
+      "profile": "Profile",
+      "logout": "Log out",
+      "avatar": "User Avatar"
+    }
   }
 }

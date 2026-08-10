@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { useForm } from "react-hook-form";
 import { useState, useTransition } from "react";
@@ -23,6 +24,7 @@ import { Zap, Radio, Cpu, ArrowRight, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const ResetForm = () => {
+  const t = useTranslations("auth.reset");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
@@ -126,7 +128,7 @@ export const ResetForm = () => {
             >
               <div className="relative z-10 flex items-center justify-center gap-12 w-full px-8">
                 <span className="text-xl md:text-3xl font-black italic uppercase tracking-tighter text-center">
-                  {isPending ? "Dispatching..." : "Send Reset Link"}
+                  {isPending ? t("submitting") : t("submit")}
                 </span>
                 <Radio
                   className={cn("w-10 h-10", isPending && "animate-pulse")}

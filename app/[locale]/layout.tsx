@@ -1,5 +1,5 @@
 import { NextIntlClientProvider, hasLocale } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Suspense } from "react";
@@ -77,6 +77,11 @@ export default async function RootLayout({
   // prerenderowanie całej trasy przy włączonym cacheComponents.
   setRequestLocale(locale);
 
+  // Komunikaty przekazujemy do providera jawnie. Bez tego komponenty klienckie
+  // sięgają po nie z kontekstu żądania, co czyni każdą stronę z takim
+  // komponentem dynamiczną i blokuje prerenderowanie.
+  const messages = await getMessages();
+
   return (
     <SessionProvider>
       <html lang={locale} suppressHydrationWarning data-scrool-behavior="smooth">
@@ -84,7 +89,7 @@ export default async function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         >
-          <NextIntlClientProvider>
+          <NextIntlClientProvider messages={messages}>
           <ThemeProvider
             attribute="class"
             defaultTheme="light"

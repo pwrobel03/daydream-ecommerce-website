@@ -24,3 +24,14 @@ services:
       interval: 2s
       timeout: 3s
       retries: 15
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "51025:1025"
+      - "58025:8025"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 2s
+      timeout: 3s
+      retries: 15

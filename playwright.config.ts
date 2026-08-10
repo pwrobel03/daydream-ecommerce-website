@@ -18,9 +18,10 @@ const E2E_ENV = {
   AUTH_GITHUB_SECRET: "e2e",
   STRIPE_SECRET_KEY: "sk_test_e2e",
   STRIPE_WEBHOOK_SECRET: "whsec_e2e",
-  RESEND_API_KEY: "re_e2e",
-  MAILING_ACCOUNT: "e2e@example.com",
-  MAILING_ACCOUNT_PROVIDER: "onboarding@resend.dev",
+  SMTP_HOST: "localhost",
+  SMTP_PORT: "51025",
+  SMTP_SECURE: "false",
+  MAIL_FROM: "Daydream <test@example.com>",
   CRON_SECRET: "e2e-cron-secret-value",
   NEXT_PUBLIC_APP_URL: BASE_URL,
 };

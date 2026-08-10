@@ -6,6 +6,7 @@ import { env } from "@/lib/env";
 import { errorMessage } from "@/lib/action-result";
 import { releaseOrderReservation } from "@/lib/orders";
 import { reportError, logger } from "@/lib/logger";
+import { sendOrderConfirmationEmail } from "@/lib/mail";
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
@@ -98,6 +99,8 @@ export async function POST(req: Request) {
       data: { isPaid: true, status: "PAID" },
     });
 
+    await sendOrderConfirmation(orderId);
+
     return new NextResponse("Webhook received", { status: 200 });
   }
 
@@ -105,4 +108,53 @@ export async function POST(req: Request) {
   await releaseOrderReservation(orderId);
 
   return new NextResponse("Webhook received", { status: 200 });
+}
+
+/**
+ * Potwierdzenie zamówienia po zaksięgowanej płatności.
+ *
+ * Wysyłka jest świadomie po zapisie statusu i nie blokuje odpowiedzi błędem:
+ * zamówienie jest już opłacone, a nieudany mail nie może skłonić Stripe do
+ * ponowienia zdarzenia — od tego jest rejestr idempotencji.
+ */
+async function sendOrderConfirmation(orderId: string) {
+  const order = await db.order.findUnique({
+    where: { id: orderId },
+    include: {
+      user: { select: { email: true } },
+      address: true,
+      items: { include: { product: { select: { name: true } } } },
+    },
+  });
+
+  if (!order?.user.email) {
+    logger.error({ orderId }, "order confirmation skipped: no recipient");
+    return;
+  }
+
+  const items = order.items.map((item) => ({
+    name: item.product.name,
+    quantity: item.quantity,
+    price: Number(item.price),
+  }));
+
+  const discount = Number(order.discountAmount);
+  const total = Number(order.totalAmount);
+
+  await sendOrderConfirmationEmail(order.user.email, {
+    orderId: order.id,
+    items,
+    // Suma przed rabatem odtworzona z pozycji — nie trzymamy jej w bazie.
+    subtotal: total + discount,
+    discount,
+    total,
+    address: order.address
+      ? {
+          fullName: order.address.fullName,
+          street: order.address.street,
+          city: order.address.city,
+          zipCode: order.address.zipCode,
+        }
+      : null,
+  });
 }

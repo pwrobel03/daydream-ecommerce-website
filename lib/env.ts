@@ -30,12 +30,15 @@ const EnvSchema = z.object({
     message: "STRIPE_WEBHOOK_SECRET musi zaczynać się od 'whsec_'"
   }),
 
-  // Resend
-  RESEND_API_KEY: z.string().startsWith("re_", {
-    message: "RESEND_API_KEY musi zaczynać się od 're_'"
-  }),
-  MAILING_ACCOUNT: z.string().min(1),
-  MAILING_ACCOUNT_PROVIDER: z.string().min(1),
+  // Poczta wychodząca (SMTP)
+  // W demo wskazuje na Mailpit z compose, na produkcji na dowolny serwer SMTP.
+  SMTP_HOST: z.string().min(1),
+  SMTP_PORT: z.coerce.number().int().positive().default(1025),
+  SMTP_SECURE: z.enum(["true", "false"]).default("false"),
+  // Puste przy Mailpicie, który nie wymaga uwierzytelnienia.
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  MAIL_FROM: z.string().min(1),
 
   // Upload plików. Katalog musi leżeć poza public/ i być montowany jako wolumen,
   // inaczej wgrane zdjęcia znikają przy odtworzeniu kontenera.

@@ -1,3 +1,5 @@
+import { RowsSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
@@ -8,7 +10,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { RetryPaymentButton } from "../../_components/retry-payment-button";
 
-export default async function OrderDetailsPage({
+async function OrderDetailsPageContent({
   params,
 }: {
   params: Promise<{ orderId: string }>;
@@ -157,5 +159,16 @@ export default async function OrderDetailsPage({
         </div>
       </div>
     </div>
+  );
+}
+
+
+export default function OrderDetailsPage(props: {
+  params: Promise<{ orderId: string }>;
+}) {
+  return (
+    <Suspense fallback={<RowsSkeleton />}>
+      <OrderDetailsPageContent {...props} />
+    </Suspense>
   );
 }

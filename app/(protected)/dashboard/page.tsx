@@ -1,10 +1,12 @@
+import { RowsSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { Package, MapPin, UserCog, ArrowRight, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default async function DashboardPage() {
+async function DashboardPageContent() {
   const session = await auth();
   const userName = session?.user?.name?.split(" ")[0] || "User";
 
@@ -128,5 +130,14 @@ export default async function DashboardPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<RowsSkeleton />}>
+      <DashboardPageContent />
+    </Suspense>
   );
 }

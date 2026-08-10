@@ -1,33 +1,36 @@
-import { Button } from "@/components/ui/button";
-import { Poppins } from "next/font/google";
-import { cn } from "@/lib/utils";
-import { LoginButton } from "@/components/auth/login-button";
+import { Suspense } from "react";
 import DiscountBanner from "@/components/discount-banner";
 import Container from "@/components/Container";
 import { CategorySection } from "@/components/category-section";
 import { getMainCategories } from "@/lib/db-categories";
-import Image from "next/image";
 import AboutUs from "@/components/home/about-us";
-
 import { getAllSales } from "@/lib/db-sales";
 import HandcraftedProcess from "@/components/home/handcrafted-process";
+import { BannerSkeleton, CategoryStripSkeleton } from "@/components/skeletons";
 
-export default async function Home() {
+async function Sales() {
   const sales = await getAllSales();
-  const categories = await getMainCategories();
+  return sales ? <DiscountBanner sales={sales} /> : null;
+}
 
+async function Categories() {
+  const categories = await getMainCategories();
+  return categories ? <CategorySection categories={categories} /> : null;
+}
+
+export default function Home() {
   return (
-    // <div className="bg-card border p-4 rounded-2xl hoverEffect cursor-pointer">
-    //   <div className="aspect-square bg-accent rounded-xl mb-4">
-    //     {/* Miejsce na zdjęcie Granoli */}
-    //   </div>
-    //   <h3 className="font-bold text-lg">Granola Orzechowa</h3>
-    //   <p className="text-primary font-bold">24.90 zł</p>
-    // </div>
     <Container>
-      {sales && <DiscountBanner sales={sales} />}
+      <Suspense fallback={<BannerSkeleton />}>
+        <Sales />
+      </Suspense>
+
       <AboutUs />
-      {categories && <CategorySection categories={categories} />}
+
+      <Suspense fallback={<CategoryStripSkeleton />}>
+        <Categories />
+      </Suspense>
+
       <HandcraftedProcess />
     </Container>
   );

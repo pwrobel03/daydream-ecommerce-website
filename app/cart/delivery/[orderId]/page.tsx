@@ -1,9 +1,11 @@
+import { Suspense } from "react";
+import { FormSkeleton } from "@/components/skeletons";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import { DeliveryClient } from "@/components/cart/delivery-client";
 
-export default async function DeliveryPage({
+async function DeliveryPageContent({
   params,
 }: {
   params: Promise<{ orderId: string }>;
@@ -57,5 +59,15 @@ export default async function DeliveryPage({
         savedAddress={userWithAddress?.address ?? null}
       />
     </div>
+  );
+}
+
+export default function DeliveryPage(props: {
+  params: Promise<{ orderId: string }>;
+}) {
+  return (
+    <Suspense fallback={<FormSkeleton fields={5} />}>
+      <DeliveryPageContent {...props} />
+    </Suspense>
   );
 }

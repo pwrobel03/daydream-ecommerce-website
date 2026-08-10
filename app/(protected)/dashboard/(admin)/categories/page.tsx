@@ -1,9 +1,11 @@
+import { RowsSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 import { db } from "@/lib/db";
 import { CategoryForm } from "../../_components/category-form";
 import { FolderTree, Info } from "lucide-react";
 import CategoryList from "../../_components/category-list";
 import GiveInNotice from "../../_components/give-in-notice";
-export default async function CategoriesPage() {
+async function CategoriesPageContent() {
   const allCategories = await db.category.findMany({
     include: {
       children: true,
@@ -63,5 +65,14 @@ export default async function CategoriesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+export default function CategoriesPage() {
+  return (
+    <Suspense fallback={<RowsSkeleton />}>
+      <CategoriesPageContent />
+    </Suspense>
   );
 }

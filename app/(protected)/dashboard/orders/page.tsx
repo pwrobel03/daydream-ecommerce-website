@@ -1,9 +1,11 @@
+import { RowsSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { OrdersList } from "../_components/orders-list";
 
-export default async function OrdersPage() {
+async function OrdersPageContent() {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -60,5 +62,14 @@ export default async function OrdersPage() {
       {/* Przekazujemy dane do komponentu prezentacyjnego */}
       <OrdersList orders={serializedOrders} />
     </div>
+  );
+}
+
+
+export default function OrdersPage() {
+  return (
+    <Suspense fallback={<RowsSkeleton />}>
+      <OrdersPageContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
+import { ProductDetailSkeleton } from "@/components/skeletons";
+import { Suspense } from "react";
 // app/product/[slug]/page.tsx
-"use server";
-
 import ReviewsSection from "@/components/product/reviews-section";
 import Image from "next/image";
 import Container from "@/components/Container";
@@ -28,7 +28,7 @@ interface ProductPageProps {
   params: { slug: string };
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
+async function ProductPageContent({ params }: ProductPageProps) {
   const { slug } = await params;
   const session = await auth();
   const currentUserId = session?.user?.id;
@@ -68,5 +68,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
         />
       </Container>
     </main>
+  );
+}
+
+
+export default function ProductPage(props: ProductPageProps) {
+  return (
+    <Suspense fallback={<ProductDetailSkeleton />}>
+      <ProductPageContent {...props} />
+    </Suspense>
   );
 }

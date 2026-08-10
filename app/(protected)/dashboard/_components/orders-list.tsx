@@ -12,9 +12,10 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
+import type { OrderType } from "@/types/order";
 
 interface OrdersListProps {
-  orders: any[];
+  orders: OrderType[];
 }
 
 export function OrdersList({ orders }: OrdersListProps) {
@@ -57,7 +58,7 @@ export function OrdersList({ orders }: OrdersListProps) {
                   Total
                 </p>
                 <p className="text-4xl font-black italic tracking-tighter">
-                  <PriceFormatter amount={order.totalAmount} />
+                  <PriceFormatter amount={Number(order.totalAmount)} />
                 </p>
               </div>
 

@@ -7,8 +7,9 @@ import SubTitle from "@/components/sub-title";
 import PriceFormatter from "../PriceFormatter";
 import ProductStatusBadge from "../product-status-badge";
 import AddToCartButton from "../product-card/AddToCartButton";
+import type { ProductType } from "@/types/product";
 
-export default function ProductHero({ product }: { product: any }) {
+export default function ProductHero({ product }: { product: ProductType }) {
   const { addItem } = useCart();
 
   return (
@@ -29,14 +30,14 @@ export default function ProductHero({ product }: { product: any }) {
       <div className="flex items-center gap-6">
         <div className="text-5xl font-black tracking-tighter">
           {product.promoPrice ? (
-            <PriceFormatter amount={product.promoPrice} />
+            <PriceFormatter amount={Number(product.promoPrice)} />
           ) : (
-            <PriceFormatter amount={product.price} />
+            <PriceFormatter amount={Number(product.price)} />
           )}
         </div>
         {product.promoPrice && (
           <span className="text-xl line-through opacity-30 font-light">
-            <PriceFormatter amount={product.price} />
+            <PriceFormatter amount={Number(product.price)} />
           </span>
         )}
       </div>

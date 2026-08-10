@@ -18,10 +18,11 @@ import { cn } from "@/lib/utils";
 import ProductStatusBadge from "@/components/product-status-badge";
 import { PackagePlus } from "lucide-react";
 import Link from "next/link";
+import type { Category, InventoryProduct } from "@/types/product";
 
-export default function InventoryClient({ categories }: { categories: any[] }) {
+export default function InventoryClient({ categories }: { categories: Category[] }) {
   const router = useRouter();
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<InventoryProduct[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
@@ -126,7 +127,7 @@ export default function InventoryClient({ categories }: { categories: any[] }) {
           className="border rounded-full px-6 font-black italic uppercase text-[10px] tracking-widest outline-none h-[62px] disabled:opacity-20 cursor-pointer"
         >
           <option value="">All Sub-Flows</option>
-          {availableSubCategories.map((s: any) => (
+          {availableSubCategories.map((s) => (
             <option key={s.id} value={s.id}>
               {s.name}
             </option>
@@ -184,7 +185,7 @@ export default function InventoryClient({ categories }: { categories: any[] }) {
                     </h3>
                   </Link>
                   <div className="flex flex-wrap gap-2 pt-2">
-                    {product.categories.map((cat: any) => (
+                    {product.categories.map((cat) => (
                       <ProductStatusBadge
                         key={cat.id}
                         name={cat.name}

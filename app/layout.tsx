@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { HeaderSkeleton } from "@/components/skeletons";
 import type { Metadata } from "next";
+import { env } from "@/lib/env";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/sonner";
@@ -20,8 +21,30 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DayDeam",
-  description: "Ecommerce website for educational purposes",
+  // metadataBase sprawia, że względne URL-e w Open Graph rozwijają się do
+  // pełnych adresów — bez tego podgląd linku nie znajdzie obrazka.
+  metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
+  title: {
+    default: "Daydream — handcrafted granola & breakfast bars",
+    // Podstrony podają samą nazwę, szablon dokłada markę.
+    template: "%s | Daydream",
+  },
+  description:
+    "Small-batch granola, muesli and breakfast bars. Handcrafted from whole ingredients, shipped fresh.",
+  openGraph: {
+    type: "website",
+    siteName: "Daydream",
+    title: "Daydream — handcrafted granola & breakfast bars",
+    description:
+      "Small-batch granola, muesli and breakfast bars. Handcrafted from whole ingredients, shipped fresh.",
+    url: env.NEXT_PUBLIC_APP_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Daydream — handcrafted granola & breakfast bars",
+    description:
+      "Small-batch granola, muesli and breakfast bars. Handcrafted from whole ingredients, shipped fresh.",
+  },
 };
 
 // SessionProvider nie dostaje sesji z serwera i dociąga ją sam po stronie

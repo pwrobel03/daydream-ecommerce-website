@@ -55,7 +55,9 @@ export default function InventoryClient({ categories }: { categories: any[] }) {
     [products.length, search, selectedCat, selectedSub, stockStatus]
   );
 
+  // Jak wyżej: stan ustawiany po odpowiedzi serwera, nie synchronicznie.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchProducts(true);
   }, [search, selectedCat, selectedSub, stockStatus]);
 

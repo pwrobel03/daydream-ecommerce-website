@@ -73,7 +73,7 @@ export default function UserReviewCard({
         </div>
 
         <blockquote className="text-3xl font-medium italic leading-tight text-foreground">
-          "{review.content}"
+          &ldquo;{review.content}&rdquo;
         </blockquote>
 
         <div className="mt-8 flex gap-1.5 text-primary">

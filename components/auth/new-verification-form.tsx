@@ -41,7 +41,10 @@ const NewVerificationForm = () => {
       });
   }, [token, success, error]);
 
+  // Weryfikacja tokenu musi wystartować po zamontowaniu — nie ma tu zdarzenia
+  // użytkownika, na którym dałoby się to zawiesić.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSubmit();
   }, [onSubmit]);
 

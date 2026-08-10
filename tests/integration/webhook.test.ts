@@ -1,10 +1,12 @@
-import { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@prisma/client";
 import Stripe from "stripe";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { db } = vi.hoisted(() => ({
-  db: new (require("@prisma/client").PrismaClient)() as PrismaClient,
-}));
+// Fabryka asynchroniczna — patrz komentarz w order.test.ts.
+const { db } = await vi.hoisted(async () => {
+  const { PrismaClient } = await import("@prisma/client");
+  return { db: new PrismaClient() as PrismaClient };
+});
 
 vi.mock("@/lib/db", () => ({ db }));
 

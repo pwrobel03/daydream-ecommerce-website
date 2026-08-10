@@ -1,7 +1,8 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useState, useTransition, useEffect } from "react";
+import { useMounted } from "@/hooks/use-mounted";
+import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { NewPasswordSchema } from "@/schemas";
@@ -30,7 +31,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const NewPasswordForm = () => {
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useMounted();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
@@ -46,9 +47,6 @@ export const NewPasswordForm = () => {
     },
   });
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const onSubmit = (values: z.infer<typeof NewPasswordSchema>) => {
     setError("");

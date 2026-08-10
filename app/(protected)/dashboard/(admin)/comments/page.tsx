@@ -37,9 +37,13 @@ export default function AdminCommentsPage() {
     [voices.length, ratingFilter, search]
   );
 
+  // Pobranie danych po zmianie filtrów. Reguła celuje w synchroniczne setState
+  // w efekcie; tutaj stan ustawia się po odpowiedzi serwera, co jest poprawnym
+  // zastosowaniem efektu.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchVoices(true);
-  }, [ratingFilter, search]); // Reaguj na zmianę filtrów
+  }, [ratingFilter, search]);
 
   const handleDelete = async (id: string) => {
     const res = await deleteVoice(id);
@@ -158,7 +162,7 @@ export default function AdminCommentsPage() {
                     {voice.product.name}
                   </p>
                   <p className="text-md font-medium italic leading-tight">
-                    "{voice.content}"
+                    &ldquo;{voice.content}&rdquo;
                   </p>
                 </div>
 

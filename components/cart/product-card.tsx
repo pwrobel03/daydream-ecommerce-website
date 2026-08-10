@@ -88,14 +88,14 @@ const ProductCard = ({
               <div className="flex items-center gap-6">
                 <div className="text-lg font-black tracking-tighter">
                   {item.product.promoPrice ? (
-                    <PriceFormatter amount={item.product.promoPrice} />
+                    <PriceFormatter amount={Number(item.product.promoPrice)} />
                   ) : (
-                    <PriceFormatter amount={item.product.price} />
+                    <PriceFormatter amount={Number(item.product.price)} />
                   )}
                 </div>
                 {item.product.promoPrice && (
                   <span className="text-md line-through opacity-30 font-light">
-                    <PriceFormatter amount={item.product.price} />
+                    <PriceFormatter amount={Number(item.product.price)} />
                   </span>
                 )}
               </div>

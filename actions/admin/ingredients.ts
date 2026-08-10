@@ -70,7 +70,7 @@ export async function upsertIngredient(id: string, formData: FormData) {
     revalidatePath("/dashboard/ingredients");
     return { success: "Ingredient saved successfully!" };
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("UPSERT_INGREDIENT_ERROR:", error);
     return { error: "Failed to save ingredient." };
   }
@@ -105,7 +105,7 @@ export async function deleteIngredient(id: string) {
     revalidatePath("/dashboard/ingredients");
     return { success: "Ingredient removed." };
 
-  } catch (error: any) {
+  } catch (error) {
     return { error: "Error during deletion." };
   }
 }

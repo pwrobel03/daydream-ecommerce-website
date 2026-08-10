@@ -4,6 +4,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
+import { errorMessage } from "@/lib/action-result";
 import { reportError } from "@/lib/logger";
 import { AddressSchema, CheckoutItemsSchema } from "@/schemas";
 import { Prisma } from "@prisma/client";
@@ -86,8 +87,8 @@ export async function initializeOrder(items: z.infer<typeof CheckoutItemsSchema>
     });
 
     return { success: true, orderId };
-  } catch (error: any) {
-    return { error: error.message || "Coś poszło nie tak podczas rezerwacji." };
+  } catch (error) {
+    return { error: errorMessage(error, "Coś poszło nie tak podczas rezerwacji.") };
   }
 }
 
@@ -187,7 +188,7 @@ export async function finalizeAndPay(
     });
 
     return { url: stripeSession.url, error: null };
-  } catch (error: any) {
+  } catch (error) {
     reportError(error, { area: "order.finalizeAndPay", orderId });
     return { url: null, error: "Stripe Session Error" };
   }

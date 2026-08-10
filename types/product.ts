@@ -43,6 +43,8 @@ export interface Ingredient {
   id: string;
   name: string;
   image?: string | null;
+  /** Alias używany przez formularz w panelu. */
+  imageUrl?: string | null;
 }
 
 export interface ProductType {
@@ -89,4 +91,14 @@ export interface InventoryProduct {
   categories: Category[];
   status?: Status | null;
   images: { url: string }[];
+}
+
+/** Opinia w widoku moderacji — dochodzi produkt, którego dotyczy. */
+export interface VoiceType {
+  id: string;
+  content: string;
+  rating: number;
+  createdAt: Date | string;
+  user: { name: string | null; image: string | null };
+  product: { name: string; slug: string };
 }

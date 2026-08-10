@@ -14,6 +14,7 @@ import { upsertIngredient } from "@/actions/admin/ingredients";
 import { Button } from "@/components/ui/button"; // Zakładam shadcn/ui
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import type { Ingredient } from "@/types/product";
 
 // 1. Walidacja Zod
 const formSchema = z.object({
@@ -24,7 +25,7 @@ const formSchema = z.object({
 type IngredientFormValues = z.infer<typeof formSchema>;
 
 interface IngredientFormProps {
-  initialData?: any | null; // Dane z bazy jeśli edytujemy
+  initialData?: Ingredient | null; // Dane z bazy jeśli edytujemy
 }
 
 export const IngredientForm = ({ initialData }: IngredientFormProps) => {

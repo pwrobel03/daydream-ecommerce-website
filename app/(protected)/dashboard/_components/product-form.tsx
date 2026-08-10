@@ -7,7 +7,7 @@ import * as z from "zod";
 
 import { productSchema } from "@/schemas";
 import { upsertProduct } from "@/actions/admin/inventory";
-import { ProductType, Status } from "@/types/product";
+import { Category, Ingredient, ProductType, Status } from "@/types/product";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { X, ImageIcon, Tag, Layers, Beaker, Loader2 } from "lucide-react";
@@ -35,12 +35,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import GiveInNotice from "./give-in-notice";
 
 // Typ wygenerowany ze schematu
-type ProductFormValues = z.infer<typeof productSchema>;
+// Schemat używa z.coerce dla `stock`, więc typ wejściowy (to, co trzymają pola
+// formularza) różni się od wyjściowego (to, co zwraca walidacja). Rozróżnienie
+// obu jest tym, czego brakowało — bez niego generyki react-hook-form się nie
+// domykały i każde użycie `control` wymagało `as any`.
+type ProductFormInput = z.input<typeof productSchema>;
+type ProductFormValues = z.output<typeof productSchema>;
 
 interface ProductFormProps {
   initialData: ProductType | null;
-  categories: any[];
-  ingredients: any[];
+  categories: Category[];
+  ingredients: Ingredient[];
   statuses: Status[];
 }
 
@@ -59,10 +64,8 @@ export function ProductForm({
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
 
-  // KLUCZOWA POPRAWKA TYPÓW
-  const form = useForm<ProductFormValues>({
-    // Używamy 'as any', aby ominąć błąd niezgodności kluczy w bibliotece resolvera
-    resolver: zodResolver(productSchema) as any,
+  const form = useForm<ProductFormInput, unknown, ProductFormValues>({
+    resolver: zodResolver(productSchema),
     defaultValues: initialData
       ? {
           name: initialData.name,
@@ -74,7 +77,7 @@ export function ProductForm({
           stock: initialData.stock,
           statusId: initialData.status?.id || "",
           categoryIds:
-            (initialData as any).categories?.map((c: any) => c.id) || [],
+            initialData.categories?.map((c) => c.id) || [],
           ingredientIds: initialData.ingredients?.map((i) => i.id) || [],
         }
       : {
@@ -180,7 +183,7 @@ export function ProductForm({
     <Form {...form}>
       <form
         // Ponownie rzutujemy onSubmit na any, aby uniknąć błędów TFieldValues
-        onSubmit={form.handleSubmit(onSubmit as any)}
+        onSubmit={form.handleSubmit(onSubmit)}
         className="grid grid-cols-1 lg:grid-cols-12 gap-12"
       >
         <div className="lg:col-span-7 space-y-8">
@@ -194,7 +197,7 @@ export function ProductForm({
 
             <div className="grid grid-cols-1 gap-6">
               <FormField
-                control={form.control as any}
+                control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
@@ -213,7 +216,7 @@ export function ProductForm({
                 )}
               />
               <FormField
-                control={form.control as any}
+                control={form.control}
                 name="slug"
                 render={({ field }) => (
                   <FormItem>
@@ -238,7 +241,7 @@ export function ProductForm({
 
             <div className="grid grid-cols-2 gap-6">
               <FormField
-                control={form.control as any}
+                control={form.control}
                 name="weight"
                 render={({ field }) => (
                   <FormItem>
@@ -260,7 +263,7 @@ export function ProductForm({
                 )}
               />
               <FormField
-                control={form.control as any}
+                control={form.control}
                 name="statusId"
                 render={({ field }) => (
                   <FormItem>
@@ -295,7 +298,7 @@ export function ProductForm({
             </div>
 
             <FormField
-              control={form.control as any}
+              control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
@@ -383,7 +386,7 @@ export function ProductForm({
             </h2>
             <div className="grid grid-cols-1 gap-6">
               <FormField
-                control={form.control as any}
+                control={form.control}
                 name="price"
                 render={({ field }) => (
                   <FormItem>
@@ -403,7 +406,7 @@ export function ProductForm({
                 )}
               />
               <FormField
-                control={form.control as any}
+                control={form.control}
                 name="promoPrice"
                 render={({ field }) => (
                   <FormItem>
@@ -425,7 +428,7 @@ export function ProductForm({
               />
             </div>
             <FormField
-              control={form.control as any}
+              control={form.control}
               name="stock"
               render={({ field }) => (
                 <FormItem>
@@ -456,7 +459,7 @@ export function ProductForm({
                 </h3>
               </div>
               <div className="max-h-60 overflow-y-auto pr-2 space-y-2">
-                {categories.map((cat: any) => (
+                {categories.map((cat) => (
                   <div
                     key={cat.id}
                     className="flex items-center gap-3 p-2 rounded-md hover:bg-input/40 cursor-pointer"
@@ -496,7 +499,7 @@ export function ProductForm({
                 </h3>
               </div>
               <div className="flex flex-wrap gap-2 overflow-y-auto max-h-60">
-                {ingredients.map((ing: any) => (
+                {ingredients.map((ing) => (
                   <button
                     type="button"
                     disabled={loading}

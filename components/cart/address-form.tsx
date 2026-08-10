@@ -23,10 +23,20 @@ const addressSchema = z.object({
   phone: z.string().min(9, "Phone required"),
 });
 
-export function AddressForm({ initialData, onSubmit, isLoading }: any) {
-  const form = useForm({
+type AddressValues = z.infer<typeof addressSchema>;
+
+export function AddressForm({
+  initialData,
+  onSubmit,
+  isLoading,
+}: {
+  initialData?: Partial<AddressValues> | null;
+  onSubmit: (values: AddressValues) => void;
+  isLoading?: boolean;
+}) {
+  const form = useForm<AddressValues>({
     resolver: zodResolver(addressSchema),
-    defaultValues: initialData || {
+    defaultValues: (initialData as AddressValues) || {
       fullName: "",
       street: "",
       city: "",

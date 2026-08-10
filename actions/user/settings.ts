@@ -4,6 +4,7 @@ import { SettingsSchema } from "@/schemas"
 import { getCurrentUser } from "@/lib/auth"
 import { getUserById, getUserByEmail } from "@/data/user"
 import { db } from "@/lib/db"
+import { Prisma } from "@prisma/client"
 import { generateVerificationToken } from "@/lib/token"
 import { sendVerificationEmail } from "@/lib/mail"
 import { revalidatePath } from "next/cache"
@@ -19,7 +20,7 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
 
   // 1. Kopiujemy dane z formularza do obiektu, który trafi do bazy
   // TypeScript pozwoli nam dodać tu pola z modelu Prisma
-  const updateData: any = {
+  const updateData: Prisma.UserUpdateInput = {
     name: values.name,
   };
 

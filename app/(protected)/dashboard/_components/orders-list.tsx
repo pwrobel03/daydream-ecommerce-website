@@ -86,7 +86,7 @@ function StatusIndicator({
   status: string;
   isPaid: boolean;
 }) {
-  const configs: any = {
+  const configs: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
     PAID: {
       color: "text-green-500",
       icon: <CheckCircle2 size={14} />,

@@ -51,9 +51,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     // POBIERANIE ŚWIEŻYCH DANYCH Z BAZY
     const existingUser = await getUserById(token.sub);
     
-    // KLUCZOWE: Jeśli użytkownik został usunięty z bazy, czyścimy token
+    // KLUCZOWE: Jeśli użytkownik został usunięty z bazy, czyścimy token.
+    // Auth.js traktuje null jako unieważnienie sesji.
     if (!existingUser) {
-      return null as any; 
+      return null;
     }
 
     const existingAccount = await getAccountByUserId(existingUser.id);
@@ -68,23 +69,17 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   },
 
   async session({ session, token }) {
-    // 1. OSTATECZNA WERYFIKACJA: Jeśli token wyparował w kroku JWT (bo user usunięty)
-    if (!token) return null as any;
-
-    // 2. Mapowanie danych z tokena do sesji
+    // Unieważnianie sesji dla usuniętego użytkownika odbywa się w callbacku `jwt`,
+    // który zwraca null. Tutaj wyłącznie mapujemy token na sesję — powtórne
+    // odpytywanie bazy dokładało trzecie zapytanie do każdego odczytu sesji,
+    // a `session` i tak nie może zwrócić null (§2.5 raportu).
     if (session.user) {
       if (token.sub) session.user.id = token.sub;
-      if (token.role) session.user.role = token.role as any;
+      if (token.role) session.user.role = token.role;
       if (token.name) session.user.name = token.name;
       if (token.email) session.user.email = token.email;
       
       session.user.isOAuth = !!token.isOAuth;
-    }
-
-    // 3. DODATKOWA WERYFIKACJA BAZY (Dla absolutnej pewności przed Ghost Session)
-    const userInDb = await getUserById(token.sub as string);
-    if (!userInDb) {
-      return null as any; // Wylogowuje użytkownika natychmiast
     }
 
     return session;

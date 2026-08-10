@@ -32,7 +32,7 @@ export default async function AddressPage() {
         {/* Dekoracyjna linia boczna */}
         <div className="absolute -left-6 top-0 bottom-0 w-[1px] bg-gradient-to-b from-primary via-black/5 to-transparent hidden md:block" />
 
-        <AddressForm initialData={user?.address} />
+        <AddressForm initialData={user?.address ?? null} />
       </div>
     </div>
   );

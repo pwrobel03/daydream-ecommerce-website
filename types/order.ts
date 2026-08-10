@@ -20,10 +20,10 @@ export interface OrderItemType {
   // Poszczególne widoki selectują różne podzbiory pól produktu,
   // dlatego wszystko poza nazwą jest opcjonalne.
   product: {
-    id?: string;
     name: string;
-    slug?: string;
-    images?: ProductImage[];
+    images?: { url: string }[];
+    // Widoki selectują różne podzbiory; pozostałe pola nie są tu używane.
+    [key: string]: unknown;
   };
 }
 

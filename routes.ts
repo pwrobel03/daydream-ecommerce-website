@@ -8,7 +8,8 @@ export const publicRoutes = [
   "/auth/new-verification", // accessed if user is logged in/out but has a verification token
   "/category",
   "/product",
-  "/api/webhook/stripe"
+  "/api/webhook/stripe",
+  "/api/health" // odpytywany przez monitoring i load balancer, bez sesji
 ]
 
 /**

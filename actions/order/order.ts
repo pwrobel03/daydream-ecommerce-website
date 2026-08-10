@@ -7,8 +7,9 @@ import { env } from "@/lib/env";
 import { errorMessage } from "@/lib/action-result";
 import { reportError } from "@/lib/logger";
 import { AddressSchema, CheckoutItemsSchema } from "@/schemas";
+import { createCheckoutSession } from "@/lib/checkout-session";
+import { requireOwnedOrder } from "@/lib/guards";
 import { Prisma } from "@/lib/generated/prisma/client";
-import Stripe from "stripe";
 import * as z from "zod";
 import { getTranslations } from "next-intl/server";
 
@@ -127,8 +128,6 @@ export async function initializeOrder(
   }
 }
 
-const stripe = new Stripe(env.STRIPE_SECRET_KEY);
-
 export async function finalizeAndPay(
   orderId: string,
   addressData: z.infer<typeof AddressSchema>
@@ -197,55 +196,12 @@ export async function finalizeAndPay(
       return updated;
     });
 
-    // Kupon na KWOTĘ, nie na procent. Procent kazałby Stripe'owi liczyć rabat
-    // po swojemu, a jego zaokrąglenie mogłoby różnić się o grosz od kwoty
-    // zapisanej w bazie — i webhook odrzuciłby wtedy poprawną płatność,
-    // bo porównuje amount_total z totalAmount.
-    const discountCents = Math.round(Number(order.discountAmount) * 100);
-    const discounts =
-      discountCents > 0
-        ? [
-            {
-              coupon: (
-                await stripe.coupons.create({
-                  amount_off: discountCents,
-                  currency: "usd",
-                  duration: "once",
-                  name: "Discount",
-                })
-              ).id,
-            },
-          ]
-        : undefined;
-
-    const stripeSession = await stripe.checkout.sessions.create({
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      discounts,
-      line_items: order.items.map(item => ({
-        price_data: {
-          currency: "USD",
-          product_data: { name: item.product.name },
-          unit_amount: Math.round(Number(item.price) * 100),
-        },
-        quantity: item.quantity,
-      })),
-      mode: "payment",
-      // Metadane muszą trafić także do PaymentIntenta — inaczej webhook
-      // payment_intent.payment_failed nie ma jak powiązać zdarzenia z zamówieniem.
-      payment_intent_data: { metadata: { orderId } },
-      success_url: `${env.NEXT_PUBLIC_APP_URL}/order/success/${orderId}`,
-      cancel_url: `${env.NEXT_PUBLIC_APP_URL}/cart`,
-      metadata: { orderId }
+    const url = await createCheckoutSession(order, {
+      cancelUrl: `${env.NEXT_PUBLIC_APP_URL}/cart`,
+      expiresInMinutes: 30,
     });
 
-    if (!stripeSession.url) throw new Error("Stripe session failed");
-
-    await db.order.update({
-      where: { id: orderId },
-      data: { stripeSessionId: stripeSession.id }
-    });
-
-    return { url: stripeSession.url, error: null };
+    return { url, error: null };
   } catch (error) {
     reportError(error, { area: "order.finalizeAndPay", orderId });
     return { url: null, error: "Stripe Session Error" };
@@ -253,50 +209,19 @@ export async function finalizeAndPay(
 }
 
 export async function recreateStripeSession(orderId: string) {
-  const sessionAuth = await auth();
-  if (!sessionAuth?.user?.id) return { error: "Unauthorized" };
-
   try {
-    const order = await db.order.findUnique({
-      where: { 
-        id: orderId,
-        userId: sessionAuth.user.id,
-        status: "PENDING", // Tylko dla zamówień oczekujących
-        isPaid: false 
-      },
-      include: { items: { include: { product: true } } }
+    // Ten sam guard co przy pierwszej płatności — zamówienie musi należeć do
+    // wywołującego i wciąż czekać na zapłatę.
+    const order = await requireOwnedOrder(orderId, { pendingOnly: true });
+
+    // Wcześniej ta ścieżka budowała pozycje samodzielnie i pomijała rabat,
+    // więc ponowienie płatności kosztowało klienta więcej niż pierwsze
+    // podejście. Wspólny budowniczy usuwa tę rozbieżność.
+    const url = await createCheckoutSession(order, {
+      cancelUrl: `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/${orderId}`,
     });
 
-    if (!order) return { error: "Order not found or already processed" };
-
-    // Tworzymy nową sesję Stripe (logika identyczna jak przy pierwszym razie)
-    const stripeSession = await stripe.checkout.sessions.create({
-      line_items: order.items.map(item => ({
-        price_data: {
-          currency: "USD",
-          product_data: { name: item.product.name },
-          unit_amount: Math.round(Number(item.price) * 100),
-        },
-        quantity: item.quantity,
-      })),
-      mode: "payment",
-      // Metadane muszą trafić także do PaymentIntenta — inaczej webhook
-      // payment_intent.payment_failed nie ma jak powiązać zdarzenia z zamówieniem.
-      payment_intent_data: { metadata: { orderId } },
-      success_url: `${env.NEXT_PUBLIC_APP_URL}/order/success/${orderId}`,
-      cancel_url: `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/${orderId}`,
-      metadata: { orderId }
-    });
-
-    if (!stripeSession.url) throw new Error("Stripe session failed");
-
-    // Aktualizujemy ID sesji w bazie danych
-    await db.order.update({
-      where: { id: orderId },
-      data: { stripeSessionId: stripeSession.id }
-    });
-
-    return { url: stripeSession.url };
+    return { url };
   } catch (error) {
     reportError(error, { area: "order.recreateStripeSession", orderId });
     return { error: "Failed to recreate payment session" };

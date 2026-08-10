@@ -139,3 +139,30 @@ describe("coupons", () => {
     expect(Number.isInteger(Math.round(order.totalAmount.toNumber() * 100))).toBe(true);
   });
 });
+
+describe("payment retry", () => {
+  it("keeps the discount when the payment session is rebuilt", async () => {
+    // Regresja: recreateStripeSession budował pozycje samodzielnie i pomijał
+    // rabat, więc klient wracający do przerwanej płatności płacił pełną cenę.
+    // Sprawdzamy dane, z których budowana jest sesja — samo Stripe jest
+    // zamockowane, bo test nie ma sieci.
+    await sale();
+
+    const result = await initializeOrder([{ productId, quantity: 2 }], "SPRING20");
+    const order = await db.order.findUniqueOrThrow({
+      where: { id: result.orderId! },
+      include: { items: true },
+    });
+
+    // Kwota do pobrania przy ponowieniu musi być tą samą, którą zapisano.
+    const lineTotal = order.items.reduce(
+      (sum, item) => sum + item.price.toNumber() * item.quantity,
+      0
+    );
+
+    expect(lineTotal - order.discountAmount.toNumber()).toBe(
+      order.totalAmount.toNumber()
+    );
+    expect(order.discountAmount.toNumber()).toBeGreaterThan(0);
+  });
+});

@@ -1,6 +1,7 @@
 // lib/guards.ts
 // Wspólne zabezpieczenia dla Server Actions.
 import { auth } from "@/auth";
+import { db } from "@/lib/db";
 
 /**
  * Przerywa wykonanie, jeśli bieżący użytkownik nie jest adminem.
@@ -12,4 +13,33 @@ export async function requireAdmin() {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   return session;
+}
+
+/**
+ * Zwraca zamówienie, jeśli należy do bieżącego użytkownika i jest w podanym
+ * stanie. W przeciwnym razie rzuca.
+ *
+ * Predykat `userId` był wcześniej dopisywany ręcznie przy każdym zapytaniu,
+ * trzema różnymi zapisami — i w jednym miejscu został pominięty, co dało
+ * podatność na dostęp do cudzego zamówienia (§1.2 raportu). Jedno miejsce
+ * do audytu zamiast trzech.
+ */
+export async function requireOwnedOrder(
+  orderId: string,
+  options: { pendingOnly?: boolean } = {}
+) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const order = await db.order.findFirst({
+    where: {
+      id: orderId,
+      userId: session.user.id,
+      ...(options.pendingOnly ? { status: "PENDING", isPaid: false } : {}),
+    },
+    include: { items: { include: { product: true } } },
+  });
+
+  if (!order) throw new Error("Order not found or already processed");
+  return order;
 }

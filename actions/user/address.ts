@@ -6,13 +6,15 @@ import { db } from "@/lib/db";
 import { AddressSchema } from "@/schemas";
 import { revalidatePath } from "next/cache";
 import * as z from "zod";
+import { getTranslations } from "next-intl/server";
 
 export async function saveUserAddress(values: z.infer<typeof AddressSchema>) {
+  const t = await getTranslations("errors");
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: t("unauthorized") };
 
   const validated = AddressSchema.safeParse(values);
-  if (!validated.success) return { error: "Nieprawidłowe dane adresowe." };
+  if (!validated.success) return { error: t("invalidAddress") };
 
   try {
     const user = await db.user.findUnique({

@@ -7,6 +7,7 @@ export default defineConfig({
     environment: "node",
     include: ["tests/integration/**/*.test.ts"],
     globalSetup: ["tests/integration/global-setup.ts"],
+    setupFiles: ["tests/integration/setup.ts"],
     // Kontener startuje raz; testy dzielą bazę, więc muszą iść po kolei.
     fileParallelism: false,
     testTimeout: 60_000,

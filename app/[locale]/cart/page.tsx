@@ -18,8 +18,10 @@ import ProductCard from "@/components/cart/product-card";
 import { useRouter } from "next/navigation";
 import { initializeOrder } from "@/actions/order/order";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 const CartPage = () => {
+  const t = useTranslations("cart");
   const {
     items,
     syncItems,
@@ -51,7 +53,7 @@ const CartPage = () => {
       <div className="container mx-auto px-6 py-40 flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 italic">
-          Verifying Stock...
+          {t("verifyingStock")}
         </p>
       </div>
     );
@@ -74,7 +76,7 @@ const CartPage = () => {
       toast.error(res.error);
       setIsPending(false);
     } else {
-      toast.success("Stock Reserved. Redirecting...");
+      toast.success(t("reserved"));
       router.push(`/cart/delivery/${res.orderId}`);
     }
   };
@@ -97,7 +99,7 @@ const CartPage = () => {
           </div>
           <div className="space-y-2">
             <h1 className="text-6xl font-black italic uppercase tracking-tighter">
-              Empty Bag
+              {t("empty")}
             </h1>
           </div>
           <Link
@@ -106,7 +108,7 @@ const CartPage = () => {
           >
             <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
             <span className="relative z-10 font-black uppercase italic tracking-tighter text-xl">
-              Find a Dream
+              {t("findDream")}
             </span>
           </Link>
         </div>
@@ -117,7 +119,7 @@ const CartPage = () => {
   return (
     <div className="container mx-auto px-6 py-20 max-w-7xl">
       <div className="flex justify-between items-end mb-16 border-b pb-10 font-black italic uppercase tracking-tighter">
-        <h1 className="text-7xl">Your Bag</h1>
+        <h1 className="text-7xl">{t("title")}</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
@@ -144,13 +146,13 @@ const CartPage = () => {
         <div className="lg:col-span-4">
           <div className="sticky top-10 p-12 shadow-2xl space-y-10 bg-card rounded-[2rem]">
             <h2 className="text-5xl font-black italic uppercase tracking-tighter leading-tight">
-              Summary
+              {t("summary")}
             </h2>
 
             <div className="space-y-4">
               <div className="flex justify-between items-end border-t  pt-8 mt-8">
                 <span className="text-md font-black uppercase tracking-[0.4em] opacity-40">
-                  Grand Total
+                  {t("grandTotal")}
                 </span>
                 <span className="text-3xl font-black italic tracking-tighter text-primary">
                   <PriceFormatter amount={getTotalPrice()} />
@@ -160,7 +162,7 @@ const CartPage = () => {
 
             {hasErrors && (
               <p className="text-destructive text-[10px] font-black uppercase tracking-widest text-center animate-pulse">
-                Please resolve stock issues before checkout
+                {t("stockProblem")}
               </p>
             )}
 
@@ -169,13 +171,13 @@ const CartPage = () => {
                 htmlFor="coupon"
                 className="block text-[10px] font-black uppercase tracking-[0.3em] opacity-40"
               >
-                Coupon code
+                {t("couponCode")}
               </label>
               <input
                 id="coupon"
                 value={coupon}
                 onChange={(e) => setCoupon(e.target.value.toUpperCase())}
-                placeholder="OPTIONAL"
+                placeholder={t("couponOptional")}
                 autoComplete="off"
                 className="h-14 w-full rounded-full border bg-transparent px-6 text-sm font-black uppercase tracking-widest outline-none transition-colors focus:border-primary"
               />
@@ -195,7 +197,7 @@ const CartPage = () => {
                 <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
               )}
               <div className="relative z-10 flex items-center justify-center gap-4 text-2xl font-black uppercase italic tracking-tighter">
-                <span>{hasErrors ? "Fix Issues" : "Secure Flow"}</span>
+                <span>{hasErrors ? t("fixIssues") : t("checkout")}</span>
                 <ArrowRight className="h-7 w-7 group-hover:translate-x-2 transition-transform" />
               </div>
             </button>

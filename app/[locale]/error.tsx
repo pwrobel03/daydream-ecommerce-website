@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export default function Error({
   error,
@@ -9,6 +10,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("common");
+
   useEffect(() => {
     // Szczegóły zostają na serwerze; klient dostaje wyłącznie digest.
     console.error("Unhandled error", error.digest);
@@ -17,21 +20,21 @@ export default function Error({
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-6 text-center">
       <h2 className="text-3xl font-black uppercase italic tracking-tighter">
-        Something broke
+        {t("somethingBroke")}
       </h2>
       <p className="max-w-md text-sm opacity-60">
-        This one is on us. The error has been logged.
+        {t("errorHelp")}
       </p>
       {error.digest && (
         <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
-          Reference: {error.digest}
+          {t("reference")}: {error.digest}
         </p>
       )}
       <button
         onClick={reset}
         className="rounded-full bg-foreground px-10 py-4 text-sm font-black uppercase italic tracking-widest text-background"
       >
-        Try again
+        {t("tryAgain")}
       </button>
     </div>
   );

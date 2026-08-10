@@ -10,6 +10,7 @@ import { AddressSchema, CheckoutItemsSchema } from "@/schemas";
 import { Prisma } from "@/lib/generated/prisma/client";
 import Stripe from "stripe";
 import * as z from "zod";
+import { getTranslations } from "next-intl/server";
 
 // Jak długo trzymamy towar zarezerwowany dla niedokończonego zamówienia.
 // Wartość z zapasem względem 30-minutowej ważności sesji Stripe.
@@ -19,15 +20,17 @@ export async function initializeOrder(
   items: z.infer<typeof CheckoutItemsSchema>,
   couponCode?: string
 ) {
+  // Komunikat wraca do interfejsu, więc musi być w języku bieżącej trasy.
+  const t = await getTranslations("errors");
   const session = await auth();
 
   if (!session?.user?.id) {
-    return { error: "Musisz być zalogowany, aby kontynuować." };
+    return { error: t("mustBeSignedIn") };
   }
 
   const validated = CheckoutItemsSchema.safeParse(items);
   if (!validated.success) {
-    return { error: "Nieprawidłowa zawartość koszyka." };
+    return { error: t("invalidCart") };
   }
 
   // Scalamy powtórzone pozycje — inaczej ten sam produkt przysłany dwa razy
@@ -48,7 +51,7 @@ export async function initializeOrder(
       });
 
       if (products.length !== quantities.size) {
-        throw new Error("Któryś z produktów nie jest już dostępny.");
+        throw new Error(t("someProductUnavailable"));
       }
 
       let subtotal = new Prisma.Decimal(0);
@@ -65,7 +68,7 @@ export async function initializeOrder(
         });
 
         if (reserved.count !== 1) {
-          throw new Error(`Produkt ${product.name} jest już niedostępny.`);
+          throw new Error(t("productUnavailable", { name: product.name }));
         }
 
         // Cena zawsze z bazy, nigdy z danych przysłanych przez klienta.
@@ -89,7 +92,7 @@ export async function initializeOrder(
         : null;
 
       if (couponCode && !sale) {
-        throw new Error("Ten kupon jest nieprawidłowy lub wygasł.");
+        throw new Error(t("invalidCoupon"));
       }
 
       // Zaokrąglamy do groszy tu, a nie przy tworzeniu sesji Stripe — dzięki
@@ -120,7 +123,7 @@ export async function initializeOrder(
 
     return { success: true, orderId };
   } catch (error) {
-    return { error: errorMessage(error, "Coś poszło nie tak podczas rezerwacji.") };
+    return { error: errorMessage(error, t("reservationFailed")) };
   }
 }
 
@@ -130,12 +133,13 @@ export async function finalizeAndPay(
   orderId: string,
   addressData: z.infer<typeof AddressSchema>
 ) {
+  const t = await getTranslations("errors");
   const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+  if (!session?.user?.id) return { error: t("unauthorized") };
 
   const validatedAddress = AddressSchema.safeParse(addressData);
   if (!validatedAddress.success) {
-    return { url: null, error: "Nieprawidłowe dane adresowe." };
+    return { url: null, error: t("invalidAddress") };
   }
 
   try {

@@ -34,3 +34,31 @@ test.describe("localisation", () => {
     }
   });
 });
+
+test.describe("translated content", () => {
+  test("the search page renders in the language of its URL", async ({ page }) => {
+    await page.goto("/search?q=zzzzqqq");
+    await expect(page.getByText(/nothing matches/i).first()).toBeVisible();
+
+    await page.goto("/pl/search?q=zzzzqqq");
+    await expect(page.getByText(/nic nie pasuje/i).first()).toBeVisible();
+  });
+
+  test("Polish uses the right plural form", async ({ request }) => {
+    // ICU rozróżnia one/few/many — angielskie `count === 1 ? ... : ...`
+    // dałoby "1 wyniki".
+    const response = await request.get("/pl/search?q=Test");
+    const html = await response.text();
+
+    expect(html).toMatch(/1 wynik(?!i|ów)/);
+  });
+
+  test("the language switcher moves between locales on the same page", async ({ page }) => {
+    await page.goto("/search?q=bar");
+
+    await page.getByRole("group", { name: /language|język/i }).getByText("pl").click();
+    await page.waitForURL(/\/pl\/search/);
+
+    expect(new URL(page.url()).searchParams.get("q")).toBe("bar");
+  });
+});

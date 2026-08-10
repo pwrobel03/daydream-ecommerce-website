@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import * as z from "zod";
 import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -47,6 +49,7 @@ export default function AddReviewForm({
   onSuccess,
   onCancel,
 }: AddReviewFormProps) {
+  const t = useTranslations("errors");
   const [isPending, startTransition] = useTransition();
   const [hoverRating, setHoverRating] = useState(0);
 
@@ -109,7 +112,7 @@ export default function AddReviewForm({
           });
         }
       } else {
-        toast.error(result.error || "Coś poszło nie tak");
+        toast.error(result.error || t("generic"));
       }
     });
   };

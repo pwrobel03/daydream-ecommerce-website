@@ -5,8 +5,9 @@ import { cn } from "@/lib/utils";
 import { Image as ImageIcon, Package } from "lucide-react";
 import PriceFormatter from "@/components/PriceFormatter";
 import Link from "next/link";
+import type { OrderItemType } from "@/types/order";
 
-export const OrderItemCard = ({ item }: { item: any }) => {
+export const OrderItemCard = ({ item }: { item: OrderItemType }) => {
   return (
     <div className="group relative flex flex-row items-center gap-4 p-4 md:gap-8 md:p-6 rounded-[1.5rem] border bg-card/60 transition-all hover:border-black/20">
       {/* Image */}
@@ -38,7 +39,7 @@ export const OrderItemCard = ({ item }: { item: any }) => {
               QTY: {item.quantity}
             </span>
             <span className="text-sm font-bold opacity-40">
-              <PriceFormatter amount={item.price} /> / unit
+              <PriceFormatter amount={Number(item.price)} /> / unit
             </span>
           </div>
         </div>

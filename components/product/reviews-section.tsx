@@ -61,7 +61,7 @@ export default function ReviewsSection({
     setLoading(false);
   };
 
-  const handleAddOptimisticReview = (newReview: any) => {
+  const handleAddOptimisticReview = (newReview: Review) => {
     setCurrentUserReview(newReview);
   };
 

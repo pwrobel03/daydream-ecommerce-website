@@ -6,9 +6,10 @@ import { Trash2, Star, Search, Plus, Loader2, FilterX } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import type { VoiceType } from "@/types/product";
 
 export default function AdminCommentsPage() {
-  const [voices, setVoices] = useState<any[]>([]);
+  const [voices, setVoices] = useState<VoiceType[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);

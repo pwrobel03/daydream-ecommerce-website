@@ -20,8 +20,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Loader2 } from "lucide-react";
+import type { AddressType } from "@/types/order";
 
-export function AddressForm({ initialData }: { initialData: any }) {
+export function AddressForm({
+  initialData,
+}: {
+  initialData: AddressType | null;
+}) {
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof AddressSchema>>({

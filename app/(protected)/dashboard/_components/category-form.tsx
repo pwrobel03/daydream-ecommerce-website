@@ -26,17 +26,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type { Category } from "@/types/product";
+import * as z from "zod";
+
+type CategoryFormInput = z.input<typeof categorySchema>;
+type CategoryFormValues = z.output<typeof categorySchema>;
 
 export function CategoryForm({
   parentCategories,
 }: {
-  parentCategories: any[];
+  parentCategories: Category[];
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm({
+  // categorySchema używa .default() dla isSubcategory, więc typ wejściowy
+  // różni się od wyjściowego — stąd oba parametry generyczne.
+  const form = useForm<CategoryFormInput, unknown, CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: "",
@@ -48,7 +55,7 @@ export function CategoryForm({
 
   const isSub = form.watch("isSubcategory");
 
-  async function onSubmit(values: any) {
+  async function onSubmit(values: CategoryFormValues) {
     setLoading(true);
 
     try {

@@ -35,7 +35,7 @@ interface AddReviewFormProps {
   productSlug: string; // Dodane dla rewalidacji w akcji update
   user: UserType;
   initialData?: Review | null; // Dane do edycji
-  onSuccess: (review: any) => void;
+  onSuccess: (review: Review) => void;
   onCancel?: () => void; // Funkcja do wyjścia z trybu edycji
 }
 

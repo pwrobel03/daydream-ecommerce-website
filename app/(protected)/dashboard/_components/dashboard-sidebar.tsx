@@ -15,6 +15,7 @@ import {
   Cctv,
   Van,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function DashboardSidebar() {
@@ -99,7 +100,15 @@ export default function DashboardSidebar() {
 }
 
 // Pomocniczy komponent dla linku, aby nie powtarzać stylów
-function SidebarItem({ item, isActive, isAdmin = false }: any) {
+function SidebarItem({
+  item,
+  isActive,
+  isAdmin = false,
+}: {
+  item: { href: string; title: string; icon: LucideIcon };
+  isActive: boolean;
+  isAdmin?: boolean;
+}) {
   return (
     <Link
       href={item.href}

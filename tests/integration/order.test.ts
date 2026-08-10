@@ -1,14 +1,15 @@
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@/lib/generated/prisma/client";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Sesja jest jedyną rzeczą, którą podmieniamy — baza jest prawdziwa.
 // Fabryka musi być asynchroniczna: vi.hoisted wykonuje się przed importami,
 // więc klienta Prismy trzeba wciągnąć dynamicznie w jej środku.
 const { session, db } = await vi.hoisted(async () => {
-  const { PrismaClient } = await import("@prisma/client");
+  const { PrismaClient } = await import("@/lib/generated/prisma/client");
+  const { PrismaPg } = await import("@prisma/adapter-pg");
   return {
     session: { user: { id: "", role: "USER" as const } },
-    db: new PrismaClient() as PrismaClient,
+    db: new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) }) as unknown as PrismaClient,
   };
 });
 

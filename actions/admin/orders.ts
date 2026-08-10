@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/lib/generated/prisma/client";
 
 /**
  * Pobiera zamówienia dla panelu admina z uwzględnieniem globalnego szukania i stronnicowania.

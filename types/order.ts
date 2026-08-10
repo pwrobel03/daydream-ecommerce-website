@@ -1,5 +1,5 @@
 // types/order.ts
-import type { OrderStatus } from "@prisma/client";
+import type { OrderStatus } from "@/lib/generated/prisma/client";
 import type { ProductImage } from "./product";
 
 export interface AddressType {

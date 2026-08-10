@@ -7,7 +7,7 @@ import { env } from "@/lib/env";
 import { errorMessage } from "@/lib/action-result";
 import { reportError } from "@/lib/logger";
 import { AddressSchema, CheckoutItemsSchema } from "@/schemas";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/lib/generated/prisma/client";
 import Stripe from "stripe";
 import * as z from "zod";
 

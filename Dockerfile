@@ -10,12 +10,8 @@ RUN npm ci
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Prisma bez openssl na Alpine nie wykrywa wersji libssl i zgaduje binarkę silnika.
-RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-RUN npx prisma generate
 
 # lib/env.ts waliduje konfigurację przy imporcie, a `next build` importuje kod
 # aplikacji. Wartości poniżej istnieją wyłącznie po to, żeby build przeszedł —
@@ -35,20 +31,25 @@ ENV DATABASE_URL="postgresql://build:build@localhost:5432/build" \
     NEXT_PUBLIC_APP_URL="http://localhost:3000" \
     NEXT_TELEMETRY_DISABLED=1
 
+# Prisma 7 wczytuje prisma.config.ts przy `generate`, a ten czyta DATABASE_URL —
+# dlatego generowanie musi nastąpić po ustawieniu zmiennych powyżej.
+RUN npx prisma generate
+
 RUN npm run build
 
-# Seed jest w TypeScripcie, a warstwa runtime nie ma czym go uruchomić —
-# kompilujemy go tutaj, żeby kontener mógł wypełnić bazę przy pierwszym starcie.
-RUN npx tsc prisma/seed.ts prisma/data/*.ts \
-      --outDir /app/seed-dist --rootDir prisma \
-      --module commonjs --target es2020 \
-      --esModuleInterop --skipLibCheck --resolveJsonModule
+# --- Migrator ---------------------------------------------------------------
+# Osobny obraz z pełnym node_modules. CLI Prismy 7 ładuje prisma.config.ts,
+# który ciągnie własne zależności — trzymanie tego w obrazie produkcyjnym
+# oznaczałoby wożenie całego drzewa zależności deweloperskich.
+FROM builder AS migrator
+WORKDIR /app
+COPY docker/migrate.sh ./migrate.sh
+RUN chmod +x ./migrate.sh
+CMD ["./migrate.sh"]
 
 # --- Runtime ----------------------------------------------------------------
 FROM node:20-alpine AS runner
 WORKDIR /app
-
-RUN apk add --no-cache openssl
 
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
 
@@ -60,16 +61,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Prisma CLI i schemat są potrzebne, żeby kontener sam wykonał `migrate deploy`.
-# Kopiujemy pakiet, nie shim z .bin — shim szuka swoich plików .wasm
-# względem własnej ścieżki i po przeniesieniu ich nie znajduje.
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=nextjs:nodejs /app/seed-dist ./seed-dist
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
-
-COPY --chown=nextjs:nodejs docker/entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
+COPY --from=builder --chown=nextjs:nodejs /app/lib/generated ./lib/generated
 
 # Katalog uploadu jest montowany jako wolumen; tworzymy go z właściwym właścicielem,
 # żeby proces bez roota mógł do niego pisać.
@@ -79,5 +73,4 @@ USER nextjs
 EXPOSE 3000
 ENV PORT=3000 HOSTNAME=0.0.0.0
 
-ENTRYPOINT ["./entrypoint.sh"]
 CMD ["node", "server.js"]

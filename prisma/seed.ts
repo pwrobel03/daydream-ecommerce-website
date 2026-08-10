@@ -1,6 +1,7 @@
 // prisma/seed.ts
 
-import { PrismaClient, OrderStatus } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient, OrderStatus } from "../lib/generated/prisma/client";
 import bcrypt from "bcrypt";
 
 import { users } from "./data/users";
@@ -10,7 +11,7 @@ import { ingredients } from "./data/ingredients";
 import { products } from "./data/products";
 import { reviewTemplates } from "./data/reviews";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 
 async function main() {
   console.log("🧹 System Purge: Cleaning Nexus Database...");

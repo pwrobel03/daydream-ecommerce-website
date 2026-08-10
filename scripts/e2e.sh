@@ -10,6 +10,6 @@ trap cleanup EXIT
 docker compose -f docker-compose.test.yml up -d --wait
 
 npx prisma migrate deploy
-npx ts-node --compiler-options '{"module":"CommonJS"}' tests/e2e/seed.ts
+npx tsx tests/e2e/seed.ts
 
 npx playwright test "$@"

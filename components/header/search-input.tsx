@@ -1,10 +1,13 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useState } from "react";
 
 export function SearchInput() {
+  const t = useTranslations("nav");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [value, setValue] = useState(searchParams.get("q") ?? "");
@@ -21,7 +24,7 @@ export function SearchInput() {
   return (
     <form onSubmit={onSubmit} className="relative hidden md:block" role="search">
       <label htmlFor="site-search" className="sr-only">
-        Search products
+        {t("searchLabel")}
       </label>
       <Search
         aria-hidden="true"
@@ -32,7 +35,7 @@ export function SearchInput() {
         type="search"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="SEARCH"
+        placeholder={t("searchPlaceholder")}
         className="h-11 w-48 rounded-full border bg-transparent pl-11 pr-4 text-[10px] font-black uppercase tracking-widest outline-none transition-all focus:w-64 focus:border-primary"
       />
     </form>

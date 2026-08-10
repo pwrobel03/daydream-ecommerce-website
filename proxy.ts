@@ -1,52 +1,67 @@
 // proxy.ts — następca middleware.ts w Next.js 16.
-import authConfig from "./auth.config";
-import NextAuth from "next-auth";
+import createIntlMiddleware from "next-intl/middleware";
+import { NextResponse, type NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
+import { routing } from "@/i18n/routing";
+import { env } from "@/lib/env";
 import {
   DEFAULT_LOGIN_REDIRECT,
   apiAuthPrefix,
   authRoutes,
   publicRoutes,
-} from "@/routes"
+} from "@/routes";
 
-const { auth } = NextAuth(authConfig)
+const intlMiddleware = createIntlMiddleware(routing);
 
-export default auth((req) => {
-  const { nextUrl } = req
-  const isLoggedIn = !!req.auth
+/** Ścieżka bez prefiksu języka — reguły dostępu operują na jednej postaci. */
+function stripLocale(pathname: string): string {
+  for (const locale of routing.locales) {
+    if (pathname === `/${locale}`) return "/";
+    if (pathname.startsWith(`/${locale}/`)) return pathname.slice(locale.length + 1);
+  }
+  return pathname;
+}
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix)
-  
-  // Poprawiona logika dla tras dynamicznych (/category/..., /product/...)
-  const isPublicRoute = publicRoutes.some((route) => {
-    if (route === "/") {
-      return nextUrl.pathname === "/"
-    }
-    return nextUrl.pathname.startsWith(route)
-  })
+/**
+ * Kolejność jest istotna: najpierw decyzja o dostępie, potem warstwa językowa.
+ *
+ * Opakowanie `auth()` z Auth.js nie nadaje się tutaj — przechwytuje odpowiedź
+ * next-intl i zamienia jej wewnętrzne przepisanie ścieżki na przekierowanie,
+ * przez co "/" przekierowywało samo na siebie w nieskończoność. Sesję czytamy
+ * więc bezpośrednio z tokena, a odpowiedź next-intl zwracamy nietkniętą.
+ */
+export default async function proxy(req: NextRequest) {
+  const path = stripLocale(req.nextUrl.pathname);
 
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname)
+  if (path.startsWith(apiAuthPrefix)) return NextResponse.next();
 
-  if (isApiAuthRoute) {
-    return null
+  const isPublicRoute = publicRoutes.some((route) =>
+    route === "/" ? path === "/" : path.startsWith(route)
+  );
+  const isAuthRoute = authRoutes.includes(path);
+
+  const token = await getToken({
+    req,
+    secret: env.AUTH_SECRET,
+    secureCookie: req.nextUrl.protocol === "https:",
+  });
+  const isLoggedIn = !!token;
+
+  if (isAuthRoute && isLoggedIn) {
+    return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, req.nextUrl));
   }
 
-  if (isAuthRoute) {
-    if (isLoggedIn) {
-      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
-    }
-    return null
+  if (!isAuthRoute && !isPublicRoute && !isLoggedIn) {
+    return NextResponse.redirect(new URL("/auth/login", req.nextUrl));
   }
 
-  // Jeśli użytkownik nie jest zalogowany i trasa nie jest publiczna -> login
-  if (!isLoggedIn && !isPublicRoute) {
-    return Response.redirect(new URL("/auth/login", nextUrl))
-  }
-
-  return null
-})
+  return intlMiddleware(req);
+}
 
 export const config = {
-  // Wyklucza pliki statyczne (obrazy, pdf, itp.) oraz foldery systemowe Next.js
-  // Middleware nie uruchomi się dla zdjęć, to oszczędza serwer
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
-}
+  // Wyklucza pliki statyczne, wewnętrzne trasy Next oraz endpointy maszynowe,
+  // które nie mają wersji językowych (webhook, health, cron, sitemap, uploady).
+  matcher: [
+    "/((?!api|_next|_vercel|uploads|sitemap.xml|robots.txt|opengraph-image|.*\\..*).*)",
+  ],
+};

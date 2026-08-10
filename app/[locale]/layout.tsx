@@ -1,3 +1,7 @@
+import { NextIntlClientProvider, hasLocale } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
+import { routing } from "@/i18n/routing";
 import { Suspense } from "react";
 import { HeaderSkeleton } from "@/components/skeletons";
 import type { Metadata } from "next";
@@ -5,7 +9,7 @@ import { env } from "@/lib/env";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/sonner";
-import "./globals.css";
+import "../globals.css";
 import Header from "@/components/header/Header";
 import { ThemeProvider } from "@/components/header/theme-provider"; // importuj swój nowy provider
 import Footer from "@/components/Footer";
@@ -52,18 +56,35 @@ export const metadata: Metadata = {
 // w aplikacji — nie da się mieć naraz statycznej powłoki i sesji renderowanej
 // serwerowo na szczycie drzewa. Kosztem jest krótki błysk stanu niezalogowanego
 // w przycisku konta przy pierwszym malowaniu.
-export default function RootLayout({
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export default async function RootLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+
+  // Nieznana lokalizacja w URL-u to 404, a nie ciche wpadnięcie na domyślną.
+  if (!hasLocale(routing.locales, locale)) notFound();
+
+  // Oznacza lokalizację jako statyczną dla tego renderu. Bez tego każde
+  // odwołanie do tłumaczeń liczy się jako dane żądania i blokuje
+  // prerenderowanie całej trasy przy włączonym cacheComponents.
+  setRequestLocale(locale);
+
   return (
     <SessionProvider>
-      <html lang="en" suppressHydrationWarning data-scrool-behavior="smooth">
+      <html lang={locale} suppressHydrationWarning data-scrool-behavior="smooth">
         {/* Dodajemy min-h-screen do body, aby tło zawsze wypełniało ekran */}
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         >
+          <NextIntlClientProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
@@ -78,6 +99,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
             <Footer />
           </ThemeProvider>
+          </NextIntlClientProvider>
         </body>
       </html>
     </SessionProvider>

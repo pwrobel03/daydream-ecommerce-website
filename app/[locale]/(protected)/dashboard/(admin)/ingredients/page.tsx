@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-import { DeleteIngredientButton } from "@/app/(protected)/dashboard/_components/delete-ingredient-button";
+import { DeleteIngredientButton } from "@/app/[locale]/(protected)/dashboard/_components/delete-ingredient-button";
 
 async function IngredientsListPageContent() {
   const ingredients = await db.ingredient.findMany({

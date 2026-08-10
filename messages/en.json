@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "search": "Search",
+    "searchPlaceholder": "SEARCH",
+    "searchLabel": "Search products",
+    "cart": "Cart",
+    "account": "Account",
+    "language": "Language"
+  },
+  "common": {
+    "loading": "Loading",
+    "tryAgain": "Try again",
+    "somethingBroke": "Something broke",
+    "errorHelp": "This one is on us. The error has been logged.",
+    "reference": "Reference"
+  },
+  "search": {
+    "title": "Search",
+    "tooShort": "Type at least two characters.",
+    "noMatches": "Nothing matches \"{query}\"",
+    "browseInstead": "Browse everything instead",
+    "results": "{count, plural, one {# result} other {# results}} for \"{query}\"",
+    "soldOut": "Sold out"
+  },
+  "cart": {
+    "title": "Your Bag",
+    "summary": "Summary",
+    "grandTotal": "Grand Total",
+    "couponCode": "Coupon code",
+    "couponOptional": "OPTIONAL",
+    "checkout": "Secure Flow",
+    "fixIssues": "Fix Issues",
+    "stockProblem": "Please resolve stock issues before checkout",
+    "empty": "Empty Bag",
+    "findDream": "Find a Dream",
+    "verifyingStock": "Verifying Stock...",
+    "reserved": "Stock Reserved. Redirecting..."
+  },
+  "errors": {
+    "mustBeSignedIn": "You must be signed in to continue.",
+    "invalidCart": "Your cart contains invalid items.",
+    "productUnavailable": "{name} is no longer available.",
+    "someProductUnavailable": "One of the products is no longer available.",
+    "invalidCoupon": "This coupon is invalid or has expired.",
+    "reservationFailed": "Something went wrong while reserving your items.",
+    "invalidAddress": "The delivery details are invalid.",
+    "unauthorized": "Unauthorized",
+    "generic": "Something went wrong"
+  }
+}

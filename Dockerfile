@@ -1,13 +1,19 @@
 # syntax=docker/dockerfile:1
 
 # --- Zależności -------------------------------------------------------------
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 WORKDIR /app
+
+# Wersja npm musi zgadzać się z tą, która wygenerowała package-lock.json.
+# npm 10 i 11 rozwiązują drzewo zależności inaczej, więc lockfile spójny
+# lokalnie potrafi wywalić `npm ci` w obrazie na brakujących pakietach.
+RUN npm install -g npm@11
+
 COPY package.json package-lock.json ./
 RUN npm ci
 
 # --- Build ------------------------------------------------------------------
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
@@ -47,7 +53,7 @@ RUN chmod +x ./migrate.sh
 CMD ["./migrate.sh"]
 
 # --- Runtime ----------------------------------------------------------------
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1

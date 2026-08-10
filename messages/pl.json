@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "search": "Szukaj",
+    "searchPlaceholder": "SZUKAJ",
+    "searchLabel": "Szukaj produktów",
+    "cart": "Koszyk",
+    "account": "Konto",
+    "language": "Język"
+  },
+  "common": {
+    "loading": "Ładowanie",
+    "tryAgain": "Spróbuj ponownie",
+    "somethingBroke": "Coś się zepsuło",
+    "errorHelp": "To nasza wina. Błąd został zapisany.",
+    "reference": "Numer referencyjny"
+  },
+  "search": {
+    "title": "Szukaj",
+    "tooShort": "Wpisz co najmniej dwa znaki.",
+    "noMatches": "Nic nie pasuje do \"{query}\"",
+    "browseInstead": "Przejrzyj cały katalog",
+    "results": "{count, plural, one {# wynik} few {# wyniki} many {# wyników} other {# wyniku}} dla \"{query}\"",
+    "soldOut": "Wyprzedane"
+  },
+  "cart": {
+    "title": "Twój koszyk",
+    "summary": "Podsumowanie",
+    "grandTotal": "Razem",
+    "couponCode": "Kod rabatowy",
+    "couponOptional": "OPCJONALNY",
+    "checkout": "Do kasy",
+    "fixIssues": "Popraw koszyk",
+    "stockProblem": "Rozwiąż problemy ze stanem magazynowym przed zakupem",
+    "empty": "Pusty koszyk",
+    "findDream": "Znajdź coś dla siebie",
+    "verifyingStock": "Sprawdzam dostępność...",
+    "reserved": "Towar zarezerwowany. Przekierowuję..."
+  },
+  "errors": {
+    "mustBeSignedIn": "Musisz być zalogowany, aby kontynuować.",
+    "invalidCart": "Koszyk zawiera nieprawidłowe pozycje.",
+    "productUnavailable": "{name} nie jest już dostępny.",
+    "someProductUnavailable": "Któryś z produktów nie jest już dostępny.",
+    "invalidCoupon": "Ten kupon jest nieprawidłowy lub wygasł.",
+    "reservationFailed": "Coś poszło nie tak podczas rezerwacji.",
+    "invalidAddress": "Dane adresowe są nieprawidłowe.",
+    "unauthorized": "Brak uprawnień",
+    "generic": "Coś poszło nie tak"
+  }
+}

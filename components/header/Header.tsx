@@ -12,6 +12,7 @@ import { db } from "@/lib/db";
 import { CartCounter } from "../CartCounter";
 import { UserButton } from "../auth/user-button";
 import { SearchInput } from "./search-input";
+import { LanguageSwitcher } from "./language-switcher";
 
 async function getNavCategories() {
   return db.category.findMany({
@@ -62,6 +63,7 @@ const Header = async () => {
           </Link>
 
           <SearchInput />
+          <LanguageSwitcher />
           <UserButton />
 
           <div className="lg:hidden">

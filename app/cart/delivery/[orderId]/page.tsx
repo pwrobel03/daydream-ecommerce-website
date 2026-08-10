@@ -36,6 +36,7 @@ async function DeliveryPageContent({
   const orderForClient = {
     ...order,
     totalAmount: Number(order.totalAmount),
+    discountAmount: Number(order.discountAmount),
     items: order.items.map((item) => ({
       ...item,
       price: Number(item.price),

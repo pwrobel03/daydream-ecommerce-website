@@ -30,6 +30,7 @@ export interface OrderItemType {
 export interface OrderType {
   id: string;
   totalAmount: number | string;
+  discountAmount?: number | string;
   status: OrderStatus;
   isPaid: boolean;
   createdAt: Date | string;

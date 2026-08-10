@@ -38,6 +38,7 @@ async function OrdersPageContent() {
   const serializedOrders = orders.map((order) => ({
     ...order,
     totalAmount: Number(order.totalAmount), // Konwersja Decimal -> Number
+    discountAmount: Number(order.discountAmount),
     createdAt: order.createdAt.toISOString(), // Konwersja Date -> String (bezpieczniejsze)
     updatedAt: order.updatedAt.toISOString(),
     items: order.items.map((item) => ({

@@ -25,9 +25,10 @@ env:
   AUTH_GITHUB_SECRET: ci
   STRIPE_SECRET_KEY: sk_test_ci
   STRIPE_WEBHOOK_SECRET: whsec_ci
-  RESEND_API_KEY: re_ci
-  MAILING_ACCOUNT: ci@example.com
-  MAILING_ACCOUNT_PROVIDER: onboarding@resend.dev
+  SMTP_HOST: localhost
+  SMTP_PORT: "1025"
+  SMTP_SECURE: "false"
+  MAIL_FROM: Daydream <ci@example.com>
   CRON_SECRET: ci-cron-secret-value
   NEXT_PUBLIC_APP_URL: http://localhost:3000
 

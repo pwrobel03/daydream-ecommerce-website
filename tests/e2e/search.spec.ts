@@ -28,7 +28,7 @@ test.describe("product search", () => {
   test("reports no matches without breaking the page", async ({ page }) => {
     await page.goto("/search?q=zzzzqqqq");
 
-    await expect(page.getByText(/nothing matches/i)).toBeVisible();
+    await expect(page.getByText(/nothing matches/i).first()).toBeVisible();
   });
 
   test("is reachable without a session", async ({ request }) => {

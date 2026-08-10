@@ -69,7 +69,7 @@ da się jej obejść, a proces płatności rezerwuje towar przed obciążeniem k
 | **Baza**       | PostgreSQL, Prisma ORM                                |
 | **Autoryzacja**| Auth.js v5, bcrypt, kontrola tras w proxy.ts        |
 | **Płatności**  | Stripe (Checkout i webhooki)                          |
-| **E-mail**     | Resend                                                |
+| **E-mail**     | Nodemailer (SMTP), szablony React Email               |
 | **Stylowanie** | Tailwind CSS v4, shadcn/ui, Radix UI, tw-animate-css  |
 | **Stan**       | Zustand                                               |
 | **Walidacja**  | Zod                                                   |
@@ -139,8 +139,9 @@ i całego panelu administratora. Dwie rzeczy wymagają prawdziwych danych:
 
 - **Stripe** — zakup dochodzi do kroku płatności i tam się zatrzymuje. Uzupełnij
   `STRIPE_SECRET_KEY` i `STRIPE_WEBHOOK_SECRET`, żeby przejść dalej.
-- **Resend** — rejestracja nie wyśle maila weryfikacyjnego. Konta z seeda są już
-  zweryfikowane, więc logowanie działa niezależnie.
+Poczta **działa od razu** — compose podnosi Mailpit, lokalny serwer SMTP.
+Wysłane wiadomości obejrzysz pod [http://localhost:8025](http://localhost:8025),
+łącznie z linkiem weryfikacyjnym z rejestracji.
 
 ### Stan zdrowia i zatrzymanie
 

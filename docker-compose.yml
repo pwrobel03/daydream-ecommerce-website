@@ -38,6 +38,20 @@ services:
       timeout: 5s
       retries: 10
 
+  # Lokalny serwer SMTP z interfejsem webowym. Dzięki niemu ktoś, kto uruchamia
+  # projekt po raz pierwszy, przechodzi pełną rejestrację i widzi wysłane maile
+  # pod http://localhost:8025 — bez konta w jakiejkolwiek usłudze pocztowej.
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   # Migracje i seed wykonują się raz, przed startem aplikacji — nie w każdej
   # replice przy każdym restarcie. Obraz produkcyjny nie musi przez to wozić
   # CLI Prismy ani jego zależności.
@@ -65,6 +79,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      mailpit:
+        condition: service_healthy
       migrate:
         condition: service_completed_successfully
     env_file:
@@ -72,6 +88,8 @@ services:
     environment:
       DATABASE_URL: postgresql://daydream:daydream@postgres:5432/daydream
       REDIS_URL: redis://redis:6379
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
       # Katalog uploadu leży na wolumenie, poza obrazem — bez tego wgrane
       # zdjęcia znikałyby przy każdym odtworzeniu kontenera.
       UPLOAD_DIR: /data/uploads

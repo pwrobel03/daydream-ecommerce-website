@@ -24,9 +24,8 @@ ENV DATABASE_URL="postgresql://build:build@localhost:5432/build" \
     AUTH_GITHUB_ID="build" AUTH_GITHUB_SECRET="build" \
     STRIPE_SECRET_KEY="sk_test_build" \
     STRIPE_WEBHOOK_SECRET="whsec_build" \
-    RESEND_API_KEY="re_build" \
-    MAILING_ACCOUNT="build@example.com" \
-    MAILING_ACCOUNT_PROVIDER="onboarding@resend.dev" \
+    SMTP_HOST="localhost" SMTP_PORT="1025" SMTP_SECURE="false" \
+    MAIL_FROM="Daydream <build@example.com>" \
     CRON_SECRET="build-time-cron-placeholder" \
     NEXT_PUBLIC_APP_URL="http://localhost:3000" \
     NEXT_TELEMETRY_DISABLED=1

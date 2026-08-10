@@ -66,7 +66,7 @@ bypassed, and the payment flow reserves stock before charging.
 | **Database**   | PostgreSQL, Prisma ORM                               |
 | **Auth**       | Auth.js v5, bcrypt, proxy-based route gating    |
 | **Payments**   | Stripe (Checkout & webhooks)                         |
-| **Email**      | Resend                                               |
+| **Email**      | Nodemailer (SMTP), React Email templates             |
 | **Styling**    | Tailwind CSS v4, shadcn/ui, Radix UI, tw-animate-css |
 | **State**      | Zustand                                              |
 | **Validation** | Zod                                                  |
@@ -136,8 +136,9 @@ cart, reviews and the whole admin panel. Two things need real credentials:
 
 - **Stripe** — checkout reaches the payment step and fails there without a test
   key. Add `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` to go further.
-- **Resend** — registration cannot send its verification email. The seeded
-  accounts are already verified, so signing in works regardless.
+Email **works out of the box**: compose starts Mailpit, a local SMTP server.
+Read what the app sent at [http://localhost:8025](http://localhost:8025),
+including the verification link from a fresh registration.
 
 ### Health and teardown
 

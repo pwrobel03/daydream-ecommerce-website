@@ -2,9 +2,7 @@ import { Header } from "./header";
 import { BackButton } from "./back-button";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 
-interface ErrorCardProps {}
-
-export const ErrorCard = ({}: ErrorCardProps) => {
+export const ErrorCard = () => {
   return (
     <Card className="w-100 shadow-md">
       <CardHeader>

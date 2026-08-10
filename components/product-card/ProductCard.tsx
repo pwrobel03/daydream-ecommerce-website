@@ -120,8 +120,8 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
               Price Registry
             </span>
             <PriceView
-              price={product.price}
-              discount={product.promoPrice ?? undefined}
+              price={Number(product.price)}
+              discount={product.promoPrice != null ? Number(product.promoPrice) : undefined}
               className="text-3xl font-black italic tracking-tighter leading-none"
             />
           </div>

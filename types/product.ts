@@ -43,8 +43,11 @@ export interface ProductType {
   name: string;
   slug: string;
   description?: string | null;
-  price: any; // Decimal z Prisma traktowany jako liczba/string
-  promoPrice?: any | null;
+  // Prisma zwraca Decimal. Część ścieżek konwertuje go na `number` mapperem,
+  // część przepuszcza przez JSON.parse(JSON.stringify(...)), co daje `string`.
+  // Unia opisuje stan faktyczny; ujednolicenie wymaga warstwy DTO (§2.6 raportu).
+  price: number | string;
+  promoPrice?: number | string | null;
   weight?: string | null;
   stock: number;
   statusId?: string | null;
@@ -58,4 +61,12 @@ export interface ProductType {
   
   createdAt: Date;
   updatedAt: Date;
+}
+/** Kształt zwracany przez `getFreshCartData` — odświeżone ceny i stan magazynowy. */
+export interface CartSyncProduct {
+  id: string;
+  name: string;
+  price: number;
+  promoPrice: number | null;
+  stock: number;
 }

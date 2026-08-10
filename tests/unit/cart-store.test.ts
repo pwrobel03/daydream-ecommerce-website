@@ -115,7 +115,7 @@ describe("cart store", () => {
   describe("syncItems", () => {
     it("overwrites price and stock with the values fetched from the server", () => {
       useCartStore.getState().addItem(product({ id: "a", price: 10, stock: 5 }));
-      useCartStore.getState().syncItems([{ id: "a", price: 12, promoPrice: null, stock: 2 }]);
+      useCartStore.getState().syncItems([{ id: "a", name: "Product a", price: 12, promoPrice: null, stock: 2 }]);
 
       const item = useCartStore.getState().items[0];
       expect(item.product.price).toBe(12);
@@ -125,7 +125,7 @@ describe("cart store", () => {
 
     it("leaves products absent from the server response alone", () => {
       useCartStore.getState().addItem(product({ id: "a", price: 10 }));
-      useCartStore.getState().syncItems([{ id: "other", price: 99, promoPrice: null, stock: 1 }]);
+      useCartStore.getState().syncItems([{ id: "other", name: "Product other", price: 99, promoPrice: null, stock: 1 }]);
 
       expect(useCartStore.getState().items[0].product.price).toBe(10);
     });
@@ -134,7 +134,7 @@ describe("cart store", () => {
       const a = product({ id: "a", price: 10 });
       useCartStore.getState().addItem(a);
       useCartStore.getState().addItem(a);
-      useCartStore.getState().syncItems([{ id: "a", price: 20, promoPrice: null, stock: 9 }]);
+      useCartStore.getState().syncItems([{ id: "a", name: "Product a", price: 20, promoPrice: null, stock: 9 }]);
 
       expect(useCartStore.getState().items[0].quantity).toBe(2);
       expect(useCartStore.getState().getTotalPrice()).toBe(40);

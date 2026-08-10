@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
+import { errorMessage } from "@/lib/action-result";
 import { releaseOrderReservation } from "@/lib/orders";
 import { reportError, logger } from "@/lib/logger";
 
@@ -27,9 +28,9 @@ export async function POST(req: Request) {
       signature,
       env.STRIPE_WEBHOOK_SECRET
     );
-  } catch (error: any) {
+  } catch (error) {
     reportError(error, { area: "webhook.signature" });
-    return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
+    return new NextResponse(`Webhook Error: ${errorMessage(error, "invalid signature")}`, { status: 400 });
   }
 
   if (!HANDLED_EVENTS.includes(event.type)) {

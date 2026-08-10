@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
+import { errorMessage } from "@/lib/action-result";
 import { ProductUpsertSchema } from "@/schemas";
 import { deleteUpload, saveUpload } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
@@ -207,8 +208,8 @@ export async function upsertProduct(id: string, formData: FormData) {
     revalidatePath("/dashboard/inventory");
     return { success: isNew ? "Artifact Forged" : "Essence Updated", id: productId };
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("UPSERT_ERROR:", error);
-    return { error: error.message || "Unexpected error" };
+    return { error: errorMessage(error, "Unexpected error") };
   }
 }

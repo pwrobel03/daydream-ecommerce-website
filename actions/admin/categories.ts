@@ -49,7 +49,7 @@ export async function createCategory(formData: FormData) {
     revalidatePath("/dashboard/categories");
     return { success: "Category forged successfully!" };
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("CRITICAL_SERVER_ERROR:", error);
     // Zwracamy obiekt błędu zamiast rzucać wyjątek, by klient nie utknął
     return { error: "A server glitch occurred. Please try again later." };

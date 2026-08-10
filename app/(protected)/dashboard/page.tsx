@@ -47,7 +47,7 @@ export default async function DashboardPage() {
         </h1>
         <div className="border-l-4 pl-8 py-2">
           <p className="text-xl md:text-2xl font-bold italic tracking-tight text-balance leading-relaxed">
-            We're glad you vistited! In your account settings, you can check
+            We&apos;re glad you visited! In your account settings, you can check
             your
             <span className="text-primary"> recent orders </span>, manage
             <span className="text-primary"> addresses</span> and change your{" "}

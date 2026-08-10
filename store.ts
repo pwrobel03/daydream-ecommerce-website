@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { ProductType } from "./types/product";
+import { CartSyncProduct, ProductType } from "./types/product";
 
 export interface CartItem {
   product: ProductType;
@@ -17,7 +17,7 @@ interface CartState {
   getSubTotalPrice: () => number;
   getItemCount: (productId: string) => number;
   getGroupedItems: () => CartItem[];
-  syncItems: (freshData: any[]) => void;
+  syncItems: (freshData: CartSyncProduct[]) => void;
 }
 
 const useCartStore = create<CartState>()(

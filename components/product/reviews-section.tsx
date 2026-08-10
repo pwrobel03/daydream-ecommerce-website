@@ -152,7 +152,7 @@ export default function ReviewsSection({
               </p>
             </div>
             <p className="text-xl leading-snug font-medium italic">
-              "{rev.content}"
+              &ldquo;{rev.content}&rdquo;
             </p>
           </div>
         ))}

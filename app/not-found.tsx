@@ -18,11 +18,11 @@ export default function NotFound() {
               Lost in a dream?
             </span>
             <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none mb-8">
-              This world <br /> doesn't exist.
+              This world <br /> doesn&apos;t exist.
             </h1>
             <p className="text-muted-foreground text-lg font-medium mb-12 max-w-md leading-relaxed">
-              The path you're looking for has vanished into the morning mist.
-              Let's get you back to your breakfast.
+              The path you&apos;re looking for has vanished into the morning mist.
+              Let&apos;s get you back to your breakfast.
             </p>
 
             <Link

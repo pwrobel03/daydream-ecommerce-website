@@ -15,7 +15,10 @@ import * as z from "zod";
 // Wartość z zapasem względem 30-minutowej ważności sesji Stripe.
 const RESERVATION_MINUTES = 45;
 
-export async function initializeOrder(items: z.infer<typeof CheckoutItemsSchema>) {
+export async function initializeOrder(
+  items: z.infer<typeof CheckoutItemsSchema>,
+  couponCode?: string
+) {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -48,7 +51,7 @@ export async function initializeOrder(items: z.infer<typeof CheckoutItemsSchema>
         throw new Error("Któryś z produktów nie jest już dostępny.");
       }
 
-      let total = new Prisma.Decimal(0);
+      let subtotal = new Prisma.Decimal(0);
       const orderItems: { productId: string; quantity: number; price: Prisma.Decimal }[] = [];
 
       for (const product of products) {
@@ -67,9 +70,36 @@ export async function initializeOrder(items: z.infer<typeof CheckoutItemsSchema>
 
         // Cena zawsze z bazy, nigdy z danych przysłanych przez klienta.
         const unitPrice = product.promoPrice ?? product.price;
-        total = total.add(unitPrice.mul(quantity));
+        subtotal = subtotal.add(unitPrice.mul(quantity));
         orderItems.push({ productId: product.id, quantity, price: unitPrice });
       }
+
+      // Kupon jest weryfikowany tutaj, w tej samej transakcji co ceny — kod od
+      // klienta służy wyłącznie do wyszukania rekordu, a wysokość rabatu bierze
+      // się z bazy. Ta sama zasada co przy cenach pozycji (§1.1).
+      const sale = couponCode
+        ? await tx.sale.findFirst({
+            where: {
+              couponCode: couponCode.trim(),
+              isActive: true,
+              validFrom: { lte: new Date() },
+              validTo: { gte: new Date() },
+            },
+          })
+        : null;
+
+      if (couponCode && !sale) {
+        throw new Error("Ten kupon jest nieprawidłowy lub wygasł.");
+      }
+
+      // Zaokrąglamy do groszy tu, a nie przy tworzeniu sesji Stripe — dzięki
+      // temu kwota zapisana w bazie i kwota zapłacona są tą samą liczbą,
+      // a weryfikacja w webhooku nie odrzuci płatności z powodu zaokrąglenia.
+      const discount = sale
+        ? subtotal.mul(sale.discountValue).div(100).toDecimalPlaces(2)
+        : new Prisma.Decimal(0);
+
+      const total = subtotal.sub(discount);
 
       // Tworzymy zamówienie (PENDING, bez adresu).
       // reservedUntil wyznacza moment, po którym zadanie cykliczne zwolni towar,
@@ -78,6 +108,8 @@ export async function initializeOrder(items: z.infer<typeof CheckoutItemsSchema>
         data: {
           userId: session.user.id!,
           totalAmount: total,
+          discountAmount: discount,
+          saleId: sale?.id ?? null,
           items: { create: orderItems },
           reservedUntil: new Date(Date.now() + RESERVATION_MINUTES * 60 * 1000),
         },
@@ -161,8 +193,30 @@ export async function finalizeAndPay(
       return updated;
     });
 
+    // Kupon na KWOTĘ, nie na procent. Procent kazałby Stripe'owi liczyć rabat
+    // po swojemu, a jego zaokrąglenie mogłoby różnić się o grosz od kwoty
+    // zapisanej w bazie — i webhook odrzuciłby wtedy poprawną płatność,
+    // bo porównuje amount_total z totalAmount.
+    const discountCents = Math.round(Number(order.discountAmount) * 100);
+    const discounts =
+      discountCents > 0
+        ? [
+            {
+              coupon: (
+                await stripe.coupons.create({
+                  amount_off: discountCents,
+                  currency: "usd",
+                  duration: "once",
+                  name: "Discount",
+                })
+              ).id,
+            },
+          ]
+        : undefined;
+
     const stripeSession = await stripe.checkout.sessions.create({
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+      discounts,
       line_items: order.items.map(item => ({
         price_data: {
           currency: "USD",

@@ -31,6 +31,7 @@ const CartPage = () => {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [isSyncing, setIsSyncing] = useState(true);
+  const [coupon, setCoupon] = useState("");
 
   useEffect(() => {
     const sync = async () => {
@@ -60,11 +61,13 @@ const CartPage = () => {
     setIsPending(true);
 
     // Wysyłamy wyłącznie id i ilość — ceny wylicza serwer z bazy.
+    // Kod idzie na serwer surowy — tam jest weryfikowany i tam liczy się rabat.
     const res = await initializeOrder(
       items.map((item) => ({
         productId: item.product.id,
         quantity: item.quantity,
-      }))
+      })),
+      coupon.trim() || undefined
     );
 
     if (res.error) {
@@ -160,6 +163,23 @@ const CartPage = () => {
                 Please resolve stock issues before checkout
               </p>
             )}
+
+            <div className="space-y-3">
+              <label
+                htmlFor="coupon"
+                className="block text-[10px] font-black uppercase tracking-[0.3em] opacity-40"
+              >
+                Coupon code
+              </label>
+              <input
+                id="coupon"
+                value={coupon}
+                onChange={(e) => setCoupon(e.target.value.toUpperCase())}
+                placeholder="OPTIONAL"
+                autoComplete="off"
+                className="h-14 w-full rounded-full border bg-transparent px-6 text-sm font-black uppercase tracking-widest outline-none transition-colors focus:border-primary"
+              />
+            </div>
 
             <button
               disabled={hasErrors || isPending}

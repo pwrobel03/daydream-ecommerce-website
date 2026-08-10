@@ -1,6 +1,8 @@
 // app/admin/_components/admin-orders-list.tsx
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { useState } from "react";
 import { format, toDate } from "date-fns";
 import { updateOrderStatus } from "@/actions/admin/orders";
@@ -18,6 +20,7 @@ import { OrderStatus } from "@/lib/generated/prisma/client";
 import type { AdminOrderType } from "@/types/order";
 
 export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
+  const t = useTranslations("dashboard.status");
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -154,7 +157,7 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
                           : "bg-destructive"
                       )}
                     />
-                    {order.isPaid ? "Credit Valid" : "Credit Missing"}
+                    {order.isPaid ? t("creditValid") : t("creditMissing")}
                   </div>
                 </div>
               </td>

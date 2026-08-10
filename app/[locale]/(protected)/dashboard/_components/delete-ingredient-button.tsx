@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Trash2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -7,18 +9,19 @@ import { Button } from "@/components/ui/button";
 import { deleteIngredient } from "@/actions/admin/ingredients"; // Twoja akcja
 
 export const DeleteIngredientButton = ({ id }: { id: string }) => {
+  const t = useTranslations("dashboard.ingredients");
   const [loading, setLoading] = useState(false);
 
   const onDelete = async () => {
-    if (!confirm("Are you sure you want to destroy this essence?")) return;
+    if (!confirm(t("deleteConfirm"))) return;
 
     setLoading(true);
     try {
       const res = await deleteIngredient(id);
       if (!res.success) return toast.error(res.error);
-      toast.success("Essence faded away");
+      toast.success(t("deleted"));
     } catch (error) {
-      toast.error("Failed to destroy essence");
+      toast.error(t("deleteFailed"));
     } finally {
       setLoading(false);
     }

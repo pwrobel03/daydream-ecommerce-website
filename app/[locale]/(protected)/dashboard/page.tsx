@@ -1,12 +1,14 @@
 import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 import { auth } from "@/auth";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { Package, MapPin, UserCog, ArrowRight, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 async function DashboardPageContent() {
+  const t = await getTranslations("dashboard");
   const session = await auth();
   const userName = session?.user?.name?.split(" ")[0] || "User";
 
@@ -17,23 +19,23 @@ async function DashboardPageContent() {
 
   const cards = [
     {
-      title: "Recent Orders",
-      description: "Track your current shipments and history.",
+      title: t("orders.recent"),
+      description: t("tiles.ordersDesc"),
       href: "/dashboard/orders",
       icon: Package,
       count: orderCount,
       color: "bg-blue-500",
     },
     {
-      title: "Address Book",
-      description: "Manage your delivery and billing locations.",
+      title: t("nav.address"),
+      description: t("tiles.addressDesc"),
       href: "/dashboard/address",
       icon: MapPin,
       color: "bg-green-500",
     },
     {
-      title: "Account Settings",
-      description: "Update your profile and security details.",
+      title: t("nav.accountSettings"),
+      description: t("tiles.profileDesc"),
       href: "/dashboard/profile",
       icon: UserCog,
       color: "bg-orange-500",
@@ -134,7 +136,16 @@ async function DashboardPageContent() {
 }
 
 
-export default function DashboardPage() {
+export default async function DashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  // Deklaracja języka w powłoce — bez niej pobranie tłumaczeń wewnątrz
+  // Suspense i tak wciąga całą trasę w tryb dynamiczny.
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <Suspense fallback={<RowsSkeleton />}>
       <DashboardPageContent />

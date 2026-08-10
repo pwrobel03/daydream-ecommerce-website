@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCurrentRole } from "@/hooks/use-current-role";
@@ -19,27 +21,28 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function DashboardSidebar() {
+  const t = useTranslations("dashboard.nav");
   const pathname = usePathname();
   const role = useCurrentRole();
   const isAdmin = role === "ADMIN";
 
   const userMenuItems = [
-    { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
-    { title: "My Profile", href: "/dashboard/profile", icon: User },
+    { title: t("overview"), href: "/dashboard", icon: LayoutDashboard },
+    { title: t("profile"), href: "/dashboard/profile", icon: User },
     { title: "Delivery address", href: "/dashboard/address", icon: Van },
-    { title: "Orders", href: "/dashboard/orders", icon: Package },
+    { title: t("orders"), href: "/dashboard/orders", icon: Package },
   ];
 
   const adminMenuItems = [
     {
-      title: "Manage Voices",
+      title: t("manageVoices"),
       href: "/dashboard/comments",
       icon: MessageSquare,
     },
-    { title: "Categories", href: "/dashboard/categories", icon: Layers },
-    { title: "Inventory", href: "/dashboard/inventory", icon: Package },
-    { title: "Ingredients", href: "/dashboard/ingredients", icon: Sprout },
-    { title: "Manage Orders", href: "/dashboard/manage-orders", icon: Cctv },
+    { title: t("categories"), href: "/dashboard/categories", icon: Layers },
+    { title: t("inventory"), href: "/dashboard/inventory", icon: Package },
+    { title: t("ingredients"), href: "/dashboard/ingredients", icon: Sprout },
+    { title: t("manageOrders"), href: "/dashboard/manage-orders", icon: Cctv },
   ];
 
   return (
@@ -57,7 +60,7 @@ export default function DashboardSidebar() {
             )}
           />
           <p className="text-lg font-black uppercase tracking-[0.3em] opacity-40">
-            {isAdmin ? "Admin Console" : "User Dashboard"}
+            {isAdmin ? t("adminConsole") : "User Dashboard"}
           </p>
         </div>
       </div>

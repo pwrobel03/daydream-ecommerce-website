@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,6 +31,7 @@ interface IngredientFormProps {
 }
 
 export const IngredientForm = ({ initialData }: IngredientFormProps) => {
+  const t = useTranslations("dashboard.ingredients");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);

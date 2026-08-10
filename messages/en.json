@@ -105,5 +105,81 @@
       "logout": "Log out",
       "avatar": "User Avatar"
     }
+  },
+  "dashboard": {
+    "nav": {
+      "overview": "Overview",
+      "orders": "Orders",
+      "profile": "My Profile",
+      "address": "Address Book",
+      "adminConsole": "Admin Console",
+      "inventory": "Inventory",
+      "categories": "Categories",
+      "ingredients": "Ingredients",
+      "manageOrders": "Manage Orders",
+      "manageVoices": "Manage Voices",
+      "identity": "Identity",
+      "accountSettings": "Account Settings"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "PAID": "Paid",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "creditValid": "Credit Valid",
+      "creditMissing": "Credit Missing"
+    },
+    "orders": {
+      "recent": "Recent Orders",
+      "deliveryAddress": "Delivery address",
+      "noAddress": "No address provided",
+      "statusLabel": "Status"
+    },
+    "address": {
+      "title": "Address Book",
+      "subtitle": "Manage your delivery and billing locations.",
+      "cityPlaceholder": "City Name...",
+      "namePlaceholder": "Enter Name..."
+    },
+    "inventory": {
+      "newProduct": "New Artifact",
+      "createProduct": "Create a new product",
+      "allCategories": "All Categories",
+      "allSubFlows": "All Sub-Flows",
+      "preview": "Preview"
+    },
+    "ingredients": {
+      "create": "Create ingredient",
+      "edit": "Edit ingredient",
+      "forge": "Forge Essence",
+      "confirm": "Confirm Essence",
+      "editEssence": "Edit Essence",
+      "forging": "Forging...",
+      "deleteConfirm": "Are you sure you want to destroy this essence?",
+      "deleted": "Essence faded away",
+      "deleteFailed": "Failed to destroy essence"
+    },
+    "categories": {
+      "forge": "Forge Category",
+      "namePlaceholder": "E.g. Dark Stories"
+    },
+    "feedback": {
+      "saved": "Registry Updated",
+      "storageError": "An error occurred during storage.",
+      "unexpected": "An unexpected error occurred.",
+      "connectionError": "Connection error",
+      "transmissionError": "Critical transmission error",
+      "paymentSessionError": "Payment session error"
+    },
+    "tiles": {
+      "ordersDesc": "Track your current shipments and history.",
+      "addressDesc": "Manage your delivery and billing locations.",
+      "profileDesc": "Update your profile and security details."
+    },
+    "product": {
+      "createTitle": "Create a new product",
+      "modifying": "Modifying: {name}"
+    }
   }
 }

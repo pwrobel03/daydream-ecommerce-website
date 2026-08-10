@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { categorySchema } from "@/schemas";
@@ -37,6 +39,7 @@ export function CategoryForm({
 }: {
   parentCategories: Category[];
 }) {
+  const t = useTranslations("dashboard.categories");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -119,7 +122,7 @@ export function CategoryForm({
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="E.g. Dark Stories"
+                    placeholder={t("namePlaceholder")}
                     {...field}
                     className="rounded-xl h-12"
                   />

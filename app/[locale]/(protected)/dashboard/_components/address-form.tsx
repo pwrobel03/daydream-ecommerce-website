@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -27,6 +29,7 @@ export function AddressForm({
 }: {
   initialData: AddressType | null;
 }) {
+  const t = useTranslations("dashboard.address");
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof AddressSchema>>({
@@ -43,7 +46,7 @@ export function AddressForm({
   async function onSubmit(values: z.infer<typeof AddressSchema>) {
     setLoading(true);
     const res = await saveUserAddress(values);
-    if (res.success) toast.success("Registry Updated");
+    if (res.success) toast.success(t("saved"));
     if (res.error) toast.error(res.error);
     setLoading(false);
   }
@@ -76,7 +79,7 @@ export function AddressForm({
                     <Input
                       {...field}
                       className={artifactInputStyle}
-                      placeholder="Enter Name..."
+                      placeholder={t("namePlaceholder")}
                     />
                   </FormControl>
                   <FormMessage className="text-sm font-bold uppercase italic" />
@@ -167,7 +170,7 @@ export function AddressForm({
                       <Input
                         {...field}
                         className={artifactInputStyle}
-                        placeholder="City Name..."
+                        placeholder={t("cityPlaceholder")}
                       />
                     </FormControl>
                     <FormMessage />

@@ -105,5 +105,81 @@
       "logout": "Wyloguj",
       "avatar": "Awatar użytkownika"
     }
+  },
+  "dashboard": {
+    "nav": {
+      "overview": "Przegląd",
+      "orders": "Zamówienia",
+      "profile": "Mój profil",
+      "address": "Adresy",
+      "adminConsole": "Panel administratora",
+      "inventory": "Asortyment",
+      "categories": "Kategorie",
+      "ingredients": "Składniki",
+      "manageOrders": "Zarządzaj zamówieniami",
+      "manageVoices": "Zarządzaj opiniami",
+      "identity": "Tożsamość",
+      "accountSettings": "Ustawienia konta"
+    },
+    "status": {
+      "PENDING": "Oczekuje",
+      "PAID": "Opłacone",
+      "SHIPPED": "Wysłane",
+      "DELIVERED": "Dostarczone",
+      "CANCELLED": "Anulowane",
+      "creditValid": "Płatność potwierdzona",
+      "creditMissing": "Brak płatności"
+    },
+    "orders": {
+      "recent": "Ostatnie zamówienia",
+      "deliveryAddress": "Adres dostawy",
+      "noAddress": "Nie podano adresu",
+      "statusLabel": "Status"
+    },
+    "address": {
+      "title": "Adresy",
+      "subtitle": "Zarządzaj adresami dostawy i rozliczeniowymi.",
+      "cityPlaceholder": "Miasto...",
+      "namePlaceholder": "Wpisz imię i nazwisko..."
+    },
+    "inventory": {
+      "newProduct": "Nowy produkt",
+      "createProduct": "Dodaj nowy produkt",
+      "allCategories": "Wszystkie kategorie",
+      "allSubFlows": "Wszystkie podkategorie",
+      "preview": "Podgląd"
+    },
+    "ingredients": {
+      "create": "Dodaj składnik",
+      "edit": "Edytuj składnik",
+      "forge": "Utwórz składnik",
+      "confirm": "Zatwierdź składnik",
+      "editEssence": "Edytuj składnik",
+      "forging": "Zapisuję...",
+      "deleteConfirm": "Na pewno usunąć ten składnik?",
+      "deleted": "Składnik usunięty",
+      "deleteFailed": "Nie udało się usunąć składnika"
+    },
+    "categories": {
+      "forge": "Utwórz kategorię",
+      "namePlaceholder": "Np. Ciemne historie"
+    },
+    "feedback": {
+      "saved": "Zapisano",
+      "storageError": "Wystąpił błąd podczas zapisu.",
+      "unexpected": "Wystąpił nieoczekiwany błąd.",
+      "connectionError": "Błąd połączenia",
+      "transmissionError": "Krytyczny błąd transmisji",
+      "paymentSessionError": "Błąd sesji płatności"
+    },
+    "tiles": {
+      "ordersDesc": "Śledź bieżące przesyłki i historię zakupów.",
+      "addressDesc": "Zarządzaj adresami dostawy i rozliczeniowymi.",
+      "profileDesc": "Zaktualizuj profil i dane bezpieczeństwa."
+    },
+    "product": {
+      "createTitle": "Dodaj nowy produkt",
+      "modifying": "Edytujesz: {name}"
+    }
   }
 }

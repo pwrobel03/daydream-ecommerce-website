@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import PriceFormatter from "@/components/PriceFormatter";
 import { cn } from "@/lib/utils";
 import {
@@ -19,6 +21,7 @@ interface OrdersListProps {
 }
 
 export function OrdersList({ orders }: OrdersListProps) {
+  const t = useTranslations("dashboard.status");
   if (orders.length === 0) {
     return (
       <div className="h-96 flex flex-col items-center justify-center border-2 border-dashed border-black/5 rounded-[3rem]">
@@ -86,31 +89,32 @@ function StatusIndicator({
   status: string;
   isPaid: boolean;
 }) {
+  const t = useTranslations("dashboard.status");
   const configs: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
     PAID: {
       color: "text-green-500",
       icon: <CheckCircle2 size={14} />,
-      label: "Paid",
+      label: t("PAID"),
     },
     PENDING: {
       color: "text-amber-500",
       icon: <Clock size={14} />,
-      label: "Pending",
+      label: t("PENDING"),
     },
     CANCELLED: {
       color: "text-red-500",
       icon: <XCircle size={14} />,
-      label: "Canceled",
+      label: t("CANCELLED"),
     },
     SHIPPED: {
       color: "text-green-500",
       icon: <Van size={14} />,
-      label: "Shipped",
+      label: t("SHIPPED"),
     },
     DELIVERED: {
       color: "text-green-500",
       icon: <Package size={14} />,
-      label: "Delivered",
+      label: t("DELIVERED"),
     },
   };
 

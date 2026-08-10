@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Search,
@@ -21,6 +23,7 @@ import Link from "next/link";
 import type { Category, InventoryProduct } from "@/types/product";
 
 export default function InventoryClient({ categories }: { categories: Category[] }) {
+  const t = useTranslations("dashboard.inventory");
   const router = useRouter();
   const [products, setProducts] = useState<InventoryProduct[]>([]);
   const [total, setTotal] = useState(0);

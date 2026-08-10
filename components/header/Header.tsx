@@ -11,6 +11,7 @@ import Image from "next/image";
 import { db } from "@/lib/db";
 import { CartCounter } from "../CartCounter";
 import { UserButton } from "../auth/user-button";
+import { SearchInput } from "./search-input";
 
 async function getNavCategories() {
   return db.category.findMany({
@@ -60,6 +61,7 @@ const Header = async () => {
             </Button>
           </Link>
 
+          <SearchInput />
           <UserButton />
 
           <div className="lg:hidden">

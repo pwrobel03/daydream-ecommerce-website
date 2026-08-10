@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { ReviewSchema } from "@/schemas";
 import { Review } from "@/types/product";
+import { reportError } from "@/lib/logger";
 
 export type CreateReviewResponse = {
   success?: string;
@@ -34,7 +35,7 @@ export async function getMoreReviews(
     
     return reviews;
   } catch (error) {
-    console.error("Error fetching more reviews:", error);
+    reportError(error, { area: "store.reviews" });
     return [];
   }
 }
@@ -109,7 +110,7 @@ export async function updateReview(
       review: JSON.parse(JSON.stringify(updatedReview)) 
     };
   } catch (error) {
-    console.error("UPDATE_REVIEW_ERROR", error);
+    reportError(error, { area: "store.reviews" });
     return { error: "Failed to update review." };
   }
 }

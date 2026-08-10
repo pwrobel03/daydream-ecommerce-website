@@ -1,24 +1,6 @@
 // lib/db-sales.ts
 import { db } from "@/lib/db"; // Twoja instancja PrismaClient
-
-export const getActiveSaleByCouponCode = async (couponCode: string) => {
-  try {
-    const activeSale = await db.sale.findFirst({
-      where: {
-        couponCode: couponCode,
-        isActive: true,
-        // Sprawdzenie, czy kupon nie wygasł
-        validTo: {
-          gte: new Date(), // "greater than or equal" - data końcowa musi być w przyszłości
-        },
-      },
-    });
-    return activeSale;
-  } catch (error) {
-    console.error("Błąd podczas sprawdzania kuponu:", error);
-    return null;
-  }
-};
+import { reportError } from "@/lib/logger";
 
 export const getAllSales = async () => {
   try {
@@ -26,7 +8,7 @@ export const getAllSales = async () => {
       orderBy: { name: 'asc' }
     });
   } catch (error) {
-    console.error("Error fetching sales:", error);
+    reportError(error, { area: "db.sales" });
     return [];
   }
 };

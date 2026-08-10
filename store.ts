@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { CartSyncProduct, ProductType } from "./types/product";
+import { activePrice, basePrice } from "./lib/pricing";
 
 export interface CartItem {
   product: ProductType;
@@ -76,16 +77,16 @@ const useCartStore = create<CartState>()(
         }))
       },
       getTotalPrice: () => {
-        return get().items.reduce((total, item) => {
-          // ?? zamiast ||: promoPrice równe 0 to poprawna promocja, nie brak wartości.
-          const activePrice = item.product.promoPrice ?? item.product.price ?? 0;
-          return total + Number(activePrice) * item.quantity;
-        }, 0);
+        return get().items.reduce(
+          (total, item) => total + activePrice(item.product) * item.quantity,
+          0
+        );
       },
       getSubTotalPrice: () => {
-        return get().items.reduce((total, item) => {
-          return total + Number(item.product.price || 0) * item.quantity;
-        }, 0);
+        return get().items.reduce(
+          (total, item) => total + basePrice(item.product) * item.quantity,
+          0
+        );
       },
       getItemCount: (productId) => {
         const item = get().items.find((item) => item.product.id === productId);

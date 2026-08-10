@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
+import { reportError } from "@/lib/logger";
 
 
 export async function getVoices({
@@ -44,7 +45,7 @@ export async function getVoices({
 
     return { reviews, totalCount };
   } catch (error) {
-    console.error("Fetch error:", error);
+    reportError(error, { area: "admin.reviews" });
     return { reviews: [], totalCount: 0 };
   }
 }

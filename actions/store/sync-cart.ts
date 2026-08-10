@@ -1,5 +1,6 @@
 "use server";
 import { db } from "@/lib/db";
+import { reportError } from "@/lib/logger";
 
 export async function getFreshCartData(productIds: string[]) {
   try {
@@ -22,7 +23,7 @@ export async function getFreshCartData(productIds: string[]) {
       stock: Number(product.stock)
     }));
   } catch (error) {
-    console.error("Cart sync error:", error);
+    reportError(error, { area: "store.syncCart" });
     return [];
   }
 }

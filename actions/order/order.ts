@@ -73,6 +73,7 @@ export async function initializeOrder(
         }
 
         // Cena zawsze z bazy, nigdy z danych przysłanych przez klienta.
+        // Ta sama reguła co w koszyku — patrz lib/pricing.ts.
         const unitPrice = product.promoPrice ?? product.price;
         subtotal = subtotal.add(unitPrice.mul(quantity));
         orderItems.push({ productId: product.id, quantity, price: unitPrice });

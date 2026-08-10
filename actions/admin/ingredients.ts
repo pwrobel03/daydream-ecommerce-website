@@ -2,11 +2,11 @@
 
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
-import { deleteUpload, saveUpload } from "@/lib/uploads";
+import { deleteUpload, processAndStore } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
 import path from "path";
 import crypto from "crypto";
-import sharp from "sharp";
+import { reportError } from "@/lib/logger";
 
 
 export async function upsertIngredient(id: string, formData: FormData) {
@@ -34,16 +34,14 @@ export async function upsertIngredient(id: string, formData: FormData) {
     // 3. Procesowanie zdjęcia
     if (imageFile && imageFile.size > 0) {
       // Nazwa pliku to po prostu ID.webp - zawsze nadpisujemy lub tworzymy nowy
-      const fileName = `${ingredientId}.webp`;
-
-
-      const buffer = Buffer.from(await imageFile.arrayBuffer());
-      const optimized = await sharp(buffer)
-        .resize(400, 400, { fit: 'cover' }) // Składniki są zazwyczaj ikonami/małymi fotkami
-        .webp({ quality: 80 })
-        .toBuffer();
-
-      imagePath = await saveUpload("ingredients", fileName, optimized);
+      // Składniki są zazwyczaj ikonami, więc kadrujemy do kwadratu.
+      imagePath = await processAndStore(imageFile, {
+        dir: "ingredients",
+        fileName: ingredientId,
+        width: 400,
+        height: 400,
+        fit: "cover",
+      });
     } else if (removeExistingImage) {
       // Jeśli usuwamy zdjęcie, musimy usunąć plik fizyczny
       const current = !isNew ? await db.ingredient.findUnique({ where: { id } }) : null;
@@ -71,7 +69,7 @@ export async function upsertIngredient(id: string, formData: FormData) {
     return { success: "Ingredient saved successfully!" };
 
   } catch (error) {
-    console.error("UPSERT_INGREDIENT_ERROR:", error);
+    reportError(error, { area: "admin.ingredients" });
     return { error: "Failed to save ingredient." };
   }
 }
@@ -96,7 +94,7 @@ export async function deleteIngredient(id: string) {
       try {
         await deleteUpload(ingredient.image);
       } catch (err) {
-        console.error("File delete error:", err);
+        reportError(err, { area: "admin.ingredients" });
       }
     }
 

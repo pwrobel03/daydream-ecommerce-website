@@ -2,9 +2,10 @@
 
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
-import { saveUpload } from "@/lib/uploads";
+import { processAndStore } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
+import { reportError } from "@/lib/logger";
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024; 
 
@@ -25,13 +26,14 @@ export async function createCategory(formData: FormData) {
         return { error: "The dream image is too heavy. Maximum limit is 8MB." };
       }
 
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      
-
-
-      const fileName = `${Date.now()}-${slugify(imageFile.name, { lower: true })}`;
-      imagePath = await saveUpload("categories", fileName, buffer);
+      // Ta ścieżka wcześniej zapisywała surowy bufor bez sharp — teraz
+      // przechodzi przez to samo przetwarzanie co pozostałe uploady.
+      imagePath = await processAndStore(imageFile, {
+        dir: "categories",
+        fileName: `${Date.now()}-${slugify(imageFile.name, { lower: true, strict: true })}`,
+        width: 800,
+        height: 800,
+      });
     }
 
     const slug = slugify(name, { lower: true, strict: true });
@@ -50,7 +52,7 @@ export async function createCategory(formData: FormData) {
     return { success: "Category forged successfully!" };
 
   } catch (error) {
-    console.error("CRITICAL_SERVER_ERROR:", error);
+    reportError(error, { area: "admin.categories" });
     // Zwracamy obiekt błędu zamiast rzucać wyjątek, by klient nie utknął
     return { error: "A server glitch occurred. Please try again later." };
   }

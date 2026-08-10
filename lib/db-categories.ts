@@ -1,5 +1,6 @@
 // lib/db-categories.ts
 import { db } from "@/lib/db";
+import { reportError } from "@/lib/logger";
 
 export const getMainCategories = async () => {
   try {
@@ -19,7 +20,7 @@ export const getMainCategories = async () => {
     });
     return categories;
   } catch (error) {
-    console.error("Error fetching main categories:", error);
+    reportError(error, { area: "db.categories" });
     return [];
   }
 };
@@ -39,7 +40,7 @@ export const getCategoryBySlug = async (slug: string) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching category by slug:", error);
+    reportError(error, { area: "db.categories" });
     return null;
   }
 };

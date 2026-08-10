@@ -1,5 +1,6 @@
 // lib/db-products.ts
 import { db } from "@/lib/db";
+import { reportError } from "@/lib/logger";
 
 /**
  * Pobiera konkretną kategorię wraz z limitowaną liczbą produktów
@@ -30,7 +31,7 @@ export const getCategoryWithProducts = async (slug: string, limit: number = 25) 
     if (!category) return null;
     return JSON.parse(JSON.stringify(category));
   } catch (error) {
-    console.error("Error fetching category products:", error);
+    reportError(error, { area: "db.products" });
     return null;
   }
 };
@@ -64,7 +65,7 @@ export const getAllProductsAsCategory = async (limit: number = 25) => {
       products: JSON.parse(JSON.stringify(products)),
     };
   } catch (error) {
-    console.error("Error fetching all products:", error);
+    reportError(error, { area: "db.products" });
     return null;
   }
 };
@@ -130,7 +131,7 @@ export const getProductBySlug = async (slug: string, currentUserId?: string) => 
 
     return JSON.parse(JSON.stringify(result));
   } catch (error) {
-    console.error("Error in getProductBySlug:", error);
+    reportError(error, { area: "db.products" });
     return null;
   }
 };

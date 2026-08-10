@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
 import { OrderStatus } from "@/lib/generated/prisma/client";
+import { reportError } from "@/lib/logger";
 
 /**
  * Pobiera zamówienia dla panelu admina z uwzględnieniem globalnego szukania i stronnicowania.
@@ -50,7 +51,7 @@ export const getAdminOrders = async (page: number = 1, pageSize: number = 15, se
       totalCount
     };
   } catch (error) {
-    console.error("Logistics Database Error:", error);
+    reportError(error, { area: "admin.orders" });
     return { orders: [], totalPages: 0, totalCount: 0 };
   }
 };
@@ -72,7 +73,7 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
     
     return { success: true };
   } catch (error) {
-    console.error("FAILED TO UPDATE STATUS:", error);
+    reportError(error, { area: "admin.orders" });
     return { success: false, error: "Database error" };
   }
 }

@@ -4,8 +4,9 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
 import { errorMessage } from "@/lib/action-result";
 import { ProductUpsertSchema } from "@/schemas";
-import { deleteUpload, saveUpload } from "@/lib/uploads";
+import { deleteUpload, processAndStore } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
+import { reportError } from "@/lib/logger";
 
 
 export async function getInventoryProducts({
@@ -64,7 +65,7 @@ export async function getInventoryProducts({
 
     return { products, totalCount };
   } catch (error) {
-    console.error("INVENTORY_FETCH_ERROR:", error);
+    reportError(error, { area: "admin.inventory" });
     return { products: [], totalCount: 0 };
   }
 }
@@ -81,14 +82,13 @@ export async function deleteProduct(id: string) {
     revalidatePath("/dashboard/inventory");
     return { success: "Product removed from the dreamscape." };
   } catch (error) {
-    console.error("DELETE_PRODUCT_ERROR:", error);
+    reportError(error, { area: "admin.inventory" });
     return { error: "Failed to delete product." };
   }
 }
 
 
 import crypto from "crypto";
-import sharp from "sharp"; // Importujemy sharp
 
 // FormData przenosi tablice jako JSON. Zły payload nie powinien wywalać akcji
 // wyjątkiem — zwracamy pustą tablicę i pozwalamy zdecydować schematowi.
@@ -169,17 +169,13 @@ export async function upsertProduct(id: string, formData: FormData) {
     const newImageUrls: string[] = [];
     
     for (const file of newImageFiles) {
-      const fileName = `${crypto.randomUUID()}.webp`; // Zawsze .webp
-      const buffer = Buffer.from(await file.arrayBuffer());
-      
-      // Optymalizacja: zmiana rozmiaru i konwersja
-      const optimizedBuffer = await sharp(buffer)
-        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
-        .webp({ quality: 80 }) // Balans między jakością a rozmiarem
-        .toBuffer();
-
       newImageUrls.push(
-        await saveUpload(`products/${productId}`, fileName, optimizedBuffer)
+        await processAndStore(file, {
+          dir: `products/${productId}`,
+          fileName: crypto.randomUUID(),
+          width: 1200,
+          height: 1200,
+        })
       );
     }
 
@@ -209,7 +205,7 @@ export async function upsertProduct(id: string, formData: FormData) {
     return { success: isNew ? "Artifact Forged" : "Essence Updated", id: productId };
 
   } catch (error) {
-    console.error("UPSERT_ERROR:", error);
+    reportError(error, { area: "admin.inventory" });
     return { error: errorMessage(error, "Unexpected error") };
   }
 }

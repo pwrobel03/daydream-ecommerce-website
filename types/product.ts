@@ -11,6 +11,13 @@ export interface Category {
   slug: string;
   image?: string | null;
   description?: string | null;
+
+  // Samorelacja kategorii. Widoki admina dociągają dzieci i licznik produktów,
+  // storefront nie — stąd pola opcjonalne.
+  parentId?: string | null;
+  parent?: Category | null;
+  children?: Category[];
+  _count?: { products: number };
 }
 
 export interface Status {
@@ -69,4 +76,17 @@ export interface CartSyncProduct {
   price: number;
   promoPrice: number | null;
   stock: number;
+}
+
+/** Produkt w liście inwentarza — kształt zwracany przez `getInventoryProducts`. */
+export interface InventoryProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  promoPrice: number | null;
+  stock: number;
+  categories: Category[];
+  status?: Status | null;
+  images: { url: string }[];
 }

@@ -27,6 +27,20 @@ export default async function DeliveryPage({
 
   if (!order) notFound();
 
+  // Prisma zwraca Decimal, którego nie da się przekazać do komponentu klienckiego
+  // (Next zgłasza "Only plain objects can be passed to Client Components").
+  // Konwersja na granicy serwer/klient — to właściwe miejsce, bo tylko tutaj
+  // wiadomo, które pola są pieniędzmi.
+  const orderForClient = {
+    ...order,
+    totalAmount: Number(order.totalAmount),
+    items: order.items.map((item) => ({
+      ...item,
+      price: Number(item.price),
+      product: { ...item.product, price: Number(item.product.price) },
+    })),
+  };
+
   return (
     <div className="container mx-auto px-6 py-20 max-w-7xl">
       <header className="mb-16 border-b pb-10">
@@ -38,7 +52,10 @@ export default async function DeliveryPage({
         </p>
       </header>
 
-      <DeliveryClient order={order} savedAddress={userWithAddress?.address} />
+      <DeliveryClient
+        order={orderForClient}
+        savedAddress={userWithAddress?.address ?? null}
+      />
     </div>
   );
 }

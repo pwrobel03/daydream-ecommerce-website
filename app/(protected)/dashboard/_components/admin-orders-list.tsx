@@ -15,8 +15,9 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { OrderStatus } from "@prisma/client";
+import type { AdminOrderType } from "@/types/order";
 
-export function AdminOrdersList({ orders = [] }: { orders: any[] }) {
+export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -119,7 +120,7 @@ export function AdminOrdersList({ orders = [] }: { orders: any[] }) {
                 <div className="flex items-start gap-3">
                   <Package className="w-4 h-4 mt-1 opacity-20 shrink-0" />
                   <div className="flex flex-col gap-2">
-                    {order.items?.map((item: any, idx: number) => (
+                    {order.items?.map((item, idx: number) => (
                       <div key={idx} className="flex items-center gap-2">
                         <span className="text-[9px] font-black border border-primary/20 px-1.5 py-0.5 rounded italic">
                           {item.quantity}X
@@ -137,7 +138,7 @@ export function AdminOrdersList({ orders = [] }: { orders: any[] }) {
               <td className="py-8 px-2 text-right">
                 <div className="flex flex-col">
                   <span className="text-3xl font-black italic tracking-tighter leading-none">
-                    <PriceFormatter amount={order.totalAmount} />
+                    <PriceFormatter amount={Number(order.totalAmount)} />
                   </span>
                   <div
                     className={cn(

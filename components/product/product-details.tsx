@@ -2,8 +2,9 @@
 "use client";
 
 import Image from "next/image";
+import type { ProductType } from "@/types/product";
 
-export default function ProductDetails({ product }: { product: any }) {
+export default function ProductDetails({ product }: { product: ProductType }) {
   const mockIngredients = Array.from({ length: 12 }).map((_, i) => ({
     ...product.ingredients[i % product.ingredients.length],
     // Ważne: zmieniamy ID na unikalne dla Reacta, żeby nie sypał błędami w konsoli
@@ -39,7 +40,7 @@ export default function ProductDetails({ product }: { product: any }) {
         </div>
 
         <div className="flex flex-wrap gap-4 justify-center">
-          {product.ingredients.map((ing: any) => (
+          {product.ingredients.map((ing) => (
             <div
               key={ing.id}
               className="group relative w-40 h-40 bg-accent/20 rounded-[2rem] p-4 flex flex-col items-center justify-between border hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.05)]"

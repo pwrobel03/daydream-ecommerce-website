@@ -29,7 +29,7 @@ export function AddressForm({
 }: {
   initialData: AddressType | null;
 }) {
-  const t = useTranslations("dashboard.address");
+  const t = useTranslations("dashboard");
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof AddressSchema>>({
@@ -46,7 +46,7 @@ export function AddressForm({
   async function onSubmit(values: z.infer<typeof AddressSchema>) {
     setLoading(true);
     const res = await saveUserAddress(values);
-    if (res.success) toast.success(t("saved"));
+    if (res.success) toast.success(t("feedback.saved"));
     if (res.error) toast.error(res.error);
     setLoading(false);
   }
@@ -79,7 +79,7 @@ export function AddressForm({
                     <Input
                       {...field}
                       className={artifactInputStyle}
-                      placeholder={t("namePlaceholder")}
+                      placeholder={t("address.namePlaceholder")}
                     />
                   </FormControl>
                   <FormMessage className="text-sm font-bold uppercase italic" />
@@ -130,7 +130,7 @@ export function AddressForm({
                     <Input
                       {...field}
                       className={artifactInputStyle}
-                      placeholder="Street & Number..."
+                      placeholder={t("placeholders.street")}
                     />
                   </FormControl>
                   <FormMessage />
@@ -170,7 +170,7 @@ export function AddressForm({
                       <Input
                         {...field}
                         className={artifactInputStyle}
-                        placeholder={t("cityPlaceholder")}
+                        placeholder={t("address.cityPlaceholder")}
                       />
                     </FormControl>
                     <FormMessage />

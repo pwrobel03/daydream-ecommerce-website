@@ -21,28 +21,28 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function DashboardSidebar() {
-  const t = useTranslations("dashboard.nav");
+  const t = useTranslations("dashboard");
   const pathname = usePathname();
   const role = useCurrentRole();
   const isAdmin = role === "ADMIN";
 
   const userMenuItems = [
-    { title: t("overview"), href: "/dashboard", icon: LayoutDashboard },
-    { title: t("profile"), href: "/dashboard/profile", icon: User },
-    { title: "Delivery address", href: "/dashboard/address", icon: Van },
+    { title: t("nav.overview"), href: "/dashboard", icon: LayoutDashboard },
+    { title: t("nav.profile"), href: "/dashboard/profile", icon: User },
+    { title: t("labels.deliveryAddress"), href: "/dashboard/address", icon: Van },
     { title: t("orders"), href: "/dashboard/orders", icon: Package },
   ];
 
   const adminMenuItems = [
     {
-      title: t("manageVoices"),
+      title: t("nav.manageVoices"),
       href: "/dashboard/comments",
       icon: MessageSquare,
     },
     { title: t("categories"), href: "/dashboard/categories", icon: Layers },
     { title: t("inventory"), href: "/dashboard/inventory", icon: Package },
     { title: t("ingredients"), href: "/dashboard/ingredients", icon: Sprout },
-    { title: t("manageOrders"), href: "/dashboard/manage-orders", icon: Cctv },
+    { title: t("nav.manageOrders"), href: "/dashboard/manage-orders", icon: Cctv },
   ];
 
   return (
@@ -60,7 +60,7 @@ export default function DashboardSidebar() {
             )}
           />
           <p className="text-lg font-black uppercase tracking-[0.3em] opacity-40">
-            {isAdmin ? t("adminConsole") : "User Dashboard"}
+            {isAdmin ? t("nav.adminConsole") : t("labels.userDashboard")}
           </p>
         </div>
       </div>

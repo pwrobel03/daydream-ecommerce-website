@@ -20,7 +20,7 @@ import { OrderStatus } from "@/lib/generated/prisma/client";
 import type { AdminOrderType } from "@/types/order";
 
 export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
-  const t = useTranslations("dashboard.status");
+  const t = useTranslations("dashboard");
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -157,7 +157,7 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
                           : "bg-destructive"
                       )}
                     />
-                    {order.isPaid ? t("creditValid") : t("creditMissing")}
+                    {order.isPaid ? t("status.creditValid") : t("status.creditMissing")}
                   </div>
                 </div>
               </td>
@@ -207,11 +207,11 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
                       loadingId === order.id && "opacity-30 cursor-wait"
                     )}
                   >
-                    <option value="PENDING">Pending</option>
-                    <option value="PAID">Paid</option>
-                    <option value="SHIPPED">Shipped</option>
-                    <option value="DELIVERED">Delivered</option>
-                    <option value="CANCELLED">Cancelled</option>
+                    <option value="PENDING">{t("status.PENDING")}</option>
+                    <option value="PAID">{t("status.PAID")}</option>
+                    <option value="SHIPPED">{t("status.SHIPPED")}</option>
+                    <option value="DELIVERED">{t("status.DELIVERED")}</option>
+                    <option value="CANCELLED">{t("status.CANCELLED")}</option>
                   </select>
                 </div>
               </td>

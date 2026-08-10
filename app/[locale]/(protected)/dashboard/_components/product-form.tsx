@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { useState, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,6 +57,7 @@ export function ProductForm({
   ingredients = [],
   statuses = [],
 }: ProductFormProps) {
+  const t = useTranslations("dashboard");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -156,7 +159,7 @@ export function ProductForm({
         values.price &&
         values.price <= values.promoPrice
       )
-        return toast.error("You're price cannot be lower than promo price");
+        return toast.error(t("validation.promoTooHigh"));
 
       formData.append("categoryIds", JSON.stringify(values.categoryIds));
       formData.append("ingredientIds", JSON.stringify(values.ingredientIds));
@@ -173,7 +176,7 @@ export function ProductForm({
         toast.error(res.error);
       }
     } catch (error) {
-      toast.error("An error occurred during storage.");
+      toast.error(t("feedback.storageError"));
     } finally {
       setLoading(false);
     }
@@ -277,7 +280,7 @@ export function ProductForm({
                     >
                       <FormControl>
                         <SelectTrigger className="rounded-md font-black w-full">
-                          <SelectValue placeholder="Status" />
+                          <SelectValue placeholder={t("labels.status")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="rounded-md">
@@ -535,9 +538,9 @@ export function ProductForm({
             {loading ? (
               <Loader2 className="animate-spin mx-auto" />
             ) : initialData ? (
-              "Confirm Essence"
+              t("ingredients.confirm")
             ) : (
-              "Forge Essence"
+              t("ingredients.forge")
             )}
           </button>
         </div>

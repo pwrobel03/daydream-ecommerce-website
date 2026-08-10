@@ -9,19 +9,19 @@ import { Button } from "@/components/ui/button";
 import { deleteIngredient } from "@/actions/admin/ingredients"; // Twoja akcja
 
 export const DeleteIngredientButton = ({ id }: { id: string }) => {
-  const t = useTranslations("dashboard.ingredients");
+  const t = useTranslations("dashboard");
   const [loading, setLoading] = useState(false);
 
   const onDelete = async () => {
-    if (!confirm(t("deleteConfirm"))) return;
+    if (!confirm(t("ingredients.deleteConfirm"))) return;
 
     setLoading(true);
     try {
       const res = await deleteIngredient(id);
       if (!res.success) return toast.error(res.error);
-      toast.success(t("deleted"));
+      toast.success(t("ingredients.deleted"));
     } catch (error) {
-      toast.error(t("deleteFailed"));
+      toast.error(t("ingredients.deleteFailed"));
     } finally {
       setLoading(false);
     }

@@ -39,7 +39,7 @@ export function CategoryForm({
 }: {
   parentCategories: Category[];
 }) {
-  const t = useTranslations("dashboard.categories");
+  const t = useTranslations("dashboard");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -92,11 +92,11 @@ export function CategoryForm({
       } else if (res?.error) {
         toast.error(res.error);
       } else {
-        toast.error("An unexpected error occurred.");
+        toast.error(t("feedback.unexpected"));
       }
     } catch (error) {
       console.error("SUBMIT_ERROR:", error);
-      toast.error("Connection error", {
+      toast.error(t("feedback.connectionError"), {
         description:
           "The server could not process the request. Your're image could be too large or corrupted. Our limit is 8MB",
       });
@@ -122,7 +122,7 @@ export function CategoryForm({
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder={t("namePlaceholder")}
+                    placeholder={t("categories.namePlaceholder")}
                     {...field}
                     className="rounded-xl h-12"
                   />
@@ -157,7 +157,7 @@ export function CategoryForm({
               </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Tell the story of this category..."
+                  placeholder={t("placeholders.categoryStory")}
                   {...field}
                   className="rounded-[1.5rem] min-h-[100px]"
                 />
@@ -204,7 +204,7 @@ export function CategoryForm({
                   >
                     <FormControl>
                       <SelectTrigger className="rounded-xl h-12">
-                        <SelectValue placeholder="Select parent..." />
+                        <SelectValue placeholder={t("placeholders.selectParent")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="rounded-xl shadow-2xl">
@@ -231,7 +231,7 @@ export function CategoryForm({
           disabled={loading}
           className="w-full h-16 bg-foreground text-background hover:text-white rounded-full font-black italic uppercase tracking-widest hover:bg-primary transition-all disabled:opacity-50 active:scale-95"
         >
-          {loading ? "Forging..." : "Forge Category"}
+          {loading ? t("categories.forging") : t("categories.forge")}
         </button>
       </form>
     </Form>

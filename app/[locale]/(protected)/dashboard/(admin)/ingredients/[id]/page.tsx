@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { FormSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 import { db } from "@/lib/db";
@@ -9,6 +10,7 @@ interface IngredientPageProps {
 }
 
 async function IngredientPageContent({ params }: IngredientPageProps) {
+  const t = await getTranslations("dashboard");
   // 1. Musisz użyć await, aby wyciągnąć id z params
   const resolvedParams = await params;
   const id = resolvedParams.id;
@@ -35,7 +37,7 @@ async function IngredientPageContent({ params }: IngredientPageProps) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl capitalize font-bold tracking-tight">
-            {isNew ? "Create ingredient" : "Edit ingredient"}
+            {isNew ? t("ingredients.create") : t("ingredients.edit")}
           </h2>
         </div>
       </div>

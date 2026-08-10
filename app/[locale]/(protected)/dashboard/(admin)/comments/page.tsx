@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import React, { useEffect, useState, useCallback } from "react";
 import { getVoices, deleteVoice } from "@/actions/admin/reviews";
 import { Trash2, Star, Search, Plus, Loader2, FilterX } from "lucide-react";
@@ -9,6 +11,7 @@ import Image from "next/image";
 import type { VoiceType } from "@/types/product";
 
 export default function AdminCommentsPage() {
+  const t = useTranslations("dashboard");
   const [voices, setVoices] = useState<VoiceType[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -78,7 +81,7 @@ export default function AdminCommentsPage() {
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 group-focus-within:text-primary transition-colors" />
             <input
               type="text"
-              placeholder="Search by product or content..."
+              placeholder={t("search.comments")}
               className="w-full rounded-full py-5 pl-14 pr-8 font-black italic uppercase text-[10px] tracking-widest focus:ring-2 ring-primary/20 outline-none transition-all"
               onChange={(e) => setSearch(e.target.value)}
             />

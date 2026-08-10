@@ -1,12 +1,15 @@
 // app/dashboard/_components/retry-payment-button.tsx
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { useState } from "react";
 import { recreateStripeSession } from "@/actions/order/order";
 import { toast } from "sonner"; // lub inna biblioteka do powiadomień
 import { CreditCard, Loader2 } from "lucide-react";
 
 export function RetryPaymentButton({ orderId }: { orderId: string }) {
+  const t = useTranslations("dashboard");
   const [loading, setLoading] = useState(false);
 
   const handleRetry = async () => {
@@ -16,7 +19,7 @@ export function RetryPaymentButton({ orderId }: { orderId: string }) {
     if (res.url) {
       window.location.assign(res.url);
     } else {
-      toast.error(res.error || "Payment session error");
+      toast.error(res.error || t("feedback.paymentSessionError"));
       setLoading(false);
     }
   };

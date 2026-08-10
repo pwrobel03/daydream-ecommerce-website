@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { FormSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 import { db } from "@/lib/db";
@@ -10,6 +11,7 @@ async function ProductPageContent({
 }: {
   params: Promise<{ productId: string }>;
 }) {
+  const t = await getTranslations("dashboard");
   const { productId } = await params;
   const isNew = productId === "new";
 
@@ -52,10 +54,10 @@ async function ProductPageContent({
     <div className="space-y-12 pb-20 p-10">
       <header className="flex flex-col gap-2 border-b pb-10">
         <h1 className="text-5xl sm:text-7xl font-black italic uppercase tracking-tighter">
-          {isNew ? "New Artifact" : "Edit Essence"}
+          {isNew ? t("inventory.newProduct") : t("ingredients.editEssence")}
         </h1>
         <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 ml-1">
-          {isNew ? "Create a new product" : `Modifying: ${product?.name}`}
+          {isNew ? t("product.createTitle") : t("product.modifying", { name: product?.name ?? "" })}
         </p>
       </header>
 

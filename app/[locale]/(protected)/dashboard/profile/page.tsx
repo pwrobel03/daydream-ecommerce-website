@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { useEffect, useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
@@ -26,6 +28,7 @@ import { Loader2, UserCog, ShieldCheck, Fingerprint } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SettingsPage = () => {
+  const t = useTranslations("dashboard");
   const user = useCurrentUser();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
@@ -64,7 +67,7 @@ const SettingsPage = () => {
             setSuccess(data.success);
           }
         })
-        .catch(() => setError("Critical transmission error"));
+        .catch(() => setError(t("feedback.transmissionError")));
     });
   };
 
@@ -116,7 +119,7 @@ const SettingsPage = () => {
                             {...field}
                             disabled={isPending}
                             className={artifactInputStyle}
-                            placeholder="Identity"
+                            placeholder={t("labels.identity")}
                           />
                         </FormControl>
                         <FormMessage className="text-xs font-bold italic uppercase" />
@@ -220,7 +223,7 @@ const SettingsPage = () => {
                 type="submit"
                 className="w-full h-24 bg-foreground hover:bg-primary text-background hover:text-white rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98]"
               >
-                {isPending ? <Loader2 className="animate-spin" /> : "Update"}
+                {isPending ? <Loader2 className="animate-spin" /> : t("labels.update")}
               </Button>
             </div>
           </form>

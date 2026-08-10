@@ -23,7 +23,7 @@ import Link from "next/link";
 import type { Category, InventoryProduct } from "@/types/product";
 
 export default function InventoryClient({ categories }: { categories: Category[] }) {
-  const t = useTranslations("dashboard.inventory");
+  const t = useTranslations("dashboard");
   const router = useRouter();
   const [products, setProducts] = useState<InventoryProduct[]>([]);
   const [total, setTotal] = useState(0);
@@ -87,7 +87,7 @@ export default function InventoryClient({ categories }: { categories: Category[]
           <input
             type="text"
             disabled={loading}
-            placeholder="Search by name..."
+            placeholder={t("search.products")}
             className="w-full bg-card/60 border rounded-full py-5 pl-14 pr-8 font-black italic uppercase text-[10px] tracking-widest outline-none focus:ring-2 ring-primary/10 transition-all"
             onChange={(e) => setSearch(e.target.value)}
           />

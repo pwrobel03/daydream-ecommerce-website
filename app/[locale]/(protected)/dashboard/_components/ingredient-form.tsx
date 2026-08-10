@@ -18,20 +18,24 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { Ingredient } from "@/types/product";
 
-// 1. Walidacja Zod
-const formSchema = z.object({
-  name: z.string().min(2, "The name is required"),
-  description: z.string().optional(),
-});
+// Schemat powstaje w ciele komponentu, bo komunikat walidacji jest widoczny
+// dla użytkownika i musi być w jego języku — a hooka nie da się wywołać
+// w zasięgu modułu.
+function buildSchema(t: (key: string) => string) {
+  return z.object({
+    name: z.string().min(2, t("validation.nameRequired")),
+    description: z.string().optional(),
+  });
+}
 
-type IngredientFormValues = z.infer<typeof formSchema>;
+type IngredientFormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 interface IngredientFormProps {
   initialData?: Ingredient | null; // Dane z bazy jeśli edytujemy
 }
 
 export const IngredientForm = ({ initialData }: IngredientFormProps) => {
-  const t = useTranslations("dashboard.ingredients");
+  const t = useTranslations("dashboard");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -40,7 +44,7 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
   );
 
   const form = useForm<IngredientFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(buildSchema(t)),
     defaultValues: initialData || { name: "", description: "" },
   });
 
@@ -129,7 +133,7 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
                   <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 shadow-xl">
                     <Image
                       src={preview}
-                      alt="Preview"
+                      alt={t("labels.preview")}
                       fill
                       className="object-cover"
                     />

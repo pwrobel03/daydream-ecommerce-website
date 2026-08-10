@@ -162,7 +162,8 @@
     },
     "categories": {
       "forge": "Forge Category",
-      "namePlaceholder": "E.g. Dark Stories"
+      "namePlaceholder": "E.g. Dark Stories",
+      "forging": "Forging..."
     },
     "feedback": {
       "saved": "Registry Updated",
@@ -180,6 +181,28 @@
     "product": {
       "createTitle": "Create a new product",
       "modifying": "Modifying: {name}"
+    },
+    "search": {
+      "comments": "Search by product or content...",
+      "products": "Search by name..."
+    },
+    "placeholders": {
+      "street": "Street & Number...",
+      "categoryStory": "Tell the story of this category...",
+      "selectParent": "Select parent..."
+    },
+    "labels": {
+      "deliveryAddress": "Delivery address",
+      "userDashboard": "User Dashboard",
+      "identity": "Identity",
+      "status": "Status",
+      "preview": "Preview",
+      "awaitingPayment": "Awaiting Payment",
+      "update": "Update"
+    },
+    "validation": {
+      "nameRequired": "The name is required",
+      "promoTooHigh": "The price cannot be lower than the promo price"
     }
   }
 }

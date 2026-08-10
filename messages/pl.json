@@ -162,7 +162,8 @@
     },
     "categories": {
       "forge": "Utwórz kategorię",
-      "namePlaceholder": "Np. Ciemne historie"
+      "namePlaceholder": "Np. Ciemne historie",
+      "forging": "Tworzę..."
     },
     "feedback": {
       "saved": "Zapisano",
@@ -180,6 +181,28 @@
     "product": {
       "createTitle": "Dodaj nowy produkt",
       "modifying": "Edytujesz: {name}"
+    },
+    "search": {
+      "comments": "Szukaj po produkcie lub treści...",
+      "products": "Szukaj po nazwie..."
+    },
+    "placeholders": {
+      "street": "Ulica i numer...",
+      "categoryStory": "Opisz tę kategorię...",
+      "selectParent": "Wybierz nadrzędną..."
+    },
+    "labels": {
+      "deliveryAddress": "Adres dostawy",
+      "userDashboard": "Panel użytkownika",
+      "identity": "Tożsamość",
+      "status": "Status",
+      "preview": "Podgląd",
+      "awaitingPayment": "Oczekuje na płatność",
+      "update": "Zapisz"
+    },
+    "validation": {
+      "nameRequired": "Nazwa jest wymagana",
+      "promoTooHigh": "Cena nie może być niższa niż cena promocyjna"
     }
   }
 }

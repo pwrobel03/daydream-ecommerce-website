@@ -651,3 +651,93 @@ Lint reports 71 warnings, none of them errors: 65 are unused variables
 (mostly `catch (error)` bindings and leftover icon imports), 4 are
 `exhaustive-deps` on effects with deliberately narrow dependency arrays, and
 2 are `react-hooks/incompatible-library` from react-hook-form's `watch`.
+
+---
+
+# 2026-08-11 (third pass) — the analytics dashboard and the accessibility work
+
+Scope: everything written after the second pass — `lib/db-analytics.ts`, the
+analytics page and chart, `lib/db-orders.ts`, the rewritten cart store, the
+ratings aggregation, and the accessibility changes. The contrast sweep touched
+~110 files but mechanically; it was spot-checked, not re-read line by line.
+
+**Summary: 2 major, 3 minor.**
+
+## [major] The revenue card and the revenue chart measure different windows — `lib/db-analytics.ts:52`
+
+**Issue:** `getRevenueByDay` buckets by calendar day, from
+`date_trunc('day', NOW()) - (days - 1)`. `getAnalyticsSummary` and
+`getTopProducts` use a rolling window, `NOW() - days`. The two do not cover the
+same span.
+
+**Why it matters:** measured, not theorised — an order placed 29 days and 20
+hours ago produces `SUMMARY 100, CHART 0` on the same screen. The header claims
+revenue the chart below it does not show, and nothing reconciles them. An admin
+comparing the two has no way to tell which is wrong, and the natural conclusion
+is that the dashboard is broken — which, in the sense that matters, it is.
+
+**Recommendation:** define the window once, in calendar days, and have all
+three queries take it as a parameter — the chart's axis is already calendar
+days, so the summary should follow it rather than the other way round. Assert
+in a test that the summary equals the sum of the bars; that single assertion
+would have caught this before it shipped.
+
+## [major] The chart has no text alternative, and no admin page is audited — `app/[locale]/(protected)/dashboard/_components/revenue-chart.tsx:31`
+
+**Issue:** the chart renders as SVG with no `role`, no accessible name and no
+tabular equivalent. The axe spec added in the same unit covers five public
+pages and no dashboard page, so nothing measures it.
+
+**Why it matters:** the whole point of unit 35 was to make accessibility a
+number rather than an intention. Leaving the newest, most visual screen outside
+the audit is exactly how that number stops meaning anything. Revenue per day is
+data a screen-reader user cannot get at all here — unlike top products, which
+did get a real table with a caption.
+
+**Recommendation:** add the analytics page to the axe spec (it needs the admin
+storage state, which the suite already produces), and give the chart a
+visually-hidden table of the same figures. That is the standard pattern and it
+costs a dozen lines.
+
+## [minor] The analytics page authorises four times per render — `lib/db-analytics.ts`
+
+**Issue:** `requireAdmin()` runs in each of the three queries, and the
+`(admin)` layout already guards the route.
+
+**Why it matters:** four session lookups per page view. The repetition itself
+is right — each query must be safe on its own, and that was flagged as correct
+in the first pass — but the layout guard plus three data calls means the same
+answer is fetched four times.
+
+**Recommendation:** leave the guards; consider memoising the session read per
+request with React's `cache()`, which fixes this class of duplication
+everywhere rather than here alone.
+
+## [minor] Day buckets are formed in the database's timezone and rendered in UTC — `lib/db-analytics.ts:64`
+
+**Issue:** `date_trunc('day', NOW())` uses the session timezone; the result is
+then formatted with `toISOString().slice(0, 10)`, which is UTC.
+
+**Why it matters:** identical while the database runs in UTC, which is the case
+today for both the container and the hosted instance — so this is latent, not
+live. On a server set to local time the labels shift by a day, and the shift is
+invisible until someone reconciles a daily figure against an order list.
+
+**Recommendation:** either set the window explicitly with `AT TIME ZONE` or
+return the day as a formatted string from SQL, so one timezone decides both the
+bucket and the label.
+
+## [minor] The axe scan excludes every `aria-hidden` subtree — `tests/e2e/a11y.spec.ts:28`
+
+**Issue:** `.exclude('[aria-hidden="true"]')` was added so the deliberately
+faint background lettering in the auth screens would not fail contrast.
+
+**Why it matters:** it is defensible for decoration — that content is out of
+the accessibility tree by design — but it is a blunt instrument. Anything
+marked `aria-hidden` by mistake now escapes the audit entirely, and marking
+content hidden is a common enough error that the audit should be the thing
+catching it.
+
+**Recommendation:** narrow the exclusion to the decorative container itself
+rather than the attribute in general, so a future misuse of `aria-hidden`
+still fails.

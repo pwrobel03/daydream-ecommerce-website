@@ -370,7 +370,8 @@ Scope: whole codebase, with attention to what the previous work did not touch �
 auth layer and the order screens. Generated Prisma output and vendored shadcn
 UI are excluded.
 
-**Summary: 1 critical, 5 major, 5 minor.**
+**Summary: 1 critical, 5 major, 5 minor — all resolved (`41dedbc`, `a6ce75c`,
+`d335adf`, `982119e`).**
 
 Verified as sound, so not re-listed: the authorization layering (`proxy.ts`
 guards the route, `(admin)/layout.tsx` guards the role with `NotAllowedView`,
@@ -533,3 +534,33 @@ The product and inventory types were narrowed in this round; this one was not.
 
 **Recommendation:** drop the `export` unless a caller is planned; it currently
 reads as public API.
+
+
+---
+
+## Status of the 2026-08-11 findings
+
+All eleven are addressed. Notes on the three where the fix went beyond the
+recommendation:
+
+- **Ratings** (`41dedbc`): the aggregate moved into the database, and the
+  catalogue queries stopped selecting reviews altogether — they were being
+  fetched, serialised and shipped to the browser with their authors purely to
+  compute one number per card. The E2E seed grew to 14 reviews so the test sits
+  above the `take: 9` threshold; below it, it cannot tell the fix from the bug.
+  Verified by restoring the old computation and watching it fail.
+
+- **Cart** (`d335adf`): alongside the narrow `CartProduct`, `syncItems` now
+  drops products the server no longer returns and names them. The existing unit
+  test asserted the opposite — it pinned the bug in place — and now asserts the
+  new behaviour with an explanation. `migrateCart` is exported so carts saved
+  before the change are covered by a test rather than by hope.
+
+- **Uploads** (`a6ce75c`): the ingredient filename and the delete-time leak
+  were one commit, since both concern the same volume. Covered by an
+  integration test against a real database and a real upload directory,
+  including a missing-file case — a broken path must not make a product
+  undeletable.
+
+Still open, and deliberately so: the legacy `deleteUpload` branch stays until
+`scripts/migrate-uploads.ts` has run on an instance.

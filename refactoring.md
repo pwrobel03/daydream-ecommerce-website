@@ -174,6 +174,18 @@ from one unaddressed typing problem — a symptom of nobody wanting to open it.
 the layout into `ProductBasicsSection`, `ProductPricingSection`,
 `ProductImagesSection`. No behaviour change.
 
+> **Resolved (`c8e3074`)**: `useProductForm` plus four sections; the shell is
+> 63 lines. Two deliberate behaviour changes: the promo-price check runs before
+> `FormData` is built rather than after, and the file-size messages are
+> translated. Covered by a new E2E spec — the file had no tests, so the split
+> would otherwise have rested on the compiler alone.
+>
+> Writing that spec surfaced two defects of its own: the dashboard sidebar
+> resolved four nav labels to objects and rendered raw key paths (`2becac2`),
+> and `tests/e2e/seed.ts` re-ran its `deleteMany()` on every import of its
+> constants, which is what made `checkout.spec` fail intermittently
+> (`cc60c8e`).
+
 ## [major] Order ownership is re-checked ad hoc in three places — `actions/order/order.ts:112`
 
 **Issue:** `userId: session.user.id` appears as a query predicate at `:112`,
@@ -316,8 +328,13 @@ Compiler lint rules, not from the refactor.
 > it carries a documented disable. Lint is back to 0 errors.
 
 Still open from the 2026-08-10 list: empty-result returns in the data layer,
-`product-form.tsx` (550 lines), the three admin client-side fetch waterfalls,
+the three admin client-side fetch waterfalls,
 `errorMessage` living in `lib/action-result.ts`, query-shaped types in
 `types/`, and the legacy upload-path branch. `ReviewSchema` still declares
 `userId`, which the action now ignores — the field should come out of the
 schema with the form that sends it.
+
+The admin inventory page passes raw Prisma rows to `ProductForm`, which logs
+"Only plain objects can be passed to Client Components" on every visit — the
+new E2E spec is what made it visible. It belongs with the remaining `lib/dto/`
+work rather than with the form split.

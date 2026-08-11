@@ -215,7 +215,9 @@
     },
     "validation": {
       "nameRequired": "The name is required",
-      "promoTooHigh": "The price cannot be lower than the promo price"
+      "promoTooHigh": "The price cannot be lower than the promo price",
+      "fileTooLarge": "File {name} is too large (max 8MB).",
+      "uploadTooLarge": "The images may not exceed 50MB in total."
     }
   },
   "reviews": {

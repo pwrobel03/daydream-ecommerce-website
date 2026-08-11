@@ -1,11 +1,13 @@
 import { expect, test } from "@playwright/test";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/lib/generated/prisma/client";
-import { E2E_ADMIN } from "./fixtures";
+import { ADMIN_STATE } from "./fixtures";
 
 const db = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
 });
+
+test.use({ storageState: ADMIN_STATE });
 
 test.afterAll(async () => {
   await db.$disconnect();
@@ -24,12 +26,6 @@ async function openNewProductForm(page: Page) {
   // Formularz produktu jest największym ekranem w aplikacji, więc jego pierwsza
   // kompilacja potrafi przekroczyć domyślne 60 s.
   test.setTimeout(150_000);
-
-  await page.goto("/auth/login");
-  await page.getByPlaceholder("USER@DAYDREAM.COM").fill(E2E_ADMIN.email);
-  await page.getByPlaceholder("••••••••••••").fill(E2E_ADMIN.password);
-  await page.getByRole("button", { name: /login/i }).click();
-  await page.waitForURL(/\/dashboard/, { timeout: 60_000 });
 
   await page.goto("/dashboard/inventory/new");
   await expect(field(page, "Name")).toBeVisible({ timeout: 60_000 });

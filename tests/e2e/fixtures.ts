@@ -27,3 +27,6 @@ export const E2E_REVIEWS = [
   { rating: 5, content: "Absolutely luminous, a keeper." },
   { rating: 2, content: "Arrived melted and rather sad." },
 ];
+
+/** Zapisana sesja admina, produkowana raz przez projekt `setup`. */
+export const ADMIN_STATE = "tests/e2e/.auth/admin.json";

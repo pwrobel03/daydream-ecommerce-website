@@ -127,7 +127,8 @@
       "manageOrders": "Manage Orders",
       "manageVoices": "Manage Voices",
       "identity": "Identity",
-      "accountSettings": "Account Settings"
+      "accountSettings": "Account Settings",
+      "analytics": "Analytics"
     },
     "status": {
       "PENDING": "Pending",
@@ -221,6 +222,23 @@
       "promoTooHigh": "The price cannot be lower than the promo price",
       "fileTooLarge": "File {name} is too large (max 8MB).",
       "uploadTooLarge": "The images may not exceed 50MB in total."
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Last {days} days",
+      "rangeLabel": "Report range",
+      "rangeOption": "{days}d",
+      "revenue": "Revenue",
+      "paidOrders": "Paid orders",
+      "averageOrder": "Average order",
+      "conversion": "Checkout conversion",
+      "conversionHint": "{abandoned, plural, =0 {none abandoned} one {# abandoned} other {# abandoned}}",
+      "revenueChart": "Revenue per day",
+      "topProducts": "Top products",
+      "topProductsCaption": "Best selling products by revenue in the selected range",
+      "product": "Product",
+      "units": "Units",
+      "noSales": "No sales in this range yet."
     }
   },
   "reviews": {

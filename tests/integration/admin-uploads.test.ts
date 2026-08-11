@@ -9,7 +9,7 @@ import { expectOk } from "../helpers/action-result";
 const { session, db } = await vi.hoisted(async () => {
   const { createPrismaClient } = await import("@/lib/db");
   return {
-    session: { user: { id: "admin", role: "ADMIN" as const } },
+    session: { user: { id: "admin-uploads", role: "ADMIN" as const } },
     db: createPrismaClient(),
   };
 });
@@ -41,7 +41,7 @@ let productId: string;
 
 beforeAll(async () => {
   await db.user.create({
-    data: { id: "admin", email: "admin@example.com", role: "ADMIN" },
+    data: { id: "admin-uploads", email: "uploads@example.com", role: "ADMIN" },
   });
 });
 

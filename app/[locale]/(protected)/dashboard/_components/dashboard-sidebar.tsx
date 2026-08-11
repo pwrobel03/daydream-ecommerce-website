@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCurrentRole } from "@/hooks/use-current-role";
 import {
+  BarChart3,
   MessageSquare,
   Layers,
   LayoutDashboard,
@@ -34,6 +35,11 @@ export default function DashboardSidebar() {
   ];
 
   const adminMenuItems = [
+    {
+      title: t("nav.analytics"),
+      href: "/dashboard/analytics",
+      icon: BarChart3,
+    },
     {
       title: t("nav.manageVoices"),
       href: "/dashboard/comments",

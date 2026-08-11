@@ -127,7 +127,8 @@
       "manageOrders": "Zarządzaj zamówieniami",
       "manageVoices": "Zarządzaj opiniami",
       "identity": "Tożsamość",
-      "accountSettings": "Ustawienia konta"
+      "accountSettings": "Ustawienia konta",
+      "analytics": "Analityka"
     },
     "status": {
       "PENDING": "Oczekuje",
@@ -221,6 +222,23 @@
       "promoTooHigh": "Cena nie może być niższa niż cena promocyjna",
       "fileTooLarge": "Plik {name} jest za duży (maks. 8MB).",
       "uploadTooLarge": "Łączny rozmiar zdjęć nie może przekroczyć 50MB."
+    },
+    "analytics": {
+      "title": "Analityka",
+      "subtitle": "Ostatnie {days} dni",
+      "rangeLabel": "Zakres raportu",
+      "rangeOption": "{days}d",
+      "revenue": "Przychód",
+      "paidOrders": "Opłacone zamówienia",
+      "averageOrder": "Średnie zamówienie",
+      "conversion": "Konwersja checkoutu",
+      "conversionHint": "{abandoned, plural, =0 {brak porzuconych} one {# porzucone} few {# porzucone} many {# porzuconych} other {# porzuconych}}",
+      "revenueChart": "Przychód dzień po dniu",
+      "topProducts": "Najlepsze produkty",
+      "topProductsCaption": "Produkty o największym przychodzie w wybranym zakresie",
+      "product": "Produkt",
+      "units": "Sztuk",
+      "noSales": "Brak sprzedaży w tym zakresie."
     }
   },
   "reviews": {

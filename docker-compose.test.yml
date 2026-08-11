@@ -1,3 +1,9 @@
+# Własna nazwa projektu, nie domyślna z katalogu. Bez niej ten plik dzieli
+# przestrzeń nazw z docker-compose.yml — te same usługi (postgres, redis,
+# mailpit) — więc `down -v` sprzątające po testach kasowało kontenery i wolumeny
+# działającego lokalnie stosu razem z jego bazą.
+name: daydream-e2e
+
 # Zależności na czas testów E2E. Celowo na innych portach niż domyślne,
 # żeby nie kolidować z lokalnym Postgresem czy Redisem.
 services:

@@ -4,11 +4,11 @@ import React from "react";
 import { Plus, Minus } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { ProductType } from "@/types/product";
+import { CartProduct } from "@/types/product";
 import { useCart } from "@/hooks/use-cart";
 import { cn } from "@/lib/utils";
 
-const QuantityButtons = ({ product }: { product: ProductType }) => {
+const QuantityButtons = ({ product }: { product: CartProduct }) => {
   const { addItem, removeItem, getItemCount, isMounted } = useCart();
   const itemCount = isMounted ? getItemCount(product?.id) : 0;
   const isAtLimit = itemCount >= (product?.stock ?? 0);

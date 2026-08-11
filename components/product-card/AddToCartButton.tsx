@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductType } from "@/types/product";
+import { CartProduct } from "@/types/product";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { ShoppingBag, ArrowRight } from "lucide-react";
@@ -13,7 +13,7 @@ const AddToCartButton = ({
   product,
   className,
 }: {
-  product: ProductType;
+  product: CartProduct;
   className?: string;
 }) => {
   const { addItem, getItemCount, isMounted } = useCart();

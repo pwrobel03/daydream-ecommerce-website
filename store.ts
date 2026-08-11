@@ -1,16 +1,64 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { CartSyncProduct, ProductType } from "./types/product";
+import { CartProduct, CartSyncProduct, ProductType } from "./types/product";
 import { activePrice, basePrice } from "./lib/pricing";
 
 export interface CartItem {
-  product: ProductType;
+  product: CartProduct;
   quantity: number;
+}
+
+/**
+ * Zawęża produkt z katalogu do tego, co koszyk naprawdę rysuje.
+ *
+ * Bez tego do localStorage trafiał cały agregat — opis, kategorie, składniki
+ * i lista opinii z autorami — którego widok koszyka nigdy nie czytał, a który
+ * starzał się w nieskończoność.
+ */
+export function toCartProduct(product: ProductType): CartProduct {
+  return {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    price: Number(product.price),
+    promoPrice: product.promoPrice ?? null,
+    stock: product.stock,
+    images: product.images?.[0] ? [{ url: product.images[0].url }] : [],
+    status: product.status
+      ? { name: product.status.name, color: product.status.color ?? null }
+      : null,
+  };
+}
+
+interface PersistedCart {
+  items?: { product: ProductType; quantity: number }[];
+}
+
+/**
+ * Przenosi koszyk zapisany przed zawężeniem kształtu na nowy.
+ *
+ * Wydzielona i wyeksportowana, bo inaczej dałoby się ją sprawdzić tylko przez
+ * wnętrze zustanda — a to jedyny kod w tym pliku, który dotyka danych realnych
+ * użytkowników zapisanych przed wdrożeniem.
+ */
+export function migrateCart(persisted: unknown, version: number): unknown {
+  const state = persisted as PersistedCart | null;
+  if (version >= 1 || !state?.items) return persisted;
+
+  return {
+    ...state,
+    items: state.items
+      .filter((item) => item?.product?.id)
+      .map((item) => ({
+        product: toCartProduct(item.product),
+        quantity: item.quantity,
+      })),
+  };
 }
 
 interface CartState {
   items: CartItem[];
-  addItem: (product: ProductType) => void;
+  addItem: (product: CartProduct) => void;
   removeItem: (productId: string) => void;
   deleteCartProduct: (productId: string) => void;
   resetCart: () => void;
@@ -18,7 +66,8 @@ interface CartState {
   getSubTotalPrice: () => number;
   getItemCount: (productId: string) => number;
   getGroupedItems: () => CartItem[];
-  syncItems: (freshData: CartSyncProduct[]) => void;
+  /** Zwraca nazwy pozycji, które zniknęły z katalogu i zostały usunięte. */
+  syncItems: (freshData: CartSyncProduct[]) => string[];
 }
 
 const useCartStore = create<CartState>()(
@@ -38,9 +87,9 @@ const useCartStore = create<CartState>()(
                   : item
               ),
             };
-          } else {
-            return { items: [...state.items, { product, quantity: 1 }] };
           }
+
+          return { items: [...state.items, { product, quantity: 1 }] };
         }),
       removeItem: (productId) =>
         set((state) => ({
@@ -57,24 +106,30 @@ const useCartStore = create<CartState>()(
         })),
       deleteCartProduct: (productId) =>
         set((state) => ({
-          items: state.items.filter(
-            ({ product }) => product?.id !== productId
-          ),
+          items: state.items.filter(({ product }) => product?.id !== productId),
         })),
       resetCart: () => set({ items: [] }),
       syncItems: (freshData) => {
+        const fresh = new Map(freshData.map((product) => [product.id, product]));
+
+        // Produkt, którego serwer nie zwrócił, nie istnieje już w katalogu.
+        // Wcześniej taka pozycja zostawała w koszyku na zawsze, a
+        // `initializeOrder` odrzucał przez nią całe zamówienie, nie wskazując
+        // której pozycji dotyczy — koszyk stawał się nie do przejścia.
+        const removed = get()
+          .items.filter((item) => !fresh.has(item.product.id))
+          .map((item) => item.product.name);
+
         set((state) => ({
-          items: state.items.map((item) => {
-            const fresh = freshData.find((p) => p.id === item.product.id);
-            if (fresh) {
-              return {
-                ...item,
-                product: { ...item.product, ...fresh } // Aktualizujemy stock i ceny z bazy
-              };
-            }
-            return item;
+          items: state.items.flatMap((item) => {
+            const update = fresh.get(item.product.id);
+            if (!update) return [];
+
+            return [{ ...item, product: { ...item.product, ...update } }];
           }),
-        }))
+        }));
+
+        return removed;
       },
       getTotalPrice: () => {
         return get().items.reduce(
@@ -94,7 +149,14 @@ const useCartStore = create<CartState>()(
       },
       getGroupedItems: () => get().items,
     }),
-    { name: "cart-store" }
+    {
+      name: "cart-store",
+      // Koszyki zapisane przed zawężeniem kształtu trzymają całe produkty.
+      // Migracja przepuszcza je przez ten sam mapper, więc istniejący koszyk
+      // przeżywa wdrożenie zamiast zniknąć albo wywrócić render.
+      version: 1,
+      migrate: (persisted, version) => migrateCart(persisted, version) as CartState,
+    }
   )
 );
 

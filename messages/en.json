@@ -34,7 +34,10 @@
     "empty": "Empty Bag",
     "findDream": "Find a Dream",
     "verifyingStock": "Verifying Stock...",
-    "reserved": "Stock Reserved. Redirecting..."
+    "reserved": "Stock Reserved. Redirecting...",
+    "removedUnavailable": "Removed from your cart, no longer available: {names}",
+    "syncFailed": "We could not verify prices and stock right now.",
+    "retry": "Try again"
   },
   "errors": {
     "mustBeSignedIn": "You must be signed in to continue.",

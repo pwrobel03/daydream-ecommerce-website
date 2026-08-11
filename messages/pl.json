@@ -34,7 +34,10 @@
     "empty": "Pusty koszyk",
     "findDream": "Znajdź coś dla siebie",
     "verifyingStock": "Sprawdzam dostępność...",
-    "reserved": "Towar zarezerwowany. Przekierowuję..."
+    "reserved": "Towar zarezerwowany. Przekierowuję...",
+    "removedUnavailable": "Usunięto z koszyka, produkt niedostępny: {names}",
+    "syncFailed": "Nie udało się teraz zweryfikować cen i dostępności.",
+    "retry": "Spróbuj ponownie"
   },
   "errors": {
     "mustBeSignedIn": "Musisz być zalogowany, aby kontynuować.",

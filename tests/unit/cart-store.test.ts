@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import useCartStore from "@/store";
-import type { ProductType } from "@/types/product";
+import type { CartProduct } from "@/types/product";
 
 // Minimalny produkt — testy dotyczą wyłącznie pól cenowych i stanu magazynowego.
-function product(overrides: Partial<ProductType> & { id: string }): ProductType {
+function product(overrides: Partial<CartProduct> & { id: string }): CartProduct {
   return {
     name: `Product ${overrides.id}`,
     slug: `product-${overrides.id}`,
@@ -11,13 +11,8 @@ function product(overrides: Partial<ProductType> & { id: string }): ProductType 
     promoPrice: null,
     stock: 100,
     images: [],
-    categories: [],
-    ingredients: [],
-    reviews: [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
     ...overrides,
-  } as ProductType;
+  };
 }
 
 describe("cart store", () => {
@@ -123,11 +118,35 @@ describe("cart store", () => {
       expect(useCartStore.getState().getTotalPrice()).toBe(12);
     });
 
-    it("leaves products absent from the server response alone", () => {
+    it("drops products the server no longer returns and names them", () => {
+      // Ten test sprawdzał wcześniej, że taka pozycja zostaje nietknięta —
+      // przypinał więc błąd. Produkt zniknięty z katalogu nigdy nie wracał
+      // z serwera, zostawał w koszyku na zawsze, a `initializeOrder`
+      // odrzucał przez niego całe zamówienie bez wskazania pozycji.
       useCartStore.getState().addItem(product({ id: "a", price: 10 }));
-      useCartStore.getState().syncItems([{ id: "other", name: "Product other", price: 99, promoPrice: null, stock: 1 }]);
+      useCartStore.getState().addItem(product({ id: "b", price: 5 }));
 
-      expect(useCartStore.getState().items[0].product.price).toBe(10);
+      const removed = useCartStore
+        .getState()
+        .syncItems([
+          { id: "b", name: "Product b", price: 5, promoPrice: null, stock: 3 },
+        ]);
+
+      expect(removed).toEqual(["Product a"]);
+      expect(useCartStore.getState().items.map((i) => i.product.id)).toEqual(["b"]);
+    });
+
+    it("reports nothing removed when every product came back", () => {
+      useCartStore.getState().addItem(product({ id: "a", price: 10 }));
+
+      const removed = useCartStore
+        .getState()
+        .syncItems([
+          { id: "a", name: "Product a", price: 12, promoPrice: null, stock: 4 },
+        ]);
+
+      expect(removed).toEqual([]);
+      expect(useCartStore.getState().items[0].product.price).toBe(12);
     });
 
     it("preserves quantity while refreshing product data", () => {
@@ -153,5 +172,65 @@ describe("cart store", () => {
     it("reports zero for a product not in the cart", () => {
       expect(useCartStore.getState().getItemCount("missing")).toBe(0);
     });
+  });
+});
+
+describe("persisted cart migration", () => {
+  it("trims a pre-version-1 cart to the narrow shape", async () => {
+    // Koszyki zapisane przed zawężeniem trzymają całe `ProductType`. Bez
+    // migracji zostałyby w localStorage z opisem, kategoriami i opiniami,
+    // a `toCartProduct` nigdy by ich nie dotknął.
+    const { migrateCart } = await import("@/store");
+
+    const legacy = {
+      items: [
+        {
+          quantity: 2,
+          product: {
+            id: "a",
+            name: "Legacy Bar",
+            slug: "legacy-bar",
+            price: 12,
+            promoPrice: null,
+            stock: 5,
+            description: "a very long description that the cart never renders",
+            images: [{ id: "img", url: "/uploads/a.webp" }],
+            categories: [{ id: "c", name: "Bars", slug: "bars" }],
+            ingredients: [{ id: "i", name: "Cocoa" }],
+            reviews: [{ id: "r", rating: 5, content: "…", userId: "u" }],
+            ratingAvg: 5,
+            ratingCount: 1,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        },
+      ],
+    };
+
+    const migrated = migrateCart(legacy, 0) as {
+      items: { product: Record<string, unknown>; quantity: number }[];
+    };
+    const [item] = migrated.items;
+
+    expect(item.quantity).toBe(2);
+    expect(Object.keys(item.product).sort()).toEqual([
+      "id",
+      "images",
+      "name",
+      "price",
+      "promoPrice",
+      "slug",
+      "status",
+      "stock",
+    ]);
+    expect(item.product.images).toEqual([{ url: "/uploads/a.webp" }]);
+  });
+
+  it("leaves an already-migrated cart untouched", async () => {
+    const { migrateCart } = await import("@/store");
+
+    const current = { items: [{ quantity: 1, product: { id: "a", name: "Bar" } }] };
+
+    expect(migrateCart(current, 1)).toBe(current);
   });
 });

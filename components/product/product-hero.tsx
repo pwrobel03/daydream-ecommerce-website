@@ -8,6 +8,7 @@ import PriceFormatter from "../PriceFormatter";
 import ProductStatusBadge from "../product-status-badge";
 import AddToCartButton from "../product-card/AddToCartButton";
 import type { ProductType } from "@/types/product";
+import { toCartProduct } from "@/store";
 
 export default function ProductHero({ product }: { product: ProductType }) {
   const { addItem } = useCart();
@@ -42,7 +43,7 @@ export default function ProductHero({ product }: { product: ProductType }) {
         )}
       </div>
       <div className="pt-10">
-        <AddToCartButton product={product} />
+        <AddToCartButton product={toCartProduct(product)} />
         {/* <button
           onClick={() => addItem(product)}
           className="group relative w-full h-20 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full overflow-hidden transition-all hover:scale-[1.02] active:scale-95"

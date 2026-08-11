@@ -7,6 +7,7 @@ import PriceView from "./PriceView";
 import { Star } from "lucide-react";
 import { ProductType } from "@/types/product";
 import AddToCartButton from "./AddToCartButton";
+import { toCartProduct } from "@/store";
 import { cn } from "@/lib/utils";
 import ProductStatusBadge from "@/components/product-status-badge";
 
@@ -124,7 +125,7 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
         </div>
 
         <div className="mt-2 transition-transform duration-500 group-hover:translate-y-[-4px]">
-          <AddToCartButton product={product} />
+          <AddToCartButton product={toCartProduct(product)} />
         </div>
       </div>
     </div>

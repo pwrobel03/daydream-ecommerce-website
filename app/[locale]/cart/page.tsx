@@ -33,20 +33,49 @@ const CartPage = () => {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [isSyncing, setIsSyncing] = useState(true);
+  const [syncFailed, setSyncFailed] = useState(false);
   const [coupon, setCoupon] = useState("");
 
   useEffect(() => {
     const sync = async () => {
       if (isMounted && items.length > 0) {
-        const freshData = await getFreshCartData(
-          items.map((i) => i.product.id)
-        );
-        syncItems(freshData);
+        try {
+          const freshData = await getFreshCartData(
+            items.map((i) => i.product.id)
+          );
+
+          // Pozycje, których serwer nie zwrócił, zniknęły z katalogu.
+          // Trzeba je nazwać — inaczej użytkownik widzi tylko, że koszyk
+          // się skurczył, albo (wcześniej) że zamówienia nie da się złożyć.
+          const removed = syncItems(freshData);
+          if (removed.length > 0) {
+            toast.error(t("removedUnavailable", { names: removed.join(", ") }));
+          }
+        } catch {
+          // Awaria sprawdzenia nie może udawać, że ceny są aktualne.
+          setSyncFailed(true);
+        }
       }
       setIsSyncing(false);
     };
     sync();
   }, [isMounted]);
+
+  if (syncFailed) {
+    return (
+      <div className="container mx-auto px-6 py-40 flex flex-col items-center gap-4 text-center">
+        <p className="text-sm font-black uppercase tracking-widest">
+          {t("syncFailed")}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-8 py-4 rounded-full border font-black uppercase italic text-xs tracking-widest hover:bg-primary hover:text-white transition-all"
+        >
+          {t("retry")}
+        </button>
+      </div>
+    );
+  }
 
   if (!isMounted || isSyncing) {
     return (

@@ -45,7 +45,8 @@
     "reservationFailed": "Something went wrong while reserving your items.",
     "invalidAddress": "The delivery details are invalid.",
     "unauthorized": "Unauthorized",
-    "generic": "Something went wrong"
+    "generic": "Something went wrong",
+    "paymentSessionFailed": "Could not start the payment session. Please try again."
   },
   "auth": {
     "login": {

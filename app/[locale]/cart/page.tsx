@@ -72,13 +72,20 @@ const CartPage = () => {
       coupon.trim() || undefined
     );
 
-    if (res.error) {
-      toast.error(res.error);
+    if (!res.ok) {
+      // Odmowa z powodu stanu magazynowego znaczy, że koszyk pokazuje
+      // nieaktualne dane — pobieramy je ponownie, żeby użytkownik zobaczył,
+      // czego dotyczy komunikat, zamiast klikać w to samo jeszcze raz.
+      if (res.code === "OUT_OF_STOCK") {
+        syncItems(await getFreshCartData(items.map((i) => i.product.id)));
+      }
+      toast.error(res.message);
       setIsPending(false);
-    } else {
-      toast.success(t("reserved"));
-      router.push(`/cart/delivery/${res.orderId}`);
+      return;
     }
+
+    toast.success(t("reserved"));
+    router.push(`/cart/delivery/${res.data.orderId}`);
   };
 
   // Looking for error inside cart

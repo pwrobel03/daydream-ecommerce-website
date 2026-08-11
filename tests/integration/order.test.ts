@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { expectFail, expectOk } from "../helpers/action-result";
 
 // Sesja jest jedyną rzeczą, którą podmieniamy — baza jest prawdziwa.
 // Fabryka musi być asynchroniczna: vi.hoisted wykonuje się przed importami,
@@ -49,10 +50,10 @@ describe("initializeOrder", () => {
     // Regresja na manipulację ceną: akcja przyjmuje wyłącznie id i ilość,
     // więc podrobiony koszyk nie ma jak wpłynąć na kwotę.
     const result = await initializeOrder([{ productId, quantity: 2 }]);
-    expect(result.error).toBeUndefined();
+    const { orderId } = expectOk(result);
 
     const order = await db.order.findUniqueOrThrow({
-      where: { id: result.orderId! },
+      where: { id: orderId },
       include: { items: true },
     });
 
@@ -64,7 +65,7 @@ describe("initializeOrder", () => {
     await db.product.update({ where: { id: productId }, data: { promoPrice: 10 } });
 
     const result = await initializeOrder([{ productId, quantity: 3 }]);
-    const order = await db.order.findUniqueOrThrow({ where: { id: result.orderId! } });
+    const order = await db.order.findUniqueOrThrow({ where: { id: expectOk(result).orderId } });
 
     expect(order.totalAmount).toBe(30);
   });
@@ -79,7 +80,7 @@ describe("initializeOrder", () => {
   it("refuses to oversell and leaves stock untouched", async () => {
     const result = await initializeOrder([{ productId, quantity: 11 }]);
 
-    expect(result.error).toBeDefined();
+    expectFail(result, "OUT_OF_STOCK");
     const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
     expect(product.stock).toBe(10);
     expect(await db.order.count()).toBe(0);
@@ -93,7 +94,7 @@ describe("initializeOrder", () => {
       { productId, quantity: 6 },
     ]);
 
-    expect(result.error).toBeDefined();
+    expectFail(result, "OUT_OF_STOCK");
     const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
     expect(product.stock).toBe(10);
   });
@@ -106,7 +107,7 @@ describe("initializeOrder", () => {
       initializeOrder([{ productId, quantity: 4 }]),
     ]);
 
-    const succeeded = results.filter((r) => !r.error);
+    const succeeded = results.filter((r) => r.ok);
     expect(succeeded).toHaveLength(1);
 
     const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
@@ -115,7 +116,7 @@ describe("initializeOrder", () => {
 
   it("sets a reservation deadline so the sweep can reclaim abandoned orders", async () => {
     const result = await initializeOrder([{ productId, quantity: 1 }]);
-    const order = await db.order.findUniqueOrThrow({ where: { id: result.orderId! } });
+    const order = await db.order.findUniqueOrThrow({ where: { id: expectOk(result).orderId } });
 
     expect(order.reservedUntil).not.toBeNull();
     expect(order.reservedUntil!.getTime()).toBeGreaterThan(Date.now());
@@ -123,7 +124,7 @@ describe("initializeOrder", () => {
 
   it("rejects a malformed cart", async () => {
     const result = await initializeOrder([{ productId, quantity: 0 }] as never);
-    expect(result.error).toBeDefined();
+    expectFail(result, "INVALID_INPUT");
     expect(await db.order.count()).toBe(0);
   });
 
@@ -133,7 +134,7 @@ describe("initializeOrder", () => {
       { productId: "does-not-exist", quantity: 1 },
     ]);
 
-    expect(result.error).toBeDefined();
+    expectFail(result, "OUT_OF_STOCK");
     const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
     expect(product.stock).toBe(10);
   });

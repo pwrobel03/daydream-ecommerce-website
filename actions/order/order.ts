@@ -4,7 +4,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import { errorMessage } from "@/lib/action-result";
+import { ActionError, ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 import { reportError } from "@/lib/logger";
 import { AddressSchema, CheckoutItemsSchema } from "@/schemas";
 import { createCheckoutSession } from "@/lib/checkout-session";
@@ -19,18 +19,18 @@ const RESERVATION_MINUTES = 45;
 export async function initializeOrder(
   items: z.infer<typeof CheckoutItemsSchema>,
   couponCode?: string
-) {
+): Promise<ActionResult<{ orderId: string }>> {
   // Komunikat wraca do interfejsu, więc musi być w języku bieżącej trasy.
   const t = await getTranslations("errors");
   const session = await auth();
 
   if (!session?.user?.id) {
-    return { error: t("mustBeSignedIn") };
+    return fail("UNAUTHORIZED", t("mustBeSignedIn"));
   }
 
   const validated = CheckoutItemsSchema.safeParse(items);
   if (!validated.success) {
-    return { error: t("invalidCart") };
+    return fail("INVALID_INPUT", t("invalidCart"));
   }
 
   // Scalamy powtórzone pozycje — inaczej ten sam produkt przysłany dwa razy
@@ -51,7 +51,7 @@ export async function initializeOrder(
       });
 
       if (products.length !== quantities.size) {
-        throw new Error(t("someProductUnavailable"));
+        throw new ActionError("OUT_OF_STOCK", t("someProductUnavailable"));
       }
 
       // Liczymy w groszach, na liczbach całkowitych. Rozszerzenie klienta
@@ -71,7 +71,7 @@ export async function initializeOrder(
         });
 
         if (reserved.count !== 1) {
-          throw new Error(t("productUnavailable", { name: product.name }));
+          throw new ActionError("OUT_OF_STOCK", t("productUnavailable", { name: product.name }));
         }
 
         // Cena zawsze z bazy, nigdy z danych przysłanych przez klienta.
@@ -96,7 +96,7 @@ export async function initializeOrder(
         : null;
 
       if (couponCode && !sale) {
-        throw new Error(t("invalidCoupon"));
+        throw new ActionError("INVALID_COUPON", t("invalidCoupon"));
       }
 
       // Rabat też w groszach: dzięki temu kwota zapisana w bazie i kwota
@@ -126,23 +126,23 @@ export async function initializeOrder(
       return order.id;
     });
 
-    return { success: true, orderId };
+    return ok({ orderId });
   } catch (error) {
-    return { error: errorMessage(error, t("reservationFailed")) };
+    return failFrom(error, "INTERNAL", t("reservationFailed"));
   }
 }
 
 export async function finalizeAndPay(
   orderId: string,
   addressData: z.infer<typeof AddressSchema>
-) {
+): Promise<ActionResult<{ url: string }>> {
   const t = await getTranslations("errors");
   const session = await auth();
-  if (!session?.user?.id) return { error: t("unauthorized") };
+  if (!session?.user?.id) return fail("UNAUTHORIZED", t("unauthorized"));
 
   const validatedAddress = AddressSchema.safeParse(addressData);
   if (!validatedAddress.success) {
-    return { url: null, error: t("invalidAddress") };
+    return fail("INVALID_INPUT", t("invalidAddress"));
   }
 
   try {
@@ -160,7 +160,9 @@ export async function finalizeAndPay(
         select: { id: true },
       });
 
-      if (!existing) throw new Error("Order not found or already processed");
+      if (!existing) {
+        throw new ActionError("NOT_FOUND", "Order not found or already processed");
+      }
 
       // Adres zamówienia jest snapshotem — tak samo jak cena w OrderItem.
       // Musi być osobnym wierszem, inaczej późniejsza edycja adresu w profilu
@@ -205,14 +207,18 @@ export async function finalizeAndPay(
       expiresInMinutes: 30,
     });
 
-    return { url, error: null };
+    return ok({ url });
   } catch (error) {
     reportError(error, { area: "order.finalizeAndPay", orderId });
-    return { url: null, error: "Stripe Session Error" };
+    return failFrom(error, "PAYMENT_ERROR", t("paymentSessionFailed"));
   }
 }
 
-export async function recreateStripeSession(orderId: string) {
+export async function recreateStripeSession(
+  orderId: string
+): Promise<ActionResult<{ url: string }>> {
+  const t = await getTranslations("errors");
+
   try {
     // Ten sam guard co przy pierwszej płatności — zamówienie musi należeć do
     // wywołującego i wciąż czekać na zapłatę.
@@ -225,9 +231,9 @@ export async function recreateStripeSession(orderId: string) {
       cancelUrl: `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/${orderId}`,
     });
 
-    return { url };
+    return ok({ url });
   } catch (error) {
     reportError(error, { area: "order.recreateStripeSession", orderId });
-    return { error: "Failed to recreate payment session" };
+    return failFrom(error, "PAYMENT_ERROR", t("paymentSessionFailed"));
   }
 }

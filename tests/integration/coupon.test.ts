@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { expectFail, expectOk } from "../helpers/action-result";
 
 const { session, db } = await vi.hoisted(async () => {
   const { createPrismaClient } = await import("@/lib/db");
@@ -55,7 +56,7 @@ describe("coupons", () => {
     await sale();
 
     const result = await initializeOrder([{ productId, quantity: 2 }], "SPRING20");
-    const order = await db.order.findUniqueOrThrow({ where: { id: result.orderId! } });
+    const order = await db.order.findUniqueOrThrow({ where: { id: expectOk(result).orderId } });
 
     // 2 × 100 = 200, minus 20% = 160
     expect(order.totalAmount).toBe(160);
@@ -69,7 +70,7 @@ describe("coupons", () => {
     await sale({ discountValue: 5 });
 
     const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
-    const order = await db.order.findUniqueOrThrow({ where: { id: result.orderId! } });
+    const order = await db.order.findUniqueOrThrow({ where: { id: expectOk(result).orderId } });
 
     expect(order.discountAmount).toBe(5);
     expect(order.totalAmount).toBe(95);
@@ -80,7 +81,7 @@ describe("coupons", () => {
 
     const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
 
-    expect(result.error).toBeDefined();
+    expectFail(result, "INVALID_COUPON");
     expect(await db.order.count()).toBe(0);
   });
 
@@ -88,20 +89,20 @@ describe("coupons", () => {
     await sale({ validFrom: new Date(Date.now() + DAY) });
 
     const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
-    expect(result.error).toBeDefined();
+    expectFail(result, "INVALID_COUPON");
   });
 
   it("rejects a deactivated coupon", async () => {
     await sale({ isActive: false });
 
     const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
-    expect(result.error).toBeDefined();
+    expectFail(result, "INVALID_COUPON");
   });
 
   it("rejects an unknown code rather than silently ignoring it", async () => {
     const result = await initializeOrder([{ productId, quantity: 1 }], "NOPE");
 
-    expect(result.error).toBeDefined();
+    expectFail(result, "INVALID_COUPON");
     expect(await db.order.count()).toBe(0);
   });
 
@@ -115,7 +116,7 @@ describe("coupons", () => {
 
   it("orders without a coupon record a zero discount", async () => {
     const result = await initializeOrder([{ productId, quantity: 1 }]);
-    const order = await db.order.findUniqueOrThrow({ where: { id: result.orderId! } });
+    const order = await db.order.findUniqueOrThrow({ where: { id: expectOk(result).orderId } });
 
     expect(order.discountAmount).toBe(0);
     expect(order.saleId).toBeNull();
@@ -128,7 +129,7 @@ describe("coupons", () => {
     await sale({ discountValue: 33 });
 
     const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
-    const order = await db.order.findUniqueOrThrow({ where: { id: result.orderId! } });
+    const order = await db.order.findUniqueOrThrow({ where: { id: expectOk(result).orderId } });
 
     expect(order.discountAmount).toBe(33);
     expect(order.totalAmount).toBe(67);
@@ -146,7 +147,7 @@ describe("payment retry", () => {
 
     const result = await initializeOrder([{ productId, quantity: 2 }], "SPRING20");
     const order = await db.order.findUniqueOrThrow({
-      where: { id: result.orderId! },
+      where: { id: expectOk(result).orderId },
       include: { items: true },
     });
 

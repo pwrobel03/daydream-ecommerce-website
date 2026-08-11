@@ -45,7 +45,8 @@
     "reservationFailed": "Coś poszło nie tak podczas rezerwacji.",
     "invalidAddress": "Dane adresowe są nieprawidłowe.",
     "unauthorized": "Brak uprawnień",
-    "generic": "Coś poszło nie tak"
+    "generic": "Coś poszło nie tak",
+    "paymentSessionFailed": "Nie udało się rozpocząć płatności. Spróbuj ponownie."
   },
   "auth": {
     "login": {

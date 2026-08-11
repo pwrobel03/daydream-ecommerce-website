@@ -2,6 +2,7 @@
 // Wspólne zabezpieczenia dla Server Actions.
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { ActionError } from "@/lib/action-result";
 
 /**
  * Przerywa wykonanie, jeśli bieżący użytkownik nie jest adminem.
@@ -11,7 +12,9 @@ import { db } from "@/lib/db";
  */
 export async function requireAdmin() {
   const session = await auth();
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  if (session?.user?.role !== "ADMIN") {
+    throw new ActionError("FORBIDDEN", "Unauthorized");
+  }
   return session;
 }
 
@@ -29,7 +32,7 @@ export async function requireOwnedOrder(
   options: { pendingOnly?: boolean } = {}
 ) {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session?.user?.id) throw new ActionError("UNAUTHORIZED", "Unauthorized");
 
   const order = await db.order.findFirst({
     where: {
@@ -40,6 +43,8 @@ export async function requireOwnedOrder(
     include: { items: { include: { product: true } } },
   });
 
-  if (!order) throw new Error("Order not found or already processed");
+  if (!order) {
+    throw new ActionError("NOT_FOUND", "Order not found or already processed");
+  }
   return order;
 }

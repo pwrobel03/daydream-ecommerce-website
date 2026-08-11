@@ -16,12 +16,13 @@ export function RetryPaymentButton({ orderId }: { orderId: string }) {
     setLoading(true);
     const res = await recreateStripeSession(orderId);
 
-    if (res.url) {
-      window.location.assign(res.url);
-    } else {
-      toast.error(res.error || t("feedback.paymentSessionError"));
+    if (!res.ok) {
+      toast.error(res.message);
       setLoading(false);
+      return;
     }
+
+    window.location.assign(res.data.url);
   };
 
   return (

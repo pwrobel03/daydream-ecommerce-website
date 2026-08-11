@@ -50,15 +50,16 @@ export function DeliveryClient({ order, savedAddress }: DeliveryClientProps) {
     // Wywołujemy akcję Stripe, przekazując ID zamówienia i dane adresowe
     const res = await finalizeAndPay(order.id, values);
 
-    if (res.url) {
+    if (!res.ok) {
+      toast.error(res.message);
       setLoading(false);
-      resetCart();
-      toast.success("Redirecting to secure vault...");
-      window.location.assign(res.url);
-    } else {
-      toast.error(res.error || "Acquisition failed");
-      setLoading(false);
+      return;
     }
+
+    setLoading(false);
+    resetCart();
+    toast.success("Redirecting to secure vault...");
+    window.location.assign(res.data.url);
   }
 
   const artifactInputStyle =

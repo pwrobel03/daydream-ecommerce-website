@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/lib/generated/prisma/client";
-import { E2E_PRODUCT, E2E_USER } from "./seed";
+import { E2E_PRODUCT, E2E_USER } from "./fixtures";
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 

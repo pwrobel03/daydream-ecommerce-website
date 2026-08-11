@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { E2E_PRODUCT } from "./seed";
+import { E2E_PRODUCT } from "./fixtures";
 
 test.describe("product search", () => {
   test("finds a product by name and links to it", async ({ page }) => {

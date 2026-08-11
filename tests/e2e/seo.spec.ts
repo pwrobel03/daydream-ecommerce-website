@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { E2E_RATING } from "./fixtures";
 
 // Wszystkie te zasoby pobierają maszyny — crawlery i podglądy linków — bez sesji.
 // Proxy dwukrotnie przekierowywało takie trasy na logowanie (najpierw
@@ -41,5 +42,24 @@ test.describe("seo artifacts", () => {
     expect(data["@type"]).toBe("Product");
     expect(data.offers.priceCurrency).toBe("USD");
     expect(data.offers.availability).toContain("InStock");
+  });
+
+  test("the aggregate rating covers every review, not just the loaded page", async ({
+    request,
+  }) => {
+    // Produkt w seedzie ma 14 opinii, a strona dociąga 9. Poprzednia wersja
+    // liczyła agregat z tego, co pobrała, więc reviewCount nigdy nie
+    // przekraczał 9, a ratingValue był średnią ostatnich kilku opinii.
+    const response = await request.get("/product/test-bar");
+    const html = await response.text();
+
+    const match = html.match(/application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/);
+    const data = JSON.parse(match![1]);
+
+    expect(data.aggregateRating.reviewCount).toBe(E2E_RATING.count);
+    expect(Number(data.aggregateRating.ratingValue)).toBeCloseTo(
+      E2E_RATING.avg,
+      1
+    );
   });
 });

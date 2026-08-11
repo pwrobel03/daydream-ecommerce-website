@@ -8,6 +8,53 @@ import { toPlainDeep } from "@/lib/dto";
 // wyglądały tak samo — niedostępna baza renderowała pusty katalog z HTTP 200,
 // więc monitoring nie miał czego zauważyć.
 
+export interface RatingSummary {
+  ratingAvg: number;
+  ratingCount: number;
+}
+
+/**
+ * Średnia ocena i liczba opinii, policzone przez bazę.
+ *
+ * Wcześniej liczył je interfejs z tych opinii, które akurat pobrano — a karta
+ * katalogu dostawała wszystkie opinie każdego produktu tylko po to, żeby
+ * wyliczyć jedną liczbę. Jedno `groupBy` na całą siatkę zastępuje to zarówno
+ * w wyniku, jak i w ilości przewożonych danych.
+ */
+async function ratingsFor(
+  productIds: string[]
+): Promise<Map<string, RatingSummary>> {
+  if (productIds.length === 0) return new Map();
+
+  const grouped = await db.review.groupBy({
+    by: ["productId"],
+    where: { productId: { in: productIds } },
+    _avg: { rating: true },
+    _count: { _all: true },
+  });
+
+  return new Map(
+    grouped.map((row) => [
+      row.productId,
+      {
+        ratingAvg: row._avg.rating ?? 0,
+        ratingCount: row._count._all,
+      },
+    ])
+  );
+}
+
+/** Dokleja podsumowanie ocen; produkt bez opinii dostaje zera, nie `undefined`. */
+function withRatings<T extends { id: string }>(
+  products: T[],
+  ratings: Map<string, RatingSummary>
+): (T & RatingSummary)[] {
+  return products.map((product) => ({
+    ...product,
+    ...(ratings.get(product.id) ?? { ratingAvg: 0, ratingCount: 0 }),
+  }));
+}
+
 /**
  * Pobiera konkretną kategorię wraz z limitowaną liczbą produktów
  */
@@ -26,17 +73,19 @@ export const getCategoryWithProducts = async (
           ingredients: true,
           status: true,
           categories: true, // Dla tagów na karcie
-          reviews: {
-            include: {
-              user: { select: { name: true, image: true } },
-            },
-          },
         },
       },
     },
   });
 
-  return category ? toPlainDeep(category) : null;
+  if (!category) return null;
+
+  const ratings = await ratingsFor(category.products.map((p) => p.id));
+
+  return toPlainDeep({
+    ...category,
+    products: withRatings(category.products, ratings),
+  });
 };
 
 /**
@@ -51,20 +100,17 @@ export const getAllProductsAsCategory = async (limit: number = 25) => {
       ingredients: true,
       status: true,
       categories: true,
-      reviews: {
-        include: {
-          user: { select: { name: true, image: true } },
-        },
-      },
     },
   });
+
+  const ratings = await ratingsFor(products.map((p) => p.id));
 
   return {
     id: "all-products-virtual-id",
     name: "All Artifacts",
     slug: "all",
     description: "A complete collection of every dream captured so far.",
-    products: toPlainDeep(products),
+    products: toPlainDeep(withRatings(products, ratings)),
   };
 };
 
@@ -120,8 +166,14 @@ export const getProductBySlug = async (
     include: { user: { select: { name: true, image: true } } },
   });
 
+  // Agregat obejmuje wszystkie opinie, także tę należącą do wywołującego —
+  // inaczej ocena widoczna na stronie zmieniałaby się w zależności od tego,
+  // kto jest zalogowany, i to samo trafiałoby do danych strukturalnych.
+  const [rating] = [...(await ratingsFor([product.id])).values()];
+
   const result = {
     ...product,
+    ...(rating ?? { ratingAvg: 0, ratingCount: 0 }),
     userReview,
     reviews: otherReviews,
   };

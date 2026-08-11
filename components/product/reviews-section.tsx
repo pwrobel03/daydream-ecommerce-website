@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Star, Plus, Loader2 } from "lucide-react";
 import { getMoreReviews } from "@/actions/store/reviews";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,8 @@ interface ReviewsSectionProps {
   userReview: Review | null;
   initialReviews: Review[];
   totalCount: number;
+  /** Średnia ze wszystkich opinii, policzona przez bazę. */
+  ratingAvg: number;
   user: UserType | null;
 }
 
@@ -26,8 +29,10 @@ export default function ReviewsSection({
   userReview,
   initialReviews,
   totalCount,
+  ratingAvg,
   user,
 }: ReviewsSectionProps) {
+  const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [currentUserReview, setCurrentUserReview] = useState<Review | null>(
     userReview
@@ -35,15 +40,10 @@ export default function ReviewsSection({
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Bezpieczne obliczanie średniej - używamy useMemo, żeby uniknąć błędów przy pustej liście
-  const averageRating = useMemo(() => {
-    const allReviews = [...reviews];
-    if (currentUserReview) allReviews.push(currentUserReview);
-
-    if (allReviews.length === 0) return 0;
-    const sum = allReviews.reduce((acc, curr) => acc + curr.rating, 0);
-    return (sum / allReviews.length).toFixed(1);
-  }, [reviews, currentUserReview]);
+  // Średnia przychodzi z serwera; po własnej zmianie odświeżamy trasę, żeby
+  // przeliczył ją ten sam agregat, zamiast utrzymywać drugą wersję rachunku
+  // po stronie klienta.
+  const averageRating = ratingAvg > 0 ? ratingAvg.toFixed(1) : 0;
 
   const displayedCount = reviews.length + (currentUserReview ? 1 : 0);
   const hasMore = displayedCount < totalCount;
@@ -61,9 +61,6 @@ export default function ReviewsSection({
     setLoading(false);
   };
 
-  const handleAddOptimisticReview = (newReview: Review) => {
-    setCurrentUserReview(newReview);
-  };
 
   return (
     <div className="border-t border-black/5 pt-6 md:pt-16 mt-20">
@@ -94,7 +91,10 @@ export default function ReviewsSection({
               review={currentUserReview}
               productSlug={productSlug}
               onEdit={() => setIsEditing(true)}
-              onDelete={() => setCurrentUserReview(null)}
+              onDelete={() => {
+                setCurrentUserReview(null);
+                router.refresh();
+              }}
             />
           ) : (
             <AddReviewForm
@@ -105,6 +105,7 @@ export default function ReviewsSection({
               onSuccess={(newReview) => {
                 setCurrentUserReview(newReview);
                 setIsEditing(false);
+                router.refresh();
               }}
               onCancel={isEditing ? () => setIsEditing(false) : undefined}
             />

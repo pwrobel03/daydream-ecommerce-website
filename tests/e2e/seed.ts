@@ -4,7 +4,13 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../lib/generated/prisma/client";
 import bcrypt from "bcrypt";
-import { E2E_ADMIN, E2E_PRODUCT, E2E_REVIEWS, E2E_USER } from "./fixtures";
+import {
+  E2E_ADMIN,
+  E2E_BULK_REVIEWS,
+  E2E_PRODUCT,
+  E2E_REVIEWS,
+  E2E_USER,
+} from "./fixtures";
 
 async function main() {
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
@@ -17,7 +23,7 @@ async function main() {
   await db.category.deleteMany();
   await db.user.deleteMany();
 
-  const buyer = await db.user.create({
+  await db.user.create({
     data: {
       email: E2E_USER.email,
       name: E2E_USER.name,
@@ -50,9 +56,34 @@ async function main() {
 
   // Dwie opinie o różnych ocenach — panel moderacji filtruje po ocenie,
   // więc jedna nie odróżniłaby działającego filtra od zignorowanego.
-  for (const review of E2E_REVIEWS) {
+  // Wypełniacz powstaje pierwszy, żeby dwie nazwane opinie były najświeższe —
+  // panel moderacji sortuje malejąco po dacie i pokazuje pierwszą dziesiątkę.
+  // Powyżej progu `take: 9`, którym strona produktu dociąga listę opinii.
+  for (const [index, review] of E2E_BULK_REVIEWS.entries()) {
+    const author = await db.user.create({
+      data: {
+        email: `filler-${index}@example.com`,
+        name: `Filler ${index}`,
+        emailVerified: new Date(),
+      },
+    });
+
     await db.review.create({
-      data: { ...review, productId: product.id, userId: buyer.id },
+      data: { ...review, productId: product.id, userId: author.id },
+    });
+  }
+
+  for (const review of E2E_REVIEWS) {
+    const author = await db.user.create({
+      data: {
+        email: `voice-${review.rating}-${Date.now()}@example.com`,
+        name: `Voice ${review.rating}`,
+        emailVerified: new Date(),
+      },
+    });
+
+    await db.review.create({
+      data: { ...review, productId: product.id, userId: author.id },
     });
   }
 

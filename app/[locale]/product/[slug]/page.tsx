@@ -50,7 +50,7 @@ async function ProductPageContent({ params }: ProductPageProps) {
   // Dane strukturalne dla wyszukiwarek: cena, dostępność i średnia ocena
   // trafiają do wyniku wyszukiwania jako rich snippet.
   const price = Number(product.promoPrice ?? product.price);
-  const ratings: number[] = (product.reviews ?? []).map((r: { rating: number }) => r.rating);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -66,11 +66,14 @@ async function ProductPageContent({ params }: ProductPageProps) {
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
     },
-    ...(ratings.length > 0 && {
+    // Agregat z bazy. Wcześniej liczony był ze zbioru `take: 9`, z którego
+    // dodatkowo wypadała opinia zalogowanego użytkownika — więc `reviewCount`
+    // nigdy nie przekraczał 9, a wartości zmieniały się zależnie od sesji.
+    ...(product.ratingCount > 0 && {
       aggregateRating: {
         "@type": "AggregateRating",
-        ratingValue: (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1),
-        reviewCount: ratings.length,
+        ratingValue: product.ratingAvg.toFixed(1),
+        reviewCount: product.ratingCount,
       },
     }),
   };
@@ -108,6 +111,7 @@ async function ProductPageContent({ params }: ProductPageProps) {
           userReview={product.userReview}
           initialReviews={product.reviews}
           totalCount={product._count.reviews}
+          ratingAvg={product.ratingAvg}
           user={session?.user as UserType}
         />
       </Container>

@@ -65,8 +65,16 @@ export interface ProductType {
   images: ProductImage[];
   categories: Category[];
   ingredients: Ingredient[]
-  reviews: Review[];
-  
+
+  // Podsumowanie ocen liczy baza (patrz `ratingsFor` w lib/db-products.ts).
+  // Karta katalogu potrzebuje tylko tych dwóch liczb, więc siatka nie wozi
+  // już opinii ani ich autorów.
+  ratingAvg: number;
+  ratingCount: number;
+
+  // Tylko widok produktu dociąga listę opinii; katalog jej nie selectuje.
+  reviews?: Review[];
+
   createdAt: Date;
   updatedAt: Date;
 }

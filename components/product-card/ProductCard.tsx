@@ -19,14 +19,10 @@ interface ProductCardProps {
 const ProductCard = ({ product, categoryName }: ProductCardProps) => {
   const isStock = product.stock !== 0;
 
-  // Obliczamy średnią ocen z recenzji, które dodaliśmy skryptem seed
-  const reviews = product.reviews || [];
-  const averageRating =
-    reviews.length > 0
-      ? Math.round(
-          reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviews.length
-        )
-      : 0;
+  // Średnia pochodzi z agregatu w bazie, nie z opinii doładowanych do widoku —
+  // te ostatnie były tylko podzbiorem, więc gwiazdki pokazywały ocenę
+  // ostatnich kilku opinii zamiast wszystkich.
+  const averageRating = Math.round(product.ratingAvg);
 
   // Wybieramy kategorie do wyświetlenia (np. pierwsze dwie)
   const displayCategories =

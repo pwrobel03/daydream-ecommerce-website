@@ -26,7 +26,11 @@ interface SaleHeroProps {
 }
 
 const DiscountBanner = ({ sales }: SaleHeroProps) => {
-  const plugin = React.useRef(
+  // Wtyczka musi być tą samą instancją przez całe życie komponentu, ale ref
+  // czytany w trakcie renderu (`plugin.current` w propsie) łamie założenia
+  // Reacta. Leniwy inicjalizator useState daje tę samą jednorazowość
+  // i wolno go czytać podczas renderu.
+  const [plugin] = React.useState(() =>
     Autoplay({ delay: 5000, stopOnInteraction: true })
   );
 
@@ -35,7 +39,7 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
   return (
     <section className="w-full sm:px-4 md:px-8 mt-20 mb-10">
       <Carousel
-        plugins={[plugin.current]}
+        plugins={[plugin]}
         className="w-full max-w-7xl mx-auto relative group overflow-hidden rounded-[2.5rem] shadow-2xl bg-card/60"
       >
         <CarouselContent>

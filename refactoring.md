@@ -302,12 +302,18 @@ the branch.
 
 # 2026-08-11 — open after the ActionResult pass
 
-Lint reports 4 errors in files this work did not touch —
+Lint reported 4 errors in files this work did not touch —
 `components/discount-banner.tsx` (refs read during render, ×2),
 `components/ui/carousel.tsx` and `hooks/use-cart-store-safe.ts`
-(set-state-in-effect). They predate this branch and come from the React
-Compiler lint rules, not from the refactor. They gate CI and are worth a
-separate pass.
+(set-state-in-effect). They predated this branch and came from the React
+Compiler lint rules, not from the refactor.
+
+> **Resolved (`fix/react-compiler-lint`)**: `useCartStoreSafe` had zero call
+> sites and was deleted rather than fixed. `discount-banner.tsx` holds the
+> Autoplay plugin in a lazily-initialised `useState` instead of a ref, which
+> is equally one-shot but legal to read during render. The `carousel.tsx`
+> case is genuine — the embla instance does not exist until after mount — so
+> it carries a documented disable. Lint is back to 0 errors.
 
 Still open from the 2026-08-10 list: empty-result returns in the data layer,
 `product-form.tsx` (550 lines), the three admin client-side fetch waterfalls,

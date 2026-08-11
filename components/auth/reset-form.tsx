@@ -40,9 +40,9 @@ export const ResetForm = () => {
     setError("");
     setSuccess("");
     startTransition(() => {
-      resetPassword(values).then((data) => {
-        setError(data?.error);
-        setSuccess(data?.success);
+      resetPassword(values).then((res) => {
+        if (!res.ok) return setError(res.message);
+        setSuccess(t("success"));
       });
     });
   };

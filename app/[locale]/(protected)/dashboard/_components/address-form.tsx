@@ -46,8 +46,8 @@ export function AddressForm({
   async function onSubmit(values: z.infer<typeof AddressSchema>) {
     setLoading(true);
     const res = await saveUserAddress(values);
-    if (res.success) toast.success(t("feedback.saved"));
-    if (res.error) toast.error(res.error);
+    if (res.ok) toast.success(t("feedback.saved"));
+    else toast.error(res.message);
     setLoading(false);
   }
 

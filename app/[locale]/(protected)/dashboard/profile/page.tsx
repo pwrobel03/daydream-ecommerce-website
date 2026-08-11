@@ -60,12 +60,14 @@ const SettingsPage = () => {
     setSuccess("");
     startTransition(() => {
       settings(values)
-        .then((data) => {
-          if (data.error) setError(data.error);
-          if (data.success) {
-            update(); // Odświeża sesję klienta
-            setSuccess(data.success);
-          }
+        .then((res) => {
+          if (!res.ok) return setError(res.message);
+          update(); // Odświeża sesję klienta
+          setSuccess(
+            res.data.emailChanged
+              ? t("feedback.emailChanged")
+              : t("feedback.settingsSaved")
+          );
         })
         .catch(() => setError(t("feedback.transmissionError")));
     });

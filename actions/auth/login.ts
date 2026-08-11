@@ -5,10 +5,13 @@ import { getUserByEmail } from "@/data/user";
 import { generateVerificationToken } from "@/lib/token";
 import { sendVerificationEmail } from "@/lib/mail";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { ActionResult, fail, ok } from "@/lib/action-result";
 
-export const login = async (values: z.infer<typeof LoginSchema>) => {
+export const login = async (
+  values: z.infer<typeof LoginSchema>
+): Promise<ActionResult> => {
   const validatedFields = LoginSchema.safeParse(values);
-  if (!validatedFields.success) return { error: "Invalid fields!" };
+  if (!validatedFields.success) return fail("INVALID_INPUT", "Invalid fields!");
 
   const { email, password } = validatedFields.data;
 
@@ -17,20 +20,21 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   const ip = await getClientIp();
   const limit = await rateLimit(`login:${email}:${ip}`, 5, 15 * 60);
   if (!limit.allowed) {
-    return {
-      error: `Too many attempts. Try again in ${Math.ceil(limit.retryAfterSeconds / 60)} min.`,
-    };
+    return fail(
+      "RATE_LIMITED",
+      `Too many attempts. Try again in ${Math.ceil(limit.retryAfterSeconds / 60)} min.`
+    );
   }
   const existingUser = await getUserByEmail(email);
 
   if (!existingUser || !existingUser.email || !existingUser.password) {
-    return { error: "Invalid credentials!" };
+    return fail("INVALID_INPUT", "Invalid credentials!");
   }
 
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(existingUser.email);
     await sendVerificationEmail(verificationToken.email, verificationToken.token);
-    return { error: "Email not verified! New email sent." };
+    return fail("FORBIDDEN", "Email not verified! New email sent.");
   }
-  return { success: true }; 
+  return ok();
 };

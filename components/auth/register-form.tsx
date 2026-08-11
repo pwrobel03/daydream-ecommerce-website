@@ -42,9 +42,9 @@ export const RegisterForm = () => {
     setError("");
     setSuccess("");
     startTransition(() => {
-      register(values).then((data) => {
-        setError(data.error);
-        setSuccess(data.success);
+      register(values).then((res) => {
+        if (!res.ok) return setError(res.message);
+        setSuccess(t("success"));
       });
     });
   };

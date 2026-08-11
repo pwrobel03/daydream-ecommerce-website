@@ -46,7 +46,8 @@
     "invalidAddress": "The delivery details are invalid.",
     "unauthorized": "Unauthorized",
     "generic": "Something went wrong",
-    "paymentSessionFailed": "Could not start the payment session. Please try again."
+    "paymentSessionFailed": "Could not start the payment session. Please try again.",
+    "addressSaveFailed": "Could not save your address. Please try again."
   },
   "auth": {
     "login": {
@@ -71,24 +72,27 @@
       "hasAccount": "Login",
       "systemLabel": "System_Registration",
       "headline": "NEW",
-      "headlineAccent": "PROTOCOL."
+      "headlineAccent": "PROTOCOL.",
+      "success": "Confirmation email sent! Please check your inbox."
     },
     "reset": {
       "title": "Reset password",
       "submit": "Send Reset Link",
       "submitting": "Dispatching...",
-      "backToLogin": "Go back to Login"
+      "backToLogin": "Go back to Login",
+      "success": "Password reset link has been sent to your email!"
     },
     "newPassword": {
       "title": "Set a new password",
       "submit": "Update Key",
       "submitting": "Regenerating...",
       "password": "New password",
-      "confirm": "Confirm password"
+      "confirm": "Confirm password",
+      "success": "Your password has been successfully updated!"
     },
     "verification": {
       "pending": "Verifying your email...",
-      "success": "Identity Verified. Accessing Archive...",
+      "success": "Email successfully verified!",
       "missingToken": "Verification token is missing.",
       "failed": "An unexpected error occurred.",
       "proceed": "Proceed to Login",
@@ -172,7 +176,9 @@
       "unexpected": "An unexpected error occurred.",
       "connectionError": "Connection error",
       "transmissionError": "Critical transmission error",
-      "paymentSessionError": "Payment session error"
+      "paymentSessionError": "Payment session error",
+      "settingsSaved": "Settings updated!",
+      "emailChanged": "Email updated & verification link sent!"
     },
     "tiles": {
       "ordersDesc": "Track your current shipments and history.",

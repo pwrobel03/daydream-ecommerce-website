@@ -57,9 +57,9 @@ export const NewPasswordForm = () => {
       return setError("Security token missing. Protocol aborted.");
     }
     startTransition(() => {
-      newPassword(values, token).then((data) => {
-        setError(data?.error);
-        setSuccess(data?.success);
+      newPassword(values, token).then((res) => {
+        if (!res.ok) return setError(res.message);
+        setSuccess(t("success"));
       });
     });
   };

@@ -49,7 +49,7 @@ export const LoginForm = () => {
     setSuccess("");
     startTransition(async () => {
       const data = await login(values);
-      if (data?.error) return setError(data.error);
+      if (!data.ok) return setError(data.message);
 
       const result = await signIn("credentials", {
         email: values.email,

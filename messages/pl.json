@@ -46,7 +46,8 @@
     "invalidAddress": "Dane adresowe są nieprawidłowe.",
     "unauthorized": "Brak uprawnień",
     "generic": "Coś poszło nie tak",
-    "paymentSessionFailed": "Nie udało się rozpocząć płatności. Spróbuj ponownie."
+    "paymentSessionFailed": "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
+    "addressSaveFailed": "Nie udało się zapisać adresu. Spróbuj ponownie."
   },
   "auth": {
     "login": {
@@ -71,24 +72,27 @@
       "hasAccount": "Zaloguj się",
       "systemLabel": "System_Rejestracja",
       "headline": "NOWY",
-      "headlineAccent": "PROTOKÓŁ."
+      "headlineAccent": "PROTOKÓŁ.",
+      "success": "Wysłaliśmy e-mail potwierdzający. Sprawdź skrzynkę."
     },
     "reset": {
       "title": "Reset hasła",
       "submit": "Wyślij link",
       "submitting": "Wysyłam...",
-      "backToLogin": "Wróć do logowania"
+      "backToLogin": "Wróć do logowania",
+      "success": "Link do zmiany hasła został wysłany na Twój adres e-mail."
     },
     "newPassword": {
       "title": "Ustaw nowe hasło",
       "submit": "Zapisz hasło",
       "submitting": "Zapisuję...",
       "password": "Nowe hasło",
-      "confirm": "Powtórz hasło"
+      "confirm": "Powtórz hasło",
+      "success": "Hasło zostało zmienione."
     },
     "verification": {
       "pending": "Weryfikuję adres e-mail...",
-      "success": "Tożsamość potwierdzona. Przechodzę dalej...",
+      "success": "Adres e-mail został potwierdzony.",
       "missingToken": "Brak tokena weryfikacyjnego.",
       "failed": "Wystąpił nieoczekiwany błąd.",
       "proceed": "Przejdź do logowania",
@@ -172,7 +176,9 @@
       "unexpected": "Wystąpił nieoczekiwany błąd.",
       "connectionError": "Błąd połączenia",
       "transmissionError": "Krytyczny błąd transmisji",
-      "paymentSessionError": "Błąd sesji płatności"
+      "paymentSessionError": "Błąd sesji płatności",
+      "settingsSaved": "Ustawienia zapisane.",
+      "emailChanged": "E-mail zmieniony — wysłaliśmy link weryfikacyjny."
     },
     "tiles": {
       "ordersDesc": "Śledź bieżące przesyłki i historię zakupów.",

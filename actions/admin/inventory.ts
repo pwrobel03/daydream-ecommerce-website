@@ -2,11 +2,10 @@
 
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
-import { errorMessage } from "@/lib/action-result";
 import { ProductUpsertSchema } from "@/schemas";
 import { deleteUpload, processAndStore } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
-import { reportError } from "@/lib/logger";
+import { errorMessage, reportError } from "@/lib/logger";
 
 
 // TODO: handle removing images connected with product

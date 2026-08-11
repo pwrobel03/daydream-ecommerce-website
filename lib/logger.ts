@@ -28,3 +28,14 @@ export function reportError(
     context.area
   );
 }
+
+/**
+ * Wyciąga komunikat z nieznanego błędu bez rzutowania na `any`.
+ *
+ * Mieszkało w `lib/action-result.ts`, bo ten plik akurat istniał — mimo że
+ * z wynikami akcji nie ma nic wspólnego. Tutaj jest obok `reportError`,
+ * z którym faktycznie chodzi w parze.
+ */
+export function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message ? error.message : fallback;
+}

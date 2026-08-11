@@ -44,10 +44,6 @@ export function fail(code: ErrorCode, message: string): ActionResult<never> {
   return { ok: false, code, message };
 }
 
-/** Wyciąga komunikat z nieznanego błędu bez rzutowania na `any`. */
-export function errorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error && error.message ? error.message : fallback;
-}
 
 /**
  * Błąd niosący kod `ErrorCode`.

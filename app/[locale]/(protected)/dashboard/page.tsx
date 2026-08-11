@@ -1,6 +1,6 @@
 import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@/lib/db";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 async function DashboardPageContent() {
   const t = await getTranslations("dashboard");
-  const session = await auth();
+  const session = await getSession();
   const userName = session?.user?.name?.split(" ")[0] || "User";
 
   // Pobieramy liczbę zamówień, aby dashboard był bardziej personalny

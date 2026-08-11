@@ -1,7 +1,7 @@
 // actions/address.ts
 "use server";
 
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { reportError } from "@/lib/logger";
 import { AddressSchema } from "@/schemas";
@@ -14,7 +14,7 @@ export async function saveUserAddress(
   values: z.infer<typeof AddressSchema>
 ): Promise<ActionResult> {
   const t = await getTranslations("errors");
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) return fail("UNAUTHORIZED", t("unauthorized"));
 
   const validated = AddressSchema.safeParse(values);

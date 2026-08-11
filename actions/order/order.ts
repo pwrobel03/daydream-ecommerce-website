@@ -1,7 +1,7 @@
 // actions/order.ts
 "use server";
 
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { ActionError, ActionResult, fail, failFrom, ok } from "@/lib/action-result";
@@ -22,7 +22,7 @@ export async function initializeOrder(
 ): Promise<ActionResult<{ orderId: string }>> {
   // Komunikat wraca do interfejsu, więc musi być w języku bieżącej trasy.
   const t = await getTranslations("errors");
-  const session = await auth();
+  const session = await getSession();
 
   if (!session?.user?.id) {
     return fail("UNAUTHORIZED", t("mustBeSignedIn"));
@@ -137,7 +137,7 @@ export async function finalizeAndPay(
   addressData: z.infer<typeof AddressSchema>
 ): Promise<ActionResult<{ url: string }>> {
   const t = await getTranslations("errors");
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) return fail("UNAUTHORIZED", t("unauthorized"));
 
   const validatedAddress = AddressSchema.safeParse(addressData);

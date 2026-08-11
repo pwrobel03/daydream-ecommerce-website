@@ -8,7 +8,7 @@ import ProductGallery from "@/components/product/product-gallery";
 import ProductHero from "@/components/product/product-hero";
 import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/lib/db-products";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { UserType } from "@/types/user";
 
 export async function generateMetadata({ params }: ProductPageProps) {
@@ -39,7 +39,7 @@ interface ProductPageProps {
 
 async function ProductPageContent({ params }: ProductPageProps) {
   const { slug } = await params;
-  const session = await auth();
+  const session = await getSession();
   const currentUserId = session?.user?.id;
   const product = await getProductBySlug(slug, currentUserId);
 

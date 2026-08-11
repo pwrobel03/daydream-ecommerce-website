@@ -8,7 +8,7 @@ import { Review } from "@/types/product";
 import { reportError } from "@/lib/logger";
 import { ActionResult, fail, ok } from "@/lib/action-result";
 import { toPlainDeep } from "@/lib/dto";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 
 
 export async function getMoreReviews(
@@ -43,7 +43,7 @@ export async function createReview(
   // Autor bierze się z sesji, nie z formularza. Wcześniej `userId` przychodził
   // w payloadzie, więc dowolny zalogowany użytkownik mógł wystawić opinię
   // podpisaną cudzym kontem.
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) return fail("UNAUTHORIZED", "You must be signed in.");
   const userId = session.user.id;
 
@@ -84,7 +84,7 @@ export async function updateReview(
   values: { rating: number; content: string },
   slug: string
 ): Promise<ActionResult<{ review: Review }>> {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) return fail("UNAUTHORIZED", "You must be signed in.");
 
   try {
@@ -121,7 +121,7 @@ export async function deleteReview(
   reviewId: string,
   slug: string
 ): Promise<ActionResult> {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) return fail("UNAUTHORIZED", "You must be signed in.");
 
   try {

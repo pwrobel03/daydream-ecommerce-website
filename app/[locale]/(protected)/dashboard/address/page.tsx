@@ -1,13 +1,13 @@
 import { FormSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { AddressForm } from "../_components/address-form";
 import { Globe } from "lucide-react";
 
 async function AddressPageContent() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) redirect("/auth/login");
 
   const user = await db.user.findUnique({

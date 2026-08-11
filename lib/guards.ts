@@ -1,6 +1,6 @@
 // lib/guards.ts
 // Wspólne zabezpieczenia dla Server Actions.
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { ActionError } from "@/lib/action-result";
 
@@ -11,7 +11,7 @@ import { ActionError } from "@/lib/action-result";
  * akcji, która zamieni wyjątek na komunikat dla klienta.
  */
 export async function requireAdmin() {
-  const session = await auth();
+  const session = await getSession();
   if (session?.user?.role !== "ADMIN") {
     throw new ActionError("FORBIDDEN", "Unauthorized");
   }
@@ -31,7 +31,7 @@ export async function requireOwnedOrder(
   orderId: string,
   options: { pendingOnly?: boolean } = {}
 ) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) throw new ActionError("UNAUTHORIZED", "Unauthorized");
 
   const order = await db.order.findFirst({

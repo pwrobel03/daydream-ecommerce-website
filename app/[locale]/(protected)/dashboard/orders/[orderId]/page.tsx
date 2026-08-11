@@ -1,6 +1,6 @@
 import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import PriceFormatter from "@/components/PriceFormatter";
@@ -15,7 +15,7 @@ async function OrderDetailsPageContent({
 }: {
   params: Promise<{ orderId: string }>;
 }) {
-  const session = await auth();
+  const session = await getSession();
   const { orderId } = await params;
 
   if (!session) redirect("/auth/login");

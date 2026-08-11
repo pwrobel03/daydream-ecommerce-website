@@ -1,12 +1,12 @@
 import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { OrdersList } from "../_components/orders-list";
 
 async function OrdersPageContent() {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session?.user?.id) {
     redirect("/auth/login");

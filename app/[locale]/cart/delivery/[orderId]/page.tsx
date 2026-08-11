@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { FormSkeleton } from "@/components/skeletons";
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import { DeliveryClient } from "@/components/cart/delivery-client";
@@ -11,7 +11,7 @@ async function DeliveryPageContent({
 }: {
   params: Promise<{ orderId: string }>;
 }) {
-  const session = await auth();
+  const session = await getSession();
   const { orderId } = await params;
 
   if (!session) redirect("/auth/login");

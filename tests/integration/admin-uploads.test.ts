@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { expectOk } from "../helpers/action-result";
+import { resetDatabase } from "./reset";
 
 // Ta sama konstrukcja co w order.test.ts: prawdziwa baza, podmieniona wyłącznie
 // sesja. Uploady dotykają dysku, więc `UPLOAD_DIR` wskazuje katalog testowy.
@@ -46,8 +47,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  await db.productImage.deleteMany();
-  await db.product.deleteMany();
+  await resetDatabase(db);
 
   const product = await db.product.create({
     data: { name: "Bar", slug: `bar-${Date.now()}`, price: 25, stock: 10 },

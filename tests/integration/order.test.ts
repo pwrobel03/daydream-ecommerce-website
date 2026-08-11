@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { expectFail, expectOk } from "../helpers/action-result";
+import { resetDatabase } from "./reset";
 
 // Sesja jest jedyną rzeczą, którą podmieniamy — baza jest prawdziwa.
 // Fabryka musi być asynchroniczna: vi.hoisted wykonuje się przed importami,
@@ -35,9 +36,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await db.orderItem.deleteMany();
-  await db.order.deleteMany();
-  await db.product.deleteMany();
+  await resetDatabase(db);
 
   const product = await db.product.create({
     data: { name: "Bar", slug: `bar-${Date.now()}`, price: 25, stock: 10 },

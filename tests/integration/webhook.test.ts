@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { resetDatabase } from "./reset";
 
 // Fabryka asynchroniczna — patrz komentarz w order.test.ts.
 const { db } = await vi.hoisted(async () => {
@@ -55,11 +56,10 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await db.processedWebhookEvent.deleteMany();
-  await db.orderItem.deleteMany();
-  await db.order.deleteMany();
-  await db.product.deleteMany();
-  await db.user.deleteMany();
+  await resetDatabase(db);
+  // Tylko własne konto: `user.deleteMany()` bez filtra kasowało konta
+  // pozostałych suit i działało wyłącznie dlatego, że ten plik szedł ostatni.
+  await db.user.deleteMany({ where: { email: "wh@example.com" } });
 
   const user = await db.user.create({ data: { email: "wh@example.com" } });
   userId = user.id;

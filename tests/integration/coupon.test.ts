@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { expectFail, expectOk } from "../helpers/action-result";
+import { resetDatabase } from "./reset";
 
 const { session, db } = await vi.hoisted(async () => {
   const { createPrismaClient } = await import("@/lib/db");
@@ -27,10 +28,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await db.orderItem.deleteMany();
-  await db.order.deleteMany();
-  await db.sale.deleteMany();
-  await db.product.deleteMany();
+  await resetDatabase(db);
 
   const product = await db.product.create({
     data: { name: "Bar", slug: `coupon-bar-${Date.now()}`, price: 100, stock: 50 },

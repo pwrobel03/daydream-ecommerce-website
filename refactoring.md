@@ -102,6 +102,13 @@ applied here.
 answer, distinguish it from failure in the return type rather than by an empty
 array.
 
+> **Resolved (`20ffd5d`)**, after a decision on what a visitor should see: the
+> catalogue queries no longer catch, so `null` means "no such row" — which the
+> callers already turn into `notFound()` — and a failure reaches `error.tsx`
+> and a 5xx. `lib/db-search.ts` keeps its catch on purpose: a typo during a
+> brief hiccup should show "no results", not take down the search screen.
+> A unit test pins both directions.
+
 > **Partially addressed (`f369084`)**: all 22 `console.error` calls are now
 > `reportError` with an `area` tag, so failures are visible in structured logs.
 > The empty-result returns are unchanged — making them throw alters what a
@@ -265,6 +272,8 @@ that module actually imported.
 **Recommendation:** move to `lib/errors.ts` alongside `reportError`, or into
 `lib/logger.ts`.
 
+> **Resolved (`83fe0cc`)**: moved to `lib/logger.ts`.
+
 ## [minor] `store.ts` mixes cart state with pricing rules
 
 **Issue:** `getTotalPrice` and `getSubTotalPrice` encode the promo-price rule
@@ -307,6 +316,12 @@ permanent. New rows only ever use the new scheme.
 `ProductImage.url`, `Category.image` and `Ingredient.image` values, then delete
 the branch.
 
+> **Partially addressed (`a6b9bff`)**: `scripts/migrate-uploads.ts` moves the
+> files and rewrites the rows; idempotent, with `--dry-run`, verified against a
+> seeded database. The branch stays until the script has run on an instance —
+> deleting it first would orphan images that are still referenced. The
+> deliberate `/static/` exclusion now has a test.
+
 ---
 
 ## Not flagged, deliberately
@@ -337,11 +352,9 @@ Compiler lint rules, not from the refactor.
 > case is genuine — the embla instance does not exist until after mount — so
 > it carries a documented disable. Lint is back to 0 errors.
 
-Still open from the 2026-08-10 list: empty-result returns in the data layer,
-`errorMessage` living in `lib/action-result.ts`, query-shaped types in
-`types/`, and the legacy upload-path branch. `ReviewSchema` still declares
-`userId`, which the action now ignores — the field should come out of the
-schema with the form that sends it.
+Still open from the 2026-08-10 list: query-shaped types in `types/`, which
+only pay off once the DTO layer is fleshed out beyond `toPlain`/`toPlainDeep`,
+and deleting the legacy upload branch once the migration script has run.
 
 The admin inventory page passes raw Prisma rows to `ProductForm`, which logs
 "Only plain objects can be passed to Client Components" on every visit — the

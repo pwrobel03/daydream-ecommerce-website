@@ -2,6 +2,7 @@
 
 import { Star, Pencil, Trash2 } from "lucide-react";
 import { Review } from "@/types/product";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useTransition } from "react";
 import { deleteReview } from "@/actions/store/reviews";
@@ -19,15 +20,22 @@ export default function UserReviewCard({
   onEdit,
   onDelete,
 }: UserReviewCardProps) {
+  const t = useTranslations("reviews");
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
     startTransition(async () => {
       const res = await deleteReview(review.id, productSlug);
-      if (res.success) {
-        toast.success(res.success);
-        onDelete(); // Czyści stan w komponencie nadrzędnym
+      // Wcześniej nieudane usunięcie nie dawało żadnego sygnału — przycisk
+      // po prostu nic nie robił.
+      if (!res.ok) {
+        toast.error(res.message);
+        return;
       }
+
+      toast.success(t("deleted"));
+      onDelete(); // Czyści stan w komponencie nadrzędnym
+
     });
   };
 

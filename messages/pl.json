@@ -178,7 +178,13 @@
       "transmissionError": "Krytyczny błąd transmisji",
       "paymentSessionError": "Błąd sesji płatności",
       "settingsSaved": "Ustawienia zapisane.",
-      "emailChanged": "E-mail zmieniony — wysłaliśmy link weryfikacyjny."
+      "emailChanged": "E-mail zmieniony — wysłaliśmy link weryfikacyjny.",
+      "categoryCreated": "Kategoria utworzona.",
+      "categoryRemoved": "Kategoria usunięta.",
+      "ingredientSaved": "Składnik zapisany.",
+      "productSaved": "Produkt zapisany.",
+      "productRemoved": "Produkt usunięty.",
+      "voiceRemoved": "Opinia usunięta."
     },
     "tiles": {
       "ordersDesc": "Śledź bieżące przesyłki i historię zakupów.",
@@ -211,5 +217,10 @@
       "nameRequired": "Nazwa jest wymagana",
       "promoTooHigh": "Cena nie może być niższa niż cena promocyjna"
     }
+  },
+  "reviews": {
+    "shared": "Opinia dodana.",
+    "updated": "Opinia zaktualizowana.",
+    "deleted": "Twój głos został usunięty."
   }
 }

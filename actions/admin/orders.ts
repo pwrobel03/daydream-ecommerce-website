@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
 import { OrderStatus } from "@/lib/generated/prisma/client";
 import { reportError } from "@/lib/logger";
+import { ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 
 /**
  * Pobiera zamówienia dla panelu admina z uwzględnieniem globalnego szukania i stronnicowania.
@@ -56,7 +57,10 @@ export const getAdminOrders = async (page: number = 1, pageSize: number = 15, se
   }
 };
 
-export async function updateOrderStatus(orderId: string, status: OrderStatus) {
+export async function updateOrderStatus(
+  orderId: string,
+  status: OrderStatus
+): Promise<ActionResult> {
   await requireAdmin(); // Sprawdzamy uprawnienia admina
   try {
     await db.order.update({
@@ -71,9 +75,9 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
     // To odświeża dane na stronie admina natychmiast po zmianie
     revalidatePath("/dashboard/manage-orders");
     
-    return { success: true };
+    return ok();
   } catch (error) {
     reportError(error, { area: "admin.orders" });
-    return { success: false, error: "Database error" };
+    return failFrom(error, "INTERNAL", "Database error");
   }
 }

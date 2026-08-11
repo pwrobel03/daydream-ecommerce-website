@@ -168,13 +168,11 @@ export function ProductForm({
 
       const res = await upsertProduct(initialData?.id || "new", formData);
 
-      if (res.success) {
-        toast.success(res.success);
-        router.push("/dashboard/inventory");
-        router.refresh();
-      } else {
-        toast.error(res.error);
-      }
+      if (!res.ok) return toast.error(res.message);
+
+      toast.success(t("feedback.productSaved"));
+      router.push("/dashboard/inventory");
+      router.refresh();
     } catch (error) {
       toast.error(t("feedback.storageError"));
     } finally {

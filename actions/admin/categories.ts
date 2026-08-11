@@ -6,10 +6,11 @@ import { processAndStore } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
 import { reportError } from "@/lib/logger";
+import { ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024; 
 
-export async function createCategory(formData: FormData) {
+export async function createCategory(formData: FormData): Promise<ActionResult> {
   try {
     await requireAdmin();
 
@@ -23,7 +24,7 @@ export async function createCategory(formData: FormData) {
     if (imageFile && imageFile.size > 0) {
       // --- TUTAJ OBSŁUŻENIE TWOJEGO PROBLEMU ---
       if (imageFile.size > MAX_FILE_SIZE) {
-        return { error: "The dream image is too heavy. Maximum limit is 8MB." };
+        return fail("INVALID_INPUT", "The dream image is too heavy. Maximum limit is 8MB.");
       }
 
       // Ta ścieżka wcześniej zapisywała surowy bufor bez sharp — teraz
@@ -49,12 +50,12 @@ export async function createCategory(formData: FormData) {
     });
 
     revalidatePath("/dashboard/categories");
-    return { success: "Category forged successfully!" };
+    return ok();
 
   } catch (error) {
     reportError(error, { area: "admin.categories" });
     // Zwracamy obiekt błędu zamiast rzucać wyjątek, by klient nie utknął
-    return { error: "A server glitch occurred. Please try again later." };
+    return failFrom(error, "INTERNAL", "A server glitch occurred. Please try again later.");
   }
 }
 
@@ -72,14 +73,14 @@ export async function getCategories() {
   }
 }
 
-export async function deleteCategory(id: string) {
+export async function deleteCategory(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
     // Możesz tu dodać sprawdzenie, czy kategoria nie ma przypisanych produktów
     await db.category.delete({ where: { id } });
     revalidatePath("/dashboard/categories");
-    return { success: "Category removed." };
+    return ok();
   } catch (error) {
-    return { error: "Failed to delete category." };
+    return failFrom(error, "INTERNAL", "Failed to delete category.");
   }
 }

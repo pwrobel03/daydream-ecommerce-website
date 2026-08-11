@@ -50,6 +50,7 @@ export default function AddReviewForm({
   onCancel,
 }: AddReviewFormProps) {
   const t = useTranslations("errors");
+  const tReviews = useTranslations("reviews");
   const [isPending, startTransition] = useTransition();
   const [hoverRating, setHoverRating] = useState(0);
 
@@ -93,26 +94,27 @@ export default function AddReviewForm({
         ? await updateReview(initialData.id, values, productSlug)
         : await createReview(values);
 
-      if (result.success && result.review) {
-        toast.success(result.success);
-        onSuccess(result.review);
+      if (!result.ok) {
+        toast.error(result.message || t("generic"));
+        return;
+      }
 
-        if (!isEditing) {
-          form.reset({
-            ...form.getValues(),
-            content: "",
-            rating: 0,
-          });
+      toast.success(isEditing ? tReviews("updated") : tReviews("shared"));
+      onSuccess(result.data.review);
 
-          window.scrollTo({
-            top: document.getElementById("voices-top")?.offsetTop
-              ? document.getElementById("voices-top")!.offsetTop - 100
-              : 0,
-            behavior: "smooth",
-          });
-        }
-      } else {
-        toast.error(result.error || t("generic"));
+      if (!isEditing) {
+        form.reset({
+          ...form.getValues(),
+          content: "",
+          rating: 0,
+        });
+
+        window.scrollTo({
+          top: document.getElementById("voices-top")?.offsetTop
+            ? document.getElementById("voices-top")!.offsetTop - 100
+            : 0,
+          behavior: "smooth",
+        });
       }
     });
   };

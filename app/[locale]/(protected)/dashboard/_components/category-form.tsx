@@ -76,8 +76,10 @@ export function CategoryForm({
 
       const res = await createCategory(formData);
 
-      if (res?.success) {
-        toast.success(res.success);
+      if (!res.ok) {
+        toast.error(res.message);
+      } else {
+        toast.success(t("feedback.categoryCreated"));
 
         // 1. Resetowanie pól tekstowych i checkboxów
         form.reset();
@@ -89,10 +91,6 @@ export function CategoryForm({
 
         // 3. Wymuszenie odświeżenia Server Componentu (strony page.tsx)
         router.refresh();
-      } else if (res?.error) {
-        toast.error(res.error);
-      } else {
-        toast.error(t("feedback.unexpected"));
       }
     } catch (error) {
       console.error("SUBMIT_ERROR:", error);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Trash2,
   ChevronRight,
@@ -12,19 +12,20 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { Category } from "@/types/product";
+import { useTranslations } from "next-intl";
 
 interface CategoryListProps {
   initialCategories: Category[];
 }
 
 export default function CategoryList({ initialCategories }: CategoryListProps) {
-  const [categories, setCategories] = useState(initialCategories);
+  const t = useTranslations("dashboard");
   const router = useRouter();
 
-  // KLUCZOWE: Synchronizacja stanu z nowymi danymi z serwera (router.refresh())
-  useEffect(() => {
-    setCategories(initialCategories);
-  }, [initialCategories]);
+  // Lista przychodzi z Server Componentu, a router.refresh() dostarcza nową —
+  // kopiowanie jej do stanu i dosynchronizowywanie efektem nic nie wnosiło
+  // poza dodatkowym renderem po każdym odświeżeniu.
+  const categories = initialCategories;
 
   const handleDelete = async (id: string, name: string) => {
     const confirmDelete = window.confirm(
@@ -33,13 +34,11 @@ export default function CategoryList({ initialCategories }: CategoryListProps) {
     if (!confirmDelete) return;
 
     const res = await deleteCategory(id);
-    if (res.success) {
-      toast.success(res.success);
-      // Odświeżamy dane globalnie
-      router.refresh();
-    } else {
-      toast.error(res.error);
-    }
+    if (!res.ok) return toast.error(res.message);
+
+    toast.success(t("feedback.categoryRemoved"));
+    // Odświeżamy dane globalnie
+    router.refresh();
   };
 
   const mainCategories = categories.filter((c) => !c.parentId);

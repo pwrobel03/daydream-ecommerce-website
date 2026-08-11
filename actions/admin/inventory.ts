@@ -71,7 +71,7 @@ export async function getInventoryProducts({
 }
 
 // TODO: handle removing images connected with product
-export async function deleteProduct(id: string) {
+export async function deleteProduct(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
     
@@ -80,15 +80,16 @@ export async function deleteProduct(id: string) {
     });
 
     revalidatePath("/dashboard/inventory");
-    return { success: "Product removed from the dreamscape." };
+    return ok();
   } catch (error) {
     reportError(error, { area: "admin.inventory" });
-    return { error: "Failed to delete product." };
+    return failFrom(error, "INTERNAL", "Failed to delete product.");
   }
 }
 
 
 import crypto from "crypto";
+import { ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 
 // FormData przenosi tablice jako JSON. Zły payload nie powinien wywalać akcji
 // wyjątkiem — zwracamy pustą tablicę i pozwalamy zdecydować schematowi.
@@ -102,7 +103,10 @@ function parseJsonArray(value: FormDataEntryValue | null): string[] {
   }
 }
 
-export async function upsertProduct(id: string, formData: FormData) {
+export async function upsertProduct(
+  id: string,
+  formData: FormData
+): Promise<ActionResult<{ id: string; isNew: boolean }>> {
   try {
     await requireAdmin();
 
@@ -126,7 +130,7 @@ export async function upsertProduct(id: string, formData: FormData) {
     });
 
     if (!parsed.success) {
-      return { error: parsed.error.issues[0]?.message ?? "Invalid product data." };
+      return fail("INVALID_INPUT", parsed.error.issues[0]?.message ?? "Invalid product data.");
     }
 
     const {
@@ -139,7 +143,7 @@ export async function upsertProduct(id: string, formData: FormData) {
       where: { slug }
     });
     if (existingProduct && (isNew || existingProduct.id !== id)) {
-      return { error: "A product with this name/slug already exists. Please choose a unique name." };
+      return fail("CONFLICT", "A product with this name/slug already exists. Please choose a unique name.");
     }
 
     const newImageFiles = formData.getAll("newImages") as File[];
@@ -202,10 +206,10 @@ export async function upsertProduct(id: string, formData: FormData) {
     });
 
     revalidatePath("/dashboard/inventory");
-    return { success: isNew ? "Artifact Forged" : "Essence Updated", id: productId };
+    return ok({ id: productId, isNew });
 
   } catch (error) {
     reportError(error, { area: "admin.inventory" });
-    return { error: errorMessage(error, "Unexpected error") };
+    return failFrom(error, "INTERNAL", errorMessage(error, "Unexpected error"));
   }
 }

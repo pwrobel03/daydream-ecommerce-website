@@ -178,7 +178,13 @@
       "transmissionError": "Critical transmission error",
       "paymentSessionError": "Payment session error",
       "settingsSaved": "Settings updated!",
-      "emailChanged": "Email updated & verification link sent!"
+      "emailChanged": "Email updated & verification link sent!",
+      "categoryCreated": "Category forged successfully!",
+      "categoryRemoved": "Category removed.",
+      "ingredientSaved": "Ingredient saved successfully!",
+      "productSaved": "Artifact stored.",
+      "productRemoved": "Product removed from the dreamscape.",
+      "voiceRemoved": "Voice removed."
     },
     "tiles": {
       "ordersDesc": "Track your current shipments and history.",
@@ -211,5 +217,10 @@
       "nameRequired": "The name is required",
       "promoTooHigh": "The price cannot be lower than the promo price"
     }
+  },
+  "reviews": {
+    "shared": "Story shared!",
+    "updated": "Your story has been updated!",
+    "deleted": "Your voice has been removed."
   }
 }

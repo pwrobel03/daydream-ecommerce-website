@@ -51,12 +51,10 @@ export default function AdminCommentsPage() {
 
   const handleDelete = async (id: string) => {
     const res = await deleteVoice(id);
-    if (res.success) {
-      setVoices((prev) => prev.filter((v) => v.id !== id));
-      toast.success(res.success);
-    } else {
-      toast.error(res.error);
-    }
+    if (!res.ok) return toast.error(res.message);
+
+    setVoices((prev) => prev.filter((v) => v.id !== id));
+    toast.success(t("feedback.voiceRemoved"));
   };
 
   return (

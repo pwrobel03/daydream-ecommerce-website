@@ -6,12 +6,9 @@ import { z } from "zod";
 import { ReviewSchema } from "@/schemas";
 import { Review } from "@/types/product";
 import { reportError } from "@/lib/logger";
-
-export type CreateReviewResponse = {
-  success?: string;
-  error?: string;
-  review?: Review;
-};
+import { ActionResult, fail, ok } from "@/lib/action-result";
+import { toPlainDeep } from "@/lib/dto";
+import { auth } from "@/auth";
 
 
 export async function getMoreReviews(
@@ -42,19 +39,25 @@ export async function getMoreReviews(
 
 export async function createReview(
   values: z.infer<typeof ReviewSchema>
-): Promise<CreateReviewResponse> {
+): Promise<ActionResult<{ review: Review }>> {
+  // Autor bierze się z sesji, nie z formularza. Wcześniej `userId` przychodził
+  // w payloadzie, więc dowolny zalogowany użytkownik mógł wystawić opinię
+  // podpisaną cudzym kontem.
+  const session = await auth();
+  if (!session?.user?.id) return fail("UNAUTHORIZED", "You must be signed in.");
+  const userId = session.user.id;
+
   const validatedFields = ReviewSchema.safeParse(values);
+  if (!validatedFields.success) return fail("INVALID_INPUT", "Invalid fields!");
 
-  if (!validatedFields.success) return { error: "Invalid fields!" };
-
-  const { productId, userId, rating, content } = validatedFields.data;
+  const { productId, rating, content } = validatedFields.data;
 
   try {
     const existingReview = await db.review.findFirst({
       where: { productId, userId },
     });
 
-    if (existingReview) return { error: "You already shared your story!" };
+    if (existingReview) return fail("CONFLICT", "You already shared your story!");
 
     // KLUCZ: Tworzymy i od razu pobieramy z relacją user
     const newReview = await db.review.create({
@@ -68,25 +71,27 @@ export async function createReview(
 
     revalidatePath(`/product/[slug]`, "page");
 
-    // Zwracamy czysty obiekt JSON z PRAWDZIWYM ID z bazy
-    return { 
-      success: "Story shared!", 
-      review: newReview as Review 
-    };
+    return ok({ review: toPlainDeep(newReview) as Review });
   } catch (error) {
-    return { error: "Failed to save review." };
+    reportError(error, { area: "store.reviews", productId });
+    return fail("INTERNAL", "Failed to save review.");
   }
 }
 
 // UPDATE REVIEW
 export async function updateReview(
-  reviewId: string, 
-  values: { rating: number, content: string }, 
+  reviewId: string,
+  values: { rating: number; content: string },
   slug: string
-): Promise<CreateReviewResponse> { // Upewnij się, że typ zwracany jest poprawny
+): Promise<ActionResult<{ review: Review }>> {
+  const session = await auth();
+  if (!session?.user?.id) return fail("UNAUTHORIZED", "You must be signed in.");
+
   try {
+    // `userId` w predykacie, nie samo `id` — bez niego wystarczyło znać cudze
+    // id opinii, żeby ją nadpisać.
     const updatedReview = await db.review.update({
-      where: { id: reviewId },
+      where: { id: reviewId, userId: session.user.id },
       data: {
         rating: values.rating,
         content: values.content,
@@ -104,24 +109,28 @@ export async function updateReview(
 
     revalidatePath(`/product/${slug}`);
 
-    // Teraz updatedReview zawiera pole 'user', więc pasuje do ReviewType
-    return { 
-      success: "Your story has been updated!", 
-      review: updatedReview 
-    };
+    return ok({ review: toPlainDeep(updatedReview) });
   } catch (error) {
-    reportError(error, { area: "store.reviews" });
-    return { error: "Failed to update review." };
+    reportError(error, { area: "store.reviews", reviewId });
+    return fail("NOT_FOUND", "Failed to update review.");
   }
 }
 
 // DELETE REVIEW
-export async function deleteReview(reviewId: string, slug: string): Promise<CreateReviewResponse> {
+export async function deleteReview(
+  reviewId: string,
+  slug: string
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user?.id) return fail("UNAUTHORIZED", "You must be signed in.");
+
   try {
-    await db.review.delete({ where: { id: reviewId } });
+    // Ten sam brakujący predykat co w updateReview.
+    await db.review.delete({ where: { id: reviewId, userId: session.user.id } });
     revalidatePath(`/product/${slug}`);
-    return { success: "Twój głos został usunięty." };
+    return ok();
   } catch (error) {
-    return { error: "Nie udało się usunąć opinii." };
+    reportError(error, { area: "store.reviews", reviewId });
+    return fail("NOT_FOUND", "Failed to delete review.");
   }
 }

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
 import { reportError } from "@/lib/logger";
+import { ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 
 
 export async function getVoices({
@@ -50,14 +51,17 @@ export async function getVoices({
   }
 }
 
-export async function deleteVoice(id: string) {
+export async function deleteVoice(id: string): Promise<ActionResult> {
   try {
     await requireAdmin(); // Kluczowe zabezpieczenie
 
     await db.review.delete({ where: { id } });
     revalidatePath("/dashboard/comments");
-    return { success: "Voice removed." };
+    return ok();
   } catch (error) {
-    return { error: "Action forbidden." };
+    // Wcześniej każda awaria — także błąd bazy — wracała jako "Action
+    // forbidden.", więc log i komunikat mówiły co innego niż rzeczywistość.
+    reportError(error, { area: "admin.reviews", id });
+    return failFrom(error, "INTERNAL", "Failed to remove the voice.");
   }
 }

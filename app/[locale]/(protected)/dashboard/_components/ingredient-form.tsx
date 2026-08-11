@@ -79,13 +79,11 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
 
       const res = await upsertIngredient(initialData?.id || "new", formData);
 
-      if (res.success) {
-        toast.success(res.success);
-        router.push("/dashboard/ingredients");
-        router.refresh();
-      } else {
-        toast.error(res.error);
-      }
+      if (!res.ok) return toast.error(res.message);
+
+      toast.success(t("feedback.ingredientSaved"));
+      router.push("/dashboard/ingredients");
+      router.refresh();
     } catch (error) {
       toast.error("Wystąpił błąd podczas zapisywania.");
     } finally {

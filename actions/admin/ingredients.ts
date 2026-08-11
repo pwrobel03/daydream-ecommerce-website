@@ -7,9 +7,13 @@ import { revalidatePath } from "next/cache";
 import path from "path";
 import crypto from "crypto";
 import { reportError } from "@/lib/logger";
+import { ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 
 
-export async function upsertIngredient(id: string, formData: FormData) {
+export async function upsertIngredient(
+  id: string,
+  formData: FormData
+): Promise<ActionResult> {
   try {
     await requireAdmin();
 
@@ -21,7 +25,7 @@ export async function upsertIngredient(id: string, formData: FormData) {
     // 1. Walidacja unikalności nazwy
     const existing = await db.ingredient.findFirst({ where: { name } });
     if (existing && (isNew || existing.id !== id)) {
-      return { error: "Ingredient with this name already exists." };
+      return fail("CONFLICT", "Ingredient with this name already exists.");
     }
 
     // 2. Przygotowanie ID i katalogu głównego
@@ -66,15 +70,15 @@ export async function upsertIngredient(id: string, formData: FormData) {
     });
 
     revalidatePath("/dashboard/ingredients");
-    return { success: "Ingredient saved successfully!" };
+    return ok();
 
   } catch (error) {
     reportError(error, { area: "admin.ingredients" });
-    return { error: "Failed to save ingredient." };
+    return failFrom(error, "INTERNAL", "Failed to save ingredient.");
   }
 }
 
-export async function deleteIngredient(id: string) {
+export async function deleteIngredient(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
 
@@ -83,9 +87,9 @@ export async function deleteIngredient(id: string) {
       include: { products: true }
     });
 
-    if (!ingredient) return { error: "Ingredient not found." };
+    if (!ingredient) return fail("NOT_FOUND", "Ingredient not found.");
     if (ingredient.products.length > 0) {
-      return { error: "Cannot delete: ingredient is used in products." };
+      return fail("CONFLICT", "Cannot delete: ingredient is used in products.");
     }
 
     // Usuwamy tylko konkretny plik, nie folder
@@ -101,9 +105,9 @@ export async function deleteIngredient(id: string) {
     await db.ingredient.delete({ where: { id } });
 
     revalidatePath("/dashboard/ingredients");
-    return { success: "Ingredient removed." };
+    return ok();
 
   } catch (error) {
-    return { error: "Error during deletion." };
+    return failFrom(error, "INTERNAL", "Error during deletion.");
   }
 }

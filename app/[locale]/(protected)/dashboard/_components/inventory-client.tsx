@@ -68,11 +68,12 @@ export default function InventoryClient({ categories }: { categories: Category[]
   const handleDelete = async (id: string, name: string) => {
     if (!window.confirm(`Delete "${name}" forever?`)) return;
     const res = await deleteProduct(id);
-    if (res.success) {
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-      toast.success(res.success);
-      router.refresh();
-    }
+    // Wcześniej nieudane usunięcie nie dawało żadnego sygnału.
+    if (!res.ok) return toast.error(res.message);
+
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+    toast.success(t("feedback.productRemoved"));
+    router.refresh();
   };
 
   const availableSubCategories =

@@ -35,23 +35,28 @@ export async function upsertIngredient(
 
     let imagePath: string | null | undefined = undefined;
 
+    // Poprzedni plik trzeba znać przed zapisem nowego, żeby po udanej
+    // aktualizacji rekordu usunąć dokładnie ten, który przestał być używany.
+    const previousImage = isNew
+      ? null
+      : (await db.ingredient.findUnique({ where: { id } }))?.image ?? null;
+
     // 3. Procesowanie zdjęcia
     if (imageFile && imageFile.size > 0) {
-      // Nazwa pliku to po prostu ID.webp - zawsze nadpisujemy lub tworzymy nowy
-      // Składniki są zazwyczaj ikonami, więc kadrujemy do kwadratu.
+      // Nazwa losowa przy każdym zapisie, jak dla produktów i kategorii.
+      // Wcześniej plik nazywał się identyfikatorem składnika, więc podmiana
+      // nadpisywała ten sam URL — a trasa /uploads serwuje go z nagłówkiem
+      // `immutable` na rok, przez co odwiedzający dostawali stary obrazek
+      // nawet po wymuszonym odświeżeniu.
       imagePath = await processAndStore(imageFile, {
         dir: "ingredients",
-        fileName: ingredientId,
+        fileName: crypto.randomUUID(),
         width: 400,
         height: 400,
         fit: "cover",
       });
     } else if (removeExistingImage) {
       // Jeśli usuwamy zdjęcie, musimy usunąć plik fizyczny
-      const current = !isNew ? await db.ingredient.findUnique({ where: { id } }) : null;
-      if (current?.image) {
-        await deleteUpload(current.image);
-      }
       imagePath = null;
     }
 
@@ -68,6 +73,12 @@ export async function upsertIngredient(
         image: imagePath ?? null
       }
     });
+
+    // Dopiero po udanym zapisie rekordu — gdyby upsert padł, plik nadal jest
+    // tym, na który wskazuje baza.
+    if (previousImage && imagePath !== undefined && previousImage !== imagePath) {
+      await deleteUpload(previousImage);
+    }
 
     revalidatePath("/dashboard/ingredients");
     return ok();

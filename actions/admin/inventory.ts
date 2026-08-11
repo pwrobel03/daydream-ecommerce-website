@@ -8,14 +8,27 @@ import { revalidatePath } from "next/cache";
 import { errorMessage, reportError } from "@/lib/logger";
 
 
-// TODO: handle removing images connected with product
 export async function deleteProduct(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
-    
-    await db.product.delete({ 
-      where: { id } 
+
+    // Kaskada w bazie usuwa wiersze ProductImage, ale nie pliki. Bez tego
+    // każdy skasowany produkt zostawiał swoje obrazy na wolumenie na zawsze,
+    // bez żadnego sygnału aż do zapełnienia dysku.
+    const images = await db.productImage.findMany({
+      where: { productId: id },
+      select: { url: true },
     });
+
+    await db.product.delete({
+      where: { id },
+    });
+
+    // Po usunięciu rekordu: nieudane skasowanie pliku zostawia sierotę,
+    // ale nie blokuje operacji, której baza już dokonała.
+    for (const image of images) {
+      await deleteUpload(image.url);
+    }
 
     revalidatePath("/dashboard/inventory");
     return ok();

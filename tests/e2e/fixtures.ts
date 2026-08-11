@@ -22,3 +22,8 @@ export const E2E_PRODUCT = {
   price: 20,
   stock: 25,
 };
+
+export const E2E_REVIEWS = [
+  { rating: 5, content: "Absolutely luminous, a keeper." },
+  { rating: 2, content: "Arrived melted and rather sad." },
+];

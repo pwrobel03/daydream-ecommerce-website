@@ -4,7 +4,7 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../lib/generated/prisma/client";
 import bcrypt from "bcrypt";
-import { E2E_ADMIN, E2E_PRODUCT, E2E_USER } from "./fixtures";
+import { E2E_ADMIN, E2E_PRODUCT, E2E_REVIEWS, E2E_USER } from "./fixtures";
 
 async function main() {
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
@@ -17,7 +17,7 @@ async function main() {
   await db.category.deleteMany();
   await db.user.deleteMany();
 
-  await db.user.create({
+  const buyer = await db.user.create({
     data: {
       email: E2E_USER.email,
       name: E2E_USER.name,
@@ -40,13 +40,21 @@ async function main() {
     data: { name: "Bars", slug: "bars" },
   });
 
-  await db.product.create({
+  const product = await db.product.create({
     data: {
       ...E2E_PRODUCT,
       description: "A bar used by the end-to-end tests.",
       categories: { connect: { id: category.id } },
     },
   });
+
+  // Dwie opinie o różnych ocenach — panel moderacji filtruje po ocenie,
+  // więc jedna nie odróżniłaby działającego filtra od zignorowanego.
+  for (const review of E2E_REVIEWS) {
+    await db.review.create({
+      data: { ...review, productId: product.id, userId: buyer.id },
+    });
+  }
 
   await db.$disconnect();
 }

@@ -219,6 +219,16 @@ remaining exception, and they are also the reason for three
 search/filter state through `searchParams` rather than component state. Removes
 the effects and the disables together.
 
+> **Resolved (`11916fd`, `6f5eb5d`, and `category-list.tsx` in `dd54bc3`)**:
+> all three render on the server. Queries moved to `lib/db-reviews.ts` and
+> `lib/db-inventory.ts`; filters and paging live in `searchParams`, so they
+> survive a reload and can be linked. `getVoices` and `getInventoryProducts`
+> were Server Actions — reads exposed as POST endpoints — and are deleted.
+>
+> This also closed the `toPlainDeep` gap on the inventory page and the
+> blocking-route warning on `inventory/[productId]`, and it is what surfaced
+> the shared-login rate-limit problem in the E2E suite (`af7bb37`).
+
 ## [major] Empty-catch pattern hides upload failures — `actions/admin/inventory.ts`
 
 **Issue:** the delete-old-images loop catches per-file errors and continues,
@@ -328,7 +338,6 @@ Compiler lint rules, not from the refactor.
 > it carries a documented disable. Lint is back to 0 errors.
 
 Still open from the 2026-08-10 list: empty-result returns in the data layer,
-the three admin client-side fetch waterfalls,
 `errorMessage` living in `lib/action-result.ts`, query-shaped types in
 `types/`, and the legacy upload-path branch. `ReviewSchema` still declares
 `userId`, which the action now ignores — the field should come out of the

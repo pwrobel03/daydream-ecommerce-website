@@ -12,7 +12,7 @@ import {
   Fingerprint,
   Loader2,
   ArrowRight,
-  Activity,
+  
   Cpu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -41,7 +41,7 @@ const NewVerificationForm = () => {
       .catch(() => {
         setError(t("failed"));
       });
-  }, [token, success, error]);
+  }, [token, success, error, t]);
 
   // Weryfikacja tokenu musi wystartować po zamontowaniu — nie ma tu zdarzenia
   // użytkownika, na którym dałoby się to zawiesić.

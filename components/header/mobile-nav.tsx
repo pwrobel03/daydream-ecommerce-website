@@ -7,7 +7,7 @@ import {
   SheetContent,
   SheetTrigger,
   SheetTitle,
-  SheetHeader,
+  
   SheetClose,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ export const MobileNav = ({ categories }: { categories: Category[] }) => {
 
           {/* CENTRUM: KATEGORIE */}
           <nav className="flex-1 flex flex-col items-center justify-center mt-4 gap-4 md:gap-8">
-            {categories.map((cat, index) => (
+            {categories.map((cat) => (
               <SheetClose key={cat.id} asChild>
                 <Link
                   href={`/category/${cat.slug}`}

@@ -1,8 +1,7 @@
 // app/dashboard/orders/_components/order-item-card.tsx
 import React from "react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { Image as ImageIcon, Package } from "lucide-react";
+import { Image as ImageIcon } from "lucide-react";
 import PriceFormatter from "@/components/PriceFormatter";
 import Link from "next/link";
 import type { OrderItemType } from "@/types/order";

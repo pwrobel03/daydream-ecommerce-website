@@ -25,9 +25,9 @@ import Link from "next/link";
 import {
   RefreshCcw,
   KeyRound,
-  ShieldAlert,
+  
   Cpu,
-  ArrowRight,
+  
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

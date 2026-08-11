@@ -2,7 +2,6 @@
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { LoginForm } from "./login-form";
-import { DialogClose, DialogTitle } from "@radix-ui/react-dialog";
 
 interface LoginButtonProps {
   children: React.ReactNode;

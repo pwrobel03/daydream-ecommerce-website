@@ -20,7 +20,7 @@ import { FormError } from "./form-error";
 import { FormSuccess } from "./form-success";
 import { register } from "@/actions/auth/register";
 import Link from "next/link";
-import { Atom, Dna, Globe, UserPlus, Cpu } from "lucide-react";
+import { Atom, Dna, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const RegisterForm = () => {

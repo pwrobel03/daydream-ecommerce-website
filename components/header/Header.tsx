@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShoppingBasket, User } from "lucide-react";
+import { ShoppingBasket } from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
 import { Button } from "../ui/button";
 import { MobileNav } from "./mobile-nav";

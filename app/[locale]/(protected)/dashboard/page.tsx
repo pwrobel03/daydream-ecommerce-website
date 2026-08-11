@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { Package, MapPin, UserCog, ArrowRight, CreditCard } from "lucide-react";
+import { Package, MapPin, UserCog, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 async function DashboardPageContent() {

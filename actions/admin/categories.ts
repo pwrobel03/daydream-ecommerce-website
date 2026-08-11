@@ -68,7 +68,7 @@ export async function getCategories() {
         _count: { select: { products: true } }
       }
     });
-  } catch (error) {
+  } catch {
     return [];
   }
 }

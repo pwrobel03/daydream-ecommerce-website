@@ -5,12 +5,6 @@ import Image from "next/image";
 import type { ProductType } from "@/types/product";
 
 export default function ProductDetails({ product }: { product: ProductType }) {
-  const mockIngredients = Array.from({ length: 12 }).map((_, i) => ({
-    ...product.ingredients[i % product.ingredients.length],
-    // Ważne: zmieniamy ID na unikalne dla Reacta, żeby nie sypał błędami w konsoli
-    id: `mock-${i}`,
-  }));
-
   return (
     <div className="flex flex-col lg:flex-row gap-16 items-start my-12 pt-8">
       {/* LEWA STRONA: Opis (Editorial Copy) */}

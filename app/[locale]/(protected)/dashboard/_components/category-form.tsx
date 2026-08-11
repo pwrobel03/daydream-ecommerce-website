@@ -92,7 +92,7 @@ export function CategoryForm({
         // 3. Wymuszenie odświeżenia Server Componentu (strony page.tsx)
         router.refresh();
       }
-    } catch (error) {
+    } catch {
       toast.error(t("feedback.connectionError"), {
         description:
           "The server could not process the request. Your're image could be too large or corrupted. Our limit is 8MB",

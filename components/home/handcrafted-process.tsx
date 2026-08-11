@@ -1,5 +1,4 @@
 import React from "react";
-import SubTitle from "../sub-title";
 
 export default function HandcraftedProcess() {
   return (

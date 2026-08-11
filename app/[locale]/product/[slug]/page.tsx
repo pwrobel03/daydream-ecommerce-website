@@ -2,14 +2,12 @@ import { ProductDetailSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 // app/product/[slug]/page.tsx
 import ReviewsSection from "@/components/product/reviews-section";
-import Image from "next/image";
 import Container from "@/components/Container";
 import ProductDetails from "@/components/product/product-details";
 import ProductGallery from "@/components/product/product-gallery";
 import ProductHero from "@/components/product/product-hero";
 import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/lib/db-products";
-import { getCurrentUser } from "@/lib/auth";
 import { auth } from "@/auth";
 import { UserType } from "@/types/user";
 

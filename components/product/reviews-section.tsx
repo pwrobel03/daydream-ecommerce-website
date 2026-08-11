@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Star, Plus, Loader2 } from "lucide-react";
 import { getMoreReviews } from "@/actions/store/reviews";
-import { cn } from "@/lib/utils";
 import Image from "next/image";
 import AddReviewForm from "./add-review-form";
 import { Review } from "@/types/product";

@@ -1,8 +1,6 @@
 // components/product/product-hero.tsx
 "use client";
 
-import { useCart } from "@/hooks/use-cart";
-import { ArrowRight } from "lucide-react";
 import SubTitle from "@/components/sub-title";
 import PriceFormatter from "../PriceFormatter";
 import ProductStatusBadge from "../product-status-badge";
@@ -11,7 +9,6 @@ import type { ProductType } from "@/types/product";
 import { toCartProduct } from "@/store";
 
 export default function ProductHero({ product }: { product: ProductType }) {
-  const { addItem } = useCart();
 
   return (
     <div className="space-y-8">

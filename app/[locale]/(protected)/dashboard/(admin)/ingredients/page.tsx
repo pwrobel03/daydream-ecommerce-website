@@ -1,7 +1,7 @@
 import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 import Link from "next/link";
-import { Plus, Edit, Trash2, ArrowRight, Edit3 } from "lucide-react";
+import { Plus, Edit3 } from "lucide-react";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";

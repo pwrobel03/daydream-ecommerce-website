@@ -4,7 +4,6 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
 import { deleteUpload, processAndStore } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
-import path from "path";
 import crypto from "crypto";
 import { reportError } from "@/lib/logger";
 import { ActionResult, fail, failFrom, ok } from "@/lib/action-result";

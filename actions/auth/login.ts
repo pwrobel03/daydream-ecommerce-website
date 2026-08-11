@@ -13,7 +13,9 @@ export const login = async (
   const validatedFields = LoginSchema.safeParse(values);
   if (!validatedFields.success) return fail("INVALID_INPUT", "Invalid fields!");
 
-  const { email, password } = validatedFields.data;
+  // Hasło sprawdza dopiero `signIn` po stronie klienta; tutaj potrzebny
+  // jest wyłącznie e-mail do limitu prób i wyszukania konta.
+  const { email } = validatedFields.data;
 
   // Limit na parę e-mail + IP: chroni pojedyncze konto przed zgadywaniem hasła
   // i nie pozwala jednemu adresowi rozjechać się po wielu kontach naraz.

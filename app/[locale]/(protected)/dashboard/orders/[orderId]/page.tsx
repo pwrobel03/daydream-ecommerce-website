@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import PriceFormatter from "@/components/PriceFormatter";
 import { OrderItemCard } from "../../_components/order-item-card";
-import { Truck, MapPin, CreditCard, Calendar, Package } from "lucide-react";
+import { MapPin, CreditCard, Package } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { RetryPaymentButton } from "../../_components/retry-payment-button";

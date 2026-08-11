@@ -2,7 +2,7 @@ import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 import { db } from "@/lib/db";
 import { CategoryForm } from "../../_components/category-form";
-import { FolderTree, Info } from "lucide-react";
+import { FolderTree } from "lucide-react";
 import CategoryList from "../../_components/category-list";
 import GiveInNotice from "../../_components/give-in-notice";
 async function CategoriesPageContent() {

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Info, Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -15,7 +15,6 @@ import GiveInNotice from "./give-in-notice";
 import { upsertIngredient } from "@/actions/admin/ingredients";
 import { Button } from "@/components/ui/button"; // Zakładam shadcn/ui
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import type { Ingredient } from "@/types/product";
 
 // Schemat powstaje w ciele komponentu, bo komunikat walidacji jest widoczny
@@ -84,7 +83,7 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
       toast.success(t("feedback.ingredientSaved"));
       router.push("/dashboard/ingredients");
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Wystąpił błąd podczas zapisywania.");
     } finally {
       setLoading(false);

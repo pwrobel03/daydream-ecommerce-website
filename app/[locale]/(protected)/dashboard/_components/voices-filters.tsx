@@ -36,11 +36,15 @@ export function VoicesFilters({ rating }: { rating: number | null }) {
   };
 
   // Bez opóźnienia każde naciśnięcie klawisza byłoby osobną nawigacją.
+  // Efekt ma reagować wyłącznie na wpisywany tekst; dopisanie `apply`
+  // i `searchParams` uruchamiałoby go po każdej nawigacji, czyli po każdym
+  // zastosowaniu filtra.
   useEffect(() => {
     if (search === (searchParams.get("search") ?? "")) return;
 
     const timer = setTimeout(() => apply({ search: search || null }), 300);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
   return (

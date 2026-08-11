@@ -20,7 +20,7 @@ export const DeleteIngredientButton = ({ id }: { id: string }) => {
       const res = await deleteIngredient(id);
       if (!res.ok) return toast.error(res.message);
       toast.success(t("ingredients.deleted"));
-    } catch (error) {
+    } catch {
       toast.error(t("ingredients.deleteFailed"));
     } finally {
       setLoading(false);

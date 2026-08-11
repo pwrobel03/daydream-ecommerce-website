@@ -151,7 +151,7 @@ export function useProductForm(initialData: ProductType | null) {
       toast.success(t("feedback.productSaved"));
       router.push("/dashboard/inventory");
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error(t("feedback.storageError"));
     } finally {
       setLoading(false);

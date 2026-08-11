@@ -11,7 +11,7 @@ import {
   Layers,
   LayoutDashboard,
   User,
-  Settings,
+  
   Package,
   ShieldCheck,
   Sprout,

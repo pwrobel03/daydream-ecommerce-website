@@ -1,6 +1,5 @@
 // schemas are defined using Zod
 // helps to validate and infer types inside forms and actions
-import { UserRole } from "@/lib/generated/prisma/client";
 import * as z from 'zod';
 // Schema for login
 export const LoginSchema = z.object({

@@ -44,11 +44,15 @@ export function InventoryFilters({
     router.replace(`${pathname}?${params.toString()}`);
   };
 
+  // Efekt ma reagować wyłącznie na wpisywany tekst; dopisanie `apply`
+  // i `filters.search` uruchamiałoby go po każdej nawigacji, czyli po każdym
+  // zastosowaniu filtra.
   useEffect(() => {
     if (search === filters.search) return;
 
     const timer = setTimeout(() => apply({ search: search || null }), 300);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
   const subCategories =

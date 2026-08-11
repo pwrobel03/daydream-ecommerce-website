@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
   BadgeAlert,
-  Car,
+  
   Trash2,
   Image as ImageIcon,
 } from "lucide-react";

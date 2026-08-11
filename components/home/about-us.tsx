@@ -1,7 +1,5 @@
 // components/home/about-us.tsx
-import SubTitle from "@/components/sub-title";
 import { Wheat, Brain, Scale, Droplets } from "lucide-react";
-import Image from "next/image";
 
 export default function AboutUs() {
   return (

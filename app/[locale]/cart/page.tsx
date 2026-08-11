@@ -4,11 +4,9 @@ import React, { useEffect, useState } from "react";
 import { useCart } from "@/hooks/use-cart";
 import { getFreshCartData } from "@/actions/store/sync-cart";
 import PriceFormatter from "@/components/PriceFormatter";
-import QuantityButtons from "@/components/product-card/QuantityButtons";
 import {
-  Trash2,
   ArrowRight,
-  AlertTriangle,
+  
   ShoppingBag,
   X,
 } from "lucide-react";
@@ -27,7 +25,7 @@ const CartPage = () => {
     syncItems,
     deleteCartProduct,
     getTotalPrice,
-    getSubTotalPrice,
+    
     isMounted,
   } = useCart();
   const router = useRouter();
@@ -36,6 +34,8 @@ const CartPage = () => {
   const [syncFailed, setSyncFailed] = useState(false);
   const [coupon, setCoupon] = useState("");
 
+  // Kontrola cen i stanów ma pójść raz, po zamontowaniu; `items` zmienia
+  // się w jej wyniku, więc pełna lista zależności zapętliłaby zapytanie.
   useEffect(() => {
     const sync = async () => {
       if (isMounted && items.length > 0) {
@@ -59,6 +59,7 @@ const CartPage = () => {
       setIsSyncing(false);
     };
     sync();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMounted]);
 
   if (syncFailed) {

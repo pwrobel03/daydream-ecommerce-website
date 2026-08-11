@@ -1,6 +1,6 @@
 // components/layout/footer.tsx
 import Link from "next/link";
-import { Truck, Shield, Leaf, MapPin } from "lucide-react";
+import { Truck, Shield, Leaf } from "lucide-react";
 import Container from "./Container";
 
 export default function Footer() {

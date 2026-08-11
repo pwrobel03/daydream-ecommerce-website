@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import type { Category } from "@/types/product";
 
 export const CategorySection = ({ categories }: { categories: Category[] }) => {

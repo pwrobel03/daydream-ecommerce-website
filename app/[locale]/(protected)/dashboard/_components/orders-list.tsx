@@ -21,7 +21,6 @@ interface OrdersListProps {
 }
 
 export function OrdersList({ orders }: OrdersListProps) {
-  const t = useTranslations("dashboard");
   if (orders.length === 0) {
     return (
       <div className="h-96 flex flex-col items-center justify-center border-2 border-dashed border-black/5 rounded-[3rem]">

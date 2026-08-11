@@ -25,10 +25,10 @@ import Link from "next/link";
 import {
   Fingerprint,
   Lock,
-  ShieldCheck,
-  Activity,
+  
+  
   Cpu,
-  ArrowRight,
+  
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

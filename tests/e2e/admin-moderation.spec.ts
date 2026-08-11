@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { E2E_ADMIN, E2E_REVIEWS } from "./fixtures";
+import { ADMIN_STATE, E2E_REVIEWS } from "./fixtures";
+
+test.use({ storageState: ADMIN_STATE });
 
 const [praise, complaint] = E2E_REVIEWS;
 
@@ -10,12 +12,6 @@ const visible = (page: import("@playwright/test").Page, text: string) =>
 
 async function openModeration(page: import("@playwright/test").Page) {
   test.setTimeout(150_000);
-
-  await page.goto("/auth/login");
-  await page.getByPlaceholder("USER@DAYDREAM.COM").fill(E2E_ADMIN.email);
-  await page.getByPlaceholder("••••••••••••").fill(E2E_ADMIN.password);
-  await page.getByRole("button", { name: /login/i }).click();
-  await page.waitForURL(/\/dashboard/, { timeout: 60_000 });
 
   await page.goto("/dashboard/comments");
   await expect(page.getByRole("heading", { name: /voices hub/i })).toBeVisible({

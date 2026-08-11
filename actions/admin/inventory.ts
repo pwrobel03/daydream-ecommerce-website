@@ -9,67 +9,6 @@ import { revalidatePath } from "next/cache";
 import { reportError } from "@/lib/logger";
 
 
-export async function getInventoryProducts({
-  take = 5,
-  skip = 0,
-  search = "",
-  categoryId,
-  subCategoryId,
-  stockStatus, // NOWOŚĆ: 'all' | 'low' | 'empty'
-}: {
-  take?: number;
-  skip?: number;
-  search?: string;
-  categoryId?: string;
-  subCategoryId?: string;
-  stockStatus?: string;
-}) {
-  try {
-    await requireAdmin();
-
-    const where = {
-      ...(search ? { name: { contains: search, mode: "insensitive" as const } } : {}),
-      
-      // Filtrowanie po kategoriach (Many-to-Many)
-      ...(subCategoryId 
-        ? { categories: { some: { id: subCategoryId } } } 
-        : categoryId 
-        ? { categories: { some: { OR: [{ id: categoryId }, { parentId: categoryId }] } } } 
-        : {}),
-
-      // NOWOŚĆ: Filtrowanie po Stock
-      ...(stockStatus === "low" ? { stock: { lte: 5, gt: 0 } } : {}),
-      ...(stockStatus === "empty" ? { stock: 0 } : {}),
-    };
-
-    const rawProducts = await db.product.findMany({
-      where,
-      take,
-      skip,
-      include: {
-        categories: { include: { parent: true } },
-        status: true,
-        images: { take: 1 }
-      },
-      orderBy: { createdAt: "desc" }
-    });
-
-    const totalCount = await db.product.count({ where });
-
-    const products = rawProducts.map(p => ({
-      ...p,
-      price: Number(p.price),
-      promoPrice: p.promoPrice !== null ? Number(p.promoPrice) : null,
-      images: p.images.map(img => ({ url: img.url }))
-    }));
-
-    return { products, totalCount };
-  } catch (error) {
-    reportError(error, { area: "admin.inventory" });
-    return { products: [], totalCount: 0 };
-  }
-}
-
 // TODO: handle removing images connected with product
 export async function deleteProduct(id: string): Promise<ActionResult> {
   try {

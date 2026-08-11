@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { FormSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 import { db } from "@/lib/db";
@@ -9,10 +9,16 @@ import { ProductType } from "@/types/product";
 async function ProductPageContent({
   params,
 }: {
-  params: Promise<{ productId: string }>;
+  params: Promise<{ locale: string; productId: string }>;
 }) {
+  const { locale, productId } = await params;
+
+  // Bez tego `getTranslations` czyta locale z żądania, co czyni całą trasę
+  // dynamiczną i blokuje render — Next zgłasza to jako dostęp do
+  // niezcache'owanych danych poza <Suspense>.
+  setRequestLocale(locale);
+
   const t = await getTranslations("dashboard");
-  const { productId } = await params;
   const isNew = productId === "new";
 
   // get helpfull data for product
@@ -73,7 +79,7 @@ async function ProductPageContent({
 
 
 export default function ProductPage(props: {
-  params: Promise<{ productId: string }>;
+  params: Promise<{ locale: string; productId: string }>;
 }) {
   return (
     <Suspense fallback={<FormSkeleton />}>

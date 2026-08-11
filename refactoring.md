@@ -661,7 +661,7 @@ analytics page and chart, `lib/db-orders.ts`, the rewritten cart store, the
 ratings aggregation, and the accessibility changes. The contrast sweep touched
 ~110 files but mechanically; it was spot-checked, not re-read line by line.
 
-**Summary: 2 major, 3 minor.**
+**Summary: 2 major, 3 minor — all resolved (`8a4c973`, `f8a2d40`, `779b097`).**
 
 ## [major] The revenue card and the revenue chart measure different windows — `lib/db-analytics.ts:52`
 
@@ -741,3 +741,31 @@ catching it.
 **Recommendation:** narrow the exclusion to the decorative container itself
 rather than the attribute in general, so a future misuse of `aria-hidden`
 still fails.
+
+
+## Status of the third pass
+
+- **Window mismatch** (`8a4c973`): one boundary, computed once in SQL, taken by
+  all three queries; the day label is formatted with `to_char` so the bucket,
+  the boundary and the label share a timezone — which closes the separate
+  minor about UTC as well. Two tests assert the reconciliation the dashboard
+  implicitly promises.
+
+- **Chart and audit scope** (`f8a2d40`): the analytics and inventory pages are
+  in the axe spec, and the chart carries a visually-hidden table. Adding those
+  pages immediately found four defects, one of which corrects this very
+  document: the claim that white-on-green buttons were fine held only in dark
+  mode. `--primary-foreground` is now theme-aware; the green is unchanged.
+
+- **`aria-hidden` exclusion**: narrowed to two specific selectors.
+
+- **Four authorisation calls per render**: left alone deliberately. Each query
+  must be safe on its own, and the fix belongs in a request-scoped session
+  cache rather than here.
+
+Found while verifying, and worth more than the item that led to it: the
+integration suites each cleared only their own tables, so once analytics
+started leaving `OrderItem` rows behind, the upload suite failed on a foreign
+key about every second run. `tests/integration/reset.ts` now clears the shared
+tables in one place (`779b097`). The same look found `webhook.test.ts` deleting
+every suite's user, which worked only because that file runs last.

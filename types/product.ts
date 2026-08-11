@@ -52,11 +52,10 @@ export interface ProductType {
   name: string;
   slug: string;
   description?: string | null;
-  // Prisma zwraca Decimal. Część ścieżek konwertuje go na `number` mapperem,
-  // część przepuszcza przez JSON.parse(JSON.stringify(...)), co daje `string`.
-  // Unia opisuje stan faktyczny; ujednolicenie wymaga warstwy DTO (§2.6 raportu).
-  price: number | string;
-  promoPrice?: number | string | null;
+  // Rozszerzenie klienta Prismy (lib/db.ts) zamienia Decimal na number
+  // u źródła, więc tu jest jeden typ zamiast unii.
+  price: number;
+  promoPrice?: number | null;
   weight?: string | null;
   stock: number;
   statusId?: string | null;

@@ -85,7 +85,7 @@ export async function POST(req: Request) {
     }
 
     // Kwota zapłacona musi zgadzać się z sumą zamówienia (Stripe liczy w groszach).
-    const expected = Math.round(order.totalAmount.mul(100).toNumber());
+    const expected = Math.round(order.totalAmount * 100);
     if (session.amount_total !== expected) {
       logger.error(
         { eventId: event.id, orderId, paid: session.amount_total, expected },

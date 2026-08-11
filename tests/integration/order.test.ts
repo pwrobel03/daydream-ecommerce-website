@@ -1,15 +1,15 @@
-import type { PrismaClient } from "@/lib/generated/prisma/client";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Sesja jest jedyną rzeczą, którą podmieniamy — baza jest prawdziwa.
 // Fabryka musi być asynchroniczna: vi.hoisted wykonuje się przed importami,
 // więc klienta Prismy trzeba wciągnąć dynamicznie w jej środku.
 const { session, db } = await vi.hoisted(async () => {
-  const { PrismaClient } = await import("@/lib/generated/prisma/client");
-  const { PrismaPg } = await import("@prisma/adapter-pg");
+  // Ten sam klient co produkcja — z rozszerzeniem zamieniającym Decimal na
+  // number. Własna instancja PrismaClient testowałaby inny kod niż działający.
+  const { createPrismaClient } = await import("@/lib/db");
   return {
     session: { user: { id: "", role: "USER" as const } },
-    db: new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) }) as unknown as PrismaClient,
+    db: createPrismaClient(),
   };
 });
 
@@ -56,8 +56,8 @@ describe("initializeOrder", () => {
       include: { items: true },
     });
 
-    expect(order.totalAmount.toNumber()).toBe(50);
-    expect(order.items[0].price.toNumber()).toBe(25);
+    expect(order.totalAmount).toBe(50);
+    expect(order.items[0].price).toBe(25);
   });
 
   it("prefers promoPrice when the product has one", async () => {
@@ -66,7 +66,7 @@ describe("initializeOrder", () => {
     const result = await initializeOrder([{ productId, quantity: 3 }]);
     const order = await db.order.findUniqueOrThrow({ where: { id: result.orderId! } });
 
-    expect(order.totalAmount.toNumber()).toBe(30);
+    expect(order.totalAmount).toBe(30);
   });
 
   it("decrements stock by the ordered quantity", async () => {

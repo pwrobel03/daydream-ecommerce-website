@@ -71,7 +71,7 @@ export async function createReview(
     // Zwracamy czysty obiekt JSON z PRAWDZIWYM ID z bazy
     return { 
       success: "Story shared!", 
-      review: JSON.parse(JSON.stringify(newReview)) as Review 
+      review: newReview as Review 
     };
   } catch (error) {
     return { error: "Failed to save review." };
@@ -107,7 +107,7 @@ export async function updateReview(
     // Teraz updatedReview zawiera pole 'user', więc pasuje do ReviewType
     return { 
       success: "Your story has been updated!", 
-      review: JSON.parse(JSON.stringify(updatedReview)) 
+      review: updatedReview 
     };
   } catch (error) {
     reportError(error, { area: "store.reviews" });

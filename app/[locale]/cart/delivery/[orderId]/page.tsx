@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import { DeliveryClient } from "@/components/cart/delivery-client";
+import { toPlainDeep } from "@/lib/dto";
 
 async function DeliveryPageContent({
   params,
@@ -29,20 +30,9 @@ async function DeliveryPageContent({
 
   if (!order) notFound();
 
-  // Prisma zwraca Decimal, którego nie da się przekazać do komponentu klienckiego
-  // (Next zgłasza "Only plain objects can be passed to Client Components").
-  // Konwersja na granicy serwer/klient — to właściwe miejsce, bo tylko tutaj
-  // wiadomo, które pola są pieniędzmi.
-  const orderForClient = {
-    ...order,
-    totalAmount: Number(order.totalAmount),
-    discountAmount: Number(order.discountAmount),
-    items: order.items.map((item) => ({
-      ...item,
-      price: Number(item.price),
-      product: { ...item.product, price: Number(item.product.price) },
-    })),
-  };
+  // Wynik Prismy niesie własności symboliczne — patrz lib/dto.
+  const orderForClient = toPlainDeep(order);
+
 
   return (
     <div className="container mx-auto px-6 py-20 max-w-7xl">

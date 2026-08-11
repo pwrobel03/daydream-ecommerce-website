@@ -1,6 +1,7 @@
 // lib/db-products.ts
 import { db } from "@/lib/db";
 import { reportError } from "@/lib/logger";
+import { toPlainDeep } from "@/lib/dto";
 
 /**
  * Pobiera konkretną kategorię wraz z limitowaną liczbą produktów
@@ -29,7 +30,7 @@ export const getCategoryWithProducts = async (slug: string, limit: number = 25) 
     });
 
     if (!category) return null;
-    return JSON.parse(JSON.stringify(category));
+    return toPlainDeep(category);
   } catch (error) {
     reportError(error, { area: "db.products" });
     return null;
@@ -62,7 +63,7 @@ export const getAllProductsAsCategory = async (limit: number = 25) => {
       name: "All Artifacts",
       slug: "all",
       description: "A complete collection of every dream captured so far.",
-      products: JSON.parse(JSON.stringify(products)),
+      products: toPlainDeep(products),
     };
   } catch (error) {
     reportError(error, { area: "db.products" });
@@ -129,7 +130,7 @@ export const getProductBySlug = async (slug: string, currentUserId?: string) => 
       reviews: otherReviews,
     };
 
-    return JSON.parse(JSON.stringify(result));
+    return toPlainDeep(result);
   } catch (error) {
     reportError(error, { area: "db.products" });
     return null;

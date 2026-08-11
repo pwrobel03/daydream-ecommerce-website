@@ -16,11 +16,14 @@ export async function getFreshCartData(productIds: string[]) {
       }
     });
     // simple return result in error data cause of prisma decimal 
-    return products.map(product => ({
-      ...product,
-      price: Number(product.price),
-      promoPrice: product.promoPrice !== null ? Number(product.promoPrice) : null,
-      stock: Number(product.stock)
+    // Jawne pola zamiast spreadu: spread kopiuje też własności symboliczne
+    // wyniku Prismy, których granica serwer/klient nie przepuszcza.
+    return products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      promoPrice: product.promoPrice,
+      stock: product.stock,
     }));
   } catch (error) {
     reportError(error, { area: "store.syncCart" });

@@ -9,7 +9,6 @@ import { reportError } from "@/lib/logger";
 import { AddressSchema, CheckoutItemsSchema } from "@/schemas";
 import { createCheckoutSession } from "@/lib/checkout-session";
 import { requireOwnedOrder } from "@/lib/guards";
-import { Prisma } from "@/lib/generated/prisma/client";
 import * as z from "zod";
 import { getTranslations } from "next-intl/server";
 
@@ -55,8 +54,11 @@ export async function initializeOrder(
         throw new Error(t("someProductUnavailable"));
       }
 
-      let subtotal = new Prisma.Decimal(0);
-      const orderItems: { productId: string; quantity: number; price: Prisma.Decimal }[] = [];
+      // Liczymy w groszach, na liczbach całkowitych. Rozszerzenie klienta
+      // Prismy zwraca ceny jako `number`, a sumowanie pieniędzy na floatach
+      // kumuluje błąd zaokrągleń — 0.1 + 0.2 nie jest 0.3.
+      let subtotalCents = 0;
+      const orderItems: { productId: string; quantity: number; price: number }[] = [];
 
       for (const product of products) {
         const quantity = quantities.get(product.id)!;
@@ -75,7 +77,7 @@ export async function initializeOrder(
         // Cena zawsze z bazy, nigdy z danych przysłanych przez klienta.
         // Ta sama reguła co w koszyku — patrz lib/pricing.ts.
         const unitPrice = product.promoPrice ?? product.price;
-        subtotal = subtotal.add(unitPrice.mul(quantity));
+        subtotalCents += Math.round(unitPrice * 100) * quantity;
         orderItems.push({ productId: product.id, quantity, price: unitPrice });
       }
 
@@ -97,14 +99,15 @@ export async function initializeOrder(
         throw new Error(t("invalidCoupon"));
       }
 
-      // Zaokrąglamy do groszy tu, a nie przy tworzeniu sesji Stripe — dzięki
-      // temu kwota zapisana w bazie i kwota zapłacona są tą samą liczbą,
-      // a weryfikacja w webhooku nie odrzuci płatności z powodu zaokrąglenia.
-      const discount = sale
-        ? subtotal.mul(sale.discountValue).div(100).toDecimalPlaces(2)
-        : new Prisma.Decimal(0);
+      // Rabat też w groszach: dzięki temu kwota zapisana w bazie i kwota
+      // pobrana przez Stripe to ta sama liczba, a weryfikacja w webhooku nie
+      // odrzuci poprawnej płatności z powodu zaokrąglenia.
+      const discountCents = sale
+        ? Math.round((subtotalCents * sale.discountValue) / 100)
+        : 0;
 
-      const total = subtotal.sub(discount);
+      const discount = discountCents / 100;
+      const total = (subtotalCents - discountCents) / 100;
 
       // Tworzymy zamówienie (PENDING, bez adresu).
       // reservedUntil wyznacza moment, po którym zadanie cykliczne zwolni towar,

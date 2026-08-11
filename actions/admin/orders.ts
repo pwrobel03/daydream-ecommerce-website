@@ -46,7 +46,7 @@ export const getAdminOrders = async (page: number = 1, pageSize: number = 15, se
 
     // Serializacja: usuwamy obiekty Decimal i Date, zamieniając je na proste typy JSON
     return {
-      orders: JSON.parse(JSON.stringify(orders)),
+      orders: orders,
       totalPages: Math.ceil(totalCount / pageSize),
       totalCount
     };

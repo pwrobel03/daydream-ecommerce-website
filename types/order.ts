@@ -14,9 +14,7 @@ export interface AddressType {
 export interface OrderItemType {
   id: string;
   quantity: number;
-  // Jak w ProductType — Decimal dociera tu albo jako number, albo jako string,
-  // zależnie od tego, którą ścieżką serializacji przeszedł.
-  price: number | string;
+  price: number;
   // Poszczególne widoki selectują różne podzbiory pól produktu,
   // dlatego wszystko poza nazwą jest opcjonalne.
   product: {
@@ -29,8 +27,8 @@ export interface OrderItemType {
 
 export interface OrderType {
   id: string;
-  totalAmount: number | string;
-  discountAmount?: number | string;
+  totalAmount: number;
+  discountAmount?: number;
   status: OrderStatus;
   isPaid: boolean;
   createdAt: Date | string;

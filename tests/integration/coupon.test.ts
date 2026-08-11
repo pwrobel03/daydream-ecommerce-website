@@ -1,14 +1,10 @@
-import type { PrismaClient } from "@/lib/generated/prisma/client";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { session, db } = await vi.hoisted(async () => {
-  const { PrismaClient } = await import("@/lib/generated/prisma/client");
-  const { PrismaPg } = await import("@prisma/adapter-pg");
+  const { createPrismaClient } = await import("@/lib/db");
   return {
     session: { user: { id: "", role: "USER" as const } },
-    db: new PrismaClient({
-      adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
-    }) as unknown as PrismaClient,
+    db: createPrismaClient(),
   };
 });
 
@@ -62,8 +58,8 @@ describe("coupons", () => {
     const order = await db.order.findUniqueOrThrow({ where: { id: result.orderId! } });
 
     // 2 × 100 = 200, minus 20% = 160
-    expect(order.totalAmount.toNumber()).toBe(160);
-    expect(order.discountAmount.toNumber()).toBe(40);
+    expect(order.totalAmount).toBe(160);
+    expect(order.discountAmount).toBe(40);
     expect(order.saleId).not.toBeNull();
   });
 
@@ -75,8 +71,8 @@ describe("coupons", () => {
     const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
     const order = await db.order.findUniqueOrThrow({ where: { id: result.orderId! } });
 
-    expect(order.discountAmount.toNumber()).toBe(5);
-    expect(order.totalAmount.toNumber()).toBe(95);
+    expect(order.discountAmount).toBe(5);
+    expect(order.totalAmount).toBe(95);
   });
 
   it("rejects an expired coupon and creates no order", async () => {
@@ -121,9 +117,9 @@ describe("coupons", () => {
     const result = await initializeOrder([{ productId, quantity: 1 }]);
     const order = await db.order.findUniqueOrThrow({ where: { id: result.orderId! } });
 
-    expect(order.discountAmount.toNumber()).toBe(0);
+    expect(order.discountAmount).toBe(0);
     expect(order.saleId).toBeNull();
-    expect(order.totalAmount.toNumber()).toBe(100);
+    expect(order.totalAmount).toBe(100);
   });
 
   it("rounds the discount to cents so the webhook amount check cannot drift", async () => {
@@ -134,9 +130,9 @@ describe("coupons", () => {
     const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
     const order = await db.order.findUniqueOrThrow({ where: { id: result.orderId! } });
 
-    expect(order.discountAmount.toNumber()).toBe(33);
-    expect(order.totalAmount.toNumber()).toBe(67);
-    expect(Number.isInteger(Math.round(order.totalAmount.toNumber() * 100))).toBe(true);
+    expect(order.discountAmount).toBe(33);
+    expect(order.totalAmount).toBe(67);
+    expect(Number.isInteger(Math.round(order.totalAmount * 100))).toBe(true);
   });
 });
 
@@ -156,13 +152,13 @@ describe("payment retry", () => {
 
     // Kwota do pobrania przy ponowieniu musi być tą samą, którą zapisano.
     const lineTotal = order.items.reduce(
-      (sum, item) => sum + item.price.toNumber() * item.quantity,
+      (sum, item) => sum + item.price * item.quantity,
       0
     );
 
-    expect(lineTotal - order.discountAmount.toNumber()).toBe(
-      order.totalAmount.toNumber()
+    expect(lineTotal - order.discountAmount).toBe(
+      order.totalAmount
     );
-    expect(order.discountAmount.toNumber()).toBeGreaterThan(0);
+    expect(order.discountAmount).toBeGreaterThan(0);
   });
 });

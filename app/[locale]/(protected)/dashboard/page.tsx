@@ -82,7 +82,7 @@ async function DashboardPageContent() {
               <div className="space-y-4">
                 <div
                   className="w-12 h-12 bg-foreground text-background rounded-2xl flex items-center justify-center group-hover:bg-primary
-                  group-hover:text-white
+                  group-hover:text-primary-foreground
                  transition-colors"
                 >
                   <card.icon size={24} />
@@ -126,7 +126,7 @@ async function DashboardPageContent() {
         </div>
         <Link
           href="/"
-          className="px-10 py-5 bg-background text-foreground rounded-full font-black uppercase italic hover:bg-primary hover:text-white transition-all"
+          className="px-10 py-5 bg-background text-foreground rounded-full font-black uppercase italic hover:bg-primary hover:text-primary-foreground transition-all"
         >
           Return to Store
         </Link>

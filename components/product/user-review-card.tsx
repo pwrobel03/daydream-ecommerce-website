@@ -46,7 +46,7 @@ export default function UserReviewCard({
       <div className="relative bg-card/60 border border-primary/20 p-10 rounded-[3rem] shadow-2xl">
         <div className="flex justify-between items-start mb-8">
           <div className="flex flex-col gap-2">
-            <span className="px-4 py-1.5 w-fit bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-primary/20">
+            <span className="px-4 py-1.5 w-fit bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-primary/20">
               Your Voice
             </span>
             <span className="text-[10px] font-bold opacity-70 uppercase tracking-widest ml-1 gap-4 flex">
@@ -66,7 +66,7 @@ export default function UserReviewCard({
           <div className="flex gap-2 transition-opacity">
             <button
               onClick={onEdit}
-              className="p-3 rounded-full bg-card border-border border hover:bg-primary hover:text-white transition-all"
+              className="p-3 rounded-full bg-card border-border border hover:bg-primary hover:text-primary-foreground transition-all"
             >
               <Pencil className="w-4 h-4" />
             </button>

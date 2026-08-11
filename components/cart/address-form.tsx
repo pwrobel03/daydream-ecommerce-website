@@ -146,7 +146,7 @@ export function AddressForm({
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full h-20 bg-zinc-900 text-white rounded-full font-black italic uppercase text-xl hover:bg-primary transition-all disabled:opacity-40"
+          className="w-full h-20 bg-zinc-900 text-primary-foreground rounded-full font-black italic uppercase text-xl hover:bg-primary transition-all disabled:opacity-40"
         >
           {isLoading ? (
             <Loader2 className="animate-spin mx-auto" />

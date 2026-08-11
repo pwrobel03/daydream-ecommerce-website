@@ -69,7 +69,7 @@ export function VoicesFilters({ rating }: { rating: number | null }) {
             }
             className={cn(
               "w-10 h-10 rounded-full flex items-center justify-center transition-all font-black text-xs",
-              rating === star ? "bg-primary text-white" : "hover:bg-primary/40"
+              rating === star ? "bg-primary text-primary-foreground" : "hover:bg-primary/40"
             )}
           >
             {star}★

@@ -166,7 +166,7 @@ export default function ReviewsSection({
             disabled={loading}
             className="group flex flex-col items-center gap-4"
           >
-            <div className="w-16 h-16 rounded-full border flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-xl">
+            <div className="w-16 h-16 rounded-full border flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500 shadow-xl">
               {loading ? (
                 <Loader2 className="w-6 h-6 animate-spin" />
               ) : (

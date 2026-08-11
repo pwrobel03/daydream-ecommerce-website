@@ -17,7 +17,13 @@ import type { RevenuePoint } from "@/lib/db-analytics";
  * działać w przeglądarce. Dane przychodzą gotowe z serwera; tutaj nie ma
  * żadnego pobierania ani liczenia.
  */
-export function RevenueChart({ points }: { points: RevenuePoint[] }) {
+export function RevenueChart({
+  points,
+  caption,
+}: {
+  points: RevenuePoint[];
+  caption: string;
+}) {
   const format = useFormatter();
 
   const money = (value: number) =>
@@ -31,7 +37,31 @@ export function RevenueChart({ points }: { points: RevenuePoint[] }) {
   const tickInterval = Math.max(0, Math.floor(points.length / 6) - 1);
 
   return (
-    <div className="h-72 w-full">
+    <>
+      {/* Ta sama treść w formie, którą czytnik ekranu potrafi przekazać.
+          Sam SVG jest dla niego pusty, a przychód dzienny to jedyna dana
+          na tym ekranie, której nie da się odczytać inaczej. */}
+      <table className="sr-only">
+        <caption>{caption}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Day</th>
+            <th scope="col">Revenue</th>
+            <th scope="col">Orders</th>
+          </tr>
+        </thead>
+        <tbody>
+          {points.map((point) => (
+            <tr key={point.day}>
+              <th scope="row">{point.day}</th>
+              <td>{money(point.revenue)}</td>
+              <td>{point.orders}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div aria-hidden="true" data-chart-surface className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={points} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
           <CartesianGrid
@@ -74,6 +104,7 @@ export function RevenueChart({ points }: { points: RevenuePoint[] }) {
           />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+      </div>
+    </>
   );
 }

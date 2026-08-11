@@ -39,7 +39,7 @@ export function PaginationControls({
         <Link
           href={createPageUrl(currentPage - 1)}
           className={cn(
-            "group flex items-center gap-3 px-8 py-4 border rounded-2xl transition-all hover:bg-primary hover:border-primary hover:text-white",
+            "group flex items-center gap-3 px-8 py-4 border rounded-2xl transition-all hover:bg-primary hover:border-primary hover:text-primary-foreground",
             currentPage <= 1 && "pointer-events-none opacity-10"
           )}
         >
@@ -53,7 +53,7 @@ export function PaginationControls({
         <Link
           href={createPageUrl(currentPage + 1)}
           className={cn(
-            "group flex items-center gap-3 px-8 py-4 border rounded-2xl transition-all hover:bg-primary hover:border-primary hover:text-white",
+            "group flex items-center gap-3 px-8 py-4 border rounded-2xl transition-all hover:bg-primary hover:border-primary hover:text-primary-foreground",
             currentPage >= totalPages && "pointer-events-none opacity-10"
           )}
         >

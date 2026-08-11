@@ -162,7 +162,7 @@ export const RegisterForm = () => {
             <Button
               disabled={isPending}
               type="submit"
-              className="w-full py-12 bg-foreground text-background hover:bg-primary hover:text-white transition-all duration-700 group relative overflow-hidden rounded-full mt-8"
+              className="w-full py-12 bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-all duration-700 group relative overflow-hidden rounded-full mt-8"
             >
               <div className="relative z-10 flex items-center justify-center gap-12 w-full px-8">
                 <span className="text-xl md:text-3xl font-black italic uppercase tracking-tighter">

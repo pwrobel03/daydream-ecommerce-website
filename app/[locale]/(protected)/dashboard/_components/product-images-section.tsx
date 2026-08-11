@@ -30,7 +30,7 @@ export function ProductImagesSection({
           Media
         </h2>
       </div>
-      <label className="cursor-pointer max-w-40 bg-foreground text-background hover:text-white px-8 py-2 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:bg-primary transition-all">
+      <label className="cursor-pointer max-w-40 bg-foreground text-background hover:text-primary-foreground px-8 py-2 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:bg-primary transition-all">
         Upload{" "}
         <input
           disabled={loading}

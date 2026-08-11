@@ -44,7 +44,7 @@ export function ProductTaxonomySection({
                 );
               }}
               // Stylizujemy tło przez klasę:
-              className="border data-[state=checked]:bg-primary data-[state=checked]:text-white"
+              className="border data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
             />
             <label
               htmlFor={cat.id}
@@ -82,7 +82,7 @@ export function ProductTaxonomySection({
             className={cn(
               "px-4 py-2 rounded-full text-[8px] font-black uppercase tracking-widest border transition-all",
               form.watch("ingredientIds")?.includes(ing.id)
-                ? "bg-primary text-white"
+                ? "bg-primary text-primary-foreground"
                 : "bg-input/50"
             )}
           >

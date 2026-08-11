@@ -93,7 +93,7 @@ const NewVerificationForm = () => {
         {/* PRZYCISK POWROTU (AKTYWNY TYLKO PO ZAKOŃCZENIU) */}
         <div className="pt-8">
           <Link href="/auth/login">
-            <button className="group flex items-center gap-4 bg-foreground text-background px-8 py-4 rounded-full hover:bg-primary hover:text-white transition-all duration-500">
+            <button className="group flex items-center gap-4 bg-foreground text-background px-8 py-4 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-500">
               <span className="text-[10px] font-black uppercase tracking-widest italic">
                 {success ? t("proceed") : t("back")}
               </span>
@@ -145,7 +145,7 @@ const NewVerificationForm = () => {
         {/* BACKGROUND DECOR */}
         <div
         aria-hidden="true"
-        className="absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right"
+        className="decor-hidden absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right"
       >
           <Cpu className="w-4 h-4" />
           <span>ESTABLISHING_MOLECULAR_TRUST_BRIDGE...</span>

@@ -150,7 +150,7 @@ async function OrderDetailsPageContent({
             </div>
 
             {!order.isPaid && order.status === "PENDING" && (
-              // <button className="w-full py-6 bg-primary text-white rounded-full font-black italic uppercase text-lg hover:scale-105 transition-all shadow-xl active:scale-95">
+              // <button className="w-full py-6 bg-primary text-primary-foreground rounded-full font-black italic uppercase text-lg hover:scale-105 transition-all shadow-xl active:scale-95">
               //   Retry Payment
               // </button>
               <RetryPaymentButton orderId={serializedOrder.id} />

@@ -76,7 +76,7 @@ async function IngredientsListPageContent() {
                   <Button
                     variant="default"
                     size="sm"
-                    className="w-10 h-10 rounded-full border bg-card flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-500 shadow-sm group/btn text-foreground"
+                    className="w-10 h-10 rounded-full border bg-card flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all duration-500 shadow-sm group/btn text-foreground"
                   >
                     <Edit3
                       size={16}

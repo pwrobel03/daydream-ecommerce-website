@@ -135,7 +135,8 @@ export function InventoryList({ products }: { products: InventoryProduct[] }) {
                   onClick={() =>
                     router.push(`/dashboard/inventory/${product.id}`)
                   }
-                  className="w-12 h-12 rounded-full border bg-card flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-500 shadow-sm group/btn"
+                  aria-label={t("actions.edit", { name: product.name })}
+                  className="w-12 h-12 rounded-full border bg-card flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all duration-500 shadow-sm group/btn"
                 >
                   <Edit3
                     size={18}
@@ -145,6 +146,7 @@ export function InventoryList({ products }: { products: InventoryProduct[] }) {
                 <button
                   onClick={() => handleDelete(product.id, product.name)}
                   disabled={isPending}
+                  aria-label={t("actions.delete", { name: product.name })}
                   className="w-12 h-12 rounded-full border bg-card flex items-center justify-center hover:bg-destructive hover:text-white transition-all duration-500 shadow-sm group/btn"
                 >
                   <Trash2

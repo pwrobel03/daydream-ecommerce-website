@@ -64,7 +64,7 @@ async function CommentsPageContent({
             scroll={false}
             className="group flex flex-col items-center gap-4"
           >
-            <div className="w-16 h-16 rounded-full border border-border/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500">
+            <div className="w-16 h-16 rounded-full border border-border/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
               <Plus />
             </div>
             <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-70 italic">

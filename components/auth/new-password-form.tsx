@@ -149,7 +149,7 @@ export const NewPasswordForm = () => {
             <Button
               disabled={isPending}
               type="submit"
-              className="w-full py-12 bg-foreground text-background hover:bg-primary hover:text-white transition-all duration-700 group relative overflow-hidden rounded-full"
+              className="w-full py-12 bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-all duration-700 group relative overflow-hidden rounded-full"
             >
               <div className="relative z-10 flex items-center justify-center gap-12 w-full px-8">
                 <span className="text-xl md:text-3xl font-black italic uppercase tracking-tighter text-center">
@@ -188,7 +188,7 @@ export const NewPasswordForm = () => {
         {/* BACKGROUND DECOR */}
         <div
         aria-hidden="true"
-        className="absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right"
+        className="decor-hidden absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right"
       >
           <Cpu className="w-4 h-4" />
           <span>RECONFIGURING_ACCESS_LADDER_SEQUENCE...</span>

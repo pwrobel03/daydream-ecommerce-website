@@ -184,7 +184,7 @@ export function AddressForm({
         <Button
           type="submit"
           disabled={loading}
-          className="w-full h-24 bg-foreground hover:bg-primary text-background hover:text-white rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98]"
+          className="w-full h-24 bg-foreground hover:bg-primary text-background hover:text-primary-foreground rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98]"
         >
           {loading ? (
             <Loader2 className="animate-spin" />

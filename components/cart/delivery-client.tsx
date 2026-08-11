@@ -210,7 +210,7 @@ export function DeliveryClient({ order, savedAddress }: DeliveryClientProps) {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full h-24 hover:bg-primary hover:text-white rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98] bg-foreground text-background"
+            className="w-full h-24 hover:bg-primary hover:text-primary-foreground rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98] bg-foreground text-background"
           >
             {loading ? (
               <Loader2 className="animate-spin" />

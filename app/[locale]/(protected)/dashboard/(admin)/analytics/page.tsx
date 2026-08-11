@@ -75,7 +75,7 @@ async function AnalyticsContent({
               aria-current={option === range ? "page" : undefined}
               className={
                 option === range
-                  ? "px-6 py-3 rounded-full bg-primary text-white font-black uppercase italic text-[10px] tracking-widest"
+                  ? "px-6 py-3 rounded-full bg-primary text-primary-foreground font-black uppercase italic text-[10px] tracking-widest"
                   : "px-6 py-3 rounded-full border font-black uppercase italic text-[10px] tracking-widest hover:bg-primary/10 transition-colors"
               }
             >
@@ -105,7 +105,7 @@ async function AnalyticsContent({
         <h2 className="text-xl font-black italic uppercase tracking-tight">
           {t("revenueChart")}
         </h2>
-        <RevenueChart points={revenue} />
+        <RevenueChart points={revenue} caption={t("revenueCaption")} />
       </section>
 
       <section className="bg-card/60 border rounded-[2rem] p-8 space-y-8">

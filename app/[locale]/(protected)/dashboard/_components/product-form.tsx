@@ -50,7 +50,7 @@ export function ProductForm({
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-24 bg-foreground text-background hover:text-white rounded-[2rem] font-black uppercase italic text-xl hover:bg-primary transition-all shadow-2xl"
+            className="w-full h-24 bg-foreground text-background hover:text-primary-foreground rounded-[2rem] font-black uppercase italic text-xl hover:bg-primary transition-all shadow-2xl"
           >
             {loading ? (
               <Loader2 className="animate-spin mx-auto" />

@@ -240,7 +240,17 @@
       "topProductsCaption": "Produkty o największym przychodzie w wybranym zakresie",
       "product": "Produkt",
       "units": "Sztuk",
-      "noSales": "Brak sprzedaży w tym zakresie."
+      "noSales": "Brak sprzedaży w tym zakresie.",
+      "revenueCaption": "Przychód i liczba zamówień dla każdego dnia w wybranym zakresie"
+    },
+    "filters": {
+      "stock": "Filtruj po stanie",
+      "category": "Filtruj po kategorii",
+      "subCategory": "Filtruj po podkategorii"
+    },
+    "actions": {
+      "edit": "Edytuj {name}",
+      "delete": "Usuń {name}"
     }
   },
   "reviews": {

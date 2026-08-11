@@ -71,6 +71,7 @@ export function VoicesList({ voices }: { voices: VoiceType[] }) {
             <button
               onClick={() => handleDelete(voice.id)}
               disabled={isPending}
+              aria-label={t("actions.delete", { name: voice.product.name })}
               className="w-14 h-14 rounded-full border flex items-center justify-center hover:bg-destructive hover:text-white transition-all duration-500 shrink-0 disabled:opacity-40"
             >
               <Trash2 size={20} />

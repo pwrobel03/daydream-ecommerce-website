@@ -70,7 +70,7 @@ const CartPage = () => {
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="px-8 py-4 rounded-full border font-black uppercase italic text-xs tracking-widest hover:bg-primary hover:text-white transition-all"
+          className="px-8 py-4 rounded-full border font-black uppercase italic text-xs tracking-widest hover:bg-primary hover:text-primary-foreground transition-all"
         >
           {t("retry")}
         </button>
@@ -226,8 +226,8 @@ const CartPage = () => {
               className={cn(
                 "group relative w-full h-24 rounded-full overflow-hidden transition-all shadow-xl active:scale-95",
                 hasErrors
-                  ? "cursor-not-allowed bg-destructive/25 text-white"
-                  : "bg-primary text-white hover:scale-[1.02]"
+                  ? "cursor-not-allowed bg-destructive/25 text-primary-foreground"
+                  : "bg-primary text-primary-foreground hover:scale-[1.02]"
               )}
             >
               {!hasErrors && (

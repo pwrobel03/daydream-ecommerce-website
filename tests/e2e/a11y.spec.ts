@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { E2E_PRODUCT } from "./fixtures";
+import { ADMIN_STATE, E2E_PRODUCT } from "./fixtures";
 
 // Audyt automatyczny łapie może połowę realnych problemów, ale ta połowa jest
 // mierzalna i nie cofa się po cichu. Reguły ograniczone do WCAG 2.1 A/AA —
@@ -8,12 +8,14 @@ import { E2E_PRODUCT } from "./fixtures";
 const scan = (page: import("@playwright/test").Page) =>
   new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    // Elementy oznaczone `aria-hidden` są celowo poza drzewem dostępności —
-    // w tej aplikacji to obrócony o 90° znacznik tła przy `opacity-10`,
-    // pełniący rolę tekstury. Wyłączone świadomie, z zastrzeżeniem: dla osoby
-    // słabowidzącej korzystającej ze wzroku taka dekoracja nadal jest szumem,
-    // więc nie wolno tu wrzucać niczego, co niesie treść.
-    .exclude('[aria-hidden="true"]');
+    // Dwa świadome wyłączenia, oba wąskie:
+    // - dekoracja tła w ekranach logowania: obrócony o 90° znacznik przy
+    //   `opacity-10`, pełniący rolę tekstury;
+    // - warstwa wykresu, dla której obok stoi ta sama treść jako tabela.
+    // Celowo nie wyłączamy `[aria-hidden]` w ogóle: błędne oznaczenie treści
+    // jako ukrytej jest częstym błędem i audyt ma je łapać.
+    .exclude(".decor-hidden")
+    .exclude("[data-chart-surface]");
 
 const pages = [
   { name: "home", path: "/" },
@@ -21,6 +23,13 @@ const pages = [
   { name: "product", path: `/product/${E2E_PRODUCT.slug}` },
   { name: "search", path: "/search?q=bar" },
   { name: "login", path: "/auth/login" },
+];
+
+// Panel wymaga sesji; skanujemy go osobno, bo publiczne strony mają być
+// sprawdzane dokładnie tak, jak widzi je anonimowy odwiedzający.
+const adminPages = [
+  { name: "analytics", path: "/dashboard/analytics" },
+  { name: "inventory", path: "/dashboard/inventory" },
 ];
 
 test.describe("accessibility", () => {
@@ -44,6 +53,25 @@ test.describe("accessibility", () => {
 
 // Audyt automatyczny nie sprawdza obsługi klawiaturą — a to ta połowa, która
 // decyduje o tym, czy da się w ogóle kupić bez myszy.
+test.describe("accessibility (admin)", () => {
+  test.use({ storageState: ADMIN_STATE });
+
+  for (const { name, path } of adminPages) {
+    test(`${name} has no WCAG A/AA violations`, async ({ page }) => {
+      test.setTimeout(150_000);
+
+      await page.goto(path);
+      const results = await scan(page).analyze();
+
+      expect(
+        results.violations.flatMap((v) =>
+          v.nodes.map((node) => `${v.id} :: ${node.target.join(" ")}`)
+        )
+      ).toEqual([]);
+    });
+  }
+});
+
 test.describe("keyboard", () => {
   test("the cart is reachable and announces how many items it holds", async ({
     page,

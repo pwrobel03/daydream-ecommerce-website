@@ -124,7 +124,7 @@ function SidebarItem({
       className={cn(
         "group flex items-center gap-4 px-6 py-4 rounded-[1.5rem] transition-all duration-500",
         isActive
-          ? "bg-primary/60 text-white shadow-xl scale-[1.02]"
+          ? "bg-primary/60 text-primary-foreground shadow-xl scale-[1.02]"
           : "hover:bg-primary/20 hover:text-foreground"
       )}
     >

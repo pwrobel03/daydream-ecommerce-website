@@ -72,6 +72,7 @@ export function InventoryFilters({
       </div>
 
       <select
+        aria-label={t("filters.stock")}
         value={filters.stockStatus}
         onChange={(e) =>
           apply({ stock: e.target.value === "all" ? null : e.target.value })
@@ -79,7 +80,7 @@ export function InventoryFilters({
         className={cn(
           "rounded-full px-6 font-black italic uppercase text-[10px] tracking-widest outline-none h-[62px] cursor-pointer border transition-all",
           filters.stockStatus !== "all" &&
-            "bg-primary text-white border-primary shadow-lg shadow-primary/20"
+            "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
         )}
       >
         <option value="all">Stock: All</option>
@@ -88,6 +89,7 @@ export function InventoryFilters({
       </select>
 
       <select
+        aria-label={t("filters.category")}
         value={filters.categoryId}
         onChange={(e) =>
           // Podkategoria należy do poprzedniej kategorii, więc znika razem z nią.
@@ -104,6 +106,7 @@ export function InventoryFilters({
       </select>
 
       <select
+        aria-label={t("filters.subCategory")}
         disabled={!filters.categoryId}
         value={filters.subCategoryId}
         onChange={(e) => apply({ sub: e.target.value || null })}

@@ -240,7 +240,17 @@
       "topProductsCaption": "Best selling products by revenue in the selected range",
       "product": "Product",
       "units": "Units",
-      "noSales": "No sales in this range yet."
+      "noSales": "No sales in this range yet.",
+      "revenueCaption": "Revenue and order count for each day in the selected range"
+    },
+    "filters": {
+      "stock": "Filter by stock",
+      "category": "Filter by category",
+      "subCategory": "Filter by sub-category"
+    },
+    "actions": {
+      "edit": "Edit {name}",
+      "delete": "Delete {name}"
     }
   },
   "reviews": {

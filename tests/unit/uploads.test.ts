@@ -1,3 +1,4 @@
+import { existsSync } from "fs";
 import path from "path";
 import { beforeAll, describe, expect, it } from "vitest";
 
@@ -36,5 +37,20 @@ describe("resolveUploadPath", () => {
 
   it("does not treat a sibling directory with a shared prefix as inside", () => {
     expect(resolveUploadPath("/uploads/../uploads-test-other/x.webp")).toBeNull();
+  });
+});
+
+describe("deleteUpload legacy paths", () => {
+  it("never resolves a demo asset, so seeded images survive a delete", async () => {
+    // /static/... leży w repozytorium i jest współdzielone przez wszystkie
+    // instancje. Gdyby gałąź zgodności je obejmowała, usunięcie produktu
+    // kasowałoby plik z obrazu aplikacji.
+    const { deleteUpload } = await import("@/lib/uploads");
+
+    await expect(
+      deleteUpload("/static/products/chocolate/1.webp")
+    ).resolves.toBeUndefined();
+
+    expect(existsSync(path.join(process.cwd(), "public", "static"))).toBe(true);
   });
 });

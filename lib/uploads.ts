@@ -57,8 +57,11 @@ export async function saveUpload(
  * Usuwa plik wskazany przez URL z bazy.
  *
  * Obsługuje też starsze URL-e sprzed przeniesienia uploadu (`/products/...`,
- * `/ingredients/...`, `/categories/...`), które nadal leżą w `public/` — dzięki
- * temu nie trzeba przepisywać istniejących rekordów, żeby kasowanie działało.
+ * `/ingredients/...`, `/categories/...`), które nadal leżą w `public/`.
+ * Ta gałąź jest przejściowa: `scripts/migrate-uploads.ts` przenosi takie pliki
+ * i przepisuje rekordy, a po jego uruchomieniu na instancji można ją usunąć.
+ * Dane demonstracyjne (`/static/...`) są pomijane celowo — leżą w repozytorium
+ * i nie są uploadem użytkownika.
  */
 export async function deleteUpload(url: string): Promise<void> {
   const target =

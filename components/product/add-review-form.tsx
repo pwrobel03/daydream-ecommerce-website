@@ -27,7 +27,6 @@ import { createReview } from "@/actions/store/reviews";
 // Schemat walidacji
 const formSchema = z.object({
   productId: z.string(),
-  userId: z.string(),
   rating: z.number().min(1, "Proszę wybrać ocenę").max(5),
   content: z.string().min(3, "Twoja historia jest nieco za krótka..."),
 });
@@ -61,7 +60,6 @@ export default function AddReviewForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       productId: productId,
-      userId: user.id,
       rating: initialData?.rating || 0,
       content: initialData?.content || "",
     },
@@ -72,16 +70,14 @@ export default function AddReviewForm({
       // Jeśli wchodzimy w tryb edycji, ładujemy dane
       form.reset({
         productId: productId,
-        userId: user.id,
-        rating: initialData.rating,
+          rating: initialData.rating,
         content: initialData.content,
       });
     } else {
       // Jeśli wychodzimy z edycji, czyścimy formularz do wartości domyślnych
       form.reset({
         productId: productId,
-        userId: user.id,
-        rating: 0,
+          rating: 0,
         content: "",
       });
     }

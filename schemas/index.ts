@@ -70,9 +70,11 @@ export const SettingsSchema = z.object({
   path: ["password"]
 })
 
+// Bez `userId` — autor bierze się z sesji po stronie serwera. Dopóki pole tu
+// było, formularz musiał je wysyłać, a schemat sugerował, że klient decyduje,
+// kto podpisuje opinię.
 export const ReviewSchema = z.object({
   productId: z.string(),
-  userId: z.string(),
   rating: z.number().min(1).max(5),
   content: z.string().min(3, "You're story is a little too short..."),
 });

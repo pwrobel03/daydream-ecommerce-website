@@ -30,7 +30,7 @@ export default function DashboardSidebar() {
     { title: t("nav.overview"), href: "/dashboard", icon: LayoutDashboard },
     { title: t("nav.profile"), href: "/dashboard/profile", icon: User },
     { title: t("labels.deliveryAddress"), href: "/dashboard/address", icon: Van },
-    { title: t("orders"), href: "/dashboard/orders", icon: Package },
+    { title: t("nav.orders"), href: "/dashboard/orders", icon: Package },
   ];
 
   const adminMenuItems = [
@@ -39,9 +39,9 @@ export default function DashboardSidebar() {
       href: "/dashboard/comments",
       icon: MessageSquare,
     },
-    { title: t("categories"), href: "/dashboard/categories", icon: Layers },
-    { title: t("inventory"), href: "/dashboard/inventory", icon: Package },
-    { title: t("ingredients"), href: "/dashboard/ingredients", icon: Sprout },
+    { title: t("nav.categories"), href: "/dashboard/categories", icon: Layers },
+    { title: t("nav.inventory"), href: "/dashboard/inventory", icon: Package },
+    { title: t("nav.ingredients"), href: "/dashboard/ingredients", icon: Sprout },
     { title: t("nav.manageOrders"), href: "/dashboard/manage-orders", icon: Cctv },
   ];
 

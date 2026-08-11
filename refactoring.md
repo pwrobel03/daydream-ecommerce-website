@@ -73,6 +73,17 @@ that isn't followed.
 call sites, or delete `lib/action-result.ts`. Leaving an unused abstraction in
 place is the one option with no upside.
 
+> **Resolved (`9a3c081`, `695d0a8`, `dd54bc3`)**: all 21 mutations return
+> `ActionResult<T>`. Reads (`getCategories`, `getVoices`, `getMoreReviews`, …)
+> deliberately do not — they return data, not the outcome of an operation.
+> `ActionError` carries an `ErrorCode` across a `throw`, which the guards and
+> the in-transaction stock and coupon checks need.
+>
+> Acting on this found three live defects: `createReview` took `userId` from
+> the client payload, and `updateReview`/`deleteReview` matched on review id
+> without an owner predicate. It also removed ten hardcoded English strings
+> that were being returned from the server in an otherwise translated app.
+
 ## [critical] Errors are swallowed into empty results across the data layer — `lib/db-products.ts:33`
 
 **Issue:** six `catch` blocks in `lib/db-products.ts` and `lib/db-categories.ts`
@@ -122,6 +133,13 @@ requires standing up the whole flow because there are no seams.
 and `createPaymentSession(order, { cancelUrl })`. The actions become thin
 orchestration. Splitting a payment path is an architectural change — route it
 through the decision gate before acting.
+
+> **Rejected, deliberately.** `createPaymentSession` is already extracted, which
+> was the duplication that mattered. Splitting `reserveStock` and `applyCoupon`
+> out of `initializeOrder` would move them out of the `$transaction` callback
+> that makes the stock check atomic — the seam is exactly where the correctness
+> guarantee lives. The remaining 224 lines are one coherent flow with
+> integration coverage on every branch. Revisit only if a second caller appears.
 
 ## [major] Image upload is duplicated between two admin actions — `actions/admin/inventory.ts:176`
 
@@ -278,3 +296,22 @@ the branch.
   correct — each action is independently reachable and must guard itself.
 - **`app/[locale]` route restructure.** Verified working in both locales with
   E2E coverage.
+
+
+---
+
+# 2026-08-11 — open after the ActionResult pass
+
+Lint reports 4 errors in files this work did not touch —
+`components/discount-banner.tsx` (refs read during render, ×2),
+`components/ui/carousel.tsx` and `hooks/use-cart-store-safe.ts`
+(set-state-in-effect). They predate this branch and come from the React
+Compiler lint rules, not from the refactor. They gate CI and are worth a
+separate pass.
+
+Still open from the 2026-08-10 list: empty-result returns in the data layer,
+`product-form.tsx` (550 lines), the three admin client-side fetch waterfalls,
+`errorMessage` living in `lib/action-result.ts`, query-shaped types in
+`types/`, and the legacy upload-path branch. `ReviewSchema` still declares
+`userId`, which the action now ignores — the field should come out of the
+schema with the form that sends it.

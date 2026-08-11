@@ -56,19 +56,19 @@ export async function saveUpload(
 /**
  * Usuwa plik wskazany przez URL z bazy.
  *
- * Obsługuje też starsze URL-e sprzed przeniesienia uploadu (`/products/...`,
- * `/ingredients/...`, `/categories/...`), które nadal leżą w `public/`.
- * Ta gałąź jest przejściowa: `scripts/migrate-uploads.ts` przenosi takie pliki
- * i przepisuje rekordy, a po jego uruchomieniu na instancji można ją usunąć.
- * Dane demonstracyjne (`/static/...`) są pomijane celowo — leżą w repozytorium
- * i nie są uploadem użytkownika.
+ * Kasuje wyłącznie to, co leży w katalogu uploadu — `resolveUploadPath` zwraca
+ * `null` dla czegokolwiek innego. Dane demonstracyjne (`/static/...`) są więc
+ * nietykalne: leżą w repozytorium, są współdzielone przez wszystkie instancje
+ * i usunięcie produktu nie może ich ruszyć.
+ *
+ * Wcześniej stała tu druga ścieżka rozpoznająca URL-e sprzed przeniesienia
+ * uploadu poza `public/`. Przegląd bazy pokazał, że takich rekordów nie ma
+ * (wszystkie 92 wskazują na `/static/`), a nowe instancje startują z pustym
+ * katalogiem albo z danymi demo. Gdyby kiedyś pojawił się starszy zrzut,
+ * `scripts/migrate-uploads.ts` przepisze go, zanim ta ścieżka byłaby potrzebna.
  */
 export async function deleteUpload(url: string): Promise<void> {
-  const target =
-    resolveUploadPath(url) ??
-    (url.startsWith("/") && !url.startsWith("/static/")
-      ? path.join(process.cwd(), "public", url)
-      : null);
+  const target = resolveUploadPath(url);
 
   if (!target || !existsSync(target)) return;
 

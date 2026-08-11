@@ -562,5 +562,16 @@ recommendation:
   including a missing-file case — a broken path must not make a product
   undeletable.
 
-Still open, and deliberately so: the legacy `deleteUpload` branch stays until
-`scripts/migrate-uploads.ts` has run on an instance.
+**Legacy upload branch: closed.** A read-only pass over the live database
+settled it — all 92 image rows point at `/static/`, the demo assets that ship
+in the repository. There is not a single record in the pre-move scheme, so the
+compatibility branch in `deleteUpload` guarded nothing, and the dry-run of
+`scripts/migrate-uploads.ts` found nothing to move. The branch is gone;
+`deleteUpload` now touches only what lies inside the upload directory. The
+script stays for the case it was written for: restoring an older dump.
+
+Two files under `public/` turned out to be orphans from admin uploads whose
+rows were wiped by a later re-seed — nothing referenced them. They were also
+swept into `c0e6dae` by a careless `git add -A`. Removed going forward rather
+than by rewriting history: they are 300 KB in a 102 MB repository, and that
+commit has 44 descendants across fourteen branches, three of them pushed.

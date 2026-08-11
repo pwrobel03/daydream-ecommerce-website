@@ -360,3 +360,176 @@ The admin inventory page passes raw Prisma rows to `ProductForm`, which logs
 "Only plain objects can be passed to Client Components" on every visit — the
 new E2E spec is what made it visible. It belongs with the remaining `lib/dto/`
 work rather than with the form split.
+
+---
+
+# 2026-08-11 — second full pass, after 61 commits
+
+Scope: whole codebase, with attention to what the previous work did not touch —
+`store.ts`, `types/`, `components/product*`, the API routes, `proxy.ts`, the
+auth layer and the order screens. Generated Prisma output and vendored shadcn
+UI are excluded.
+
+**Summary: 1 critical, 5 major, 5 minor.**
+
+Verified as sound, so not re-listed: the authorization layering (`proxy.ts`
+guards the route, `(admin)/layout.tsx` guards the role with `NotAllowedView`,
+each query guards itself again), the cron endpoint's `timingSafeEqual`
+comparison, `releaseOrderReservation`'s conditional-update idempotency, and the
+path-traversal guard on the uploads route.
+
+## [critical] Ratings are averaged over whichever rows happen to be loaded — `components/product-card/ProductCard.tsx:23`
+
+**Issue:** three places compute a rating average from the reviews present in
+memory rather than from an aggregate: the card (`:23`), the product page's
+structured data (`app/[locale]/product/[slug]/page.tsx:53`) and the reviews
+section (`components/product/reviews-section.tsx:39`). `getProductBySlug`
+fetches `take: 9` reviews and, separately, excludes the signed-in user's own
+review from that set.
+
+**Why it matters:** for any product with more than nine reviews the star rating
+shown to visitors is the average of the nine most recent ones, not of all. The
+same numbers go into the `aggregateRating` block of the JSON-LD served to
+search engines, where `reviewCount` reports at most 9 regardless of the real
+total — and because the current user's review is filtered out, the structured
+data changes depending on who is logged in. Publishing an aggregate that
+disagrees with the visible review count is exactly what rich-result validation
+flags. The E2E suite asserts the JSON-LD *exists*, not that it is right, so
+nothing catches this.
+
+**Recommendation:** compute it in the database —
+`db.review.aggregate({ where: { productId }, _avg: { rating }, _count: true })` —
+and pass `ratingAvg` / `ratingCount` down as data. On the category grid that
+also removes the need to ship review rows at all (see the over-fetch note
+below). If the catalogue grows, denormalise both onto `Product` and refresh
+them in the review mutations.
+
+## [major] A replaced ingredient image is cached as immutable for a year — `app/uploads/[...path]/route.ts:49`
+
+**Issue:** the uploads route sends `Cache-Control: public, max-age=31536000,
+immutable`, justified by a comment saying filenames are UUIDs. That holds for
+products (`crypto.randomUUID()`) and categories (`Date.now()`-prefixed), but
+`actions/admin/ingredients.ts:44` uses `fileName: ingredientId` — a stable name.
+
+**Why it matters:** editing an ingredient's image overwrites the same URL, and
+every browser and proxy that has seen it will keep serving the old picture for
+a year. `immutable` specifically tells clients not to revalidate even on a
+forced reload. The admin sees the change locally and has no way to tell that
+visitors do not.
+
+**Recommendation:** give the ingredient upload a fresh name per write, like
+the other two paths. That keeps one cache policy for the whole route instead
+of special-casing it.
+
+## [major] Deleting a product leaves its images on disk forever — `actions/admin/inventory.ts:9`
+
+**Issue:** `deleteProduct` removes the row and nothing else; the
+`// TODO: handle removing images connected with product` above it says so.
+`upsertProduct` does clean up replaced images, so the gap is only on delete.
+
+**Why it matters:** the upload directory is a volume that nothing prunes, so
+every deleted product leaks its files permanently. This project has already
+lost a working day to a full disk from an unrelated cause; this is the same
+failure mode with a slow fuse and no signal until it happens.
+
+**Recommendation:** read the `ProductImage` rows before the delete and pass
+each through `deleteUpload`, reporting failures rather than swallowing them.
+The relation cascade already removes the rows, so only the files are missing.
+
+## [major] `getAdminOrders` is the last read still shaped as a Server Action — `actions/admin/orders.ts:13`
+
+**Issue:** it is called from a Server Component but carries `"use server"`, so
+a plain read is published as a POST endpoint. It also swallows every failure
+into `{ orders: [], totalPages: 0 }`, and its comment — "Serializacja: usuwamy
+obiekty Decimal i Date" — describes work the code does not do: the rows go to a
+Client Component unprocessed, with no `toPlainDeep`.
+
+**Why it matters:** the two sibling reads were moved to `lib/db-reviews.ts` and
+`lib/db-inventory.ts` in this same pass, so the codebase now has two
+conventions for the same thing and a newcomer will copy whichever they meet
+first. The swallowed error contradicts the contract just established for the
+catalogue: a database outage renders the orders terminal as "Active Records: 0"
+with HTTP 200. The comment is worse than no comment, because it claims a
+guarantee that is not there.
+
+**Recommendation:** move it to `lib/db-orders.ts`, drop the `catch`, run the
+rows through `toPlainDeep`, and delete the comment.
+
+## [major] The cart persists whole product aggregates in localStorage — `store.ts:7`
+
+**Issue:** `CartItem.product` is a full `ProductType`, so every cart entry
+persists the product's description, categories, ingredients, images *and its
+review list with authors* under the `cart-store` key.
+
+**Why it matters:** a three-item cart can carry tens of kilobytes of stale
+relations that nothing on the cart screen reads, and the data ages
+indefinitely — `syncItems` only refreshes price, name and stock. A product
+deleted server-side is never returned by `getFreshCartData`, so its item stays
+in the cart untouched forever; `initializeOrder` then rejects the whole
+checkout with "product unavailable" and the customer has no indication which
+line to remove. That is a dead end reachable by ordinary use.
+
+**Recommendation:** persist `{ productId, quantity }` plus the small snapshot
+the cart actually renders, and have `syncItems` drop items the server did not
+return, surfacing what it removed.
+
+## [major] `getFreshCartData` reports an outage as "nothing changed" — `actions/store/sync-cart.ts:27`
+
+**Issue:** the catch returns `[]`, which `syncItems` treats as "no product
+needed updating".
+
+**Why it matters:** the cart page shows "verifying stock", then proceeds with
+whatever prices localStorage held, possibly months old. This is the pattern
+that was just removed from the catalogue queries by decision, so leaving it
+here is an inconsistency rather than an oversight — and it sits on the money
+path, where stale prices matter most.
+
+**Recommendation:** let it throw and let the cart's error boundary handle it,
+or return a discriminated result so the page can say the check failed instead
+of implying it passed.
+
+## [minor] A debug log ships to production on every cart render — `components/cart/product-card.tsx:30`
+
+**Issue:** `console.log(item)` at the top of the component body.
+
+**Recommendation:** delete it. `app/[locale]/(protected)/dashboard/_components/category-form.tsx:96`
+similarly uses `console.error` where every other path now reports through
+`reportError`.
+
+## [minor] Prices are formatted as en-US in a bilingual app — `components/PriceFormatter.tsx:9`
+
+**Issue:** `toLocaleString("en-US", …)` is hardcoded, so the Polish site shows
+US grouping and symbol placement. `new Number(amount)` also wraps in a `Number`
+object rather than converting, and `amount: number | undefined` renders
+literal `$NaN` when undefined.
+
+**Recommendation:** use next-intl's `useFormatter().number(amount, { style:
+"currency", currency: "USD" })` so it follows the active locale, and make
+`amount` required.
+
+## [minor] `lib/dto/` is not a DTO layer — `lib/dto/index.ts:16`
+
+**Issue:** the module strips symbol properties and nothing more; `toPlain` (the
+shallow variant) has no call sites at all. The 2026-08-10 recommendation was
+per-aggregate mappers (`toProductDTO`, `toOrderDTO`), which would also bound
+what crosses the boundary.
+
+**Why it matters:** the name promises a mapping layer that is not there, and
+the over-fetch it was supposed to fix remains: the category page still ships
+every product's full review list, with each author, to render a grid of cards.
+
+**Recommendation:** delete the unused `toPlain`, and either rename the module
+to what it does (`lib/serialize.ts`) or grow the mappers. Doing the ratings fix
+above removes the largest over-fetch on its own.
+
+## [minor] `OrderItemType.product` keeps an index signature — `types/order.ts:22`
+
+**Issue:** `[key: string]: unknown` absorbs whatever a given `select` returned.
+The product and inventory types were narrowed in this round; this one was not.
+
+**Recommendation:** narrow per use case now that the pattern is established.
+
+## [minor] `sendEmail` is exported but only used inside its own module — `lib/mail.ts`
+
+**Recommendation:** drop the `export` unless a caller is planned; it currently
+reads as public API.

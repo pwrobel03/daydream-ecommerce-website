@@ -769,3 +769,51 @@ started leaving `OrderItem` rows behind, the upload suite failed on a foreign
 key about every second run. `tests/integration/reset.ts` now clears the shared
 tables in one place (`779b097`). The same look found `webhook.test.ts` deleting
 every suite's user, which worked only because that file runs last.
+
+---
+
+# 2026-08-11 — caching: measured, not understood, reverted
+
+Unit 27 of the plan called for `"use cache"` on the catalogue and product
+pages. It was never done: `cacheComponents: true` is set in `next.config.ts`
+and there is not a single `"use cache"` directive in the codebase.
+
+I attempted it and reverted it. What I can state, and what I cannot:
+
+**Measured, repeatable:**
+
+- `/category/all` and `/product/[slug]` cause **zero** table scans across five
+  requests. They are already served from the prerender; they were never the
+  problem.
+- The home page caused **57 scans across five requests** — roughly eleven per
+  visit, for `getMainCategories`, `getAllSales` and the header's nav query.
+- With `"use cache"` added, an instrumented `getNavCategories` executed **zero
+  times across five requests**, and the scan counter also read zero.
+
+**Contradicts the above, and is why this was reverted:** a category inserted
+directly into the database — bypassing the application entirely — appeared in
+the navigation on the next request, on a warm cache, while the instrumented
+function still showed zero executions. Something renders that navigation
+without running the function I instrumented. Removing `revalidateTag` from the
+admin action changed nothing either, so the tag was not what refreshed it.
+
+Two signals say the data is cached; one says it is not; the counter that would
+adjudicate (`pg_stat_user_tables`) may lag behind the requests that produced
+it, so I do not trust it either.
+
+**Why revert rather than ship:** the failure mode of a caching change is stale
+data shown to customers — prices, stock, availability. Shipping a change whose
+mechanism I cannot describe, on the argument that the numbers looked good, is
+how that failure arrives. The home page costs eleven queries per visit, which
+is worth fixing, but not blind.
+
+**What would settle it:** instrument every candidate source of that navigation
+(the layout, `CategorySection`, `getMainCategories`) rather than one of them;
+read Postgres statistics after `pg_stat_clear_snapshot()` or use
+`pg_stat_statements` instead of the table counters; and run each variant
+against a freshly built image so no cache state carries over. That is a
+focused afternoon, not something to squeeze in beside other work.
+
+The E2E suite cannot help here: it runs against `next dev`, where the
+invalidation test passed with the invalidation removed. Any test for this has
+to run against a production build.

@@ -32,7 +32,7 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
   if (!orders || orders.length === 0) {
     return (
       <div className="py-20 text-center border-2 border-dashed border-black/5 rounded-[3rem]">
-        <p className="text-muted-foreground font-black italic text-xl uppercase tracking-tighter opacity-20">
+        <p className="text-muted-foreground font-black italic text-xl uppercase tracking-tighter opacity-70">
           Archive Empty / Sector Clear
         </p>
       </div>
@@ -68,7 +68,7 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
               {/* KOLUMNA 1: ID */}
               <td className="py-8 px-2">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-mono font-bold text-primary italic">
+                  <span className="text-[10px] font-mono font-bold text-primary-text italic">
                     #{order.id.slice(-12).toUpperCase()}
                   </span>
                   <span className="font-black tracking-tighter italic uppercase text-lg leading-none mt-1">
@@ -87,7 +87,7 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
               {order.address ? (
                 <td className="py-8 px-2">
                   <div className="flex items-start gap-3 max-w-[280px]">
-                    <MapPin className="w-4 h-4 mt-1 opacity-20 shrink-0 text-primary" />
+                    <MapPin className="w-4 h-4 mt-1 opacity-20 shrink-0 text-primary-text" />
                     <div className="flex flex-col text-[11px] font-bold uppercase leading-tight tracking-tighter">
                       <span className="text-foreground font-black italic mb-1">
                         {order.address?.fullName}
@@ -98,7 +98,7 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
                       <span className="opacity-50">
                         {order.address?.zipCode} {order.address?.city}
                       </span>
-                      <div className="flex items-center gap-1 mt-2 text-primary font-mono text-[9px]">
+                      <div className="flex items-center gap-1 mt-2 text-primary-text font-mono text-[9px]">
                         <Phone className="w-3 h-3 opacity-40" />{" "}
                         {order.address?.phone}
                       </div>
@@ -108,7 +108,7 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
               ) : (
                 <td className="py-8 px-2">
                   <div className="flex items-start gap-3 max-w-[280px]">
-                    <MapPin className="w-4 h-4 opacity-20 shrink-0 text-primary" />
+                    <MapPin className="w-4 h-4 opacity-20 shrink-0 text-primary-text" />
                     <div className="flex flex-col text-[11px] font-bold uppercase leading-tight tracking-tighter">
                       <span className="text-foreground font-black italic mb-1">
                         Address is missing
@@ -167,7 +167,7 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
                 <div className="relative inline-block min-w-[140px]">
                   {/* Wskaźnik ładowania po lewej */}
                   {loadingId === order.id && (
-                    <RefreshCw className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-primary" />
+                    <RefreshCw className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-primary-text" />
                   )}
 
                   {/* Customowa strzałka po prawej */}
@@ -178,7 +178,7 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
                       order.status === "DELIVERED" && "text-emerald-500",
                       order.status === "PENDING" && "text-amber-500",
                       order.status === "PAID" && "text-blue-500",
-                      order.status === "SHIPPED" && "text-primary",
+                      order.status === "SHIPPED" && "text-primary-text",
                       order.status === "CANCELLED" && "text-destructive"
                     )}
                   >
@@ -201,10 +201,10 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
                       order.status === "PAID" &&
                         "border-blue-500/30 text-blue-500 bg-blue-500/5 hover:bg-blue-500/10",
                       order.status === "SHIPPED" &&
-                        "border-primary/40 text-primary bg-primary/5 hover:bg-primary/10",
+                        "border-primary/40 text-primary-text bg-primary/5 hover:bg-primary/10",
                       order.status === "CANCELLED" &&
                         "border-destructive/30 text-destructive bg-destructive/5 hover:bg-destructive/10",
-                      loadingId === order.id && "opacity-30 cursor-wait"
+                      loadingId === order.id && "opacity-70 cursor-wait"
                     )}
                   >
                     <option value="PENDING">{t("status.PENDING")}</option>

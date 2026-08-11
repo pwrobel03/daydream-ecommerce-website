@@ -19,7 +19,7 @@ export default function ProductDetails({ product }: { product: ProductType }) {
           {/* Sama linia */}
           <div className="absolute w-full h-px bg-border/50" />
           {/* Tekst - ważne: bg-[#fafafa] musi być identyczne z tłem Twojej strony */}
-          <h3 className="text-center text-2xl wrap relative px-8 text-foreground/60 bg-background uppercase tracking-[0.5em]">
+          <h3 className="text-center text-2xl wrap relative px-8 text-foreground/70 bg-background uppercase tracking-[0.5em]">
             Product Story
           </h3>
         </div>
@@ -34,7 +34,7 @@ export default function ProductDetails({ product }: { product: ProductType }) {
           {/* Sama linia */}
           <div className="absolute w-full h-px bg-border/50" />
           {/* Tekst - ważne: bg-[#fafafa] musi być identyczne z tłem Twojej strony */}
-          <h3 className="text-center text-2xl wrap relative px-8 text-foreground/60 bg-background uppercase tracking-[0.5em]">
+          <h3 className="text-center text-2xl wrap relative px-8 text-foreground/70 bg-background uppercase tracking-[0.5em]">
             Composision & Soul
           </h3>
         </div>
@@ -61,7 +61,7 @@ export default function ProductDetails({ product }: { product: ProductType }) {
               </div>
 
               <div className="text-center space-y-1">
-                <span className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 group-hover:text-primary transition-colors">
+                <span className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 group-hover:text-primary-text transition-colors">
                   Element
                 </span>
                 <span className="block text-[11px] font-bold leading-tight">

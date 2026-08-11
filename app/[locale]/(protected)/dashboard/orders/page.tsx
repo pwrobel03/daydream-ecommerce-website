@@ -51,7 +51,7 @@ async function OrdersPageContent() {
           <h1 className="text-5xl sm:text-7xl font-black italic uppercase tracking-tighter">
             Archive
           </h1>
-          <p className="text-md font-black uppercase tracking-[0.4em] opacity-40 ml-1">
+          <p className="text-md font-black uppercase tracking-[0.4em] opacity-70 ml-1">
             Order History & Status Tracking
           </p>
         </div>

@@ -22,11 +22,11 @@ export default function Error({
       <h2 className="text-3xl font-black uppercase italic tracking-tighter">
         {t("somethingBroke")}
       </h2>
-      <p className="max-w-md text-sm opacity-60">
+      <p className="max-w-md text-sm opacity-70">
         {t("errorHelp")}
       </p>
       {error.digest && (
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-70">
           {t("reference")}: {error.digest}
         </p>
       )}

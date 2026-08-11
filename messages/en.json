@@ -5,7 +5,9 @@
     "searchLabel": "Search products",
     "cart": "Cart",
     "account": "Account",
-    "language": "Language"
+    "language": "Language",
+    "cartCount": "{count, plural, one {# item in cart} other {# items in cart}}",
+    "menu": "Open menu"
   },
   "common": {
     "loading": "Loading",

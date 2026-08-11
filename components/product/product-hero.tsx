@@ -37,7 +37,7 @@ export default function ProductHero({ product }: { product: ProductType }) {
           )}
         </div>
         {product.promoPrice && (
-          <span className="text-xl line-through opacity-30 font-light">
+          <span className="text-xl line-through opacity-70 font-light">
             <PriceFormatter amount={Number(product.price)} />
           </span>
         )}

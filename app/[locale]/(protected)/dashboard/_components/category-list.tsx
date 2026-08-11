@@ -85,7 +85,7 @@ export default function CategoryList({ initialCategories }: CategoryListProps) {
                   </div>
                 </div>
                 <div className="flex flex-row mt-2">
-                  <div className="flex items-center gap-4 opacity-30 font-black uppercase text-xs tracking-widest">
+                  <div className="flex items-center gap-4 opacity-70 font-black uppercase text-xs tracking-widest">
                     <span className="flex items-center gap-1">
                       <Package size={10} /> {main._count?.products || 0}{" "}
                       Products
@@ -108,12 +108,12 @@ export default function CategoryList({ initialCategories }: CategoryListProps) {
                     key={sub.id}
                     className="group bg-card/40 p-4 pr-6 rounded-[1.5rem] border flex items-center gap-4 transition-all duration-300"
                   >
-                    <ChevronRight size={14} className="text-primary" />
+                    <ChevronRight size={14} className="text-primary-text" />
                     <div className="flex-grow">
                       <p className="text-sm font-black italic uppercase tracking-tight">
                         {sub.name}
                       </p>
-                      <p className="text-xs font-black uppercase tracking-widest opacity-20">
+                      <p className="text-xs font-black uppercase tracking-widest opacity-70">
                         {sub._count?.products || 0} Products
                       </p>
                     </div>

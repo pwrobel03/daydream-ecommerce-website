@@ -26,7 +26,7 @@ export function OrdersList({ orders }: OrdersListProps) {
     return (
       <div className="h-96 flex flex-col items-center justify-center border-2 border-dashed border-black/5 rounded-[3rem]">
         <Package size={48} className="opacity-10 mb-4" />
-        <p className="text-sm font-black uppercase opacity-20 italic">
+        <p className="text-sm font-black uppercase opacity-70 italic">
           No history found
         </p>
       </div>
@@ -47,7 +47,7 @@ export function OrdersList({ orders }: OrdersListProps) {
                 <span className="text-[10px] font-black uppercase tracking-widest px-4 py-2 bg-primary/60 text-white rounded-full">
                   #{order.id.slice(-8)}
                 </span>
-                <div className="flex items-center gap-2 text-[10px] font-black uppercase opacity-40 italic">
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase opacity-70 italic">
                   <Clock size={12} />
                   {format(new Date(order.createdAt), "dd MMM yyyy • HH:mm")}
                 </div>
@@ -57,7 +57,7 @@ export function OrdersList({ orders }: OrdersListProps) {
             {/* Sekcja 2: Status i Kwota */}
             <div className="flex flex-row flex-wrap lg:flex-col justify-between lg:justify-center items-end gap-4 min-w-[200px]">
               <div className="text-right">
-                <p className="text-[10px] font-black uppercase opacity-40 mb-1">
+                <p className="text-[10px] font-black uppercase opacity-70 mb-1">
                   Total
                 </p>
                 <p className="text-4xl font-black italic tracking-tighter">

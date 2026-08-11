@@ -14,7 +14,7 @@ export default function NotFound() {
 
           {/* TREŚĆ */}
           <div className="relative z-10 bg-background/80 backdrop-blur-xl border border-border p-10 md:p-20 rounded-[3rem] shadow-2xl">
-            <span className="text-primary font-black uppercase tracking-[0.4em] text-xs mb-4 block">
+            <span className="text-primary-text font-black uppercase tracking-[0.4em] text-xs mb-4 block">
               Lost in a dream?
             </span>
             <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none mb-8">

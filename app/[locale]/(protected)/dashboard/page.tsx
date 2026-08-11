@@ -47,15 +47,15 @@ async function DashboardPageContent() {
       {/* --- POWITANIE --- */}
       <header className="mb-20 space-y-6">
         <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black italic uppercase tracking-tighter leading-none">
-          Welcome, <span className="text-primary">{userName}</span>
+          Welcome, <span className="text-primary-text">{userName}</span>
         </h1>
         <div className="border-l-4 pl-8 py-2">
           <p className="text-xl md:text-2xl font-bold italic tracking-tight text-balance leading-relaxed">
             We&apos;re glad you visited! In your account settings, you can check
             your
-            <span className="text-primary"> recent orders </span>, manage
-            <span className="text-primary"> addresses</span> and change your{" "}
-            <span className="text-primary"> account details</span>.
+            <span className="text-primary-text"> recent orders </span>, manage
+            <span className="text-primary-text"> addresses</span> and change your{" "}
+            <span className="text-primary-text"> account details</span>.
           </p>
         </div>
       </header>
@@ -91,7 +91,7 @@ async function DashboardPageContent() {
                   <h3 className="text-3xl font-black italic uppercase tracking-tighter">
                     {card.title}
                   </h3>
-                  <p className="text-sm font-bold opacity-40 uppercase tracking-tight mt-2">
+                  <p className="text-sm font-bold opacity-70 uppercase tracking-tight mt-2">
                     {card.description}
                   </p>
                 </div>
@@ -117,7 +117,7 @@ async function DashboardPageContent() {
       {/* --- SEKRETNA SEKCJA (Optional Status) --- */}
       <div className="mt-20 p-12 bg-foreground rounded-[3rem] text-background flex flex-col md:flex-row items-center justify-between gap-8">
         <div className="space-y-2 text-center md:text-left">
-          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-primary">
+          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-primary-text">
             daydream Membership
           </p>
           <h4 className="text-4xl font-black italic uppercase tracking-tighter">

@@ -5,7 +5,9 @@
     "searchLabel": "Szukaj produktów",
     "cart": "Koszyk",
     "account": "Konto",
-    "language": "Język"
+    "language": "Język",
+    "cartCount": "{count, plural, one {# produkt w koszyku} few {# produkty w koszyku} many {# produktów w koszyku} other {# produktu w koszyku}}",
+    "menu": "Otwórz menu"
   },
   "common": {
     "loading": "Ładowanie",

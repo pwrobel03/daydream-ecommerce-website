@@ -57,7 +57,7 @@ export function InventoryFilters({
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="md:col-span-2 relative group">
-        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 group-focus-within:text-primary transition-colors" />
+        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 group-focus-within:text-primary-text transition-colors" />
         <input
           type="text"
           value={search}
@@ -103,7 +103,7 @@ export function InventoryFilters({
         disabled={!filters.categoryId}
         value={filters.subCategoryId}
         onChange={(e) => apply({ sub: e.target.value || null })}
-        className="border rounded-full px-6 font-black italic uppercase text-[10px] tracking-widest outline-none h-[62px] disabled:opacity-20 cursor-pointer"
+        className="border rounded-full px-6 font-black italic uppercase text-[10px] tracking-widest outline-none h-[62px] disabled:opacity-40 cursor-pointer"
       >
         <option value="">All Sub-Flows</option>
         {subCategories.map((s) => (

@@ -78,7 +78,7 @@ export const ResetForm = () => {
       <div className="w-full mx-auto space-y-12">
         <header className="space-y-4">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
+            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-70">
               Recovery_Protocol
             </span>
             <div className="w-12 h-1 bg-primary" />
@@ -86,7 +86,7 @@ export const ResetForm = () => {
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
             RECOVER
             <br />
-            <span className="text-primary">ACCESS.</span>
+            <span className="text-primary-text">ACCESS.</span>
           </h1>
         </header>
 
@@ -98,7 +98,7 @@ export const ResetForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       Target_Registry_Email
                     </FormLabel>
                     <FormControl>
@@ -140,9 +140,9 @@ export const ResetForm = () => {
         </Form>
 
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-black uppercase italic tracking-tighter opacity-30">
+          <p className="text-[10px] font-black uppercase italic tracking-tighter text-foreground/70">
             Remembered?{" "}
-            <Link href="/auth/login" className="text-primary underline">
+            <Link href="/auth/login" className="text-primary-text underline">
               Back to Vault
             </Link>
           </p>
@@ -151,7 +151,10 @@ export const ResetForm = () => {
       </div>
 
       {/* BACKGROUND DECOR */}
-      <div className="absolute bottom-10 right-10 hidden lg:flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right">
+      <div
+        aria-hidden="true"
+        className="absolute bottom-10 right-10 hidden lg:flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right"
+      >
         <Cpu className="w-4 h-4" />
         <span>BROADCASTING_RECOVERY_SIGNAL...</span>
       </div>

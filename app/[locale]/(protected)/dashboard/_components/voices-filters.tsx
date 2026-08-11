@@ -46,7 +46,7 @@ export function VoicesFilters({ rating }: { rating: number | null }) {
   return (
     <div className="flex flex-wrap items-center gap-6">
       <div className="relative flex-grow max-w-md group bg-input/50 rounded-[2rem]">
-        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 group-focus-within:text-primary transition-colors" />
+        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 group-focus-within:text-primary-text transition-colors" />
         <input
           type="text"
           value={search}

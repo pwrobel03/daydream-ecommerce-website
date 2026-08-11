@@ -25,7 +25,7 @@ export function ProductImagesSection({
   <div className="bg-card/60 p-10 rounded-[2rem] border">
     <div className="flex justify-between mb-8 flex-row flex-wrap gap-2">
       <div className="flex items-center gap-3">
-        <ImageIcon size={18} className="text-primary" />
+        <ImageIcon size={18} className="text-primary-text" />
         <h2 className="text-xl font-black italic uppercase tracking-tight">
           Media
         </h2>

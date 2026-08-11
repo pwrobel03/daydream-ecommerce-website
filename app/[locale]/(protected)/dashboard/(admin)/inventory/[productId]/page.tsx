@@ -62,7 +62,7 @@ async function ProductPageContent({
         <h1 className="text-5xl sm:text-7xl font-black italic uppercase tracking-tighter">
           {isNew ? t("inventory.newProduct") : t("ingredients.editEssence")}
         </h1>
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 ml-1">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 ml-1">
           {isNew ? t("product.createTitle") : t("product.modifying", { name: product?.name ?? "" })}
         </p>
       </header>

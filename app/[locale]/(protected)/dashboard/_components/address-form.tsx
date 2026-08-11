@@ -62,7 +62,7 @@ export function AddressForm({
           <CardContent className="p-8 md:p-12 space-y-6">
             <div className="flex items-center gap-2 mb-4">
               <div className="h-2 w-2 bg-primary rounded-full animate-pulse" />
-              <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-40">
+              <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-70">
                 Consignee Identity
               </h2>
             </div>
@@ -113,7 +113,7 @@ export function AddressForm({
           <CardContent className="p-8 md:p-12 space-y-6">
             <div className="flex items-center gap-2 mb-4">
               <div className="h-2 w-2 bg-zinc-900 rounded-full" />
-              <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-40">
+              <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-70">
                 Logistics Coordinates
               </h2>
             </div>

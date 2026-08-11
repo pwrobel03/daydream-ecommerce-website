@@ -57,14 +57,14 @@ const NewVerificationForm = () => {
         <header className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-1 bg-primary" />
-            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
+            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-70">
               Identity_Validation
             </span>
           </div>
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
             VERIFYING
             <br />
-            <span className="text-primary">PROTOCOL.</span>
+            <span className="text-primary-text">PROTOCOL.</span>
           </h1>
         </header>
 
@@ -72,7 +72,7 @@ const NewVerificationForm = () => {
           {/* DYNAMICZNY STATUS KOMUNIKATU */}
           <div className="min-h-[100px] flex flex-col justify-center">
             {!success && !error && (
-              <div className="flex items-center gap-4 text-primary animate-pulse">
+              <div className="flex items-center gap-4 text-primary-text animate-pulse">
                 <Loader2 className="w-6 h-6 animate-spin" />
                 <span className="text-sm font-black uppercase italic tracking-widest">
                   Analyzing Security Token...
@@ -143,7 +143,10 @@ const NewVerificationForm = () => {
         </div>
 
         {/* BACKGROUND DECOR */}
-        <div className="absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right">
+        <div
+        aria-hidden="true"
+        className="absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right"
+      >
           <Cpu className="w-4 h-4" />
           <span>ESTABLISHING_MOLECULAR_TRUST_BRIDGE...</span>
         </div>

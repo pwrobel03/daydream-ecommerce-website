@@ -81,7 +81,7 @@ const CartPage = () => {
     return (
       <div className="container mx-auto px-6 py-40 flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 italic">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 italic">
           {t("verifyingStock")}
         </p>
       </div>
@@ -131,7 +131,7 @@ const CartPage = () => {
         <div className="flex flex-col items-center justify-center space-y-8">
           <div className="relative">
             <ShoppingBag size={120} className="opacity-5 italic" />
-            <X className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary h-12 w-12" />
+            <X className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-text h-12 w-12" />
           </div>
           <div className="space-y-2">
             <h1 className="text-6xl font-black italic uppercase tracking-tighter">
@@ -187,10 +187,10 @@ const CartPage = () => {
 
             <div className="space-y-4">
               <div className="flex justify-between items-end border-t  pt-8 mt-8">
-                <span className="text-md font-black uppercase tracking-[0.4em] opacity-40">
+                <span className="text-md font-black uppercase tracking-[0.4em] opacity-70">
                   {t("grandTotal")}
                 </span>
-                <span className="text-3xl font-black italic tracking-tighter text-primary">
+                <span className="text-3xl font-black italic tracking-tighter text-primary-text">
                   <PriceFormatter amount={getTotalPrice()} />
                 </span>
               </div>
@@ -205,7 +205,7 @@ const CartPage = () => {
             <div className="space-y-3">
               <label
                 htmlFor="coupon"
-                className="block text-[10px] font-black uppercase tracking-[0.3em] opacity-40"
+                className="block text-[10px] font-black uppercase tracking-[0.3em] opacity-70"
               >
                 {t("couponCode")}
               </label>

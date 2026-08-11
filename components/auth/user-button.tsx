@@ -20,7 +20,9 @@ export const UserButton = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex flex-row cursor-pointer text-white bg-input/60 rounded-full p-1 justify-center items-center sm:px-4">
+      <DropdownMenuTrigger // `text-white` było dobrane pod ciemny motyw; na jasnym `bg-input`
+        // dawało biały tekst na jasnym tle. `text-foreground` idzie za motywem.
+        className="flex flex-row cursor-pointer text-foreground bg-input/60 rounded-full p-1 justify-center items-center sm:px-4">
         <Avatar className="w-6 h-6">
           <AvatarImage src={user?.image || ""} alt={t("avatar")} />
           <AvatarFallback className="bg-transparent">

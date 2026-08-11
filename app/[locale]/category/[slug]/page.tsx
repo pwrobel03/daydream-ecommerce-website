@@ -64,7 +64,7 @@ async function CategoryPageContent({
 
           {/* Licznik zasobów w stylu Nexus */}
           <div className="flex flex-col items-start md:items-end uppercase font-black italic">
-            <span className="text-[10px] tracking-widest opacity-40">
+            <span className="text-[10px] tracking-widest opacity-70">
               Registry Status
             </span>
             <div className="text-4xl tracking-tighter">
@@ -72,7 +72,7 @@ async function CategoryPageContent({
               <span className="opacity-20 mx-1">/</span>
               {totalArtifacts}
             </div>
-            <span className="text-[10px] tracking-widest text-primary">
+            <span className="text-[10px] tracking-widest text-primary-text">
               Artifacts Loaded
             </span>
           </div>
@@ -115,7 +115,7 @@ async function CategoryPageContent({
               <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Link>
 
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-30 italic">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-70 italic">
               Synchronizing with more artifacts...
             </p>
           </div>

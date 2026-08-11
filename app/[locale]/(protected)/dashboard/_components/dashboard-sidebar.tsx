@@ -65,7 +65,7 @@ export default function DashboardSidebar() {
               isAdmin ? "bg-primary" : "bg-green-500"
             )}
           />
-          <p className="text-lg font-black uppercase tracking-[0.3em] opacity-40">
+          <p className="text-lg font-black uppercase tracking-[0.3em] opacity-70">
             {isAdmin ? t("nav.adminConsole") : t("labels.userDashboard")}
           </p>
         </div>
@@ -73,7 +73,7 @@ export default function DashboardSidebar() {
 
       {/* USER SECTION */}
       <div className="space-y-1 mb-10">
-        <p className="text-lg font-black uppercase tracking-widest opacity-20 mb-4 ml-6">
+        <p className="text-lg font-black uppercase tracking-widest opacity-70 mb-4 ml-6">
           Personal
         </p>
         {userMenuItems.map((item) => (
@@ -89,8 +89,8 @@ export default function DashboardSidebar() {
       {isAdmin && (
         <div className="space-y-1">
           <div className="flex items-center gap-2 mb-4 ml-6">
-            <ShieldCheck size={24} className="text-primary" />
-            <p className="text-lg font-black uppercase tracking-widest text-primary">
+            <ShieldCheck size={24} className="text-primary-text" />
+            <p className="text-lg font-black uppercase tracking-widest text-primary-text">
               Management
             </p>
           </div>
@@ -129,7 +129,7 @@ function SidebarItem({
       )}
     >
       <item.icon
-        className={cn("h-4 w-4", isActive && isAdmin ? "text-primary" : "")}
+        className={cn("h-4 w-4", isActive && isAdmin ? "text-primary-text" : "")}
       />
       <span className="font-black italic uppercase tracking-tight text-xs">
         {item.title}

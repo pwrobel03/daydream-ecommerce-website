@@ -49,7 +49,7 @@ export default function UserReviewCard({
             <span className="px-4 py-1.5 w-fit bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-primary/20">
               Your Voice
             </span>
-            <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest ml-1 gap-4 flex">
+            <span className="text-[10px] font-bold opacity-70 uppercase tracking-widest ml-1 gap-4 flex">
               <span>
                 {new Date(review.createdAt).toLocaleDateString("pl-PL")}
               </span>
@@ -84,7 +84,7 @@ export default function UserReviewCard({
           &ldquo;{review.content}&rdquo;
         </blockquote>
 
-        <div className="mt-8 flex gap-1.5 text-primary">
+        <div className="mt-8 flex gap-1.5 text-primary-text">
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}

@@ -53,7 +53,7 @@ export function AddressForm({
           name="fullName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40">
+              <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-70">
                 Odbiorca
               </FormLabel>
               <FormControl>
@@ -72,7 +72,7 @@ export function AddressForm({
             name="street"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-70">
                   Ulica
                 </FormLabel>
                 <FormControl>
@@ -90,7 +90,7 @@ export function AddressForm({
             name="city"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-70">
                   Miasto
                 </FormLabel>
                 <FormControl>
@@ -110,7 +110,7 @@ export function AddressForm({
             name="zipCode"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-70">
                   Kod pocztowy
                 </FormLabel>
                 <FormControl>
@@ -128,7 +128,7 @@ export function AddressForm({
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-70">
                   Telefon
                 </FormLabel>
                 <FormControl>
@@ -146,7 +146,7 @@ export function AddressForm({
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full h-20 bg-zinc-900 text-white rounded-full font-black italic uppercase text-xl hover:bg-primary transition-all disabled:opacity-50"
+          className="w-full h-20 bg-zinc-900 text-white rounded-full font-black italic uppercase text-xl hover:bg-primary transition-all disabled:opacity-40"
         >
           {isLoading ? (
             <Loader2 className="animate-spin mx-auto" />

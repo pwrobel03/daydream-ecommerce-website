@@ -102,7 +102,7 @@ export function InventoryList({ products }: { products: InventoryProduct[] }) {
             <div className="flex flex-wrap items-center gap-8 lg:gap-16">
               {/* Cena */}
               <div className="space-y-1 mx-auto">
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-30">
+                <p className="text-[9px] font-black uppercase tracking-widest opacity-70">
                   Market Value
                 </p>
                 <div className="text-3xl font-black tracking-tighter text-foreground">
@@ -116,13 +116,13 @@ export function InventoryList({ products }: { products: InventoryProduct[] }) {
 
               {/* Stock */}
               <div className="space-y-1 text-center mx-auto">
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-30">
+                <p className="text-[9px] font-black uppercase tracking-widest opacity-70">
                   Stock
                 </p>
                 <p
                   className={cn(
                     "text-3xl font-black italic leading-none",
-                    product.stock <= 5 ? "text-primary animate-pulse" : ""
+                    product.stock <= 5 ? "text-primary-text animate-pulse" : ""
                   )}
                 >
                   {product.stock}

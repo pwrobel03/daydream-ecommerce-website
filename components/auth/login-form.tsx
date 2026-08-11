@@ -74,14 +74,14 @@ export const LoginForm = () => {
         <header className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-1 bg-primary" />
-            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
+            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-70">
               {t("systemLabel")}
             </span>
           </div>
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
             {t("headline")}
             <br />
-            <span className="text-primary">{t("headlineAccent")}</span>
+            <span className="text-primary-text">{t("headlineAccent")}</span>
           </h1>
         </header>
 
@@ -93,7 +93,7 @@ export const LoginForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       Registry_Email
                     </FormLabel>
                     <FormControl>
@@ -114,12 +114,12 @@ export const LoginForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex justify-between items-end">
-                      <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                      <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                         Access_Protocol
                       </FormLabel>
                       <Link
                         href="/auth/forgot-password"
-                        className="text-[9px] font-black uppercase opacity-30 hover:text-primary transition-all"
+                        className="text-[9px] font-black uppercase opacity-70 hover:text-primary-text transition-all"
                       >
                         Recovery?
                       </Link>
@@ -162,9 +162,9 @@ export const LoginForm = () => {
           </form>
         </Form>
 
-        <p className="text-[10px] font-black uppercase italic tracking-tighter opacity-30">
+        <p className="text-[10px] font-black uppercase italic tracking-tighter text-foreground/70">
           New Identity Required?{" "}
-          <Link href="/auth/register" className="text-primary underline">
+          <Link href="/auth/register" className="text-primary-text underline">
             Initialize Registration
           </Link>
         </p>
@@ -186,7 +186,10 @@ export const LoginForm = () => {
         </div>
 
         {/* PŁYNĄCY TEKST TECHNICZNY (W tle) */}
-        <div className="absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right">
+        <div
+        aria-hidden="true"
+        className="absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right"
+      >
           <Cpu className="w-4 h-4" />
           <span>ENCRYPTING_METABOLIC_DATA_STREAM...</span>
         </div>

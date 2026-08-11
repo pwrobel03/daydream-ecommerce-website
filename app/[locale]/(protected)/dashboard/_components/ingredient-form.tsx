@@ -150,7 +150,7 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
               ) : (
                 <label className="cursor-pointer flex flex-col items-center group">
                   <div className="p-4 bg-input/40 rounded-full shadow-sm group-hover:scale-110 transition duration-200">
-                    <Upload className="text-primary" size={32} />
+                    <Upload className="text-primary-text" size={32} />
                   </div>
                   <span className="mt-4 text-sm font-medium">
                     Add image WebP/PNG/JPG

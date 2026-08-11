@@ -38,14 +38,14 @@ export const OrderItemCard = ({ item }: { item: OrderItemType }) => {
             <span className="text-sm font-black uppercase tracking-[0.2em] px-3 py-1 bg-input/60 rounded-full">
               QTY: {item.quantity}
             </span>
-            <span className="text-sm font-bold opacity-40">
+            <span className="text-sm font-bold opacity-70">
               <PriceFormatter amount={Number(item.price)} /> / unit
             </span>
           </div>
         </div>
 
         <div className="lg::text-right flex flex-col justify-center">
-          <p className="text-sm font-black uppercase opacity-30 leading-none mb-1">
+          <p className="text-sm font-black uppercase opacity-70 leading-none mb-1">
             Subtotal
           </p>
           <p className="text-3xl font-black italic tracking-tighter">

@@ -26,7 +26,7 @@ export function PaginationControls({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pt-12 border-t border-black/5 dark:border-white/5">
       <div className="flex items-center gap-2">
-        <span className="text-[10px] font-black uppercase tracking-widest opacity-30 italic">
+        <span className="text-[10px] font-black uppercase tracking-widest opacity-70 italic">
           Navigator Mode:
         </span>
         <span className="text-xl font-black italic tracking-tighter">

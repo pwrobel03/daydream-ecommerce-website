@@ -40,7 +40,7 @@ export function LanguageSwitcher() {
           className={
             code === locale
               ? "px-2 text-[10px] font-black uppercase tracking-widest"
-              : "px-2 text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity"
+              : "px-2 text-[10px] font-black uppercase tracking-widest opacity-70 hover:opacity-100 transition-opacity"
           }
         >
           {code}

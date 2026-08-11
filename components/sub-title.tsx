@@ -34,7 +34,7 @@ const SubTitle = ({
               "block",
               isHighlighted &&
                 cn(
-                  "pl-12 font-black italic text-primary uppercase",
+                  "pl-12 font-black italic text-primary-text uppercase",
                   highlightClassName
                 )
             )}

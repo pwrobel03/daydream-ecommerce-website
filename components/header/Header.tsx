@@ -13,6 +13,7 @@ import { CartCounter } from "../CartCounter";
 import { UserButton } from "../auth/user-button";
 import { SearchInput } from "./search-input";
 import { LanguageSwitcher } from "./language-switcher";
+import { getTranslations } from "next-intl/server";
 
 async function getNavCategories() {
   return db.category.findMany({
@@ -22,6 +23,7 @@ async function getNavCategories() {
 }
 
 const Header = async () => {
+  const t = await getTranslations("nav");
   const categories = await getNavCategories();
 
   return (
@@ -50,17 +52,22 @@ const Header = async () => {
         <div className="flex items-center gap-2 sm:gap-4">
           <ModeToggle />
 
-          <Link href="/cart">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative text-foreground hover:bg-accent transition-all rounded-full"
-            >
-              <ShoppingBasket className="h-12 w-12" />
+          {/* `asChild` daje jeden element <a> zamiast <button> w <a> —
+              interaktywny element w linku to niepoprawny HTML i to on
+              odbierał nazwę dostępną i linkowi, i przyciskowi. */}
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="relative text-foreground hover:bg-accent transition-all rounded-full"
+          >
+            <Link href="/cart">
+              <ShoppingBasket className="h-12 w-12" aria-hidden="true" />
+              <span className="sr-only">{t("cart")}</span>
               {/* Licznik używa hooka useCart */}
               <CartCounter />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
 
           <SearchInput />
           <LanguageSwitcher />

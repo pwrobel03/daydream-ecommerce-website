@@ -38,13 +38,13 @@ export const NotAllowedView = () => {
             </div>
 
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.4em] opacity-60 mb-2">
+              <p className="text-sm font-black uppercase tracking-[0.4em] opacity-70 mb-2">
                 Security Protocol 403
               </p>
               <h3 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter">
                 Restricted Zone
               </h3>
-              <p className="text-lg font-bold opacity-40 uppercase tracking-tight mt-4 max-w-md">
+              <p className="text-lg font-bold opacity-70 uppercase tracking-tight mt-4 max-w-md">
                 Please contact your administrator if you believe this is an
                 error within the matrix.
               </p>

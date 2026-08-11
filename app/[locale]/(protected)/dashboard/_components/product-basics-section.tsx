@@ -32,7 +32,7 @@ export function ProductBasicsSection({
   return (
   <div className="bg-card/60 p-10 rounded-[2rem] border space-y-6">
     <div className="flex items-center gap-3">
-      <Tag size={18} className="text-primary" />
+      <Tag size={18} className="text-primary-text" />
       <h2 className="text-xl font-black italic uppercase tracking-tight">
         Artifact Essence
       </h2>
@@ -44,7 +44,7 @@ export function ProductBasicsSection({
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
+            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
               Name
             </FormLabel>
             <FormControl>
@@ -63,7 +63,7 @@ export function ProductBasicsSection({
         name="slug"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
+            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
               Slug
             </FormLabel>
             <FormControl>
@@ -88,7 +88,7 @@ export function ProductBasicsSection({
         name="weight"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
+            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
               Weight
             </FormLabel>
             <FormControl>
@@ -110,7 +110,7 @@ export function ProductBasicsSection({
         name="statusId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
+            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
               Status
             </FormLabel>
             <Select
@@ -145,7 +145,7 @@ export function ProductBasicsSection({
       name="description"
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/60">
+          <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
             Description
           </FormLabel>
           <FormControl>

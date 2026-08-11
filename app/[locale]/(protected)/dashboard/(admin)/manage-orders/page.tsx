@@ -33,7 +33,7 @@ async function AdminOrdersPageContent({
           <h1 className="text-6xl font-black italic uppercase tracking-tighter">
             Terminal
           </h1>
-          <p className="text-xs font-black uppercase tracking-[0.4em] text-primary">
+          <p className="text-xs font-black uppercase tracking-[0.4em] text-primary-text">
             Active Records: {totalCount}
           </p>
         </div>

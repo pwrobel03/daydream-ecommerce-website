@@ -44,7 +44,7 @@ async function CommentsPageContent({
             <h1 className="text-6xl font-black italic uppercase tracking-tighter">
               Voices Hub
             </h1>
-            <p className="text-md font-black uppercase tracking-[0.4em] opacity-40 ml-1 pb-10">
+            <p className="text-md font-black uppercase tracking-[0.4em] opacity-70 ml-1 pb-10">
               Active Monitoring ({reviews.length} / {totalCount})
             </p>
           </div>
@@ -67,7 +67,7 @@ async function CommentsPageContent({
             <div className="w-16 h-16 rounded-full border border-border/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500">
               <Plus />
             </div>
-            <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-40 italic">
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-70 italic">
               Reveal More Stories
             </span>
           </Link>

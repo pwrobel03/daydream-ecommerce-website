@@ -40,7 +40,7 @@ async function DeliveryPageContent({
         <h1 className="text-7xl font-black italic uppercase tracking-tighter">
           Delivery
         </h1>
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-2">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 mt-2">
           Secure Reservation ID: {orderId}
         </p>
       </header>

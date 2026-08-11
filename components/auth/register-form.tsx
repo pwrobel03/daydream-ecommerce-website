@@ -70,7 +70,7 @@ export const RegisterForm = () => {
       <div className="w-full mx-auto space-y-12">
         <header className="space-y-4">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
+            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-70">
               {t("systemLabel")}
             </span>
             <div className="w-12 h-1 bg-primary" />
@@ -78,7 +78,7 @@ export const RegisterForm = () => {
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
             JOIN THE
             <br />
-            <span className="text-primary">ARCHIVE.</span>
+            <span className="text-primary-text">ARCHIVE.</span>
           </h1>
         </header>
 
@@ -91,7 +91,7 @@ export const RegisterForm = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       Full_Identity_Name
                     </FormLabel>
                     <FormControl>
@@ -113,7 +113,7 @@ export const RegisterForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       Registry_Email
                     </FormLabel>
                     <FormControl>
@@ -136,7 +136,7 @@ export const RegisterForm = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       Access_Key_Generation
                     </FormLabel>
                     <FormControl>
@@ -178,9 +178,9 @@ export const RegisterForm = () => {
         </Form>
 
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-black uppercase italic tracking-tighter opacity-30">
+          <p className="text-[10px] font-black uppercase italic tracking-tighter text-foreground/70">
             Already verified?{" "}
-            <Link href="/auth/login" className="text-primary underline">
+            <Link href="/auth/login" className="text-primary-text underline">
               Return to Vault
             </Link>
           </p>

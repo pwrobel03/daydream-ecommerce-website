@@ -69,7 +69,7 @@ async function OrderDetailsPageContent({
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
             Order Detail
           </h1>
-          <p className="text-xs font-black uppercase tracking-[0.5em] opacity-40 mt-4">
+          <p className="text-xs font-black uppercase tracking-[0.5em] opacity-70 mt-4">
             Reference: {order.id}
           </p>
         </div>
@@ -84,7 +84,7 @@ async function OrderDetailsPageContent({
           >
             {order.status}
           </span>
-          <p className="text-sm text-right font-bold opacity-40">
+          <p className="text-sm text-right font-bold opacity-70">
             {format(new Date(order.createdAt), "dd MMMM yyyy, HH:mm")}
           </p>
         </div>
@@ -94,7 +94,7 @@ async function OrderDetailsPageContent({
         {/* Lewa kolumna: Produkty */}
         <div className="lg:col-span-12 space-y-6">
           <h2 className="text-3xl font-black italic uppercase tracking-tight flex items-center gap-3">
-            <Package className="text-primary" /> Manifest
+            <Package className="text-primary-text" /> Manifest
           </h2>
           <div className="space-y-4">
             {serializedOrder.items.map((item) => (
@@ -108,7 +108,7 @@ async function OrderDetailsPageContent({
           {/* Adres */}
           <div className="lg:col-span-6 bg-card p-10 rounded-[2rem] shadow-xl space-y-6">
             <h3 className="text-xl font-black italic uppercase tracking-widest flex items-center gap-3">
-              <MapPin size={20} className="text-primary" /> Destination
+              <MapPin size={20} className="text-primary-text" /> Destination
             </h3>
             {order.address ? (
               <div className="space-y-1 font-bold uppercase text-sm tracking-tight opacity-70">
@@ -117,7 +117,7 @@ async function OrderDetailsPageContent({
                 <p>
                   {order.address.zipCode} {order.address.city}
                 </p>
-                <p className="pt-4 text-sm opacity-40">
+                <p className="pt-4 text-sm opacity-70">
                   Phone: {order.address.phone}
                 </p>
               </div>
@@ -133,17 +133,17 @@ async function OrderDetailsPageContent({
             </h3>
 
             <div className="space-y-4">
-              <div className="flex justify-between border-b pb-4 text-primary">
+              <div className="flex justify-between border-b pb-4 text-primary-text">
                 <span className="text-sm font-black uppercase">Status</span>
                 <span className="font-black uppercase italic tracking-tighter text-xs">
                   {order.status}
                 </span>
               </div>
               <div className="flex justify-between pt-4">
-                <span className="text-sm font-black uppercase opacity-40">
+                <span className="text-sm font-black uppercase opacity-70">
                   Grand Total
                 </span>
-                <span className="text-2xl font-black italic tracking-tighter text-primary">
+                <span className="text-2xl font-black italic tracking-tighter text-primary-text">
                   <PriceFormatter amount={serializedOrder.totalAmount} />
                 </span>
               </div>

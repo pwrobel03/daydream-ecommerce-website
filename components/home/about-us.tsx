@@ -12,7 +12,7 @@ export default function AboutUs() {
           <div className="lg:col-span-8 space-y-8">
             <h2 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-[0.8] mb-8">
               Fueling the <br />
-              <span className="text-primary">Next Era.</span>
+              <span className="text-primary-text">Next Era.</span>
             </h2>
             <p className="text-2xl md:text-4xl font-light leading-snug tracking-tight italic text-foreground/80 max-w-3xl">
               Nexus was born from a simple realization: your morning ritual
@@ -60,7 +60,7 @@ export default function AboutUs() {
               key={i}
               className="p-10 border rounded-[2rem] space-y-6 transition-colors group"
             >
-              <div className="text-primary group-hover:scale-110 transition-transform duration-500">
+              <div className="text-primary-text group-hover:scale-110 transition-transform duration-500">
                 {pillar.icon}
               </div>
               <h3 className="text-xl font-black italic uppercase tracking-tighter">

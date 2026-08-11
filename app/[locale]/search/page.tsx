@@ -28,7 +28,7 @@ async function Results({ searchParams }: SearchPageProps) {
 
   if (query.length < 2) {
     return (
-      <p className="text-sm font-black uppercase tracking-widest opacity-30 italic">
+      <p className="text-sm font-black uppercase tracking-widest opacity-70 italic">
         {t("tooShort")}
       </p>
     );
@@ -42,7 +42,7 @@ async function Results({ searchParams }: SearchPageProps) {
         </p>
         <Link
           href="/category/all"
-          className="text-[10px] font-black uppercase tracking-[0.3em] underline opacity-60"
+          className="text-[10px] font-black uppercase tracking-[0.3em] underline opacity-70"
         >
           {t("browseInstead")}
         </Link>
@@ -52,7 +52,7 @@ async function Results({ searchParams }: SearchPageProps) {
 
   return (
     <>
-      <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">
+      <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70">
         {t("results", { count: hits.length, query })}
       </p>
 

@@ -68,8 +68,8 @@ export const NewPasswordForm = () => {
   if (!isMounted) {
     return (
       <div className="w-full max-w-[500px] mx-auto py-40 flex flex-col items-center justify-center gap-6">
-        <RefreshCcw className="w-12 h-12 animate-spin text-primary opacity-20" />
-        <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-20 italic">
+        <RefreshCcw className="w-12 h-12 animate-spin text-primary-text opacity-20" />
+        <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 italic">
           Initializing_Secure_Terminal...
         </span>
       </div>
@@ -83,14 +83,14 @@ export const NewPasswordForm = () => {
         <header className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-1 bg-primary" />
-            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
+            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-70">
               Security_Override
             </span>
           </div>
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
             KEY
             <br />
-            <span className="text-primary">REGEN.</span>
+            <span className="text-primary-text">REGEN.</span>
           </h1>
         </header>
 
@@ -102,7 +102,7 @@ export const NewPasswordForm = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       New_Access_Key
                     </FormLabel>
                     <FormControl>
@@ -123,7 +123,7 @@ export const NewPasswordForm = () => {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       Verify_Sequence
                     </FormLabel>
                     <FormControl>
@@ -164,9 +164,9 @@ export const NewPasswordForm = () => {
           </form>
         </Form>
 
-        <p className="text-[10px] font-black uppercase italic tracking-tighter opacity-30">
+        <p className="text-[10px] font-black uppercase italic tracking-tighter text-foreground/70">
           Abort mission?{" "}
-          <Link href="/auth/login" className="text-primary underline italic">
+          <Link href="/auth/login" className="text-primary-text underline italic">
             Back to Security Vault
           </Link>
         </p>
@@ -186,7 +186,10 @@ export const NewPasswordForm = () => {
         </div>
 
         {/* BACKGROUND DECOR */}
-        <div className="absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right">
+        <div
+        aria-hidden="true"
+        className="absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right"
+      >
           <Cpu className="w-4 h-4" />
           <span>RECONFIGURING_ACCESS_LADDER_SEQUENCE...</span>
         </div>

@@ -22,10 +22,10 @@ async function AddressPageContent() {
           LOC
         </div>
         <h1 className="text-5xl sm:txt-7xl md:text-9xl font-black italic uppercase tracking-tighter leading-none relative z-10">
-          Delivery<span className="text-primary">.</span>
+          Delivery<span className="text-primary-text">.</span>
         </h1>
-        <p className="text-xs font-black uppercase tracking-[0.6em] opacity-40 mt-6 flex items-center gap-4">
-          <Globe size={14} className="text-primary" />
+        <p className="text-xs font-black uppercase tracking-[0.6em] opacity-70 mt-6 flex items-center gap-4">
+          <Globe size={14} className="text-primary-text" />
           Global Logistics and Coordinate Management
         </p>
       </header>

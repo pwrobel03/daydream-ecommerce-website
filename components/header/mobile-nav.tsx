@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   Sheet,
   SheetContent,
@@ -21,6 +22,8 @@ interface Category {
 }
 
 export const MobileNav = ({ categories }: { categories: Category[] }) => {
+  const t = useTranslations("nav");
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -29,7 +32,8 @@ export const MobileNav = ({ categories }: { categories: Category[] }) => {
           size="icon"
           className="xl:hidden text-foreground"
         >
-          <Menu className="h-7 w-7" />
+          <Menu className="h-7 w-7" aria-hidden="true" />
+          <span className="sr-only">{t("menu")}</span>
         </Button>
       </SheetTrigger>
 
@@ -41,7 +45,7 @@ export const MobileNav = ({ categories }: { categories: Category[] }) => {
         <div className="flex flex-col h-full">
           {/* NAGŁÓWEK MENU - z przyciskiem zamknięcia w rogu */}
           <div className="flex items-center justify-between p-2 px-4 border-b border-secondary">
-            <SheetTitle className="text-2xl font-black text-primary italic uppercase tracking-tighter">
+            <SheetTitle className="text-2xl font-black text-primary-text italic uppercase tracking-tighter">
               <Link href="/" className="group flex items-center gap-2">
                 <Image src={logo} alt="DayDream Logo" className="h-16 w-auto" />
               </Link>
@@ -59,7 +63,7 @@ export const MobileNav = ({ categories }: { categories: Category[] }) => {
                   href={`/category/${cat.slug}`}
                   className="group flex flex-col items-center gap-1"
                 >
-                  <span className="text-xl md:text-2xl font-bold uppercase tracking-[0.2em] text-foreground transition-all group-hover:text-primary group-hover:scale-110">
+                  <span className="text-xl md:text-2xl font-bold uppercase tracking-[0.2em] text-foreground transition-all group-hover:text-primary-text group-hover:scale-110">
                     {cat.name}
                   </span>
                   {/* Subtelna linia pod nazwą pojawiająca się przy hoverze */}

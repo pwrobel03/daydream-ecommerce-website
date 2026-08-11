@@ -19,7 +19,7 @@ export function ProductTaxonomySection({
   <div className="bg-card/60 p-10 rounded-[2rem] border space-y-8">
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Layers size={16} className="text-primary" />
+        <Layers size={16} className="text-primary-text" />
         <h3 className="font-black uppercase italic text-sm">
           Taxonomy
         </h3>
@@ -59,7 +59,7 @@ export function ProductTaxonomySection({
 
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Beaker size={16} className="text-primary" />
+        <Beaker size={16} className="text-primary-text" />
         <h3 className="font-black uppercase italic text-sm">
           Ingredients
         </h3>

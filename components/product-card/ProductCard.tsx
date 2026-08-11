@@ -76,7 +76,7 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
       {/* CONTENT INFO */}
       <div className="p-8 flex flex-col gap-5">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary italic truncate max-w-[70%]">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary-text italic truncate max-w-[70%]">
             {displayCategories}
           </span>
 
@@ -86,11 +86,11 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
               className={cn(
                 "w-3 h-3",
                 averageRating > 0
-                  ? "fill-primary text-primary"
+                  ? "fill-primary text-primary-text"
                   : "text-zinc-300"
               )}
             />
-            <span className="text-[10px] font-black italic tracking-tighter opacity-40">
+            <span className="text-[10px] font-black italic tracking-tighter opacity-70">
               {averageRating > 0 ? averageRating.toFixed(1) : "N/A"}
             </span>
           </div>
@@ -101,11 +101,11 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
             {product.name}
           </h3>
           <div className="flex items-center gap-3 mt-2">
-            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">
+            <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">
               Units: {product.weight}
             </p>
             <div className="h-1 w-1 rounded-full bg-black/10 dark:bg-white/10" />
-            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">
+            <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">
               Stock: {product.stock}
             </p>
           </div>
@@ -113,7 +113,7 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
 
         <div className="flex items-end justify-between border-t border-black/5 dark:border-white/5 pt-6">
           <div className="flex flex-col">
-            <span className="text-[8px] font-black uppercase tracking-[0.2em] opacity-30 mb-1 italic">
+            <span className="text-[8px] font-black uppercase tracking-[0.2em] opacity-70 mb-1 italic">
               Price Registry
             </span>
             <PriceView

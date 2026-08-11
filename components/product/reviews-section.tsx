@@ -69,17 +69,17 @@ export default function ReviewsSection({
           <h2 className="text-5xl font-black italic uppercase tracking-tighter">
             Voices
           </h2>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 ml-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 ml-1">
             Stories ({totalCount})
           </p>
         </div>
 
         <div className="text-right flex flex-col items-end">
           <div className="flex items-center gap-2">
-            <Star className="fill-primary text-primary h-6 w-6" />
+            <Star className="fill-primary text-primary-text h-6 w-6" />
             <span className="text-4xl font-black">{averageRating}</span>
           </div>
-          <span className="text-[10px] font-black uppercase tracking-widest opacity-40 mt-1">
+          <span className="text-[10px] font-black uppercase tracking-widest opacity-70 mt-1">
             Showing {displayedCount} of {totalCount}
           </span>
         </div>
@@ -142,13 +142,13 @@ export default function ReviewsSection({
                 <span className="font-black text-[10px] tracking-widest uppercase">
                   {rev.user.name}
                 </span>
-                <div className="flex gap-0.5 text-primary">
+                <div className="flex gap-0.5 text-primary-text">
                   {[...Array(rev.rating)].map((_, i) => (
                     <Star key={i} className="h-2.5 w-2.5 fill-current" />
                   ))}
                 </div>
               </div>
-              <p className="ml-auto text-foreground/20">
+              <p className="ml-auto text-foreground/70">
                 {new Date(rev.createdAt).toLocaleDateString()}
               </p>
             </div>
@@ -174,7 +174,7 @@ export default function ReviewsSection({
                 <Plus className="w-6 h-6" />
               )}
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] italic opacity-60">
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] italic opacity-70">
               {loading ? "Searching..." : "Reveal More"}
             </span>
           </button>

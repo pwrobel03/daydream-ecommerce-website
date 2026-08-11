@@ -7,7 +7,7 @@ export default function HandcraftedProcess() {
       <div className="space-y-12 flex flex-col">
         <h2 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-[0.8] mb-8">
           Handcrafted <br />
-          <span className="text-primary">Process.</span>
+          <span className="text-primary-text">Process.</span>
         </h2>
         <h3 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter leading-none text-right">
           Small Batches, <br />
@@ -16,7 +16,7 @@ export default function HandcraftedProcess() {
 
         <div className="space-y-10">
           <div className="flex gap-6">
-            <span className="text-primary font-black italic text-2xl">01.</span>
+            <span className="text-primary-text font-black italic text-2xl">01.</span>
             <div>
               <h4 className="font-black uppercase italic tracking-widest text-sm mb-2">
                 Raw Selection
@@ -29,7 +29,7 @@ export default function HandcraftedProcess() {
             </div>
           </div>
           <div className="flex gap-6">
-            <span className="text-primary font-black italic text-2xl">02.</span>
+            <span className="text-primary-text font-black italic text-2xl">02.</span>
             <div>
               <h4 className="font-black uppercase italic tracking-widest text-sm mb-2">
                 Slow Roasting
@@ -42,7 +42,7 @@ export default function HandcraftedProcess() {
             </div>
           </div>
           <div className="flex gap-6">
-            <span className="text-primary font-black italic text-2xl">03.</span>
+            <span className="text-primary-text font-black italic text-2xl">03.</span>
             <div>
               <h4 className="font-black uppercase italic tracking-widest text-sm mb-2">
                 Sealed Integrity

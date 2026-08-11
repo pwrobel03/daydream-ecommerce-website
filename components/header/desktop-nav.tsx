@@ -30,7 +30,7 @@ export function DesktopNav({ categories }: { categories: Category[] }) {
         <Link
           key={cat.id}
           href={`/category/${cat.slug}`}
-          className="text-md font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary whitespace-nowrap"
+          className="text-md font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary-text whitespace-nowrap"
         >
           {cat.name}
         </Link>
@@ -39,7 +39,7 @@ export function DesktopNav({ categories }: { categories: Category[] }) {
       {/* Menu "Więcej" tylko gdy są dodatkowe kategorie */}
       {hiddenCategories.length > 0 && (
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-1 text-md font-bold uppercase tracking-widest text-muted-foreground hover:text-primary outline-none cursor-pointer">
+          <DropdownMenuTrigger className="flex items-center gap-1 text-md font-bold uppercase tracking-widest text-muted-foreground hover:text-primary-text outline-none cursor-pointer">
             More <ChevronDown className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -50,7 +50,7 @@ export function DesktopNav({ categories }: { categories: Category[] }) {
               <DropdownMenuItem key={cat.id} asChild>
                 <Link
                   href={`/category/${cat.slug}`}
-                  className="w-full cursor-pointer px-2 py-2 text-sm font-bold uppercase tracking-tight hover:text-primary"
+                  className="w-full cursor-pointer px-2 py-2 text-sm font-bold uppercase tracking-tight hover:text-primary-text"
                 >
                   {cat.name}
                 </Link>

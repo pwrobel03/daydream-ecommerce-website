@@ -93,7 +93,7 @@ const ProductCard = ({
                   )}
                 </div>
                 {item.product.promoPrice && (
-                  <span className="text-md line-through opacity-30 font-light">
+                  <span className="text-md line-through opacity-70 font-light">
                     <PriceFormatter amount={Number(item.product.price)} />
                   </span>
                 )}
@@ -119,7 +119,7 @@ const ProductCard = ({
           <div
             className={cn(
               "text-4xl font-black tracking-tighter",
-              isOutOfStock ? "line-through opacity-20" : ""
+              isOutOfStock ? "line-through opacity-70" : ""
             )}
           >
             <PriceFormatter

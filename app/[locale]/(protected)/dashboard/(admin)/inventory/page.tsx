@@ -59,7 +59,7 @@ async function InventoryPageContent({
           <h1 className="text-5xl sm:text-7xl font-black italic uppercase tracking-tighter">
             Inventory
           </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 ml-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 ml-1">
             Global Artifact Control
           </p>
         </div>
@@ -99,7 +99,7 @@ async function InventoryPageContent({
               <div className="w-16 h-16 rounded-full border border-black/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-700 shadow-xl bg-card group-hover:scale-110">
                 <Plus size={24} />
               </div>
-              <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-40 italic transition-all group-hover:tracking-[0.6em] group-hover:opacity-100">
+              <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-70 italic transition-all group-hover:tracking-[0.6em] group-hover:opacity-100">
                 Reveal More Artifacts
               </span>
             </Link>

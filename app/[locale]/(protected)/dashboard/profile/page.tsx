@@ -87,10 +87,10 @@ const SettingsPage = () => {
             USER
           </div>
           <h1 className="text-7xl md:text-9xl font-black italic uppercase tracking-tighter leading-none relative z-10">
-            Profile<span className="text-primary">.</span>
+            Profile<span className="text-primary-text">.</span>
           </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.6em] opacity-40 mt-6 flex items-center gap-4">
-            <Fingerprint size={14} className="text-primary" />
+          <p className="text-[10px] font-black uppercase tracking-[0.6em] opacity-70 mt-6 flex items-center gap-4">
+            <Fingerprint size={14} className="text-primary-text" />
             Identity and Security Protocol Management
           </p>
         </header>
@@ -101,8 +101,8 @@ const SettingsPage = () => {
             <Card className="bg-card/60 rounded-[2.5rem] border shadow-none overflow-hidden">
               <CardContent className="p-8 md:p-12 space-y-8">
                 <div className="flex items-center gap-3 mb-4">
-                  <UserCog className="text-primary" size={20} />
-                  <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-40">
+                  <UserCog className="text-primary-text" size={20} />
+                  <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-70">
                     Identity
                   </h2>
                 </div>
@@ -161,8 +161,8 @@ const SettingsPage = () => {
               <Card className="bg-card/60 rounded-[2.5rem] shadow-none overflow-hidden border">
                 <CardContent className="p-8 md:p-12 space-y-8">
                   <div className="flex items-center gap-3 mb-4">
-                    <ShieldCheck className="text-primary" size={20} />
-                    <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-40">
+                    <ShieldCheck className="text-primary-text" size={20} />
+                    <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-70">
                       Encryption
                     </h2>
                   </div>

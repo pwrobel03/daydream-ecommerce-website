@@ -46,7 +46,7 @@ export function VoicesList({ voices }: { voices: VoiceType[] }) {
               <p className="text-sm font-black uppercase tracking-widest leading-none">
                 {voice.user.name}
               </p>
-              <div className="mt-2 flex gap-1.5 text-primary">
+              <div className="mt-2 flex gap-1.5 text-primary-text">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
@@ -60,7 +60,7 @@ export function VoicesList({ voices }: { voices: VoiceType[] }) {
 
           <div className="flex items-center justify-around w-full gap-2">
             <div className="flex-grow">
-              <p className="text-sm font-black uppercase tracking-widest text-primary mb-1">
+              <p className="text-sm font-black uppercase tracking-widest text-primary-text mb-1">
                 {voice.product.name}
               </p>
               <p className="text-md font-medium italic leading-tight">

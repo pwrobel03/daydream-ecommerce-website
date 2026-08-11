@@ -23,7 +23,7 @@ async function IngredientsListPageContent() {
           <h1 className="text-7xl font-black italic uppercase tracking-tighter">
             Alchemical library
           </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 ml-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 ml-1">
             Manage your recipe
           </p>
         </div>
@@ -65,7 +65,7 @@ async function IngredientsListPageContent() {
 
               {/* Treść */}
               <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
+                <h3 className="text-xl font-bold group-hover:text-primary-text transition-colors">
                   {item.name}
                 </h3>
               </div>

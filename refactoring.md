@@ -53,6 +53,11 @@ calls and the `number | string` unions once the mappers are the only crossing
 point. This is the systemic fix for what §2.6 of `markdown/improvement.md`
 tracks piecemeal.
 
+> **Partially addressed**: the `JSON.parse(JSON.stringify(...))` calls and the
+> `number | string` unions are gone, and `lib/dto/` is the single crossing
+> point. The explicit per-aggregate mappers this recommended were never
+> written — see the `lib/dto/` entry in the 2026-08-11 section.
+
 ## [critical] Server Actions have four incompatible return contracts — `actions/order/order.ts:25`
 
 **Issue:** actions return `{ error: string }`, `{ success: true, orderId }`,
@@ -248,6 +253,10 @@ experienced from a different cause.
 **Recommendation:** report through `reportError` with the failing path so it is
 visible, and consider a periodic reconciliation against `ProductImage` rows.
 
+> **Resolved (`f369084`, `a6ce75c`)**: `deleteUpload` reports through
+> `reportError` with the failing path, and no swallowing `try` wraps the
+> delete loop.
+
 ## [minor] Dead exports left in the data layer — `lib/db-sales.ts:4`
 
 **Issue:** `getActiveSaleByCouponCode` has no call sites — coupon validation was
@@ -303,6 +312,10 @@ is what types are for.
 
 **Recommendation:** narrow per use case (`CategoryListItem`, `CategoryWithCount`)
 once the DTO layer exists; they fall out of it naturally.
+
+> **Partially addressed**: `InventoryProduct`, `VoiceType`, `CartProduct` and
+> `OrderItemType.product` are narrowed. `Category` still carries optional
+> `parentId`, `children` and `_count` for the admin views.
 
 ## [minor] Two upload-serving paths coexist — `lib/uploads.ts:60`
 
@@ -405,6 +418,9 @@ also removes the need to ship review rows at all (see the over-fetch note
 below). If the catalogue grows, denormalise both onto `Product` and refresh
 them in the review mutations.
 
+> **Resolved (`41dedbc`)**: aggregated in the database; the catalogue stopped
+> selecting reviews at all.
+
 ## [major] A replaced ingredient image is cached as immutable for a year — `app/uploads/[...path]/route.ts:49`
 
 **Issue:** the uploads route sends `Cache-Control: public, max-age=31536000,
@@ -422,6 +438,9 @@ visitors do not.
 the other two paths. That keeps one cache policy for the whole route instead
 of special-casing it.
 
+> **Resolved (`a6ce75c`)**: a fresh filename per write, old file removed after
+> the record is saved.
+
 ## [major] Deleting a product leaves its images on disk forever — `actions/admin/inventory.ts:9`
 
 **Issue:** `deleteProduct` removes the row and nothing else; the
@@ -436,6 +455,9 @@ failure mode with a slow fuse and no signal until it happens.
 **Recommendation:** read the `ProductImage` rows before the delete and pass
 each through `deleteUpload`, reporting failures rather than swallowing them.
 The relation cascade already removes the rows, so only the files are missing.
+
+> **Resolved (`a6ce75c`)**: image urls are read before the delete and each file
+> removed after it; covered by an integration test.
 
 ## [major] `getAdminOrders` is the last read still shaped as a Server Action — `actions/admin/orders.ts:13`
 
@@ -456,6 +478,9 @@ guarantee that is not there.
 **Recommendation:** move it to `lib/db-orders.ts`, drop the `catch`, run the
 rows through `toPlainDeep`, and delete the comment.
 
+> **Resolved (`982119e`)**: moved to `lib/db-orders.ts`, without the catch and
+> with `toPlainDeep`.
+
 ## [major] The cart persists whole product aggregates in localStorage — `store.ts:7`
 
 **Issue:** `CartItem.product` is a full `ProductType`, so every cart entry
@@ -474,6 +499,9 @@ line to remove. That is a dead end reachable by ordinary use.
 the cart actually renders, and have `syncItems` drop items the server did not
 return, surfacing what it removed.
 
+> **Resolved (`d335adf`)**: `CartProduct` plus a covered `migrateCart`;
+> `syncItems` also drops and names vanished products.
+
 ## [major] `getFreshCartData` reports an outage as "nothing changed" — `actions/store/sync-cart.ts:27`
 
 **Issue:** the catch returns `[]`, which `syncItems` treats as "no product
@@ -489,6 +517,8 @@ path, where stale prices matter most.
 or return a discriminated result so the page can say the check failed instead
 of implying it passed.
 
+> **Resolved (`d335adf`)**: the catch is gone and the cart shows a retry state.
+
 ## [minor] A debug log ships to production on every cart render — `components/cart/product-card.tsx:30`
 
 **Issue:** `console.log(item)` at the top of the component body.
@@ -496,6 +526,8 @@ of implying it passed.
 **Recommendation:** delete it. `app/[locale]/(protected)/dashboard/_components/category-form.tsx:96`
 similarly uses `console.error` where every other path now reports through
 `reportError`.
+
+> **Resolved (`982119e`)**.
 
 ## [minor] Prices are formatted as en-US in a bilingual app — `components/PriceFormatter.tsx:9`
 
@@ -507,6 +539,8 @@ literal `$NaN` when undefined.
 **Recommendation:** use next-intl's `useFormatter().number(amount, { style:
 "currency", currency: "USD" })` so it follows the active locale, and make
 `amount` required.
+
+> **Resolved (`982119e`)**: formats through next-intl; `amount` is required.
 
 ## [minor] `lib/dto/` is not a DTO layer — `lib/dto/index.ts:16`
 
@@ -523,12 +557,19 @@ every product's full review list, with each author, to render a grid of cards.
 to what it does (`lib/serialize.ts`) or grow the mappers. Doing the ratings fix
 above removes the largest over-fetch on its own.
 
+> **Partially addressed (`982119e`)**: the dead `toPlain` is gone and the
+> largest over-fetch went with the ratings fix. Per-aggregate mappers were
+> not built — `toPlainDeep` still strips symbols rather than mapping to view
+> models, and the module name still promises more than it does.
+
 ## [minor] `OrderItemType.product` keeps an index signature — `types/order.ts:22`
 
 **Issue:** `[key: string]: unknown` absorbs whatever a given `select` returned.
 The product and inventory types were narrowed in this round; this one was not.
 
 **Recommendation:** narrow per use case now that the pattern is established.
+
+> **Resolved (`982119e`)**.
 
 ## [minor] `sendEmail` is exported but only used inside its own module — `lib/mail.ts`
 
@@ -537,6 +578,8 @@ reads as public API.
 
 
 ---
+
+> **Resolved (`982119e`)**.
 
 ## Status of the 2026-08-11 findings
 
@@ -575,3 +618,36 @@ rows were wiped by a later re-seed — nothing referenced them. They were also
 swept into `c0e6dae` by a careless `git add -A`. Removed going forward rather
 than by rewriting history: they are 300 KB in a 102 MB repository, and that
 commit has 44 descendants across fourteen branches, three of them pushed.
+
+---
+
+## What is not closed
+
+Every finding from both passes has been acted on, but three are partial by
+choice rather than by oversight, and one area has not been reviewed at all:
+
+- **`lib/dto/` is still a serialiser, not a DTO layer.** It strips symbol
+  properties so Prisma results survive the server/client boundary. The
+  per-aggregate mappers (`toProductDTO`, `toOrderDTO`) that would bound what
+  crosses that boundary were never written. The largest over-fetch it was
+  meant to solve went away with the ratings fix, which is why this stopped
+  being urgent — not because it was done.
+
+- **`Category` still describes a query shape.** `parentId`, `children` and
+  `_count` remain optional because the admin views select them and the
+  storefront does not. Narrowing it properly depends on the mappers above.
+
+- **The legacy upload branch is gone, the migration script is not.**
+  `scripts/migrate-uploads.ts` stays for a restored older dump. It has never
+  run against anything but a seeded test database.
+
+- **Nothing written after 2026-08-11 has been reviewed.** The analytics
+  dashboard and the accessibility work landed after the second pass, so
+  `lib/db-analytics.ts`, the analytics page, `revenue-chart.tsx` and the
+  contrast changes across ~110 files have had no refactoring review — only
+  tests and lint.
+
+Lint reports 71 warnings, none of them errors: 65 are unused variables
+(mostly `catch (error)` bindings and leftover icon imports), 4 are
+`exhaustive-deps` on effects with deliberately narrow dependency arrays, and
+2 are `react-hooks/incompatible-library` from react-hook-form's `watch`.

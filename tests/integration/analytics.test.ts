@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { resetDatabase } from "./reset";
 
 // Własne id admina na plik: suity dzielą jedną bazę, więc wspólne "admin"
 // wywracało `beforeAll` tej, która trafiła na drugą pozycję — a vitest
@@ -61,9 +62,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await db.orderItem.deleteMany();
-  await db.order.deleteMany();
-  await db.product.deleteMany();
+  await resetDatabase(db);
 
   const [a, b] = await Promise.all([
     db.product.create({
@@ -112,6 +111,40 @@ describe("getAnalyticsSummary", () => {
     expect(summary.revenue).toBe(0);
     expect(summary.averageOrderValue).toBe(0);
     expect(summary.conversionRate).toBe(0);
+  });
+});
+
+describe("the report window", () => {
+  it("makes the summary total equal the sum of the chart bars", async () => {
+    // Zamówienie sprzed 29 dni i 20 godzin: mieści się w kroczącym oknie
+    // 30 × 24 h, ale kalendarzowo wypada 30 dni wstecz. Póki karty liczyły
+    // krocząco, a wykres kalendarzowo, ten sam ekran pokazywał 100 w nagłówku
+    // i 0 na słupkach.
+    await order({ paid: true, total: 100, daysAgo: 29 + 20 / 24, items: [] });
+    await order({ paid: true, total: 40, daysAgo: 1, items: [] });
+
+    const summary = await getAnalyticsSummary(30);
+    const chart = await getRevenueByDay(30);
+
+    expect(chart.reduce((sum, point) => sum + point.revenue, 0)).toBe(
+      summary.revenue
+    );
+  });
+
+  it("uses the same window for top products", async () => {
+    await order({
+      paid: true,
+      total: 100,
+      daysAgo: 29 + 20 / 24,
+      items: [{ productId: productA, quantity: 1, price: 100 }],
+    });
+
+    const [summary, top] = await Promise.all([
+      getAnalyticsSummary(30),
+      getTopProducts(30),
+    ]);
+
+    expect(top.reduce((sum, p) => sum + p.revenue, 0)).toBe(summary.revenue);
   });
 });
 

@@ -32,6 +32,22 @@ export interface AnalyticsSummary {
 }
 
 /**
+ * Początek okna raportu — północ sprzed `days - 1` dni, w strefie bazy.
+ *
+ * Liczone raz i w SQL, bo wszystkie trzy zapytania muszą mierzyć ten sam
+ * odcinek czasu. Wcześniej wykres liczył w dniach kalendarzowych, a karty
+ * i top produkty w oknie kroczącym `NOW() - 30d`: zamówienie sprzed 29 dni
+ * i 20 godzin trafiało do sumy w nagłówku, ale wypadało poza słupki pod nią,
+ * więc jeden ekran pokazywał dwie różne odpowiedzi na to samo pytanie.
+ */
+async function windowStart(days: number): Promise<Date> {
+  const [row] = await db.$queryRaw<{ start: Date }[]>`
+    SELECT (date_trunc('day', NOW()) - MAKE_INTERVAL(days => ${days - 1})) AS start
+  `;
+  return row.start;
+}
+
+/**
  * Przychód dzień po dniu, z dniami bez sprzedaży włącznie.
  *
  * `generate_series` po stronie bazy, a nie uzupełnianie luk w JavaScripcie:
@@ -42,10 +58,13 @@ export async function getRevenueByDay(days: number): Promise<RevenuePoint[]> {
   await requireAdmin();
 
   const rows = await db.$queryRaw<
-    { day: Date; revenue: number | null; orders: bigint }[]
+    { day: string; revenue: number | null; orders: bigint }[]
   >`
     SELECT
-      series.day::date AS day,
+      -- Etykieta formatowana w SQL, w tej samej strefie, w której powstał
+      -- kubełek. Konwersja przez toISOString() po stronie Node zamieniała ją
+      -- na UTC i na serwerze spoza UTC przesuwała dzień.
+      to_char(series.day, 'YYYY-MM-DD') AS day,
       SUM(o."totalAmount")::float8 AS revenue,
       COUNT(o.id) AS orders
     FROM generate_series(
@@ -61,7 +80,7 @@ export async function getRevenueByDay(days: number): Promise<RevenuePoint[]> {
   `;
 
   return rows.map((row) => ({
-    day: row.day.toISOString().slice(0, 10),
+    day: row.day,
     revenue: row.revenue ?? 0,
     orders: Number(row.orders),
   }));
@@ -80,6 +99,8 @@ export async function getTopProducts(
 ): Promise<TopProduct[]> {
   await requireAdmin();
 
+  const since = await windowStart(days);
+
   return db.$queryRaw<TopProduct[]>`
     SELECT
       p.id           AS "productId",
@@ -91,7 +112,7 @@ export async function getTopProducts(
     JOIN "Order" o   ON o.id = i."orderId"
     JOIN "Product" p ON p.id = i."productId"
     WHERE o."isPaid" = true
-      AND o."createdAt" >= NOW() - MAKE_INTERVAL(days => ${days})
+      AND o."createdAt" >= ${since}
     GROUP BY p.id, p.name, p.slug
     ORDER BY revenue DESC
     LIMIT ${limit}
@@ -104,7 +125,7 @@ export async function getAnalyticsSummary(
 ): Promise<AnalyticsSummary> {
   await requireAdmin();
 
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const since = await windowStart(days);
 
   const [paid, created] = await Promise.all([
     db.order.aggregate({

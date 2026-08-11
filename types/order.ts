@@ -15,13 +15,16 @@ export interface OrderItemType {
   id: string;
   quantity: number;
   price: number;
-  // Poszczególne widoki selectują różne podzbiory pól produktu,
-  // dlatego wszystko poza nazwą jest opcjonalne.
+  /**
+   * Tylko te pola produktu, które rysują widoki zamówień. Wcześniej stała tu
+   * sygnatura indeksowa pochłaniająca cokolwiek zwrócił dany `select`, więc
+   * typ nie mógł wyłapać widoku sięgającego po pole, którego zapytanie nie
+   * pobrało. `slug` i `images` są opcjonalne, bo lista admina ich nie selectuje.
+   */
   product: {
     name: string;
+    slug?: string;
     images?: { url: string }[];
-    // Widoki selectują różne podzbiory; pozostałe pola nie są tu używane.
-    [key: string]: unknown;
   };
 }
 

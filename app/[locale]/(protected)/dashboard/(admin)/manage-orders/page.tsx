@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 // app/admin/orders/page.tsx
-import { getAdminOrders } from "@/actions/admin/orders";
+import { getAdminOrders } from "@/lib/db-orders";
 import { AdminOrdersList } from "../../_components/admin-orders-list";
 import { PaginationControls } from "@/components/pagination-controls";
 import { SearchOrders } from "@/components/search-orders";

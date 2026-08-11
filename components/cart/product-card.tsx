@@ -27,7 +27,6 @@ const ProductCard = ({
   isOverLimit,
   deleteCartProduct,
 }: CartItemProps) => {
-  console.log(item);
 
   return (
     <div

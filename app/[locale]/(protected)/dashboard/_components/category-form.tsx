@@ -93,7 +93,6 @@ export function CategoryForm({
         router.refresh();
       }
     } catch (error) {
-      console.error("SUBMIT_ERROR:", error);
       toast.error(t("feedback.connectionError"), {
         description:
           "The server could not process the request. Your're image could be too large or corrupted. Our limit is 8MB",

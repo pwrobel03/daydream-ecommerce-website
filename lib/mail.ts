@@ -36,7 +36,7 @@ interface SendOptions {
  * Nie rzuca: nieudana wysyłka nie może wywrócić rejestracji ani zapłaconego
  * zamówienia. Błąd trafia do logów, gdzie da się go zobaczyć i ponowić ręcznie.
  */
-export async function sendEmail({ to, subject, template }: SendOptions) {
+async function sendEmail({ to, subject, template }: SendOptions) {
   try {
     const [html, text] = await Promise.all([
       render(template),

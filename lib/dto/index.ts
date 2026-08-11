@@ -12,11 +12,6 @@
 //
 // `structuredClone` nie zadziała: rzuca na własnościach symbolicznych.
 
-/** Zwykły obiekt z tych samych pól — bez symboli i prototypu Prismy. */
-export function toPlain<T extends Record<string, unknown>>(value: T): T {
-  return Object.fromEntries(Object.entries(value)) as T;
-}
-
 /** Głęboka wersja dla struktur z zagnieżdżonymi relacjami. */
 export function toPlainDeep<T>(value: T): T {
   if (Array.isArray(value)) return value.map(toPlainDeep) as T;

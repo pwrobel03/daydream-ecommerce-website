@@ -103,6 +103,20 @@ npm run dev
 See the [setup guide](./docs/en/setup.md) for the full environment reference and for
 forwarding Stripe webhooks locally.
 
+### Running on another port
+
+`next dev` and `next start` read the port from the `PORT` environment variable:
+
+```bash
+PORT=3100 npm run dev
+```
+
+Set `AUTH_URL` and `NEXT_PUBLIC_APP_URL` in `.env` to the same port, otherwise sign-in
+callbacks and absolute links point at port 3000.
+
+Commands, project structure and conventions for contributors are in
+[CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ---
 
 ## 🐳 Run it with Docker

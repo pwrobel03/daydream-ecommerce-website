@@ -1,84 +1,97 @@
-# 0009. Demo mode is an environment flag enforced by one guard in the Server Actions
+# 0009. The public demo admin is a read-only role, and the back-office masks personal data on the server
 
 - Status: Proposed
 - Date: 2026-10-23
 
 ## Context
 
-ADR 0006 makes demo mode the only production configuration: the demo admin account is public, admin
-writes are blocked and the back-office is browsable read-only. Three things are left open: how demo
-mode is switched on, which actions count as admin writes, and what happens to data visitors create
-between resets.
+ADR 0006 makes demo mode the only production configuration and keeps the demo admin account public.
+The owner's revision narrows what demo mode restricts:
 
-Constraints from the owner: visitor personal data is kept no longer than necessary (default: nightly
-reset); the public demo admin must not see other visitors' personal data (e-mail addresses, delivery
-addresses); test purchases must not leave the catalogue unusable between resets.
+- Customers keep full functionality: registration, e-mail verification, password reset, outgoing
+  e-mail, their own delivery addresses (ADR 0011, 0012).
+- Only the **public demo admin** is restricted. It is strictly read-only: no writes, no uploads. The
+  owner's **private admin** has full rights, and its credentials are never published or seeded with
+  known values (ADR 0011).
+- The demo admin must never receive visitors' e-mail or delivery addresses. This is enforced on the
+  server, in the queries and actions that feed the back-office, not only in the UI.
+- Test purchases must not leave the catalogue unusable.
 
 Facts in the code today:
 
-- Every admin action calls `requireAdmin()` from `lib/guards.ts`. Admin writes are `upsertProduct`,
-  `deleteProduct`, `createCategory`, `deleteCategory`, `upsertIngredient`, `deleteIngredient`,
-  `updateOrderStatus` and `deleteVoice`.
-- `settings` (`actions/user/settings.ts`) lets any signed-in user change name, e-mail and password;
-  `saveUserAddress` changes the saved delivery address. On a shared demo account either one breaks the
-  demo for the next visitor.
-- The back-office order list shows the buyer's name, e-mail and delivery address (`lib/db-orders.ts`).
-- A paid order decrements stock permanently; a pending one holds stock for 45 minutes.
+- `UserRole` has two values, `ADMIN` and `USER`. Every admin action calls `requireAdmin()` from
+  `lib/guards.ts`, which accepts only `ADMIN`. The admin writes are `upsertProduct` (including its
+  image uploads), `deleteProduct`, `createCategory`, `deleteCategory`, `upsertIngredient`,
+  `deleteIngredient`, `updateOrderStatus` and `deleteVoice`.
+- The back-office layout lets in only `role === ADMIN`.
+- The admin order list (`lib/db-orders.ts`) selects `user.name`, `user.email` and the whole `address`,
+  and its search matches on the buyer's e-mail and street.
+- A paid order decrements stock permanently. A pending one holds stock for 45 minutes.
 
 ## Recommendation
 
-Switch demo mode on with a `DEMO_MODE` environment variable and enforce it with one `requireWritable()`
-guard called inside each blocked Server Action, because the actions are the only layer a visitor cannot
-bypass and one guard is one place to audit.
+Add a `DEMO_ADMIN` value to `UserRole` for the public account and keep `requireAdmin()` accepting only
+`ADMIN`, because then every existing and future admin write is closed to the demo admin by default,
+without anyone having to remember a second guard.
 
-**Switch.** `DEMO_MODE` is validated in `lib/env.ts`, defaults to `true`, and `false` is rejected when
-`NODE_ENV=production`. Local development and the existing E2E and integration tests run with
-`DEMO_MODE=false`; a separate E2E spec covers demo mode.
+**Access.**
 
-**What is blocked in demo mode** (the guard throws `ActionError("FORBIDDEN", …)`, the action returns the
-usual `fail` result with a translated "disabled in the demo" message):
+- `requireBackOffice()` in `lib/guards.ts` accepts `ADMIN` and `DEMO_ADMIN`. The back-office layout and
+  the back-office reads use it. Writes keep `requireAdmin()` and need no change, so uploads are blocked
+  too: they only happen inside `upsertProduct`.
+- The demo admin's own account is shared by every visitor, so it cannot change anything of its own
+  either: `settings`, `saveUserAddress`, `deleteAccount`, Voice writes and order creation reject
+  `DEMO_ADMIN`. Each of these actions calls one guard, `requireOwnAccountWrites()`.
+- A blocked action returns the usual `fail("FORBIDDEN", …)` result with a translated "read-only demo
+  account" message. The UI disables the buttons and shows the same message, but that is cosmetic; the
+  guards are the enforcement.
 
-- every admin write listed above, including image uploads made through them;
-- `settings` and `saveUserAddress` — the demo accounts' profile, e-mail, password and saved address
-  cannot change;
-- `register`, `resetPassword` and `newPassword` (see ADR 0011).
+**Personal data in the back-office.**
 
-The UI disables the corresponding buttons and shows the same message, but that is cosmetic; the guard
-is the enforcement. Reads are untouched, so the back-office stays fully browsable.
+- Back-office reads take the viewer's role. For anything other than `ADMIN`, the Prisma query selects
+  neither `user.email`, `user.name` nor the `address` relation. The buyer is shown as a pseudonym
+  derived from the user ID (e.g. "Customer 7f3a"). The data never leaves the database, so it cannot
+  reach the demo admin's RSC payload or an action response.
+- For the demo admin, search ignores the e-mail and street conditions. Otherwise searching for an
+  address would reveal whether that person has ordered.
+- The masked and unmasked results are two different query shapes with two types derived from their
+  `select` (ADR 0015). Masked fields are absent from the type, not empty strings.
+- The buyer's name is masked as well, although the owner named only e-mail and addresses: a name next
+  to a purchase history is personal data just as much. Names on Voices stay visible, because Voices
+  are public on the product page anyway.
 
-**What visitors can still do:** sign in with the published demo accounts, fill a cart, place and pay a
-test order, retry a payment, and create, edit and delete their own Voices.
+**Stock.** The webhook restores the reserved quantities when it marks an order paid, so paid test
+orders never deplete the catalogue. Pending reservations still decrement stock and are released by
+the reservation cron, so the reservation mechanism stays visible. Each order line is capped at 10
+units, so one visitor cannot hold a product's whole stock for 45 minutes.
 
-**Visitor data between resets:**
-
-- **Delivery address:** in demo mode the delivery form is pre-filled with the demo customer's seeded,
-  fictional address and is read-only, so no real address is ever stored and the back-office only ever
-  shows seeded data. This is what keeps the demo admin from seeing visitors' personal data.
-- **Orders:** the shared demo customer's order history shows every visitor's test orders until the
-  next reset. Acceptable, because they carry only seeded personal data.
-- **Voices:** free text by visitors, public on the product page and removed by the reset. The owner can
-  run the reset by hand to remove abuse before the schedule does.
-- **Stock:** in demo mode the webhook restores the reserved quantities when it marks an order paid, so
-  paid test orders never deplete the catalogue. Pending reservations still decrement stock and are
-  released by the reservation cron, so the reservation mechanism stays visible. Each order line is
-  capped at 10 units in demo mode, so one visitor cannot hold a product's whole stock for 45 minutes.
+**No `DEMO_MODE` flag.** After the revision, every demo behaviour is either tied to a role (the demo
+admin) or harmless outside production (the notice, the restock, the line cap). E-mail limits and the
+CAPTCHA (ADR 0012) have their own configuration. A flag whose only valid production value is `true`
+would only add a way to switch the demo off by accident.
 
 ## Alternatives considered
 
-- **Demo mode always on when `NODE_ENV=production`, no flag** — one less variable, but local
-  production builds (`next build && next start`) could no longer exercise admin writes.
-- **Blocking writes in `proxy.ts`** — Server Actions are POSTs to page URLs; telling a blocked action
-  from an allowed one there means parsing action ids. Fragile and easy to bypass.
-- **Blocking writes in the database (read-only role)** — also blocks visitors' orders and Voices.
-- **Masking personal data in the admin views instead of fixing the address** — works, but every new
-  admin view needs to remember the mask; a fixed address removes the data instead.
-- **Letting paid orders deplete stock until the reset** — honest, but a single scripted visitor can
-  empty the catalogue for a day.
+- **Keep the demo admin as `ADMIN` and recognise it by an e-mail in an env variable** — no migration,
+  but the role would claim full rights. One forgotten check in a new write would give the public
+  account write access.
+- **A `readOnly` flag on `User`** — same fail-open problem: every guard has to read a second field.
+- **Masking in the components only** — rejected by the owner. The data would still be in the RSC
+  payload.
+- **A `DEMO_MODE` environment flag** (the earlier proposal) — see above.
+- **Letting paid orders deplete stock** — honest, but a single scripted visitor can empty the
+  catalogue until the owner runs a reset.
 
 ## Consequences
 
-- One new module (`lib/demo.ts`: the flag, `requireWritable()`, the demo account e-mails) and one call
-  per blocked action; a test per blocked action proves it returns `FORBIDDEN` in demo mode.
-- The demo notice and the read-only UI states read the same flag.
-- The restock-on-payment branch is demo-only logic in the webhook and needs its own test.
-- New admin writes must call `requireWritable()`; the reviewer checks it.
+- A migration adds `DEMO_ADMIN` to `UserRole`. The seed creates the demo admin with this role and
+  creates no `ADMIN` (ADR 0011).
+- Every `role === ADMIN` check in pages and components is reviewed. A check that should also let the
+  demo admin in switches to the back-office check.
+- Tests: each admin write and each own-account write returns `FORBIDDEN` for `DEMO_ADMIN`. The admin
+  order reads, called as the demo admin, return no e-mail, name or address; the test asserts on the
+  serialised result, not on the rendered page. Search by e-mail returns nothing for the demo admin.
+- The restock-on-payment branch changes what the existing webhook tests expect, and it needs its own
+  test.
+- Every new back-office read that touches users or addresses must branch on the role. The reviewer
+  checks it.

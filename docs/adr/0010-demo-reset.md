@@ -1,50 +1,70 @@
-# 0010. The demo reset re-runs the seed in one transaction, nightly, from the migrator image
+# 0010. The demo reset is run by hand: it previews, dumps the database and waits for confirmation
 
 - Status: Proposed
 - Date: 2026-10-23
 
 ## Context
 
-ADR 0006 requires a demo reset on a schedule; the owner runs it on the server, the repository provides
-the script and the schedule definition. The owner's default is nightly.
+ADR 0006 includes a demo reset that restores the seed state. The owner's revision removes the
+schedule. The owner runs the reset by hand. Before it deletes anything, the script must show what it
+will delete (numbers of accounts, orders and so on), take a `pg_dump`, and wait for the owner's
+explicit confirmation.
 
-`prisma/seed.ts` already purges and recreates users, catalogue, orders and reviews (`Account` rows go
-with their users by cascade), but it does not clear `VerificationToken`, `PasswordResetToken`, `Sale` or
-`ProcessedWebhookEvent`, and it
-runs as a series of separate statements, so the storefront is briefly empty while it runs. Seed images
-ship in the image under `public/static/`; `UPLOAD_DIR` holds only back-office uploads, which demo mode
-blocks (ADR 0009).
+With full customer functionality (ADR 0009, 0011), the database holds real visitor accounts,
+addresses and orders, so a reset now deletes personal data people chose to leave.
+
+Facts in the code today:
+
+- `prisma/seed.ts` purges and recreates users, catalogue, orders and reviews (`Account` rows go with
+  their users by cascade). It does not clear `VerificationToken`, `PasswordResetToken`, `Sale` or
+  `ProcessedWebhookEvent`. It runs as separate statements, so the shop is briefly empty while it runs.
+- Seed images ship in the image under `public/static/`. `UPLOAD_DIR` holds images uploaded by the
+  private admin.
+- The migrator image has the Prisma CLI. `pg_dump` is in the `postgres` service.
 
 ## Recommendation
 
-Add `scripts/demo-reset.ts`, run nightly at 03:00 Europe/Warsaw by a host crontab entry that starts the
-migrator container, because it reuses the seed and the image that already has the Prisma CLI.
+Add `scripts/demo-reset.sh`, which the owner runs in a terminal in the deployment directory, because
+a host script can combine the database container (for `pg_dump`), the migrator (for the seed) and an
+interactive confirmation.
 
-- The script truncates every application table and re-inserts the seed state inside one transaction,
-  so visitors never see a half-reset shop; seed data moves into a function both `prisma/seed.ts` and
-  the reset call.
-- It empties `UPLOAD_DIR` (mounted into the migrator for this run) and deletes the `rl:*` rate-limit
-  keys in Redis.
-- It refuses to run unless `DEMO_MODE=true`, so it cannot be pointed at anything else by mistake.
-- Schedule definition, documented in the deployment guide:
-  `0 3 * * * cd /srv/daydream && docker compose -f docker-compose.yml -f docker-compose.prod.yml run --rm migrate npx tsx scripts/demo-reset.ts`
-  (the path is the server administrator's). The same command resets by hand.
-- Open sessions end at the reset: the demo accounts are recreated with new IDs, and the `jwt` callback
-  already ends a session whose user no longer exists. Visitors sign in again.
+1. **Preview.** `scripts/demo-reset.ts --preview` runs in the migrator and prints what will be deleted:
+   customer accounts, unverified accounts, orders by status, addresses, Voices, products and
+   categories added since the seed, and the files in `UPLOAD_DIR`.
+2. **Dump.** `pg_dump -Fc` runs in the `postgres` container and writes
+   `backups/pre-reset-<timestamp>.dump`. `UPLOAD_DIR` is archived next to it. If either step fails or
+   produces an empty file, the script stops.
+3. **Confirmation.** The script asks the owner to type `RESET`. Any other answer stops it. It refuses
+   to run without a terminal (`[ -t 0 ]`) and has no `--yes` option, so it cannot be scheduled or piped
+   by mistake.
+4. **Restore.** `scripts/demo-reset.ts --apply` deletes all application data and re-inserts the seed
+   state in one transaction, so visitors never see a half-reset shop. The seed data moves into a
+   function that both `prisma/seed.ts` and the reset call. Then it empties `UPLOAD_DIR`.
+
+What is kept: `ADMIN` users and their `Account` rows. The private admin is not part of the seed, and
+the owner should not have to recreate it after every reset (ADR 0011). Everything else returns to
+the seed state, including the demo admin.
 
 ## Alternatives considered
 
-- **A compose service with a sleep loop**, like the reservation cron — keeps everything in compose, but
-  a loop cannot hit a wall-clock time and drifts after restarts.
-- **Restoring a `pg_dump` snapshot** — fast, but the snapshot has to be regenerated after every schema
-  change and drifts from the seed code.
-- **Deleting only visitor-created rows** — needs to track which rows a visitor made; the full reset is
+- **A nightly cron** (the earlier proposal) — rejected by the owner.
+- **Deleting only visitor-created rows** — needs to track which rows a visitor made. The full reset is
   simpler and also undoes anything unexpected.
+- **Restoring a `pg_dump` snapshot of the seed** — fast, but the snapshot has to be regenerated after
+  every schema change and drifts from the seed code.
+- **A confirmation flag instead of a typed answer** — easy to put into a crontab or shell history and
+  run without looking at the preview.
 
 ## Consequences
 
-- Seeded IDs change on every reset; links to a specific order die at 03:00. Product and category slugs
-  stay stable, so shared product links keep working.
-- A Stripe webhook arriving for an order the reset deleted must be acknowledged with 200 and ignored;
-  the payment review (ADR 0005) verifies this.
-- An integration test runs the reset twice against the test database and checks the seed state.
+- Data created between the dump and the confirmation is not in the dump. The window is as long as the
+  owner takes to answer, and the preview counts are taken just before it.
+- The pre-reset dump contains personal data. It is kept and deleted like any other backup (ADR 0014),
+  and the privacy notice says so (ADR 0013).
+- Visitors' sessions end at the reset: their users no longer exist, and the `jwt` callback already ends
+  such sessions. The private admin stays signed in.
+- A Stripe webhook arriving for an order the reset deleted must be acknowledged with 200 and ignored.
+  The payment review (ADR 0005) verifies this.
+- An integration test runs `--apply` twice against the test database and checks the seed state and
+  that an `ADMIN` user survives. The shell wrapper is covered by the deployment guide's walkthrough,
+  not by CI.

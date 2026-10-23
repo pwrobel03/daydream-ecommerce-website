@@ -44,6 +44,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx prisma generate
+      - run: npx next typegen
       - name: Typecheck
         run: npx tsc --noEmit
       - name: Unit tests

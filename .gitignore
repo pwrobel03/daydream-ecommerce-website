@@ -45,3 +45,6 @@ next-env.d.ts
 # runtime uploads
 /storage
 tests/e2e/.auth/
+
+# local Docker env (copy from .env.docker.example)
+.env.docker

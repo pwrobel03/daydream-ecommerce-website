@@ -41,7 +41,7 @@ const AddToCartButton = ({
             "group relative w-full h-16 rounded-full overflow-hidden transition-all duration-300",
             "bg-foreground dark:bg-white text-white dark:text-background",
             "hover:shadow-xl hover:shadow-primary/20 hover:scale-[1.02] active:scale-95",
-            "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
+            "disabled:opacity-65 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
           )}
         >
           {/* TŁO ANIMOWANE (COVER) */}

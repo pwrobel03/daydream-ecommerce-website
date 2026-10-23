@@ -1,6 +1,6 @@
 # 0013. A privacy notice page describes the visitor data the demo keeps
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-23
 
 ## Context

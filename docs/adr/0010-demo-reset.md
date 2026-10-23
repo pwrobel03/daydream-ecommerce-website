@@ -1,6 +1,6 @@
 # 0010. The demo reset is run by hand: it previews, dumps the database and waits for confirmation
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-23
 
 ## Context

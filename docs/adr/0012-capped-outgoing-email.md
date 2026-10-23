@@ -1,6 +1,6 @@
 # 0012. Outgoing e-mail works in the demo behind hard limits in code and a CAPTCHA
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-23
 
 ## Context

@@ -1,6 +1,6 @@
 # 0014. Back up the database and uploads daily, keep 7 days, and keep the configuration off the server
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-23
 
 ## Context

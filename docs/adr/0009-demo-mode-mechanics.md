@@ -1,6 +1,6 @@
 # 0009. The public demo admin is a read-only role, and the back-office masks personal data on the server
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-23
 
 ## Context

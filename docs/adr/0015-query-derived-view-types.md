@@ -1,6 +1,6 @@
 # 0015. Types at the server/client boundary are derived from the queries; lib/dto becomes lib/serialize
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-23
 
 ## Context

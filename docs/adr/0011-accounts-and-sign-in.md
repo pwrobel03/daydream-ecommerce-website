@@ -1,6 +1,6 @@
 # 0011. Visitors register their own accounts; the private admin is created by a one-off script
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-10-23
 
 ## Context

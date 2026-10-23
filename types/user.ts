@@ -1,6 +1,6 @@
 // types/user.ts
 
-import { UserRole } from "@prisma/client"; // Najlepiej importować enumy bezpośrednio z Prisma Client
+import { UserRole } from "@/lib/generated/prisma/client"; // Najlepiej importować enumy bezpośrednio z Prisma Client
 
 // Typ bazowy (Sesja) - to co dostajemy z Auth.js
 export type SessionUser = {

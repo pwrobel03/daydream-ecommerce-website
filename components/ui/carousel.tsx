@@ -95,6 +95,10 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return
+    // Pierwszy odczyt możliwości przewijania wymaga instancji embla, która
+    // powstaje dopiero po zamontowaniu — tej wartości nie da się poznać
+    // w trakcie renderu.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)

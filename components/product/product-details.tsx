@@ -2,14 +2,9 @@
 "use client";
 
 import Image from "next/image";
+import type { ProductType } from "@/types/product";
 
-export default function ProductDetails({ product }: { product: any }) {
-  const mockIngredients = Array.from({ length: 12 }).map((_, i) => ({
-    ...product.ingredients[i % product.ingredients.length],
-    // Ważne: zmieniamy ID na unikalne dla Reacta, żeby nie sypał błędami w konsoli
-    id: `mock-${i}`,
-  }));
-
+export default function ProductDetails({ product }: { product: ProductType }) {
   return (
     <div className="flex flex-col lg:flex-row gap-16 items-start my-12 pt-8">
       {/* LEWA STRONA: Opis (Editorial Copy) */}
@@ -18,7 +13,7 @@ export default function ProductDetails({ product }: { product: any }) {
           {/* Sama linia */}
           <div className="absolute w-full h-px bg-border/50" />
           {/* Tekst - ważne: bg-[#fafafa] musi być identyczne z tłem Twojej strony */}
-          <h3 className="text-center text-2xl wrap relative px-8 text-foreground/60 bg-background uppercase tracking-[0.5em]">
+          <h3 className="text-center text-2xl wrap relative px-8 text-foreground/70 bg-background uppercase tracking-[0.5em]">
             Product Story
           </h3>
         </div>
@@ -33,13 +28,13 @@ export default function ProductDetails({ product }: { product: any }) {
           {/* Sama linia */}
           <div className="absolute w-full h-px bg-border/50" />
           {/* Tekst - ważne: bg-[#fafafa] musi być identyczne z tłem Twojej strony */}
-          <h3 className="text-center text-2xl wrap relative px-8 text-foreground/60 bg-background uppercase tracking-[0.5em]">
+          <h3 className="text-center text-2xl wrap relative px-8 text-foreground/70 bg-background uppercase tracking-[0.5em]">
             Composision & Soul
           </h3>
         </div>
 
         <div className="flex flex-wrap gap-4 justify-center">
-          {product.ingredients.map((ing: any) => (
+          {product.ingredients.map((ing) => (
             <div
               key={ing.id}
               className="group relative w-40 h-40 bg-accent/20 rounded-[2rem] p-4 flex flex-col items-center justify-between border hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.05)]"
@@ -60,7 +55,7 @@ export default function ProductDetails({ product }: { product: any }) {
               </div>
 
               <div className="text-center space-y-1">
-                <span className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 group-hover:text-primary transition-colors">
+                <span className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 group-hover:text-primary-text transition-colors">
                   Element
                 </span>
                 <span className="block text-[11px] font-bold leading-tight">

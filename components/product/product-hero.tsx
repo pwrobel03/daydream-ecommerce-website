@@ -1,15 +1,14 @@
 // components/product/product-hero.tsx
 "use client";
 
-import { useCart } from "@/hooks/use-cart";
-import { ArrowRight } from "lucide-react";
 import SubTitle from "@/components/sub-title";
 import PriceFormatter from "../PriceFormatter";
 import ProductStatusBadge from "../product-status-badge";
 import AddToCartButton from "../product-card/AddToCartButton";
+import type { ProductType } from "@/types/product";
+import { toCartProduct } from "@/store";
 
-export default function ProductHero({ product }: { product: any }) {
-  const { addItem } = useCart();
+export default function ProductHero({ product }: { product: ProductType }) {
 
   return (
     <div className="space-y-8">
@@ -29,19 +28,19 @@ export default function ProductHero({ product }: { product: any }) {
       <div className="flex items-center gap-6">
         <div className="text-5xl font-black tracking-tighter">
           {product.promoPrice ? (
-            <PriceFormatter amount={product.promoPrice} />
+            <PriceFormatter amount={Number(product.promoPrice)} />
           ) : (
-            <PriceFormatter amount={product.price} />
+            <PriceFormatter amount={Number(product.price)} />
           )}
         </div>
         {product.promoPrice && (
-          <span className="text-xl line-through opacity-30 font-light">
-            <PriceFormatter amount={product.price} />
+          <span className="text-xl line-through opacity-70 font-light">
+            <PriceFormatter amount={Number(product.price)} />
           </span>
         )}
       </div>
       <div className="pt-10">
-        <AddToCartButton product={product} />
+        <AddToCartButton product={toCartProduct(product)} />
         {/* <button
           onClick={() => addItem(product)}
           className="group relative w-full h-20 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full overflow-hidden transition-all hover:scale-[1.02] active:scale-95"

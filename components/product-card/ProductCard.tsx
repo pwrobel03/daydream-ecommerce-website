@@ -7,6 +7,7 @@ import PriceView from "./PriceView";
 import { Star } from "lucide-react";
 import { ProductType } from "@/types/product";
 import AddToCartButton from "./AddToCartButton";
+import { toCartProduct } from "@/store";
 import { cn } from "@/lib/utils";
 import ProductStatusBadge from "@/components/product-status-badge";
 
@@ -19,14 +20,10 @@ interface ProductCardProps {
 const ProductCard = ({ product, categoryName }: ProductCardProps) => {
   const isStock = product.stock !== 0;
 
-  // Obliczamy średnią ocen z recenzji, które dodaliśmy skryptem seed
-  const reviews = product.reviews || [];
-  const averageRating =
-    reviews.length > 0
-      ? Math.round(
-          reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviews.length
-        )
-      : 0;
+  // Średnia pochodzi z agregatu w bazie, nie z opinii doładowanych do widoku —
+  // te ostatnie były tylko podzbiorem, więc gwiazdki pokazywały ocenę
+  // ostatnich kilku opinii zamiast wszystkich.
+  const averageRating = Math.round(product.ratingAvg);
 
   // Wybieramy kategorie do wyświetlenia (np. pierwsze dwie)
   const displayCategories =
@@ -79,7 +76,7 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
       {/* CONTENT INFO */}
       <div className="p-8 flex flex-col gap-5">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary italic truncate max-w-[70%]">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary-text italic truncate max-w-[70%]">
             {displayCategories}
           </span>
 
@@ -89,11 +86,11 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
               className={cn(
                 "w-3 h-3",
                 averageRating > 0
-                  ? "fill-primary text-primary"
+                  ? "fill-primary text-primary-text"
                   : "text-zinc-300"
               )}
             />
-            <span className="text-[10px] font-black italic tracking-tighter opacity-40">
+            <span className="text-[10px] font-black italic tracking-tighter opacity-70">
               {averageRating > 0 ? averageRating.toFixed(1) : "N/A"}
             </span>
           </div>
@@ -104,11 +101,11 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
             {product.name}
           </h3>
           <div className="flex items-center gap-3 mt-2">
-            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">
+            <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">
               Units: {product.weight}
             </p>
             <div className="h-1 w-1 rounded-full bg-black/10 dark:bg-white/10" />
-            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">
+            <p className="text-[10px] font-bold uppercase tracking-widest opacity-70">
               Stock: {product.stock}
             </p>
           </div>
@@ -116,19 +113,19 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
 
         <div className="flex items-end justify-between border-t border-black/5 dark:border-white/5 pt-6">
           <div className="flex flex-col">
-            <span className="text-[8px] font-black uppercase tracking-[0.2em] opacity-30 mb-1 italic">
+            <span className="text-[8px] font-black uppercase tracking-[0.2em] opacity-70 mb-1 italic">
               Price Registry
             </span>
             <PriceView
-              price={product.price}
-              discount={product.promoPrice ?? undefined}
+              price={Number(product.price)}
+              discount={product.promoPrice != null ? Number(product.promoPrice) : undefined}
               className="text-3xl font-black italic tracking-tighter leading-none"
             />
           </div>
         </div>
 
         <div className="mt-2 transition-transform duration-500 group-hover:translate-y-[-4px]">
-          <AddToCartButton product={product} />
+          <AddToCartButton product={toCartProduct(product)} />
         </div>
       </div>
     </div>

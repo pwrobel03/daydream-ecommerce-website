@@ -4,11 +4,11 @@ import React from "react";
 import { Plus, Minus } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { ProductType } from "@/types/product";
+import { CartProduct } from "@/types/product";
 import { useCart } from "@/hooks/use-cart";
 import { cn } from "@/lib/utils";
 
-const QuantityButtons = ({ product }: { product: ProductType }) => {
+const QuantityButtons = ({ product }: { product: CartProduct }) => {
   const { addItem, removeItem, getItemCount, isMounted } = useCart();
   const itemCount = isMounted ? getItemCount(product?.id) : 0;
   const isAtLimit = itemCount >= (product?.stock ?? 0);
@@ -30,7 +30,7 @@ const QuantityButtons = ({ product }: { product: ProductType }) => {
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 rounded-full bg-card/60 hover:shadow-sm transition-all hover:text-primary"
+        className="h-8 w-8 rounded-full bg-card/60 hover:shadow-sm transition-all hover:text-primary-text"
         onClick={() => {
           removeItem(product.id);
           toast.success("Quantity decreased");
@@ -45,7 +45,7 @@ const QuantityButtons = ({ product }: { product: ProductType }) => {
         <span
           className={cn(
             "text-sm font-black italic transition-colors",
-            isAtLimit ? "text-primary" : ""
+            isAtLimit ? "text-primary-text" : ""
           )}
         >
           {itemCount}
@@ -57,7 +57,7 @@ const QuantityButtons = ({ product }: { product: ProductType }) => {
         variant="ghost"
         size="icon"
         className={cn(
-          "h-8 w-8 rounded-full transition-all bg-card/60 hover:text-primary",
+          "h-8 w-8 rounded-full transition-all bg-card/60 hover:text-primary-text",
           isAtLimit ? "opacity-30 cursor-not-allowed" : ""
         )}
         onClick={handleIncrease}

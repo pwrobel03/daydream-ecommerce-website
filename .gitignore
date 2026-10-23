@@ -41,3 +41,10 @@ yarn-error.log*
 next-env.d.ts
 
 /lib/generated/prisma
+
+# runtime uploads
+/storage
+tests/e2e/.auth/
+
+# local Docker env (copy from .env.docker.example)
+.env.docker

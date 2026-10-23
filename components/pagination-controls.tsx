@@ -26,7 +26,7 @@ export function PaginationControls({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pt-12 border-t border-black/5 dark:border-white/5">
       <div className="flex items-center gap-2">
-        <span className="text-[10px] font-black uppercase tracking-widest opacity-30 italic">
+        <span className="text-[10px] font-black uppercase tracking-widest opacity-70 italic">
           Navigator Mode:
         </span>
         <span className="text-xl font-black italic tracking-tighter">
@@ -39,7 +39,7 @@ export function PaginationControls({
         <Link
           href={createPageUrl(currentPage - 1)}
           className={cn(
-            "group flex items-center gap-3 px-8 py-4 border rounded-2xl transition-all hover:bg-primary hover:border-primary hover:text-white",
+            "group flex items-center gap-3 px-8 py-4 border rounded-2xl transition-all hover:bg-primary hover:border-primary hover:text-primary-foreground",
             currentPage <= 1 && "pointer-events-none opacity-10"
           )}
         >
@@ -53,7 +53,7 @@ export function PaginationControls({
         <Link
           href={createPageUrl(currentPage + 1)}
           className={cn(
-            "group flex items-center gap-3 px-8 py-4 border rounded-2xl transition-all hover:bg-primary hover:border-primary hover:text-white",
+            "group flex items-center gap-3 px-8 py-4 border rounded-2xl transition-all hover:bg-primary hover:border-primary hover:text-primary-foreground",
             currentPage >= totalPages && "pointer-events-none opacity-10"
           )}
         >

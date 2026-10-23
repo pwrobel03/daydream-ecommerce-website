@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import * as z from "zod";
 import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -25,7 +27,6 @@ import { createReview } from "@/actions/store/reviews";
 // Schemat walidacji
 const formSchema = z.object({
   productId: z.string(),
-  userId: z.string(),
   rating: z.number().min(1, "Proszę wybrać ocenę").max(5),
   content: z.string().min(3, "Twoja historia jest nieco za krótka..."),
 });
@@ -35,7 +36,7 @@ interface AddReviewFormProps {
   productSlug: string; // Dodane dla rewalidacji w akcji update
   user: UserType;
   initialData?: Review | null; // Dane do edycji
-  onSuccess: (review: any) => void;
+  onSuccess: (review: Review) => void;
   onCancel?: () => void; // Funkcja do wyjścia z trybu edycji
 }
 
@@ -47,6 +48,8 @@ export default function AddReviewForm({
   onSuccess,
   onCancel,
 }: AddReviewFormProps) {
+  const t = useTranslations("errors");
+  const tReviews = useTranslations("reviews");
   const [isPending, startTransition] = useTransition();
   const [hoverRating, setHoverRating] = useState(0);
 
@@ -57,7 +60,6 @@ export default function AddReviewForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       productId: productId,
-      userId: user.id,
       rating: initialData?.rating || 0,
       content: initialData?.content || "",
     },
@@ -68,16 +70,14 @@ export default function AddReviewForm({
       // Jeśli wchodzimy w tryb edycji, ładujemy dane
       form.reset({
         productId: productId,
-        userId: user.id,
-        rating: initialData.rating,
+          rating: initialData.rating,
         content: initialData.content,
       });
     } else {
       // Jeśli wychodzimy z edycji, czyścimy formularz do wartości domyślnych
       form.reset({
         productId: productId,
-        userId: user.id,
-        rating: 0,
+          rating: 0,
         content: "",
       });
     }
@@ -90,26 +90,27 @@ export default function AddReviewForm({
         ? await updateReview(initialData.id, values, productSlug)
         : await createReview(values);
 
-      if (result.success && result.review) {
-        toast.success(result.success);
-        onSuccess(result.review);
+      if (!result.ok) {
+        toast.error(result.message || t("generic"));
+        return;
+      }
 
-        if (!isEditing) {
-          form.reset({
-            ...form.getValues(),
-            content: "",
-            rating: 0,
-          });
+      toast.success(isEditing ? tReviews("updated") : tReviews("shared"));
+      onSuccess(result.data.review);
 
-          window.scrollTo({
-            top: document.getElementById("voices-top")?.offsetTop
-              ? document.getElementById("voices-top")!.offsetTop - 100
-              : 0,
-            behavior: "smooth",
-          });
-        }
-      } else {
-        toast.error(result.error || "Coś poszło nie tak");
+      if (!isEditing) {
+        form.reset({
+          ...form.getValues(),
+          content: "",
+          rating: 0,
+        });
+
+        window.scrollTo({
+          top: document.getElementById("voices-top")?.offsetTop
+            ? document.getElementById("voices-top")!.offsetTop - 100
+            : 0,
+          behavior: "smooth",
+        });
       }
     });
   };
@@ -133,7 +134,7 @@ export default function AddReviewForm({
 
       <h3 className="text-3xl font-black italic uppercase tracking-tighter mb-12 text-foreground/80">
         {isEditing ? "Refine your" : "Share your"}{" "}
-        <span className="text-primary underline decoration-primary/20 underline-offset-8">
+        <span className="text-primary-text underline decoration-primary/20 underline-offset-8">
           Voice
         </span>
       </h3>
@@ -146,7 +147,7 @@ export default function AddReviewForm({
             name="rating"
             render={({ field }) => (
               <FormItem className="space-y-4">
-                <FormLabel className="text-foreground/60 font-black capitalize tracking-[0.4em] ml-1">
+                <FormLabel className="text-foreground/70 font-black capitalize tracking-[0.4em] ml-1">
                   Your Impression
                 </FormLabel>
                 <FormControl>
@@ -173,8 +174,8 @@ export default function AddReviewForm({
                             className={cn(
                               "w-10 h-10 transition-all duration-500 ease-in-out relative z-10",
                               isFilled
-                                ? "fill-primary text-primary drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.4)]"
-                                : "text-foreground/20"
+                                ? "fill-primary text-primary-text drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.4)]"
+                                : "text-foreground/70"
                             )}
                           />
                         </button>
@@ -193,7 +194,7 @@ export default function AddReviewForm({
             name="content"
             render={({ field }) => (
               <FormItem className="space-y-4">
-                <FormLabel className="text-foreground/60 font-black capitalize tracking-[0.4em] ml-1">
+                <FormLabel className="text-foreground/70 font-black capitalize tracking-[0.4em] ml-1">
                   Your story
                 </FormLabel>
                 <FormControl>
@@ -201,7 +202,7 @@ export default function AddReviewForm({
                     {...field}
                     disabled={isPending}
                     placeholder="How did this daydream taste?..."
-                    className="w-full bg-input/20 border-none rounded-[2rem] p-8 text-lg focus:ring-4 focus:ring-primary/5 transition-all min-h-[180px] resize-none outline-none placeholder:italic placeholder:opacity-30"
+                    className="w-full bg-input/20 border-none rounded-[2rem] p-8 text-lg focus:ring-4 focus:ring-primary/5 transition-all min-h-[180px] resize-none outline-none placeholder:italic placeholder:opacity-70"
                   />
                 </FormControl>
                 <FormMessage className="font-bold uppercase tracking-widest text-destructive ml-4" />

@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { useForm } from "react-hook-form";
 import { useState, useTransition } from "react";
@@ -19,10 +20,11 @@ import { FormError } from "./form-error";
 import { FormSuccess } from "./form-success";
 import { resetPassword } from "@/actions/auth/reset-password";
 import Link from "next/link";
-import { Zap, Radio, Cpu, ArrowRight, Globe } from "lucide-react";
+import { Radio, Cpu, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const ResetForm = () => {
+  const t = useTranslations("auth.reset");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
@@ -38,9 +40,9 @@ export const ResetForm = () => {
     setError("");
     setSuccess("");
     startTransition(() => {
-      resetPassword(values).then((data) => {
-        setError(data?.error);
-        setSuccess(data?.success);
+      resetPassword(values).then((res) => {
+        if (!res.ok) return setError(res.message);
+        setSuccess(t("success"));
       });
     });
   };
@@ -76,7 +78,7 @@ export const ResetForm = () => {
       <div className="w-full mx-auto space-y-12">
         <header className="space-y-4">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
+            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-70">
               Recovery_Protocol
             </span>
             <div className="w-12 h-1 bg-primary" />
@@ -84,7 +86,7 @@ export const ResetForm = () => {
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
             RECOVER
             <br />
-            <span className="text-primary">ACCESS.</span>
+            <span className="text-primary-text">ACCESS.</span>
           </h1>
         </header>
 
@@ -96,7 +98,7 @@ export const ResetForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       Target_Registry_Email
                     </FormLabel>
                     <FormControl>
@@ -122,11 +124,11 @@ export const ResetForm = () => {
             <Button
               disabled={isPending}
               type="submit"
-              className="w-full py-12 bg-foreground text-background hover:bg-primary hover:text-white transition-all duration-700 group relative overflow-hidden rounded-full"
+              className="w-full py-12 bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-all duration-700 group relative overflow-hidden rounded-full"
             >
               <div className="relative z-10 flex items-center justify-center gap-12 w-full px-8">
                 <span className="text-xl md:text-3xl font-black italic uppercase tracking-tighter text-center">
-                  {isPending ? "Dispatching..." : "Send Reset Link"}
+                  {isPending ? t("submitting") : t("submit")}
                 </span>
                 <Radio
                   className={cn("w-10 h-10", isPending && "animate-pulse")}
@@ -138,9 +140,9 @@ export const ResetForm = () => {
         </Form>
 
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-black uppercase italic tracking-tighter opacity-30">
+          <p className="text-[10px] font-black uppercase italic tracking-tighter text-foreground/70">
             Remembered?{" "}
-            <Link href="/auth/login" className="text-primary underline">
+            <Link href="/auth/login" className="text-primary-text underline">
               Back to Vault
             </Link>
           </p>
@@ -149,7 +151,10 @@ export const ResetForm = () => {
       </div>
 
       {/* BACKGROUND DECOR */}
-      <div className="absolute bottom-10 right-10 hidden lg:flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right">
+      <div
+        aria-hidden="true"
+        className="decor-hidden absolute bottom-10 right-10 hidden lg:flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right"
+      >
         <Cpu className="w-4 h-4" />
         <span>BROADCASTING_RECOVERY_SIGNAL...</span>
       </div>

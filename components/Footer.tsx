@@ -1,6 +1,6 @@
 // components/layout/footer.tsx
 import Link from "next/link";
-import { Truck, Shield, Leaf, MapPin } from "lucide-react";
+import { Truck, Shield, Leaf } from "lucide-react";
 import Container from "./Container";
 
 export default function Footer() {
@@ -12,7 +12,7 @@ export default function Footer() {
         {/* --- BUSINESS PILLARS --- */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-6 py-12 border-y ">
           <div className="flex gap-4 items-start">
-            <Truck className="w-6 h-6 text-primary shrink-0" />
+            <Truck className="w-6 h-6 text-primary-text shrink-0" />
             <div>
               <h4 className="font-black uppercase italic tracking-tighter text-lg">
                 Fast Delivery
@@ -24,7 +24,7 @@ export default function Footer() {
           </div>
 
           <div className="flex gap-4 items-start">
-            <Leaf className="w-6 h-6 text-primary shrink-0" />
+            <Leaf className="w-6 h-6 text-primary-text shrink-0" />
             <div>
               <h4 className="font-black uppercase italic tracking-tighter text-lg">
                 100% Organic
@@ -37,7 +37,7 @@ export default function Footer() {
           </div>
 
           <div className="flex gap-4 items-start">
-            <Shield className="w-6 h-6 text-primary shrink-0" />
+            <Shield className="w-6 h-6 text-primary-text shrink-0" />
             <div>
               <h4 className="font-black uppercase italic tracking-tighter text-lg">
                 Secure Payment
@@ -55,13 +55,13 @@ export default function Footer() {
             <div className="flex gap-8">
               <Link
                 href="#"
-                className="text-[10px] font-black uppercase tracking-[0.3em] hover:text-primary transition-colors"
+                className="text-[10px] font-black uppercase tracking-[0.3em] hover:text-primary-text transition-colors"
               >
                 Instagram
               </Link>
               <Link
                 href="#"
-                className="text-[10px] font-black uppercase tracking-[0.3em] hover:text-primary transition-colors"
+                className="text-[10px] font-black uppercase tracking-[0.3em] hover:text-primary-text transition-colors"
               >
                 Twitter
               </Link>
@@ -73,7 +73,7 @@ export default function Footer() {
             <span className="text-[10px] font-black uppercase tracking-widest italic">
               © {currentYear} DayDream Food Archive
             </span>
-            <span className="text-[9px] font-bold uppercase opacity-30 tracking-tight">
+            <span className="text-[9px] font-bold uppercase opacity-70 tracking-tight">
               Quality grains selected and packed in Cracow, Poland.
             </span>
           </div>

@@ -39,6 +39,10 @@ body {
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  /* Czytelny wariant zieleni do użycia jako kolor tekstu na tle. Sam
+     --primary zostaje bez zmian — przyciski mają na nim biały tekst
+     i spełniają kontrast; jako tekst na tle dawał 2,43:1 przy progu 4,5. */
+  --color-primary-text: var(--primary-text);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -67,7 +71,11 @@ body {
   /* Primary - Kolor prażonego ziarna */
   /* --primary: rgb(143, 90, 36); */
   --primary: rgb(159, 169, 83);
-  --primary-foreground: rgb(252, 250, 245);
+  --primary-text: rgb(64, 68, 34);
+  /* Ciemny atrament na oliwce: 6,14:1. Prawie-biały dawał 2,43:1, więc
+     każdy wypełniony przycisk w jasnym motywie był poniżej progu.
+     Sama zieleń bez zmian — to etykieta zależy od motywu, nie marka. */
+  --primary-foreground: rgb(43, 34, 28);
   
   /* Secondary - Szałwiowa zieleń (Eko/Bio) */
   /* --secondary: rgb(221, 231, 203); */
@@ -115,6 +123,7 @@ body {
   --popover-foreground: rgb(252, 250, 245);
   
   --primary: rgb(76, 103, 66);
+  --primary-text: rgb(103, 140, 90);
   --primary-foreground: rgb(252, 250, 245);
   
   --secondary: rgb(60, 70, 45);
@@ -206,5 +215,31 @@ body {
   .glass-layer-hidden {
     opacity: 0;
     transform: translateY(20px);
+  }
+}
+/*
+ * Respektowanie systemowego ustawienia ograniczenia ruchu.
+ *
+ * W aplikacji jest ponad 240 wystąpień `transition` i `animate-`, w tym
+ * przesunięcia, skalowania i pulsowanie — dla osób z wrażliwością
+ * przedsionkową to nie jest kwestia gustu, tylko objawów. Ruch znika,
+ * ale przejścia nie są zerowane do zera: pozostawiona 1 ms zachowuje
+ * zdarzenia `transitionend`, na których opierają się komponenty Radiksa,
+ * więc menu i dialogi nadal poprawnie się zamykają.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Warstwa tła animuje wyłącznie dekorację — może zniknąć bez straty. */
+  .glass-layer {
+    transition: none !important;
+    will-change: auto;
   }
 }

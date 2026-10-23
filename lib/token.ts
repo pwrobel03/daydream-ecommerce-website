@@ -1,5 +1,4 @@
 import {v4 as uuid} from "uuid"
-import { getVerificationTokenByEmail } from "@/data/verification-token"
 import { db } from "./db"
 
 // Function to generate a verification token

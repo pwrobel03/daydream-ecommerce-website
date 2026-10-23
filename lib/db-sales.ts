@@ -1,32 +1,12 @@
 // lib/db-sales.ts
-import { db } from "@/lib/db"; // Twoja instancja PrismaClient
+import { db } from "@/lib/db";
 
-export const getActiveSaleByCouponCode = async (couponCode: string) => {
-  try {
-    const activeSale = await db.sale.findFirst({
-      where: {
-        couponCode: couponCode,
-        isActive: true,
-        // Sprawdzenie, czy kupon nie wygasł
-        validTo: {
-          gte: new Date(), // "greater than or equal" - data końcowa musi być w przyszłości
-        },
-      },
-    });
-    return activeSale;
-  } catch (error) {
-    console.error("Błąd podczas sprawdzania kuponu:", error);
-    return null;
-  }
-};
-
+/**
+ * Promocje na baner strony startowej.
+ *
+ * Bez `catch`: pusta lista ma znaczyć "nie ma promocji", a nie "baza nie
+ * odpowiada" — tak samo jak w pozostałych zapytaniach katalogu.
+ */
 export const getAllSales = async () => {
-  try {
-    return await db.sale.findMany({
-      orderBy: { name: 'asc' }
-    });
-  } catch (error) {
-    console.error("Error fetching sales:", error);
-    return [];
-  }
+  return db.sale.findMany({ orderBy: { name: "asc" } });
 };

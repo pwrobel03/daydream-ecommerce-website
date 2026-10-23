@@ -26,7 +26,11 @@ interface SaleHeroProps {
 }
 
 const DiscountBanner = ({ sales }: SaleHeroProps) => {
-  const plugin = React.useRef(
+  // Wtyczka musi być tą samą instancją przez całe życie komponentu, ale ref
+  // czytany w trakcie renderu (`plugin.current` w propsie) łamie założenia
+  // Reacta. Leniwy inicjalizator useState daje tę samą jednorazowość
+  // i wolno go czytać podczas renderu.
+  const [plugin] = React.useState(() =>
     Autoplay({ delay: 5000, stopOnInteraction: true })
   );
 
@@ -35,7 +39,7 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
   return (
     <section className="w-full sm:px-4 md:px-8 mt-20 mb-10">
       <Carousel
-        plugins={[plugin.current]}
+        plugins={[plugin]}
         className="w-full max-w-7xl mx-auto relative group overflow-hidden rounded-[2.5rem] shadow-2xl bg-card/60"
       >
         <CarouselContent>
@@ -66,7 +70,7 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
                   <div className="space-y-6">
                     <Badge
                       variant="outline"
-                      className="bg-primary/20 text-primary border-primary/30 py-1.5 rounded-full uppercase tracking-[0.2em] text-[10px] font-black w-fit backdrop-blur-md"
+                      className="bg-primary/20 text-primary-text border-primary/30 py-1.5 rounded-full uppercase tracking-[0.2em] text-[10px] font-black w-fit backdrop-blur-md"
                     >
                       <Sparkles className="h-3.5 w-3.5 mr-2" />
                       Limited Time Offer
@@ -88,7 +92,7 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
                         <span className="text-[9px] uppercase font-black text-muted-foreground mb-1 tracking-widest text-center">
                           Promo Code
                         </span>
-                        <span className="text-3xl font-mono font-black text-primary tracking-tight italic">
+                        <span className="text-3xl font-mono font-black text-primary-text tracking-tight italic">
                           {sale.couponCode}
                         </span>
                       </div>
@@ -97,7 +101,7 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
                         <span className="text-5xl font-black text-foreground leading-none">
                           -{sale.discountValue}%
                         </span>
-                        <span className="text-xs uppercase font-bold text-primary tracking-widest text-center">
+                        <span className="text-xs uppercase font-bold text-primary-text tracking-widest text-center">
                           Discount
                         </span>
                       </div>

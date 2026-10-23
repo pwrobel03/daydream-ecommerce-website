@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Star, Plus, Loader2 } from "lucide-react";
 import { getMoreReviews } from "@/actions/store/reviews";
-import { cn } from "@/lib/utils";
 import Image from "next/image";
 import AddReviewForm from "./add-review-form";
 import { Review } from "@/types/product";
@@ -15,6 +15,8 @@ interface ReviewsSectionProps {
   userReview: Review | null;
   initialReviews: Review[];
   totalCount: number;
+  /** Średnia ze wszystkich opinii, policzona przez bazę. */
+  ratingAvg: number;
   user: UserType | null;
 }
 
@@ -26,8 +28,10 @@ export default function ReviewsSection({
   userReview,
   initialReviews,
   totalCount,
+  ratingAvg,
   user,
 }: ReviewsSectionProps) {
+  const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>(initialReviews);
   const [currentUserReview, setCurrentUserReview] = useState<Review | null>(
     userReview
@@ -35,15 +39,10 @@ export default function ReviewsSection({
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Bezpieczne obliczanie średniej - używamy useMemo, żeby uniknąć błędów przy pustej liście
-  const averageRating = useMemo(() => {
-    const allReviews = [...reviews];
-    if (currentUserReview) allReviews.push(currentUserReview);
-
-    if (allReviews.length === 0) return 0;
-    const sum = allReviews.reduce((acc, curr) => acc + curr.rating, 0);
-    return (sum / allReviews.length).toFixed(1);
-  }, [reviews, currentUserReview]);
+  // Średnia przychodzi z serwera; po własnej zmianie odświeżamy trasę, żeby
+  // przeliczył ją ten sam agregat, zamiast utrzymywać drugą wersję rachunku
+  // po stronie klienta.
+  const averageRating = ratingAvg > 0 ? ratingAvg.toFixed(1) : 0;
 
   const displayedCount = reviews.length + (currentUserReview ? 1 : 0);
   const hasMore = displayedCount < totalCount;
@@ -61,9 +60,6 @@ export default function ReviewsSection({
     setLoading(false);
   };
 
-  const handleAddOptimisticReview = (newReview: any) => {
-    setCurrentUserReview(newReview);
-  };
 
   return (
     <div className="border-t border-black/5 pt-6 md:pt-16 mt-20">
@@ -72,17 +68,17 @@ export default function ReviewsSection({
           <h2 className="text-5xl font-black italic uppercase tracking-tighter">
             Voices
           </h2>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 ml-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 ml-1">
             Stories ({totalCount})
           </p>
         </div>
 
         <div className="text-right flex flex-col items-end">
           <div className="flex items-center gap-2">
-            <Star className="fill-primary text-primary h-6 w-6" />
+            <Star className="fill-primary text-primary-text h-6 w-6" />
             <span className="text-4xl font-black">{averageRating}</span>
           </div>
-          <span className="text-[10px] font-black uppercase tracking-widest opacity-40 mt-1">
+          <span className="text-[10px] font-black uppercase tracking-widest opacity-70 mt-1">
             Showing {displayedCount} of {totalCount}
           </span>
         </div>
@@ -94,7 +90,10 @@ export default function ReviewsSection({
               review={currentUserReview}
               productSlug={productSlug}
               onEdit={() => setIsEditing(true)}
-              onDelete={() => setCurrentUserReview(null)}
+              onDelete={() => {
+                setCurrentUserReview(null);
+                router.refresh();
+              }}
             />
           ) : (
             <AddReviewForm
@@ -105,6 +104,7 @@ export default function ReviewsSection({
               onSuccess={(newReview) => {
                 setCurrentUserReview(newReview);
                 setIsEditing(false);
+                router.refresh();
               }}
               onCancel={isEditing ? () => setIsEditing(false) : undefined}
             />
@@ -141,18 +141,18 @@ export default function ReviewsSection({
                 <span className="font-black text-[10px] tracking-widest uppercase">
                   {rev.user.name}
                 </span>
-                <div className="flex gap-0.5 text-primary">
+                <div className="flex gap-0.5 text-primary-text">
                   {[...Array(rev.rating)].map((_, i) => (
                     <Star key={i} className="h-2.5 w-2.5 fill-current" />
                   ))}
                 </div>
               </div>
-              <p className="ml-auto text-foreground/20">
+              <p className="ml-auto text-foreground/70">
                 {new Date(rev.createdAt).toLocaleDateString()}
               </p>
             </div>
             <p className="text-xl leading-snug font-medium italic">
-              "{rev.content}"
+              &ldquo;{rev.content}&rdquo;
             </p>
           </div>
         ))}
@@ -166,14 +166,14 @@ export default function ReviewsSection({
             disabled={loading}
             className="group flex flex-col items-center gap-4"
           >
-            <div className="w-16 h-16 rounded-full border flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-xl">
+            <div className="w-16 h-16 rounded-full border flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500 shadow-xl">
               {loading ? (
                 <Loader2 className="w-6 h-6 animate-spin" />
               ) : (
                 <Plus className="w-6 h-6" />
               )}
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] italic opacity-60">
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] italic opacity-70">
               {loading ? "Searching..." : "Reveal More"}
             </span>
           </button>

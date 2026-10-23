@@ -1,14 +1,10 @@
 // hooks/use-cart.ts
-import { useState, useEffect } from "react";
 import useCartStore from "@/store"; // upewnij się, że ścieżka jest poprawna
+import { useMounted } from "@/hooks/use-mounted";
 
 export const useCart = () => {
   const store = useCartStore();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useMounted();
 
   // Dopóki komponent nie jest zamontowany na kliencie, 
   // zwracamy puste dane (aby uniknąć błędu hydracji), 

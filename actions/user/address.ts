@@ -1,13 +1,24 @@
 // actions/address.ts
 "use server";
 
-import { auth } from "@/auth";
+import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
+import { reportError } from "@/lib/logger";
+import { AddressSchema } from "@/schemas";
 import { revalidatePath } from "next/cache";
+import * as z from "zod";
+import { getTranslations } from "next-intl/server";
+import { ActionResult, fail, ok } from "@/lib/action-result";
 
-export async function saveUserAddress(values: any) {
-  const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
+export async function saveUserAddress(
+  values: z.infer<typeof AddressSchema>
+): Promise<ActionResult> {
+  const t = await getTranslations("errors");
+  const session = await getSession();
+  if (!session?.user?.id) return fail("UNAUTHORIZED", t("unauthorized"));
+
+  const validated = AddressSchema.safeParse(values);
+  if (!validated.success) return fail("INVALID_INPUT", t("invalidAddress"));
 
   try {
     const user = await db.user.findUnique({
@@ -19,12 +30,12 @@ export async function saveUserAddress(values: any) {
       // Aktualizacja istniejącego adresu
       await db.address.update({
         where: { id: user.addressId },
-        data: { ...values }
+        data: validated.data
       });
     } else {
       // Tworzenie nowego i podpięcie pod User
       const newAddress = await db.address.create({
-        data: { ...values }
+        data: validated.data
       });
 
       await db.user.update({
@@ -34,8 +45,9 @@ export async function saveUserAddress(values: any) {
     }
 
     revalidatePath("/dashboard/address");
-    return { success: "Your address was changed sucessfully!" };
+    return ok();
   } catch (error) {
-    return { error: "Invalid error!" };
+    reportError(error, { area: "user.saveAddress", userId: session.user.id });
+    return fail("INTERNAL", t("addressSaveFailed"));
   }
 }

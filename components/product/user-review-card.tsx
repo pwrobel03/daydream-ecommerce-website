@@ -2,6 +2,7 @@
 
 import { Star, Pencil, Trash2 } from "lucide-react";
 import { Review } from "@/types/product";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useTransition } from "react";
 import { deleteReview } from "@/actions/store/reviews";
@@ -19,15 +20,22 @@ export default function UserReviewCard({
   onEdit,
   onDelete,
 }: UserReviewCardProps) {
+  const t = useTranslations("reviews");
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
     startTransition(async () => {
       const res = await deleteReview(review.id, productSlug);
-      if (res.success) {
-        toast.success(res.success);
-        onDelete(); // Czyści stan w komponencie nadrzędnym
+      // Wcześniej nieudane usunięcie nie dawało żadnego sygnału — przycisk
+      // po prostu nic nie robił.
+      if (!res.ok) {
+        toast.error(res.message);
+        return;
       }
+
+      toast.success(t("deleted"));
+      onDelete(); // Czyści stan w komponencie nadrzędnym
+
     });
   };
 
@@ -38,10 +46,10 @@ export default function UserReviewCard({
       <div className="relative bg-card/60 border border-primary/20 p-10 rounded-[3rem] shadow-2xl">
         <div className="flex justify-between items-start mb-8">
           <div className="flex flex-col gap-2">
-            <span className="px-4 py-1.5 w-fit bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-primary/20">
+            <span className="px-4 py-1.5 w-fit bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-primary/20">
               Your Voice
             </span>
-            <span className="text-[10px] font-bold opacity-30 uppercase tracking-widest ml-1 gap-4 flex">
+            <span className="text-[10px] font-bold opacity-70 uppercase tracking-widest ml-1 gap-4 flex">
               <span>
                 {new Date(review.createdAt).toLocaleDateString("pl-PL")}
               </span>
@@ -58,7 +66,7 @@ export default function UserReviewCard({
           <div className="flex gap-2 transition-opacity">
             <button
               onClick={onEdit}
-              className="p-3 rounded-full bg-card border-border border hover:bg-primary hover:text-white transition-all"
+              className="p-3 rounded-full bg-card border-border border hover:bg-primary hover:text-primary-foreground transition-all"
             >
               <Pencil className="w-4 h-4" />
             </button>
@@ -73,10 +81,10 @@ export default function UserReviewCard({
         </div>
 
         <blockquote className="text-3xl font-medium italic leading-tight text-foreground">
-          "{review.content}"
+          &ldquo;{review.content}&rdquo;
         </blockquote>
 
-        <div className="mt-8 flex gap-1.5 text-primary">
+        <div className="mt-8 flex gap-1.5 text-primary-text">
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}

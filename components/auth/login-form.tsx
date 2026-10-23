@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { useForm } from "react-hook-form";
 import { useState, useTransition } from "react";
@@ -24,14 +25,15 @@ import Link from "next/link";
 import {
   Fingerprint,
   Lock,
-  ShieldCheck,
-  Activity,
+  
+  
   Cpu,
-  ArrowRight,
+  
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const LoginForm = () => {
+  const t = useTranslations("auth.login");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
@@ -47,7 +49,7 @@ export const LoginForm = () => {
     setSuccess("");
     startTransition(async () => {
       const data = await login(values);
-      if (data?.error) return setError(data.error);
+      if (!data.ok) return setError(data.message);
 
       const result = await signIn("credentials", {
         email: values.email,
@@ -72,14 +74,14 @@ export const LoginForm = () => {
         <header className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-1 bg-primary" />
-            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
-              System_Login
+            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-70">
+              {t("systemLabel")}
             </span>
           </div>
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
-            IDENTITY
+            {t("headline")}
             <br />
-            <span className="text-primary">VAULT.</span>
+            <span className="text-primary-text">{t("headlineAccent")}</span>
           </h1>
         </header>
 
@@ -91,14 +93,14 @@ export const LoginForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       Registry_Email
                     </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         disabled={isPending}
-                        placeholder="USER@DAYDREAM.COM"
+                        placeholder={t("emailPlaceholder")}
                         className="bg-transparent border-x-0 border-t-0 border-b-2 border-black/10 dark:border-white/10 rounded-none px-0 text-sm font-black italic uppercase tracking-tighter focus-visible:ring-0 focus-visible:border-primary transition-all"
                       />
                     </FormControl>
@@ -112,12 +114,12 @@ export const LoginForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex justify-between items-end">
-                      <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                      <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                         Access_Protocol
                       </FormLabel>
                       <Link
                         href="/auth/forgot-password"
-                        className="text-[9px] font-black uppercase opacity-30 hover:text-primary transition-all"
+                        className="text-[9px] font-black uppercase opacity-70 hover:text-primary-text transition-all"
                       >
                         Recovery?
                       </Link>
@@ -145,11 +147,11 @@ export const LoginForm = () => {
             <Button
               disabled={isPending}
               type="submit"
-              className="w-full py-12 bg-foreground text-background hover:bg-primary hover:text-white transition-all duration-700 group relative overflow-hidden rounded-full"
+              className="w-full py-12 bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-all duration-700 group relative overflow-hidden rounded-full"
             >
               <div className="relative z-10 flex items-center justify-center gap-12 w-full px-8">
                 <span className="text-xl md:text-3xl font-black italic uppercase tracking-tighter">
-                  {isPending ? "Validating..." : "Login"}
+                  {isPending ? t("submitting") : t("submit")}
                 </span>
                 <Fingerprint
                   className={cn("w-10 h-10", isPending && "animate-pulse")}
@@ -160,9 +162,9 @@ export const LoginForm = () => {
           </form>
         </Form>
 
-        <p className="text-[10px] font-black uppercase italic tracking-tighter opacity-30">
+        <p className="text-[10px] font-black uppercase italic tracking-tighter text-foreground/70">
           New Identity Required?{" "}
-          <Link href="/auth/register" className="text-primary underline">
+          <Link href="/auth/register" className="text-primary-text underline">
             Initialize Registration
           </Link>
         </p>
@@ -184,7 +186,10 @@ export const LoginForm = () => {
         </div>
 
         {/* PŁYNĄCY TEKST TECHNICZNY (W tle) */}
-        <div className="absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right">
+        <div
+        aria-hidden="true"
+        className="decor-hidden absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right"
+      >
           <Cpu className="w-4 h-4" />
           <span>ENCRYPTING_METABOLIC_DATA_STREAM...</span>
         </div>

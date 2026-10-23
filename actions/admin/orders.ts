@@ -1,69 +1,18 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/lib/generated/prisma/client";
+import { reportError } from "@/lib/logger";
+import { ActionResult, failFrom, ok } from "@/lib/action-result";
 
-// Pomocnicza funkcja do weryfikacji admina na serwerze
 
-async function checkAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
-}
-
-/**
- * Pobiera zamówienia dla panelu admina z uwzględnieniem globalnego szukania i stronnicowania.
- */
-export const getAdminOrders = async (page: number = 1, pageSize: number = 15, search?: string) => {
-  await checkAdmin(); // Bezpieczeństwo przede wszystkim
-  try {
-    const skip = (page - 1) * pageSize;
-
-    // Definiujemy filtr wyszukiwania - przeszukuje CAŁĄ bazę danych
-    const where = search ? {
-      OR: [
-        { id: { contains: search, mode: 'insensitive' as const } },
-        { user: { name: { contains: search, mode: 'insensitive' as const } } },
-        { user: { email: { contains: search, mode: 'insensitive' as const } } },
-        { address: { street: { contains: search, mode: 'insensitive' as const } } },
-      ]
-    } : {};
-
-    // Wykonujemy zapytania równolegle dla lepszej wydajności
-    const [orders, totalCount] = await Promise.all([
-      db.order.findMany({
-        where,
-        take: pageSize, // Pobierz tylko tyle, ile mieści się na stronie
-        skip: skip,     // Pomiń poprzednie strony
-        include: {
-          user: { select: { name: true, email: true } },
-          address: true,
-          items: {
-            include: {
-              product: { select: { name: true } }
-            }
-          },
-        },
-        orderBy: { createdAt: "desc" },
-      }),
-      db.order.count({ where }) // Liczba wszystkich pasujących rekordów w bazie
-    ]);
-
-    // Serializacja: usuwamy obiekty Decimal i Date, zamieniając je na proste typy JSON
-    return {
-      orders: JSON.parse(JSON.stringify(orders)),
-      totalPages: Math.ceil(totalCount / pageSize),
-      totalCount
-    };
-  } catch (error) {
-    console.error("Logistics Database Error:", error);
-    return { orders: [], totalPages: 0, totalCount: 0 };
-  }
-};
-
-export async function updateOrderStatus(orderId: string, status: OrderStatus) {
-  await checkAdmin(); // Sprawdzamy uprawnienia admina
+export async function updateOrderStatus(
+  orderId: string,
+  status: OrderStatus
+): Promise<ActionResult> {
+  await requireAdmin(); // Sprawdzamy uprawnienia admina
   try {
     await db.order.update({
       where: {
@@ -77,9 +26,9 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus) {
     // To odświeża dane na stronie admina natychmiast po zmianie
     revalidatePath("/dashboard/manage-orders");
     
-    return { success: true };
+    return ok();
   } catch (error) {
-    console.error("FAILED TO UPDATE STATUS:", error);
-    return { success: false, error: "Database error" };
+    reportError(error, { area: "admin.orders" });
+    return failFrom(error, "INTERNAL", "Database error");
   }
 }

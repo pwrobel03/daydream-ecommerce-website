@@ -1,0 +1,63 @@
+# Nakładka produkcyjna. Używana razem z bazowym plikiem:
+#
+#   docker compose --env-file .env.docker \
+#     -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Różnice wobec konfiguracji demonstracyjnej:
+#  - aplikacja nie wystawia portu na hosta; ruch wchodzi wyłącznie przez nginx
+#  - dochodzi reverse proxy z TLS i przekierowaniem HTTP → HTTPS
+#  - dochodzi usługa cron zwalniająca porzucone rezerwacje towaru
+services:
+  app:
+    # Port publikowany przez bazowy plik zostaje cofnięty — aplikacja jest
+    # osiągalna tylko z sieci compose.
+    ports: !reset []
+    environment:
+      RUN_SEED: "false"
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?ustaw DOMAIN w .env.docker}
+    volumes:
+      - ./docker/nginx/daydream.conf:/etc/nginx/templates/default.conf.template:ro
+      - certbot-conf:/etc/letsencrypt:ro
+      - certbot-www:/var/www/certbot:ro
+
+  # Wydanie i odnawianie certyfikatu:
+  #   docker compose run --rm certbot certonly --webroot -w /var/www/certbot -d twoja.domena
+  # Kontener sam ponawia odnowienie co 12 h.
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: >
+      sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done"
+
+  # Zwalnia towar zarezerwowany przez zamówienia, które nigdy nie doszły
+  # do płatności. Bez tego stan magazynowy wycieka — patrz §1.4 raportu.
+  cron:
+    image: alpine:3.20
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      CRON_SECRET: ${CRON_SECRET:?ustaw CRON_SECRET w .env.docker}
+    command: >
+      sh -c "apk add --no-cache curl >/dev/null &&
+             while :; do
+               sleep 300;
+               curl -fsS -X POST -H \"Authorization: Bearer $$CRON_SECRET\" http://app:3000/api/cron/release-reservations || true;
+             done"
+
+volumes:
+  certbot-conf:
+  certbot-www:

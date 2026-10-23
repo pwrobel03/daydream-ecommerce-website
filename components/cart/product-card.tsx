@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
   BadgeAlert,
-  Car,
+  
   Trash2,
   Image as ImageIcon,
 } from "lucide-react";
@@ -27,7 +27,6 @@ const ProductCard = ({
   isOverLimit,
   deleteCartProduct,
 }: CartItemProps) => {
-  console.log(item);
 
   return (
     <div
@@ -88,14 +87,14 @@ const ProductCard = ({
               <div className="flex items-center gap-6">
                 <div className="text-lg font-black tracking-tighter">
                   {item.product.promoPrice ? (
-                    <PriceFormatter amount={item.product.promoPrice} />
+                    <PriceFormatter amount={Number(item.product.promoPrice)} />
                   ) : (
-                    <PriceFormatter amount={item.product.price} />
+                    <PriceFormatter amount={Number(item.product.price)} />
                   )}
                 </div>
                 {item.product.promoPrice && (
-                  <span className="text-md line-through opacity-30 font-light">
-                    <PriceFormatter amount={item.product.price} />
+                  <span className="text-md line-through opacity-70 font-light">
+                    <PriceFormatter amount={Number(item.product.price)} />
                   </span>
                 )}
               </div>
@@ -120,12 +119,12 @@ const ProductCard = ({
           <div
             className={cn(
               "text-4xl font-black tracking-tighter",
-              isOutOfStock ? "line-through opacity-20" : ""
+              isOutOfStock ? "line-through opacity-70" : ""
             )}
           >
             <PriceFormatter
               amount={
-                Number(item.product.promoPrice || item.product.price) *
+                Number(item.product.promoPrice ?? item.product.price) *
                 item.quantity
               }
             />

@@ -1,10 +1,20 @@
 generator client {
-  provider = "prisma-client-js"
+  // Prisma 7: generator `prisma-client` zamiast `prisma-client-js`.
+  // Klient trafia do repo pod wskazaną ścieżkę (poza gitem) zamiast do
+  // node_modules, a zapytania kompiluje query compiler — bez silnika w Ruście,
+  // co zdejmuje zależność od libssl w obrazie kontenera.
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+  // Projekt jest CommonJS (brak "type": "module" w package.json). Bez tego
+  // generator emituje ESM, którego Node nie potrafi wczytać w skryptach
+  // uruchamianych poza bundlerem — seed i migracje w kontenerze.
+  moduleFormat = "cjs"
 }
 
 datasource db {
+  // Prisma 7: connection string nie należy już do schematu.
+  // Migracje biorą go z prisma.config.ts, a klient z adaptera w lib/db.ts.
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // --- ENUMERACJE ---
@@ -110,6 +120,13 @@ model Product {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Kolumna generowana utrzymywana przez Postgresa (patrz migracja
+  // 20260810120000_product_search). Prisma jej nie zapisuje — zna ją tylko po
+  // to, żeby nie zgłaszać rozjazdu schematu.
+  searchVector Unsupported("tsvector")?
+
+  @@index([searchVector], type: Gin)
 }
 
 model Category {
@@ -186,6 +203,19 @@ model Order {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   stripeSessionId  String?  @unique // Stripe payment sessionId
+
+  // Do kiedy towar jest zarezerwowany. Po tym czasie zadanie cykliczne
+  // anuluje zamówienie i zwraca stan magazynowy.
+  reservedUntil DateTime?
+
+  // Kupon użyty przy składaniu zamówienia. Kwota rabatu jest zapisana obok,
+  // bo Sale.discountValue może się później zmienić — zamówienie musi pamiętać,
+  // ile faktycznie odjęto, tak samo jak OrderItem pamięta cenę.
+  saleId         String?
+  sale           Sale?    @relation(fields: [saleId], references: [id])
+  discountAmount Decimal  @default(0)
+
+  @@index([status, reservedUntil])
 }
 
 model Address {
@@ -227,7 +257,18 @@ model Sale {
   isActive      Boolean  @default(true)
   validFrom     DateTime @default(now())
   validTo       DateTime
-  
+
+  orders        Order[]
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// Rejestr obsłużonych zdarzeń Stripe.
+// Stripe ponawia dostarczenie eventu do 3 dni, a klucz główny na jego id sprawia,
+// że powtórka odbija się na kolizji zamiast wykonać logikę drugi raz.
+model ProcessedWebhookEvent {
+  id          String   @id
+  type        String
+  processedAt DateTime @default(now())
 }

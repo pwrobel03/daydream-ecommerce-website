@@ -1,6 +1,5 @@
 // schemas are defined using Zod
 // helps to validate and infer types inside forms and actions
-import { UserRole } from '@prisma/client';
 import * as z from 'zod';
 // Schema for login
 export const LoginSchema = z.object({
@@ -70,9 +69,11 @@ export const SettingsSchema = z.object({
   path: ["password"]
 })
 
+// Bez `userId` — autor bierze się z sesji po stronie serwera. Dopóki pole tu
+// było, formularz musiał je wysyłać, a schemat sugerował, że klient decyduje,
+// kto podpisuje opinię.
 export const ReviewSchema = z.object({
   productId: z.string(),
-  userId: z.string(),
   rating: z.number().min(1).max(5),
   content: z.string().min(3, "You're story is a little too short..."),
 });
@@ -96,6 +97,36 @@ export const productSchema = z.object({
   statusId: z.string().optional(),
   categoryIds: z.array(z.string()).default([]),
   ingredientIds: z.array(z.string()).default([]),
+});
+
+// Wejście do inicjalizacji zamówienia.
+// Świadomie przyjmujemy wyłącznie id i ilość — ceny są odczytywane z bazy,
+// żeby zawartość localStorage nie miała wpływu na kwotę do zapłaty.
+export const CheckoutItemsSchema = z
+  .array(
+    z.object({
+      productId: z.string().min(1),
+      quantity: z.number().int().positive().max(100),
+    })
+  )
+  .min(1, "Cart is empty")
+  .max(50, "Too many items in a single order");
+
+// Wejście upsertProduct po stronie serwera. Formularz przysyła FormData,
+// więc liczby przychodzą jako stringi — stąd coerce zamiast parseFloat/parseInt,
+// które przy złych danych dawały ciche NaN w zapisie do bazy.
+export const ProductUpsertSchema = z.object({
+  name: z.string().min(4, "Name is too short..."),
+  slug: z.string().min(4, "Slug is too short..."),
+  description: z.string().optional().default(""),
+  price: z.coerce.number().nonnegative("Price must not be negative"),
+  promoPrice: z.coerce.number().nonnegative().nullable().optional(),
+  weight: z.string().optional().default(""),
+  stock: z.coerce.number().int().nonnegative(),
+  statusId: z.string().optional().default(""),
+  categoryIds: z.array(z.string()).default([]),
+  ingredientIds: z.array(z.string()).default([]),
+  existingImages: z.array(z.string()).default([]),
 });
 
 export const AddressSchema = z.object({

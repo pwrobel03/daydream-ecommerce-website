@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShoppingBasket, User } from "lucide-react";
+import { ShoppingBasket } from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
 import { Button } from "../ui/button";
 import { MobileNav } from "./mobile-nav";
@@ -11,13 +11,20 @@ import Image from "next/image";
 import { db } from "@/lib/db";
 import { CartCounter } from "../CartCounter";
 import { UserButton } from "../auth/user-button";
+import { SearchInput } from "./search-input";
+import { LanguageSwitcher } from "./language-switcher";
+import { getTranslations } from "next-intl/server";
 
-const Header = async () => {
-  // Pobieramy kategorie bezpośrednio z bazy danych
-  const categories = await db.category.findMany({
+async function getNavCategories() {
+  return db.category.findMany({
     where: { parentId: null },
     select: { id: true, name: true, slug: true },
   });
+}
+
+const Header = async () => {
+  const t = await getTranslations("nav");
+  const categories = await getNavCategories();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-secondary bg-background/80 backdrop-blur-md transition-all">
@@ -45,18 +52,25 @@ const Header = async () => {
         <div className="flex items-center gap-2 sm:gap-4">
           <ModeToggle />
 
-          <Link href="/cart">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative text-foreground hover:bg-accent transition-all rounded-full"
-            >
-              <ShoppingBasket className="h-12 w-12" />
+          {/* `asChild` daje jeden element <a> zamiast <button> w <a> —
+              interaktywny element w linku to niepoprawny HTML i to on
+              odbierał nazwę dostępną i linkowi, i przyciskowi. */}
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="relative text-foreground hover:bg-accent transition-all rounded-full"
+          >
+            <Link href="/cart">
+              <ShoppingBasket className="h-12 w-12" aria-hidden="true" />
+              <span className="sr-only">{t("cart")}</span>
               {/* Licznik używa hooka useCart */}
               <CartCounter />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
 
+          <SearchInput />
+          <LanguageSwitcher />
           <UserButton />
 
           <div className="lg:hidden">

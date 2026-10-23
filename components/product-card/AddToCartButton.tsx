@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductType } from "@/types/product";
+import { CartProduct } from "@/types/product";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { ShoppingBag, ArrowRight } from "lucide-react";
@@ -13,7 +13,7 @@ const AddToCartButton = ({
   product,
   className,
 }: {
-  product: ProductType;
+  product: CartProduct;
   className?: string;
 }) => {
   const { addItem, getItemCount, isMounted } = useCart();
@@ -58,7 +58,7 @@ const AddToCartButton = ({
         <div className="bg-muted/20 backdrop-blur-xl border rounded-[2.5rem] p-4 shadow-2xl animate-in zoom-in-95 duration-500">
           {/* NAGŁÓWEK SEKCJI */}
           <div className="flex items-center justify-between mb-4 px-2">
-            <span className="text-xs font-black uppercase tracking-[0.3em] text-primary italic">
+            <span className="text-xs font-black uppercase tracking-[0.3em] text-primary-text italic">
               In your dream
             </span>
             <QuantityButtons product={product} />
@@ -66,13 +66,13 @@ const AddToCartButton = ({
 
           {/* PODSUMOWANIE CENY */}
           <div className="pt-3 border-t flex items-center justify-between px-2">
-            <span className="text-sm font-black uppercase tracking-[0.3em] opacity-40">
+            <span className="text-sm font-black uppercase tracking-[0.3em] opacity-70">
               Subtotal
             </span>
 
             <div className="text-right">
               {product.promoPrice && (
-                <div className="text-xs text-muted-foreground line-through opacity-50 font-light">
+                <div className="text-xs text-muted-foreground line-through opacity-70 font-light">
                   <PriceFormatter amount={Number(product.price) * itemCount} />
                 </div>
               )}

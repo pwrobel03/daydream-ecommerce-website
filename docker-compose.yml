@@ -1,0 +1,104 @@
+# Uruchomienie całego projektu jednym poleceniem:
+#
+# UWAGA: bez interpolacji ${...} celowo. Compose automatycznie wczytuje `.env`
+# z katalogu projektu do podstawiania zmiennych, a deweloperski `.env` zawiera
+# sekrety ze znakami `$`, na których interpolacja się wykłada
+# ("The \"w8JE\" variable is not set"). Konfiguracja aplikacji idzie przez
+# env_file: .env.docker, a wartości poniżej są tu wpisane wprost.
+#
+#   cp .env.docker.example .env.docker   # uzupełnij klucze Stripe/Resend
+#   docker compose up
+#
+# Aplikacja sama wykona migracje przy starcie. RUN_SEED=true wypełnia bazę
+# katalogiem demonstracyjnym przy pierwszym uruchomieniu.
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: daydream
+      POSTGRES_PASSWORD: daydream
+      POSTGRES_DB: daydream
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U daydream -d daydream"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Lokalny serwer SMTP z interfejsem webowym. Dzięki niemu ktoś, kto uruchamia
+  # projekt po raz pierwszy, przechodzi pełną rejestrację i widzi wysłane maile
+  # pod http://localhost:8025 — bez konta w jakiejkolwiek usłudze pocztowej.
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Migracje i seed wykonują się raz, przed startem aplikacji — nie w każdej
+  # replice przy każdym restarcie. Obraz produkcyjny nie musi przez to wozić
+  # CLI Prismy ani jego zależności.
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrator
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    environment:
+      DATABASE_URL: postgresql://daydream:daydream@postgres:5432/daydream
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mailpit:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    env_file:
+      - .env.docker
+    environment:
+      DATABASE_URL: postgresql://daydream:daydream@postgres:5432/daydream
+      REDIS_URL: redis://redis:6379
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      # Katalog uploadu leży na wolumenie, poza obrazem — bez tego wgrane
+      # zdjęcia znikałyby przy każdym odtworzeniu kontenera.
+      UPLOAD_DIR: /data/uploads
+    volumes:
+      - uploads:/data/uploads
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
+  redisdata:
+  uploads:

@@ -11,6 +11,13 @@ export interface Category {
   slug: string;
   image?: string | null;
   description?: string | null;
+
+  // Samorelacja kategorii. Widoki admina dociągają dzieci i licznik produktów,
+  // storefront nie — stąd pola opcjonalne.
+  parentId?: string | null;
+  parent?: Category | null;
+  children?: Category[];
+  _count?: { products: number };
 }
 
 export interface Status {
@@ -36,6 +43,8 @@ export interface Ingredient {
   id: string;
   name: string;
   image?: string | null;
+  /** Alias używany przez formularz w panelu. */
+  imageUrl?: string | null;
 }
 
 export interface ProductType {
@@ -43,8 +52,10 @@ export interface ProductType {
   name: string;
   slug: string;
   description?: string | null;
-  price: any; // Decimal z Prisma traktowany jako liczba/string
-  promoPrice?: any | null;
+  // Rozszerzenie klienta Prismy (lib/db.ts) zamienia Decimal na number
+  // u źródła, więc tu jest jeden typ zamiast unii.
+  price: number;
+  promoPrice?: number | null;
   weight?: string | null;
   stock: number;
   statusId?: string | null;
@@ -54,8 +65,67 @@ export interface ProductType {
   images: ProductImage[];
   categories: Category[];
   ingredients: Ingredient[]
-  reviews: Review[];
-  
+
+  // Podsumowanie ocen liczy baza (patrz `ratingsFor` w lib/db-products.ts).
+  // Karta katalogu potrzebuje tylko tych dwóch liczb, więc siatka nie wozi
+  // już opinii ani ich autorów.
+  ratingAvg: number;
+  ratingCount: number;
+
+  // Tylko widok produktu dociąga listę opinii; katalog jej nie selectuje.
+  reviews?: Review[];
+
   createdAt: Date;
   updatedAt: Date;
+}
+/**
+ * Produkt zapisany w koszyku.
+ *
+ * Świadomie wąski: koszyk trafia do localStorage, a wcześniej trzymał tam całe
+ * `ProductType` — z opisem, kategoriami, składnikami i listą opinii wraz
+ * z autorami. Nic z tego nie było renderowane, a wszystko się starzało.
+ * Tutaj są wyłącznie pola, które rysuje widok koszyka.
+ */
+export interface CartProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  promoPrice: number | null;
+  stock: number;
+  /** Tylko pierwszy obrazek — koszyk pokazuje miniaturę. */
+  images: { url: string }[];
+  status?: { name: string; color: string | null } | null;
+}
+
+/** Kształt zwracany przez `getFreshCartData` — odświeżone ceny i stan magazynowy. */
+export interface CartSyncProduct {
+  id: string;
+  name: string;
+  price: number;
+  promoPrice: number | null;
+  stock: number;
+}
+
+/** Produkt w liście inwentarza — kształt zwracany przez `getInventoryProducts`. */
+export interface InventoryProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  promoPrice: number | null;
+  stock: number;
+  categories: Category[];
+  status?: Status | null;
+  images: { url: string }[];
+}
+
+/** Opinia w widoku moderacji — dochodzi produkt, którego dotyczy. */
+export interface VoiceType {
+  id: string;
+  content: string;
+  rating: number;
+  createdAt: Date | string;
+  user: { name: string | null; image: string | null };
+  product: { name: string; slug: string };
 }

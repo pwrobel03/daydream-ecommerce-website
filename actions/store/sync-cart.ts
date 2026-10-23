@@ -1,28 +1,37 @@
 "use server";
 import { db } from "@/lib/db";
 
+/**
+ * Aktualne ceny i stany dla produktów w koszyku.
+ *
+ * Bez `catch`: zwracanie `[]` przy awarii bazy oznaczało dla `syncItems`
+ * "nic nie wymagało aktualizacji", więc koszyk szedł dalej z cenami sprzed
+ * dowolnie długiego czasu, a interfejs pokazywał, że kontrola się powiodła.
+ * Na ścieżce płatności to najgorsze możliwe zachowanie — wywołujący ma
+ * zobaczyć, że sprawdzenie nie przeszło.
+ *
+ * Brak produktu na liście wyniku znaczy, że zniknął z katalogu; `syncItems`
+ * usuwa wtedy pozycję z koszyka.
+ */
 export async function getFreshCartData(productIds: string[]) {
-  try {
-    const products = await db.product.findMany({
-      where: { id: { in: productIds } },
-      select: {
-        id: true,
-        price: true,
-        promoPrice: true,
-        stock: true,
-        name: true,
-        // pobierz status, żeby wiedzieć czy produkt nie został np. wyłączony
-      }
-    });
-    // simple return result in error data cause of prisma decimal 
-    return products.map(product => ({
-      ...product,
-      price: Number(product.price),
-      promoPrice: product.promoPrice ? Number(product.promoPrice) : null,
-      stock: Number(product.stock)
-    }));
-  } catch (error) {
-    console.error("Cart sync error:", error);
-    return [];
-  }
+  const products = await db.product.findMany({
+    where: { id: { in: productIds } },
+    select: {
+      id: true,
+      price: true,
+      promoPrice: true,
+      stock: true,
+      name: true,
+    },
+  });
+
+  // Jawne pola zamiast spreadu: spread kopiuje też własności symboliczne
+  // wyniku Prismy, których granica serwer/klient nie przepuszcza.
+  return products.map((product) => ({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    promoPrice: product.promoPrice,
+    stock: product.stock,
+  }));
 }

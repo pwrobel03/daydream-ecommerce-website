@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -11,12 +12,13 @@ import {
   Fingerprint,
   Loader2,
   ArrowRight,
-  Activity,
+  
   Cpu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NewVerificationForm = () => {
+  const t = useTranslations("auth.verification");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -27,21 +29,24 @@ const NewVerificationForm = () => {
     if (success || error) return;
 
     if (!token) {
-      setError("Verification token is missing.");
+      setError(t("missingToken"));
       return;
     }
 
     newVerification(token)
-      .then((data) => {
-        setSuccess(data.success || null);
-        setError(data.error || null);
+      .then((res) => {
+        if (!res.ok) return setError(res.message);
+        setSuccess(t("success"));
       })
       .catch(() => {
-        setError("An unexpected error occurred.");
+        setError(t("failed"));
       });
-  }, [token, success, error]);
+  }, [token, success, error, t]);
 
+  // Weryfikacja tokenu musi wystartować po zamontowaniu — nie ma tu zdarzenia
+  // użytkownika, na którym dałoby się to zawiesić.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSubmit();
   }, [onSubmit]);
 
@@ -52,14 +57,14 @@ const NewVerificationForm = () => {
         <header className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-1 bg-primary" />
-            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
+            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-70">
               Identity_Validation
             </span>
           </div>
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
             VERIFYING
             <br />
-            <span className="text-primary">PROTOCOL.</span>
+            <span className="text-primary-text">PROTOCOL.</span>
           </h1>
         </header>
 
@@ -67,7 +72,7 @@ const NewVerificationForm = () => {
           {/* DYNAMICZNY STATUS KOMUNIKATU */}
           <div className="min-h-[100px] flex flex-col justify-center">
             {!success && !error && (
-              <div className="flex items-center gap-4 text-primary animate-pulse">
+              <div className="flex items-center gap-4 text-primary-text animate-pulse">
                 <Loader2 className="w-6 h-6 animate-spin" />
                 <span className="text-sm font-black uppercase italic tracking-widest">
                   Analyzing Security Token...
@@ -88,9 +93,9 @@ const NewVerificationForm = () => {
         {/* PRZYCISK POWROTU (AKTYWNY TYLKO PO ZAKOŃCZENIU) */}
         <div className="pt-8">
           <Link href="/auth/login">
-            <button className="group flex items-center gap-4 bg-foreground text-background px-8 py-4 rounded-full hover:bg-primary hover:text-white transition-all duration-500">
+            <button className="group flex items-center gap-4 bg-foreground text-background px-8 py-4 rounded-full hover:bg-primary hover:text-primary-foreground transition-all duration-500">
               <span className="text-[10px] font-black uppercase tracking-widest italic">
-                {success ? "Proceed to Login" : "Abort & Return"}
+                {success ? t("proceed") : t("back")}
               </span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
             </button>
@@ -138,7 +143,10 @@ const NewVerificationForm = () => {
         </div>
 
         {/* BACKGROUND DECOR */}
-        <div className="absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right">
+        <div
+        aria-hidden="true"
+        className="decor-hidden absolute bottom-10 right-10 flex items-center gap-4 opacity-10 font-mono text-[10px] rotate-90 origin-right"
+      >
           <Cpu className="w-4 h-4" />
           <span>ESTABLISHING_MOLECULAR_TRUST_BRIDGE...</span>
         </div>

@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { useForm } from "react-hook-form";
 import { useState, useTransition } from "react";
@@ -19,10 +20,11 @@ import { FormError } from "./form-error";
 import { FormSuccess } from "./form-success";
 import { register } from "@/actions/auth/register";
 import Link from "next/link";
-import { Atom, Dna, Globe, UserPlus, Cpu } from "lucide-react";
+import { Atom, Dna, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const RegisterForm = () => {
+  const t = useTranslations("auth.register");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
@@ -40,9 +42,9 @@ export const RegisterForm = () => {
     setError("");
     setSuccess("");
     startTransition(() => {
-      register(values).then((data) => {
-        setError(data.error);
-        setSuccess(data.success);
+      register(values).then((res) => {
+        if (!res.ok) return setError(res.message);
+        setSuccess(t("success"));
       });
     });
   };
@@ -68,15 +70,15 @@ export const RegisterForm = () => {
       <div className="w-full mx-auto space-y-12">
         <header className="space-y-4">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">
-              System_Registration
+            <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-70">
+              {t("systemLabel")}
             </span>
             <div className="w-12 h-1 bg-primary" />
           </div>
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
             JOIN THE
             <br />
-            <span className="text-primary">ARCHIVE.</span>
+            <span className="text-primary-text">ARCHIVE.</span>
           </h1>
         </header>
 
@@ -89,14 +91,14 @@ export const RegisterForm = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       Full_Identity_Name
                     </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         disabled={isPending}
-                        placeholder="EX: DAYDREAM USER"
+                        placeholder={t("namePlaceholder")}
                         className="bg-transparent border-x-0 border-t-0 border-b-2 border-black/10 dark:border-white/10 rounded-none px-0 text-sm font-black italic uppercase tracking-tighter focus-visible:ring-0 focus-visible:border-primary transition-all"
                       />
                     </FormControl>
@@ -111,7 +113,7 @@ export const RegisterForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       Registry_Email
                     </FormLabel>
                     <FormControl>
@@ -134,7 +136,7 @@ export const RegisterForm = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-40">
+                    <FormLabel className="text-[10px] font-black uppercase italic tracking-widest opacity-70">
                       Access_Key_Generation
                     </FormLabel>
                     <FormControl>
@@ -160,11 +162,11 @@ export const RegisterForm = () => {
             <Button
               disabled={isPending}
               type="submit"
-              className="w-full py-12 bg-foreground text-background hover:bg-primary hover:text-white transition-all duration-700 group relative overflow-hidden rounded-full mt-8"
+              className="w-full py-12 bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-all duration-700 group relative overflow-hidden rounded-full mt-8"
             >
               <div className="relative z-10 flex items-center justify-center gap-12 w-full px-8">
                 <span className="text-xl md:text-3xl font-black italic uppercase tracking-tighter">
-                  {isPending ? "Synthesizing..." : "Create Account"}
+                  {isPending ? t("submitting") : t("submit")}
                 </span>
                 <Dna
                   className={cn("w-10 h-10", isPending && "animate-spin-slow")}
@@ -176,9 +178,9 @@ export const RegisterForm = () => {
         </Form>
 
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-black uppercase italic tracking-tighter opacity-30">
+          <p className="text-[10px] font-black uppercase italic tracking-tighter text-foreground/70">
             Already verified?{" "}
-            <Link href="/auth/login" className="text-primary underline">
+            <Link href="/auth/login" className="text-primary-text underline">
               Return to Vault
             </Link>
           </p>

@@ -4,15 +4,16 @@ import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import ProductStatusBadge from "../product-status-badge";
+import type { ProductImage, Status } from "@/types/product";
 
 export default function ProductGallery({
   images,
   status,
 }: {
-  images: any[];
-  status: any;
+  images: ProductImage[];
+  status: Status | null;
 }) {
-  const [active, setActive] = useState(images[0]?.url);
+  const [active, setActive] = useState<string>(images[0]?.url ?? "");
 
   if (!images || images.length === 0) return null;
 
@@ -62,7 +63,7 @@ export default function ProductGallery({
         <div className="absolute top-6 left-6 z-10">
           <ProductStatusBadge
             name={status.name}
-            color={status.color}
+            color={status.color ?? "#000000"}
             className="px-8 py-5 text-xl opacity-80"
           />
         </div>

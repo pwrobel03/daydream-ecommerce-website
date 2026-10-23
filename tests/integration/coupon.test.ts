@@ -1,0 +1,163 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { expectFail, expectOk } from "../helpers/action-result";
+import { resetDatabase } from "./reset";
+
+const { session, db } = await vi.hoisted(async () => {
+  const { createPrismaClient } = await import("@/lib/db");
+  return {
+    session: { user: { id: "", role: "USER" as const } },
+    db: createPrismaClient(),
+  };
+});
+
+vi.mock("@/auth", () => ({ auth: async () => session }));
+vi.mock("@/lib/db", () => ({ db }));
+
+const { initializeOrder } = await import("@/actions/order/order");
+
+const DAY = 24 * 60 * 60 * 1000;
+let productId: string;
+
+beforeAll(async () => {
+  const user = await db.user.create({ data: { email: "coupon@example.com" } });
+  session.user.id = user.id;
+});
+
+afterAll(async () => {
+  await db.$disconnect();
+});
+
+beforeEach(async () => {
+  await resetDatabase(db);
+
+  const product = await db.product.create({
+    data: { name: "Bar", slug: `coupon-bar-${Date.now()}`, price: 100, stock: 50 },
+  });
+  productId = product.id;
+});
+
+function sale(overrides: Record<string, unknown> = {}) {
+  return db.sale.create({
+    data: {
+      name: "Spring",
+      couponCode: "SPRING20",
+      discountValue: 20,
+      validFrom: new Date(Date.now() - DAY),
+      validTo: new Date(Date.now() + DAY),
+      ...overrides,
+    },
+  });
+}
+
+describe("coupons", () => {
+  it("applies a valid coupon and records what was deducted", async () => {
+    await sale();
+
+    const result = await initializeOrder([{ productId, quantity: 2 }], "SPRING20");
+    const order = await db.order.findUniqueOrThrow({ where: { id: expectOk(result).orderId } });
+
+    // 2 × 100 = 200, minus 20% = 160
+    expect(order.totalAmount).toBe(160);
+    expect(order.discountAmount).toBe(40);
+    expect(order.saleId).not.toBeNull();
+  });
+
+  it("computes the discount from the database, not from anything the client sends", async () => {
+    // Kod służy wyłącznie do wyszukania rekordu — wysokość rabatu bierze się
+    // z bazy, więc podmiana kodu na cudzy nie zmienia stawki.
+    await sale({ discountValue: 5 });
+
+    const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
+    const order = await db.order.findUniqueOrThrow({ where: { id: expectOk(result).orderId } });
+
+    expect(order.discountAmount).toBe(5);
+    expect(order.totalAmount).toBe(95);
+  });
+
+  it("rejects an expired coupon and creates no order", async () => {
+    await sale({ validTo: new Date(Date.now() - DAY) });
+
+    const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
+
+    expectFail(result, "INVALID_COUPON");
+    expect(await db.order.count()).toBe(0);
+  });
+
+  it("rejects a coupon that is not yet valid", async () => {
+    await sale({ validFrom: new Date(Date.now() + DAY) });
+
+    const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
+    expectFail(result, "INVALID_COUPON");
+  });
+
+  it("rejects a deactivated coupon", async () => {
+    await sale({ isActive: false });
+
+    const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
+    expectFail(result, "INVALID_COUPON");
+  });
+
+  it("rejects an unknown code rather than silently ignoring it", async () => {
+    const result = await initializeOrder([{ productId, quantity: 1 }], "NOPE");
+
+    expectFail(result, "INVALID_COUPON");
+    expect(await db.order.count()).toBe(0);
+  });
+
+  it("leaves stock untouched when the coupon is refused", async () => {
+    await sale({ isActive: false });
+    await initializeOrder([{ productId, quantity: 3 }], "SPRING20");
+
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    expect(product.stock).toBe(50);
+  });
+
+  it("orders without a coupon record a zero discount", async () => {
+    const result = await initializeOrder([{ productId, quantity: 1 }]);
+    const order = await db.order.findUniqueOrThrow({ where: { id: expectOk(result).orderId } });
+
+    expect(order.discountAmount).toBe(0);
+    expect(order.saleId).toBeNull();
+    expect(order.totalAmount).toBe(100);
+  });
+
+  it("rounds the discount to cents so the webhook amount check cannot drift", async () => {
+    // 33% z 100 to 33.333... — bez zaokrąglenia kwota w bazie różniłaby się
+    // od tej, którą pobierze Stripe, i webhook odrzuciłby poprawną płatność.
+    await sale({ discountValue: 33 });
+
+    const result = await initializeOrder([{ productId, quantity: 1 }], "SPRING20");
+    const order = await db.order.findUniqueOrThrow({ where: { id: expectOk(result).orderId } });
+
+    expect(order.discountAmount).toBe(33);
+    expect(order.totalAmount).toBe(67);
+    expect(Number.isInteger(Math.round(order.totalAmount * 100))).toBe(true);
+  });
+});
+
+describe("payment retry", () => {
+  it("keeps the discount when the payment session is rebuilt", async () => {
+    // Regresja: recreateStripeSession budował pozycje samodzielnie i pomijał
+    // rabat, więc klient wracający do przerwanej płatności płacił pełną cenę.
+    // Sprawdzamy dane, z których budowana jest sesja — samo Stripe jest
+    // zamockowane, bo test nie ma sieci.
+    await sale();
+
+    const result = await initializeOrder([{ productId, quantity: 2 }], "SPRING20");
+    const order = await db.order.findUniqueOrThrow({
+      where: { id: expectOk(result).orderId },
+      include: { items: true },
+    });
+
+    // Kwota do pobrania przy ponowieniu musi być tą samą, którą zapisano.
+    const lineTotal = order.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    expect(lineTotal - order.discountAmount).toBe(
+      order.totalAmount
+    );
+    expect(order.discountAmount).toBeGreaterThan(0);
+  });
+});

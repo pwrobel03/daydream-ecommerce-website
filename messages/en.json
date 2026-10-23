@@ -1,0 +1,261 @@
+{
+  "nav": {
+    "search": "Search",
+    "searchPlaceholder": "SEARCH",
+    "searchLabel": "Search products",
+    "cart": "Cart",
+    "account": "Account",
+    "language": "Language",
+    "cartCount": "{count, plural, one {# item in cart} other {# items in cart}}",
+    "menu": "Open menu"
+  },
+  "common": {
+    "loading": "Loading",
+    "tryAgain": "Try again",
+    "somethingBroke": "Something broke",
+    "errorHelp": "This one is on us. The error has been logged.",
+    "reference": "Reference"
+  },
+  "search": {
+    "title": "Search",
+    "tooShort": "Type at least two characters.",
+    "noMatches": "Nothing matches \"{query}\"",
+    "browseInstead": "Browse everything instead",
+    "results": "{count, plural, one {# result} other {# results}} for \"{query}\"",
+    "soldOut": "Sold out"
+  },
+  "cart": {
+    "title": "Your Bag",
+    "summary": "Summary",
+    "grandTotal": "Grand Total",
+    "couponCode": "Coupon code",
+    "couponOptional": "OPTIONAL",
+    "checkout": "Secure Flow",
+    "fixIssues": "Fix Issues",
+    "stockProblem": "Please resolve stock issues before checkout",
+    "empty": "Empty Bag",
+    "findDream": "Find a Dream",
+    "verifyingStock": "Verifying Stock...",
+    "reserved": "Stock Reserved. Redirecting...",
+    "removedUnavailable": "Removed from your cart, no longer available: {names}",
+    "syncFailed": "We could not verify prices and stock right now.",
+    "retry": "Try again"
+  },
+  "errors": {
+    "mustBeSignedIn": "You must be signed in to continue.",
+    "invalidCart": "Your cart contains invalid items.",
+    "productUnavailable": "{name} is no longer available.",
+    "someProductUnavailable": "One of the products is no longer available.",
+    "invalidCoupon": "This coupon is invalid or has expired.",
+    "reservationFailed": "Something went wrong while reserving your items.",
+    "invalidAddress": "The delivery details are invalid.",
+    "unauthorized": "Unauthorized",
+    "generic": "Something went wrong",
+    "paymentSessionFailed": "Could not start the payment session. Please try again.",
+    "addressSaveFailed": "Could not save your address. Please try again."
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "submit": "Login",
+      "submitting": "Validating...",
+      "email": "Email",
+      "password": "Password",
+      "emailPlaceholder": "USER@DAYDREAM.COM",
+      "noAccount": "Create Account",
+      "forgot": "Forgot password?",
+      "systemLabel": "System_Login",
+      "headline": "IDENTITY",
+      "headlineAccent": "VAULT."
+    },
+    "register": {
+      "title": "Create Account",
+      "submit": "Create Account",
+      "submitting": "Synthesizing...",
+      "name": "Name",
+      "namePlaceholder": "EX: DAYDREAM USER",
+      "hasAccount": "Login",
+      "systemLabel": "System_Registration",
+      "headline": "NEW",
+      "headlineAccent": "PROTOCOL.",
+      "success": "Confirmation email sent! Please check your inbox."
+    },
+    "reset": {
+      "title": "Reset password",
+      "submit": "Send Reset Link",
+      "submitting": "Dispatching...",
+      "backToLogin": "Go back to Login",
+      "success": "Password reset link has been sent to your email!"
+    },
+    "newPassword": {
+      "title": "Set a new password",
+      "submit": "Update Key",
+      "submitting": "Regenerating...",
+      "password": "New password",
+      "confirm": "Confirm password",
+      "success": "Your password has been successfully updated!"
+    },
+    "verification": {
+      "pending": "Verifying your email...",
+      "success": "Email successfully verified!",
+      "missingToken": "Verification token is missing.",
+      "failed": "An unexpected error occurred.",
+      "proceed": "Proceed to Login",
+      "back": "Abort & Return"
+    },
+    "error": {
+      "title": "Authentication Error",
+      "invalidKey": "Invalid Registry Key",
+      "missingToken": "Security token missing. Protocol aborted.",
+      "back": "Go back to Login"
+    },
+    "user": {
+      "dashboard": "Dashboard",
+      "profile": "Profile",
+      "logout": "Log out",
+      "avatar": "User Avatar"
+    }
+  },
+  "dashboard": {
+    "nav": {
+      "overview": "Overview",
+      "orders": "Orders",
+      "profile": "My Profile",
+      "address": "Address Book",
+      "adminConsole": "Admin Console",
+      "inventory": "Inventory",
+      "categories": "Categories",
+      "ingredients": "Ingredients",
+      "manageOrders": "Manage Orders",
+      "manageVoices": "Manage Voices",
+      "identity": "Identity",
+      "accountSettings": "Account Settings",
+      "analytics": "Analytics"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "PAID": "Paid",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "creditValid": "Credit Valid",
+      "creditMissing": "Credit Missing"
+    },
+    "orders": {
+      "recent": "Recent Orders",
+      "deliveryAddress": "Delivery address",
+      "noAddress": "No address provided",
+      "statusLabel": "Status"
+    },
+    "address": {
+      "title": "Address Book",
+      "subtitle": "Manage your delivery and billing locations.",
+      "cityPlaceholder": "City Name...",
+      "namePlaceholder": "Enter Name..."
+    },
+    "inventory": {
+      "newProduct": "New Artifact",
+      "createProduct": "Create a new product",
+      "allCategories": "All Categories",
+      "allSubFlows": "All Sub-Flows",
+      "preview": "Preview"
+    },
+    "ingredients": {
+      "create": "Create ingredient",
+      "edit": "Edit ingredient",
+      "forge": "Forge Essence",
+      "confirm": "Confirm Essence",
+      "editEssence": "Edit Essence",
+      "forging": "Forging...",
+      "deleteConfirm": "Are you sure you want to destroy this essence?",
+      "deleted": "Essence faded away",
+      "deleteFailed": "Failed to destroy essence"
+    },
+    "categories": {
+      "forge": "Forge Category",
+      "namePlaceholder": "E.g. Dark Stories",
+      "forging": "Forging..."
+    },
+    "feedback": {
+      "saved": "Registry Updated",
+      "storageError": "An error occurred during storage.",
+      "unexpected": "An unexpected error occurred.",
+      "connectionError": "Connection error",
+      "transmissionError": "Critical transmission error",
+      "paymentSessionError": "Payment session error",
+      "settingsSaved": "Settings updated!",
+      "emailChanged": "Email updated & verification link sent!",
+      "categoryCreated": "Category forged successfully!",
+      "categoryRemoved": "Category removed.",
+      "ingredientSaved": "Ingredient saved successfully!",
+      "productSaved": "Artifact stored.",
+      "productRemoved": "Product removed from the dreamscape.",
+      "voiceRemoved": "Voice removed."
+    },
+    "tiles": {
+      "ordersDesc": "Track your current shipments and history.",
+      "addressDesc": "Manage your delivery and billing locations.",
+      "profileDesc": "Update your profile and security details."
+    },
+    "product": {
+      "createTitle": "Create a new product",
+      "modifying": "Modifying: {name}"
+    },
+    "search": {
+      "comments": "Search by product or content...",
+      "products": "Search by name..."
+    },
+    "placeholders": {
+      "street": "Street & Number...",
+      "categoryStory": "Tell the story of this category...",
+      "selectParent": "Select parent..."
+    },
+    "labels": {
+      "deliveryAddress": "Delivery address",
+      "userDashboard": "User Dashboard",
+      "identity": "Identity",
+      "status": "Status",
+      "preview": "Preview",
+      "awaitingPayment": "Awaiting Payment",
+      "update": "Update"
+    },
+    "validation": {
+      "nameRequired": "The name is required",
+      "promoTooHigh": "The price cannot be lower than the promo price",
+      "fileTooLarge": "File {name} is too large (max 8MB).",
+      "uploadTooLarge": "The images may not exceed 50MB in total."
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Last {days} days",
+      "rangeLabel": "Report range",
+      "rangeOption": "{days}d",
+      "revenue": "Revenue",
+      "paidOrders": "Paid orders",
+      "averageOrder": "Average order",
+      "conversion": "Checkout conversion",
+      "conversionHint": "{abandoned, plural, =0 {none abandoned} one {# abandoned} other {# abandoned}}",
+      "revenueChart": "Revenue per day",
+      "topProducts": "Top products",
+      "topProductsCaption": "Best selling products by revenue in the selected range",
+      "product": "Product",
+      "units": "Units",
+      "noSales": "No sales in this range yet.",
+      "revenueCaption": "Revenue and order count for each day in the selected range"
+    },
+    "filters": {
+      "stock": "Filter by stock",
+      "category": "Filter by category",
+      "subCategory": "Filter by sub-category"
+    },
+    "actions": {
+      "edit": "Edit {name}",
+      "delete": "Delete {name}"
+    }
+  },
+  "reviews": {
+    "shared": "Story shared!",
+    "updated": "Your story has been updated!",
+    "deleted": "Your voice has been removed."
+  }
+}

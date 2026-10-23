@@ -1,22 +1,20 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/lib/guards";
+import { deleteUpload, processAndStore } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
-import path from "path";
-import { writeFile, unlink, mkdir } from "fs/promises";
-import { existsSync } from "fs";
 import crypto from "crypto";
-import sharp from "sharp";
+import { reportError } from "@/lib/logger";
+import { ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 
-async function checkAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
-}
 
-export async function upsertIngredient(id: string, formData: FormData) {
+export async function upsertIngredient(
+  id: string,
+  formData: FormData
+): Promise<ActionResult> {
   try {
-    await checkAdmin();
+    await requireAdmin();
 
     const isNew = id === "new";
     const name = formData.get("name") as string;
@@ -26,40 +24,38 @@ export async function upsertIngredient(id: string, formData: FormData) {
     // 1. Walidacja unikalności nazwy
     const existing = await db.ingredient.findFirst({ where: { name } });
     if (existing && (isNew || existing.id !== id)) {
-      return { error: "Ingredient with this name already exists." };
+      return fail("CONFLICT", "Ingredient with this name already exists.");
     }
 
     // 2. Przygotowanie ID i katalogu głównego
     // Jeśli nowy, generujemy UUID od razu, zamiast tworzyć "Temp" w bazie
-    let ingredientId = isNew ? crypto.randomUUID() : id;
+    const ingredientId = isNew ? crypto.randomUUID() : id;
     
-    const baseDir = path.join(process.cwd(), "public", "ingredients");
-    if (!existsSync(baseDir)) {
-      await mkdir(baseDir, { recursive: true });
-    }
 
     let imagePath: string | null | undefined = undefined;
 
+    // Poprzedni plik trzeba znać przed zapisem nowego, żeby po udanej
+    // aktualizacji rekordu usunąć dokładnie ten, który przestał być używany.
+    const previousImage = isNew
+      ? null
+      : (await db.ingredient.findUnique({ where: { id } }))?.image ?? null;
+
     // 3. Procesowanie zdjęcia
     if (imageFile && imageFile.size > 0) {
-      // Nazwa pliku to po prostu ID.webp - zawsze nadpisujemy lub tworzymy nowy
-      const fileName = `${ingredientId}.webp`;
-      const absolutePath = path.join(baseDir, fileName);
-
-      const buffer = Buffer.from(await imageFile.arrayBuffer());
-      const optimized = await sharp(buffer)
-        .resize(400, 400, { fit: 'cover' }) // Składniki są zazwyczaj ikonami/małymi fotkami
-        .webp({ quality: 80 })
-        .toBuffer();
-
-      await writeFile(absolutePath, optimized);
-      imagePath = `/ingredients/${fileName}`;
+      // Nazwa losowa przy każdym zapisie, jak dla produktów i kategorii.
+      // Wcześniej plik nazywał się identyfikatorem składnika, więc podmiana
+      // nadpisywała ten sam URL — a trasa /uploads serwuje go z nagłówkiem
+      // `immutable` na rok, przez co odwiedzający dostawali stary obrazek
+      // nawet po wymuszonym odświeżeniu.
+      imagePath = await processAndStore(imageFile, {
+        dir: "ingredients",
+        fileName: crypto.randomUUID(),
+        width: 400,
+        height: 400,
+        fit: "cover",
+      });
     } else if (removeExistingImage) {
       // Jeśli usuwamy zdjęcie, musimy usunąć plik fizyczny
-      const current = !isNew ? await db.ingredient.findUnique({ where: { id } }) : null;
-      if (current?.image) {
-        try { await unlink(path.join(process.cwd(), "public", current.image)); } catch (e) {}
-      }
       imagePath = null;
     }
 
@@ -77,45 +73,51 @@ export async function upsertIngredient(id: string, formData: FormData) {
       }
     });
 
-    revalidatePath("/dashboard/ingredients");
-    return { success: "Ingredient saved successfully!" };
+    // Dopiero po udanym zapisie rekordu — gdyby upsert padł, plik nadal jest
+    // tym, na który wskazuje baza.
+    if (previousImage && imagePath !== undefined && previousImage !== imagePath) {
+      await deleteUpload(previousImage);
+    }
 
-  } catch (error: any) {
-    console.error("UPSERT_INGREDIENT_ERROR:", error);
-    return { error: "Failed to save ingredient." };
+    revalidatePath("/dashboard/ingredients");
+    return ok();
+
+  } catch (error) {
+    reportError(error, { area: "admin.ingredients" });
+    return failFrom(error, "INTERNAL", "Failed to save ingredient.");
   }
 }
 
-export async function deleteIngredient(id: string) {
+export async function deleteIngredient(id: string): Promise<ActionResult> {
   try {
-    await checkAdmin();
+    await requireAdmin();
 
     const ingredient = await db.ingredient.findUnique({
       where: { id },
       include: { products: true }
     });
 
-    if (!ingredient) return { error: "Ingredient not found." };
+    if (!ingredient) return fail("NOT_FOUND", "Ingredient not found.");
     if (ingredient.products.length > 0) {
-      return { error: "Cannot delete: ingredient is used in products." };
+      return fail("CONFLICT", "Cannot delete: ingredient is used in products.");
     }
 
     // Usuwamy tylko konkretny plik, nie folder
     if (ingredient.image) {
-      const absolutePath = path.join(process.cwd(), "public", ingredient.image);
+
       try {
-        if (existsSync(absolutePath)) await unlink(absolutePath);
+        await deleteUpload(ingredient.image);
       } catch (err) {
-        console.error("File delete error:", err);
+        reportError(err, { area: "admin.ingredients" });
       }
     }
 
     await db.ingredient.delete({ where: { id } });
 
     revalidatePath("/dashboard/ingredients");
-    return { success: "Ingredient removed." };
+    return ok();
 
-  } catch (error: any) {
-    return { error: "Error during deletion." };
+  } catch (error) {
+    return failFrom(error, "INTERNAL", "Error during deletion.");
   }
 }

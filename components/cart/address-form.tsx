@@ -23,10 +23,20 @@ const addressSchema = z.object({
   phone: z.string().min(9, "Phone required"),
 });
 
-export function AddressForm({ initialData, onSubmit, isLoading }: any) {
-  const form = useForm({
+type AddressValues = z.infer<typeof addressSchema>;
+
+export function AddressForm({
+  initialData,
+  onSubmit,
+  isLoading,
+}: {
+  initialData?: Partial<AddressValues> | null;
+  onSubmit: (values: AddressValues) => void;
+  isLoading?: boolean;
+}) {
+  const form = useForm<AddressValues>({
     resolver: zodResolver(addressSchema),
-    defaultValues: initialData || {
+    defaultValues: (initialData as AddressValues) || {
       fullName: "",
       street: "",
       city: "",
@@ -43,7 +53,7 @@ export function AddressForm({ initialData, onSubmit, isLoading }: any) {
           name="fullName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40">
+              <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-70">
                 Odbiorca
               </FormLabel>
               <FormControl>
@@ -62,7 +72,7 @@ export function AddressForm({ initialData, onSubmit, isLoading }: any) {
             name="street"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-70">
                   Ulica
                 </FormLabel>
                 <FormControl>
@@ -80,7 +90,7 @@ export function AddressForm({ initialData, onSubmit, isLoading }: any) {
             name="city"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-70">
                   Miasto
                 </FormLabel>
                 <FormControl>
@@ -100,7 +110,7 @@ export function AddressForm({ initialData, onSubmit, isLoading }: any) {
             name="zipCode"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-70">
                   Kod pocztowy
                 </FormLabel>
                 <FormControl>
@@ -118,7 +128,7 @@ export function AddressForm({ initialData, onSubmit, isLoading }: any) {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                <FormLabel className="text-[10px] font-black uppercase tracking-widest opacity-70">
                   Telefon
                 </FormLabel>
                 <FormControl>
@@ -136,7 +146,7 @@ export function AddressForm({ initialData, onSubmit, isLoading }: any) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full h-20 bg-zinc-900 text-white rounded-full font-black italic uppercase text-xl hover:bg-primary transition-all disabled:opacity-50"
+          className="w-full h-20 bg-zinc-900 text-primary-foreground rounded-full font-black italic uppercase text-xl hover:bg-primary transition-all disabled:opacity-40"
         >
           {isLoading ? (
             <Loader2 className="animate-spin mx-auto" />

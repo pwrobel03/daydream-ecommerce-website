@@ -1,26 +1,18 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/auth";
+import { requireAdmin } from "@/lib/guards";
+import { processAndStore } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
-import { writeFile } from "fs/promises";
-import path from "path";
-import { mkdir } from "fs/promises";
-
-// Pomocnicza funkcja do weryfikacji admina na serwerze
-
-async function checkAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
-}
+import { reportError } from "@/lib/logger";
+import { ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024; 
 
-export async function createCategory(formData: FormData) {
+export async function createCategory(formData: FormData): Promise<ActionResult> {
   try {
-    const session = await auth();
-    if (session?.user?.role !== "ADMIN") return { error: "Unauthorized access." };
+    await requireAdmin();
 
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
@@ -32,20 +24,17 @@ export async function createCategory(formData: FormData) {
     if (imageFile && imageFile.size > 0) {
       // --- TUTAJ OBSŁUŻENIE TWOJEGO PROBLEMU ---
       if (imageFile.size > MAX_FILE_SIZE) {
-        return { error: "The dream image is too heavy. Maximum limit is 8MB." };
+        return fail("INVALID_INPUT", "The dream image is too heavy. Maximum limit is 8MB.");
       }
 
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      
-      const uploadDir = path.join(process.cwd(), "public/categories");
-      await mkdir(uploadDir, { recursive: true });
-
-      const fileName = `${Date.now()}-${slugify(imageFile.name, { lower: true })}`;
-      const filePath = path.join(uploadDir, fileName);
-      
-      await writeFile(filePath, buffer);
-      imagePath = `/categories/${fileName}`;
+      // Ta ścieżka wcześniej zapisywała surowy bufor bez sharp — teraz
+      // przechodzi przez to samo przetwarzanie co pozostałe uploady.
+      imagePath = await processAndStore(imageFile, {
+        dir: "categories",
+        fileName: `${Date.now()}-${slugify(imageFile.name, { lower: true, strict: true })}`,
+        width: 800,
+        height: 800,
+      });
     }
 
     const slug = slugify(name, { lower: true, strict: true });
@@ -61,37 +50,37 @@ export async function createCategory(formData: FormData) {
     });
 
     revalidatePath("/dashboard/categories");
-    return { success: "Category forged successfully!" };
+    return ok();
 
-  } catch (error: any) {
-    console.error("CRITICAL_SERVER_ERROR:", error);
+  } catch (error) {
+    reportError(error, { area: "admin.categories" });
     // Zwracamy obiekt błędu zamiast rzucać wyjątek, by klient nie utknął
-    return { error: "A server glitch occurred. Please try again later." };
+    return failFrom(error, "INTERNAL", "A server glitch occurred. Please try again later.");
   }
 }
 
 export async function getCategories() {
   try {
-    await checkAdmin();
+    await requireAdmin();
     return await db.category.findMany({
       orderBy: { name: "asc" },
       include: {
         _count: { select: { products: true } }
       }
     });
-  } catch (error) {
+  } catch {
     return [];
   }
 }
 
-export async function deleteCategory(id: string) {
+export async function deleteCategory(id: string): Promise<ActionResult> {
   try {
-    await checkAdmin();
+    await requireAdmin();
     // Możesz tu dodać sprawdzenie, czy kategoria nie ma przypisanych produktów
     await db.category.delete({ where: { id } });
     revalidatePath("/dashboard/categories");
-    return { success: "Category removed." };
+    return ok();
   } catch (error) {
-    return { error: "Failed to delete category." };
+    return failFrom(error, "INTERNAL", "Failed to delete category.");
   }
 }

@@ -4,22 +4,31 @@ import { SettingsSchema } from "@/schemas"
 import { getCurrentUser } from "@/lib/auth"
 import { getUserById, getUserByEmail } from "@/data/user"
 import { db } from "@/lib/db"
+import { Prisma } from "@/lib/generated/prisma/client"
 import { generateVerificationToken } from "@/lib/token"
 import { sendVerificationEmail } from "@/lib/mail"
 import { revalidatePath } from "next/cache"
 import bcrypt from "bcrypt"
+import { ActionResult, fail, ok } from "@/lib/action-result";
 
 // actions/settings.ts
-export const settings = async (values: z.infer<typeof SettingsSchema>) => {
+/**
+ * Zwraca `emailChanged`, a nie gotowy komunikat: interfejs pokazuje inny
+ * tekst, kiedy zmiana maila wymaga ponownej weryfikacji, i tylko on wie,
+ * w jakim języku ma go pokazać.
+ */
+export const settings = async (
+  values: z.infer<typeof SettingsSchema>
+): Promise<ActionResult<{ emailChanged: boolean }>> => {
   const user = await getCurrentUser();
-  if (!user || !user.id) return { error: "Unauthorized!" };
+  if (!user || !user.id) return fail("UNAUTHORIZED", "Unauthorized!");
 
   const dbUser = await getUserById(user.id);
-  if (!dbUser) return { error: "User not found!" };
+  if (!dbUser) return fail("NOT_FOUND", "User not found!");
 
   // 1. Kopiujemy dane z formularza do obiektu, który trafi do bazy
   // TypeScript pozwoli nam dodać tu pola z modelu Prisma
-  const updateData: any = {
+  const updateData: Prisma.UserUpdateInput = {
     name: values.name,
   };
 
@@ -34,7 +43,7 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   if (values.email && values.email !== user.email) {
     const existingUser = await getUserByEmail(values.email);
     if (existingUser && existingUser.id !== user.id) {
-      return { error: "Email already in use!" };
+      return fail("CONFLICT", "Email already in use!");
     }
 
     const verificationToken = await generateVerificationToken(values.email);
@@ -48,7 +57,7 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   // 4. Logika zmiany HASŁA
   if (values.password && values.newPassword && dbUser.password) {
     const passwordsMatch = await bcrypt.compare(values.password, dbUser.password);
-    if (!passwordsMatch) return { error: "Password incorrect!" };
+    if (!passwordsMatch) return fail("INVALID_INPUT", "Password incorrect!");
 
     const hashedPassword = await bcrypt.hash(values.newPassword, 12);
     updateData.password = hashedPassword;
@@ -62,11 +71,7 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
     }
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/dashboard/profile");
   
-  if (updateData.emailVerified === null) {
-      return { success: "Email updated & verification link sent!" };
-  }
-
-  return { success: "Settings updated!" };
+  return ok({ emailChanged: updateData.emailVerified === null });
 };

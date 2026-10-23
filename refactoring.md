@@ -1,0 +1,819 @@
+# Refactoring log
+
+Running log of code-quality findings. Newest section first within each dated
+entry; entries are appended, never overwritten.
+
+---
+
+# 2026-08-10 — full-codebase pass after phases 0–5
+
+Scope: `actions/`, `lib/`, `app/`, `components/`, `store.ts`. Reviewed after 43
+commits of hardening and feature work. Formatting and lint-enforced style are
+out of scope — lint is green and gated in CI.
+
+**Summary:** 3 critical, 6 major, 5 minor.
+
+**Status after the 2026-08-10 refactor commits** (`b3b5bc5`, `f369084`):
+5 items resolved — the duplicated Stripe session, the hand-written ownership
+checks, the three upload paths, the duplicated pricing rule, and the dead
+`getActiveSaleByCouponCode`. Error reporting in the data layer is improved but
+the empty-result returns remain. The three critical structural items are
+deliberately untouched: they need an architectural decision first.
+
+The security and correctness work from phases 1–3 holds up. What is left is
+structural: the codebase has grown three separate conventions for the same
+concerns (serialisation, action results, error swallowing) and never
+consolidated them.
+
+---
+
+## [critical] Server/client serialisation is done three different ways — `lib/db-products.ts:31`
+
+**Issue:** `JSON.parse(JSON.stringify(...))` appears in 5 places
+(`db-products.ts:31,64,131`, `actions/admin/orders.ts:48`,
+`actions/store/reviews.ts:73`), while other paths use explicit
+`Number(x)` mappers, and `app/cart/delivery/[orderId]/page.tsx` converts field
+by field inline. There is no DTO layer; `types/product.ts` documents the mess
+rather than fixing it — `price: number | string`.
+
+**Why it matters:** this is not stylistic. The round-trip turns `Decimal` into
+`string` and `Date` into `string` while the TypeScript type keeps claiming
+`Decimal`/`Date`, so the type system actively lies about the runtime shape.
+Every new money or date field re-opens the same hole: adding
+`Order.discountAmount` in the coupon work immediately leaked two fresh
+`Decimal` objects into Client Components, and both were only caught because
+Next logs a warning. It also serialises entire relation trees — the category
+page round-trips every product with all its reviews and authors just to render
+a grid.
+
+**Recommendation:** introduce `lib/dto/` with explicit mappers per aggregate
+(`toProductDTO`, `toOrderDTO`, `toReviewDTO`) returning types with `number` for
+money and ISO `string` for dates. Delete the `JSON.parse(JSON.stringify(...))`
+calls and the `number | string` unions once the mappers are the only crossing
+point. This is the systemic fix for what §2.6 of `markdown/improvement.md`
+tracks piecemeal.
+
+> **Partially addressed**: the `JSON.parse(JSON.stringify(...))` calls and the
+> `number | string` unions are gone, and `lib/dto/` is the single crossing
+> point. The explicit per-aggregate mappers this recommended were never
+> written — see the `lib/dto/` entry in the 2026-08-11 section.
+
+## [critical] Server Actions have four incompatible return contracts — `actions/order/order.ts:25`
+
+**Issue:** actions return `{ error: string }`, `{ success: true, orderId }`,
+`{ url: string, error: null }`, `{ url: null, error: string }` and
+`{ success: string }` — the last using `success` as a *message*, not a flag.
+`lib/action-result.ts` was written to unify this and is imported by nothing
+(`ActionResult`, `ok`, `fail` have zero call sites).
+
+**Why it matters:** callers cannot tell success from failure without knowing
+each action individually. `app/[locale]/cart/page.tsx` checks `res.error`;
+`components/cart/delivery-client.tsx` checks `res.url`. Nothing stops a new
+action from inventing a fifth shape, and nothing catches it — a discriminated
+union would make the compiler do that. The abstraction already exists and is
+dead code, which is worse than not having written it: it signals a convention
+that isn't followed.
+
+**Recommendation:** adopt `ActionResult<T>` across `actions/` and update the
+call sites, or delete `lib/action-result.ts`. Leaving an unused abstraction in
+place is the one option with no upside.
+
+> **Resolved (`9a3c081`, `695d0a8`, `dd54bc3`)**: all 21 mutations return
+> `ActionResult<T>`. Reads (`getCategories`, `getVoices`, `getMoreReviews`, …)
+> deliberately do not — they return data, not the outcome of an operation.
+> `ActionError` carries an `ErrorCode` across a `throw`, which the guards and
+> the in-transaction stock and coupon checks need.
+>
+> Acting on this found three live defects: `createReview` took `userId` from
+> the client payload, and `updateReview`/`deleteReview` matched on review id
+> without an owner predicate. It also removed ten hardcoded English strings
+> that were being returned from the server in an otherwise translated app.
+
+## [critical] Errors are swallowed into empty results across the data layer — `lib/db-products.ts:33`
+
+**Issue:** six `catch` blocks in `lib/db-products.ts` and `lib/db-categories.ts`
+return `[]`, `null` or `0` after a `console.error`. `lib/db-search.ts:33` does
+the same.
+
+**Why it matters:** a database outage renders as an empty catalogue rather than
+an error, so the shop silently shows "no products" instead of failing visibly.
+Monitoring sees HTTP 200. This is the same failure mode as the rate limiter's
+silent fail-open, which went unnoticed until an E2E run surfaced it — and the
+fix there (report through `reportError`, not `console.error`) has not been
+applied here.
+
+**Recommendation:** let these throw and handle them at the route boundary with
+`error.tsx`, which now exists. Where an empty result genuinely is the right
+answer, distinguish it from failure in the return type rather than by an empty
+array.
+
+> **Resolved (`20ffd5d`)**, after a decision on what a visitor should see: the
+> catalogue queries no longer catch, so `null` means "no such row" — which the
+> callers already turn into `notFound()` — and a failure reaches `error.tsx`
+> and a 5xx. `lib/db-search.ts` keeps its catch on purpose: a typo during a
+> brief hiccup should show "no results", not take down the search screen.
+> A unit test pins both directions.
+
+> **Partially addressed (`f369084`)**: all 22 `console.error` calls are now
+> `reportError` with an `area` tag, so failures are visible in structured logs.
+> The empty-result returns are unchanged — making them throw alters what a
+> visitor sees during an outage and is bundled with the DTO decision.
+
+
+## [major] `actions/order/order.ts` is a 303-line module with four responsibilities
+
+> **Partially addressed (`b3b5bc5`)**: the duplicated Stripe session construction
+> is extracted to `lib/checkout-session.ts`, and the file is down to 224 lines.
+> Extracting the rest into `lib/checkout/` is still open and still architectural.
+>
+> Acting on this found a live bug: `recreateStripeSession` rebuilt line items
+> without applying `order.discountAmount`, so retrying an interrupted payment
+> charged the full price and silently dropped the coupon. Covered by a
+> regression test.
+
+**Issue:** stock reservation, coupon validation, address persistence, Stripe
+session creation and payment retry all live in one file. The Stripe session is
+constructed twice, ~25 duplicated lines apart (`:224` and `:274`), differing
+only in `expires_at` and `cancel_url`.
+
+**Why it matters:** this is the highest-risk file in the codebase — three of the
+phase 1 defects were here. Duplicated session construction is exactly how the
+`payment_intent_data.metadata` fix nearly missed the second call site. Testing
+requires standing up the whole flow because there are no seams.
+
+**Recommendation:** extract `lib/checkout/` with `reserveStock`, `applyCoupon`
+and `createPaymentSession(order, { cancelUrl })`. The actions become thin
+orchestration. Splitting a payment path is an architectural change — route it
+through the decision gate before acting.
+
+> **Rejected, deliberately.** `createPaymentSession` is already extracted, which
+> was the duplication that mattered. Splitting `reserveStock` and `applyCoupon`
+> out of `initializeOrder` would move them out of the `$transaction` callback
+> that makes the stock check atomic — the seam is exactly where the correctness
+> guarantee lives. The remaining 224 lines are one coherent flow with
+> integration coverage on every branch. Revisit only if a second caller appears.
+
+## [major] Image upload is duplicated between two admin actions — `actions/admin/inventory.ts:176`
+
+**Issue:** `inventory.ts` and `ingredients.ts` each carry their own
+sharp-resize-convert-save pipeline with slightly different parameters
+(1200×1200 vs. its own), and category upload writes a raw buffer with no
+processing at all.
+
+**Why it matters:** three upload paths, three sets of behaviour. The category
+path skips sharp entirely, so an admin can upload a 12 MB PNG that is served
+unprocessed. A change to storage — the very thing phase 3 just did — has to be
+made in three places and was.
+
+**Recommendation:** one `lib/uploads.ts` helper —
+`processAndStore(file, { dir, maxSize })` — used by all three.
+
+> **Resolved (`f369084`)**: `processAndStore` in `lib/uploads.ts`. The category
+> path, which bypassed sharp entirely, now goes through the same pipeline.
+
+
+## [major] `product-form.tsx` is 550 lines of mixed concerns
+
+**Issue:** one client component holds form state, image preview state, file
+upload handling, `FormData` construction, submission and the entire multi-section
+layout.
+
+**Why it matters:** it is the single largest file in the app and cannot be
+tested without rendering all of it. It also had 16 of the 77 lint errors, all
+from one unaddressed typing problem — a symptom of nobody wanting to open it.
+
+**Recommendation:** extract `useProductForm` for state and submission, and split
+the layout into `ProductBasicsSection`, `ProductPricingSection`,
+`ProductImagesSection`. No behaviour change.
+
+> **Resolved (`c8e3074`)**: `useProductForm` plus four sections; the shell is
+> 63 lines. Two deliberate behaviour changes: the promo-price check runs before
+> `FormData` is built rather than after, and the file-size messages are
+> translated. Covered by a new E2E spec — the file had no tests, so the split
+> would otherwise have rested on the compiler alone.
+>
+> Writing that spec surfaced two defects of its own: the dashboard sidebar
+> resolved four nav labels to objects and rendered raw key paths (`2becac2`),
+> and `tests/e2e/seed.ts` re-ran its `deleteMany()` on every import of its
+> constants, which is what made `checkout.spec` fail intermittently
+> (`cc60c8e`).
+
+## [major] Order ownership is re-checked ad hoc in three places — `actions/order/order.ts:112`
+
+**Issue:** `userId: session.user.id` appears as a query predicate at `:112`,
+`:153` and `:263`, each written slightly differently (`session.user.id!`,
+`session.user!.id`, `sessionAuth.user.id`).
+
+**Why it matters:** this is the exact shape of the IDOR fixed in phase 1 —
+`finalizeAndPay` was missing the predicate while `recreateStripeSession` had it.
+Three hand-written copies of a security check is three chances to omit the
+fourth.
+
+**Recommendation:** a single `requireOwnedOrder(orderId, { status })` in
+`lib/guards.ts`, alongside `requireAdmin`, that throws when the order is not the
+caller's. One place to audit.
+
+> **Resolved (`b3b5bc5`)**: `requireOwnedOrder` in `lib/guards.ts`.
+
+
+## [major] Admin lists fetch from client effects, creating a request waterfall — `inventory-client.tsx:61`
+
+**Issue:** `inventory-client.tsx`, `comments/page.tsx` and `category-list.tsx`
+are Client Components that fetch through Server Actions inside `useEffect`.
+
+**Why it matters:** the page shell renders, then a second round trip fetches the
+data, so nothing appears until two sequential requests complete. The app now has
+Suspense boundaries everywhere else and streams properly; these three are the
+remaining exception, and they are also the reason for three
+`eslint-disable react-hooks/set-state-in-effect` comments.
+
+**Recommendation:** fetch on the server, pass data as props, and drive
+search/filter state through `searchParams` rather than component state. Removes
+the effects and the disables together.
+
+> **Resolved (`11916fd`, `6f5eb5d`, and `category-list.tsx` in `dd54bc3`)**:
+> all three render on the server. Queries moved to `lib/db-reviews.ts` and
+> `lib/db-inventory.ts`; filters and paging live in `searchParams`, so they
+> survive a reload and can be linked. `getVoices` and `getInventoryProducts`
+> were Server Actions — reads exposed as POST endpoints — and are deleted.
+>
+> This also closed the `toPlainDeep` gap on the inventory page and the
+> blocking-route warning on `inventory/[productId]`, and it is what surfaced
+> the shared-login rate-limit problem in the E2E suite (`af7bb37`).
+
+## [major] Empty-catch pattern hides upload failures — `actions/admin/inventory.ts`
+
+**Issue:** the delete-old-images loop catches per-file errors and continues,
+logging nothing actionable; `lib/uploads.ts:deleteUpload` does the same.
+
+**Why it matters:** orphaned files accumulate on the volume with no signal.
+Nobody discovers it until the disk fills — which this project has already
+experienced from a different cause.
+
+**Recommendation:** report through `reportError` with the failing path so it is
+visible, and consider a periodic reconciliation against `ProductImage` rows.
+
+> **Resolved (`f369084`, `a6ce75c`)**: `deleteUpload` reports through
+> `reportError` with the failing path, and no swallowing `try` wraps the
+> delete loop.
+
+## [minor] Dead exports left in the data layer — `lib/db-sales.ts:4`
+
+**Issue:** `getActiveSaleByCouponCode` has no call sites — coupon validation was
+implemented inline in `initializeOrder`. `getTotalProductsCount` and
+`getAllProductsAsCategory` are each referenced from one place only.
+
+**Why it matters:** a reader looking for coupon logic finds a plausible-looking
+helper that nothing uses, and may extend the wrong one.
+
+**Recommendation:** delete `getActiveSaleByCouponCode`, or use it from
+`initializeOrder` instead of the inline query.
+
+> **Resolved (`f369084`)**: `getActiveSaleByCouponCode` deleted.
+
+
+## [minor] `errorMessage` helper lives in the wrong module — `lib/action-result.ts:32`
+
+**Issue:** it was appended to `action-result.ts` because that file already
+existed, but it has nothing to do with action results and is the only thing in
+that module actually imported.
+
+**Recommendation:** move to `lib/errors.ts` alongside `reportError`, or into
+`lib/logger.ts`.
+
+> **Resolved (`83fe0cc`)**: moved to `lib/logger.ts`.
+
+## [minor] `store.ts` mixes cart state with pricing rules
+
+**Issue:** `getTotalPrice` and `getSubTotalPrice` encode the promo-price rule
+(`promoPrice ?? price`) inside the Zustand store, while `initializeOrder`
+encodes the same rule server-side.
+
+**Why it matters:** two implementations of one business rule. The `promoPrice: 0`
+bug existed in the client copy only — the server was already correct, so the cart
+displayed one total and the order was created with another.
+
+**Recommendation:** extract `activePrice(product)` into `lib/pricing.ts` and use
+it from both. Small, and it removes a class of divergence that has already
+produced one bug.
+
+> **Resolved (`f369084`)**: `activePrice` / `basePrice` in `lib/pricing.ts`.
+
+
+## [minor] `types/product.ts` and `types/order.ts` describe query shapes, not the domain
+
+**Issue:** `Category` carries optional `parentId`, `children` and `_count`
+because some queries select them and others do not; `OrderItemType.product` has
+an index signature to absorb whatever a given `select` returned.
+
+**Why it matters:** the types describe the union of every call site rather than
+a domain concept, so they cannot catch a caller passing the wrong shape — which
+is what types are for.
+
+**Recommendation:** narrow per use case (`CategoryListItem`, `CategoryWithCount`)
+once the DTO layer exists; they fall out of it naturally.
+
+> **Partially addressed**: `InventoryProduct`, `VoiceType`, `CartProduct` and
+> `OrderItemType.product` are narrowed. `Category` still carries optional
+> `parentId`, `children` and `_count` for the admin views.
+
+## [minor] Two upload-serving paths coexist — `lib/uploads.ts:60`
+
+**Issue:** `deleteUpload` resolves both `/uploads/...` (current) and legacy
+`/products/...` paths under `public/`, deliberately, to avoid a data migration.
+
+**Why it matters:** the compatibility branch is untested and will quietly become
+permanent. New rows only ever use the new scheme.
+
+**Recommendation:** write the one-off migration that rewrites existing
+`ProductImage.url`, `Category.image` and `Ingredient.image` values, then delete
+the branch.
+
+> **Partially addressed (`a6b9bff`)**: `scripts/migrate-uploads.ts` moves the
+> files and rewrites the rows; idempotent, with `--dry-run`, verified against a
+> seeded database. The branch stays until the script has run on an instance —
+> deleting it first would orphan images that are still referenced. The
+> deliberate `/static/` exclusion now has a test.
+
+---
+
+## Not flagged, deliberately
+
+- **Polish comments in an English codebase.** Consistent, intentional, and the
+  working language of the maintainer. Not a defect.
+- **`catch (error: any)` remnants.** None remain; lint gates this now.
+- **Duplicated `requireAdmin` calls across admin actions.** Repetition here is
+  correct — each action is independently reachable and must guard itself.
+- **`app/[locale]` route restructure.** Verified working in both locales with
+  E2E coverage.
+
+
+---
+
+# 2026-08-11 — open after the ActionResult pass
+
+Lint reported 4 errors in files this work did not touch —
+`components/discount-banner.tsx` (refs read during render, ×2),
+`components/ui/carousel.tsx` and `hooks/use-cart-store-safe.ts`
+(set-state-in-effect). They predated this branch and came from the React
+Compiler lint rules, not from the refactor.
+
+> **Resolved (`fix/react-compiler-lint`)**: `useCartStoreSafe` had zero call
+> sites and was deleted rather than fixed. `discount-banner.tsx` holds the
+> Autoplay plugin in a lazily-initialised `useState` instead of a ref, which
+> is equally one-shot but legal to read during render. The `carousel.tsx`
+> case is genuine — the embla instance does not exist until after mount — so
+> it carries a documented disable. Lint is back to 0 errors.
+
+Still open from the 2026-08-10 list: query-shaped types in `types/`, which
+only pay off once the DTO layer is fleshed out beyond `toPlain`/`toPlainDeep`,
+and deleting the legacy upload branch once the migration script has run.
+
+The admin inventory page passes raw Prisma rows to `ProductForm`, which logs
+"Only plain objects can be passed to Client Components" on every visit — the
+new E2E spec is what made it visible. It belongs with the remaining `lib/dto/`
+work rather than with the form split.
+
+---
+
+# 2026-08-11 — second full pass, after 61 commits
+
+Scope: whole codebase, with attention to what the previous work did not touch —
+`store.ts`, `types/`, `components/product*`, the API routes, `proxy.ts`, the
+auth layer and the order screens. Generated Prisma output and vendored shadcn
+UI are excluded.
+
+**Summary: 1 critical, 5 major, 5 minor — all resolved (`41dedbc`, `a6ce75c`,
+`d335adf`, `982119e`).**
+
+Verified as sound, so not re-listed: the authorization layering (`proxy.ts`
+guards the route, `(admin)/layout.tsx` guards the role with `NotAllowedView`,
+each query guards itself again), the cron endpoint's `timingSafeEqual`
+comparison, `releaseOrderReservation`'s conditional-update idempotency, and the
+path-traversal guard on the uploads route.
+
+## [critical] Ratings are averaged over whichever rows happen to be loaded — `components/product-card/ProductCard.tsx:23`
+
+**Issue:** three places compute a rating average from the reviews present in
+memory rather than from an aggregate: the card (`:23`), the product page's
+structured data (`app/[locale]/product/[slug]/page.tsx:53`) and the reviews
+section (`components/product/reviews-section.tsx:39`). `getProductBySlug`
+fetches `take: 9` reviews and, separately, excludes the signed-in user's own
+review from that set.
+
+**Why it matters:** for any product with more than nine reviews the star rating
+shown to visitors is the average of the nine most recent ones, not of all. The
+same numbers go into the `aggregateRating` block of the JSON-LD served to
+search engines, where `reviewCount` reports at most 9 regardless of the real
+total — and because the current user's review is filtered out, the structured
+data changes depending on who is logged in. Publishing an aggregate that
+disagrees with the visible review count is exactly what rich-result validation
+flags. The E2E suite asserts the JSON-LD *exists*, not that it is right, so
+nothing catches this.
+
+**Recommendation:** compute it in the database —
+`db.review.aggregate({ where: { productId }, _avg: { rating }, _count: true })` —
+and pass `ratingAvg` / `ratingCount` down as data. On the category grid that
+also removes the need to ship review rows at all (see the over-fetch note
+below). If the catalogue grows, denormalise both onto `Product` and refresh
+them in the review mutations.
+
+> **Resolved (`41dedbc`)**: aggregated in the database; the catalogue stopped
+> selecting reviews at all.
+
+## [major] A replaced ingredient image is cached as immutable for a year — `app/uploads/[...path]/route.ts:49`
+
+**Issue:** the uploads route sends `Cache-Control: public, max-age=31536000,
+immutable`, justified by a comment saying filenames are UUIDs. That holds for
+products (`crypto.randomUUID()`) and categories (`Date.now()`-prefixed), but
+`actions/admin/ingredients.ts:44` uses `fileName: ingredientId` — a stable name.
+
+**Why it matters:** editing an ingredient's image overwrites the same URL, and
+every browser and proxy that has seen it will keep serving the old picture for
+a year. `immutable` specifically tells clients not to revalidate even on a
+forced reload. The admin sees the change locally and has no way to tell that
+visitors do not.
+
+**Recommendation:** give the ingredient upload a fresh name per write, like
+the other two paths. That keeps one cache policy for the whole route instead
+of special-casing it.
+
+> **Resolved (`a6ce75c`)**: a fresh filename per write, old file removed after
+> the record is saved.
+
+## [major] Deleting a product leaves its images on disk forever — `actions/admin/inventory.ts:9`
+
+**Issue:** `deleteProduct` removes the row and nothing else; the
+`// TODO: handle removing images connected with product` above it says so.
+`upsertProduct` does clean up replaced images, so the gap is only on delete.
+
+**Why it matters:** the upload directory is a volume that nothing prunes, so
+every deleted product leaks its files permanently. This project has already
+lost a working day to a full disk from an unrelated cause; this is the same
+failure mode with a slow fuse and no signal until it happens.
+
+**Recommendation:** read the `ProductImage` rows before the delete and pass
+each through `deleteUpload`, reporting failures rather than swallowing them.
+The relation cascade already removes the rows, so only the files are missing.
+
+> **Resolved (`a6ce75c`)**: image urls are read before the delete and each file
+> removed after it; covered by an integration test.
+
+## [major] `getAdminOrders` is the last read still shaped as a Server Action — `actions/admin/orders.ts:13`
+
+**Issue:** it is called from a Server Component but carries `"use server"`, so
+a plain read is published as a POST endpoint. It also swallows every failure
+into `{ orders: [], totalPages: 0 }`, and its comment — "Serializacja: usuwamy
+obiekty Decimal i Date" — describes work the code does not do: the rows go to a
+Client Component unprocessed, with no `toPlainDeep`.
+
+**Why it matters:** the two sibling reads were moved to `lib/db-reviews.ts` and
+`lib/db-inventory.ts` in this same pass, so the codebase now has two
+conventions for the same thing and a newcomer will copy whichever they meet
+first. The swallowed error contradicts the contract just established for the
+catalogue: a database outage renders the orders terminal as "Active Records: 0"
+with HTTP 200. The comment is worse than no comment, because it claims a
+guarantee that is not there.
+
+**Recommendation:** move it to `lib/db-orders.ts`, drop the `catch`, run the
+rows through `toPlainDeep`, and delete the comment.
+
+> **Resolved (`982119e`)**: moved to `lib/db-orders.ts`, without the catch and
+> with `toPlainDeep`.
+
+## [major] The cart persists whole product aggregates in localStorage — `store.ts:7`
+
+**Issue:** `CartItem.product` is a full `ProductType`, so every cart entry
+persists the product's description, categories, ingredients, images *and its
+review list with authors* under the `cart-store` key.
+
+**Why it matters:** a three-item cart can carry tens of kilobytes of stale
+relations that nothing on the cart screen reads, and the data ages
+indefinitely — `syncItems` only refreshes price, name and stock. A product
+deleted server-side is never returned by `getFreshCartData`, so its item stays
+in the cart untouched forever; `initializeOrder` then rejects the whole
+checkout with "product unavailable" and the customer has no indication which
+line to remove. That is a dead end reachable by ordinary use.
+
+**Recommendation:** persist `{ productId, quantity }` plus the small snapshot
+the cart actually renders, and have `syncItems` drop items the server did not
+return, surfacing what it removed.
+
+> **Resolved (`d335adf`)**: `CartProduct` plus a covered `migrateCart`;
+> `syncItems` also drops and names vanished products.
+
+## [major] `getFreshCartData` reports an outage as "nothing changed" — `actions/store/sync-cart.ts:27`
+
+**Issue:** the catch returns `[]`, which `syncItems` treats as "no product
+needed updating".
+
+**Why it matters:** the cart page shows "verifying stock", then proceeds with
+whatever prices localStorage held, possibly months old. This is the pattern
+that was just removed from the catalogue queries by decision, so leaving it
+here is an inconsistency rather than an oversight — and it sits on the money
+path, where stale prices matter most.
+
+**Recommendation:** let it throw and let the cart's error boundary handle it,
+or return a discriminated result so the page can say the check failed instead
+of implying it passed.
+
+> **Resolved (`d335adf`)**: the catch is gone and the cart shows a retry state.
+
+## [minor] A debug log ships to production on every cart render — `components/cart/product-card.tsx:30`
+
+**Issue:** `console.log(item)` at the top of the component body.
+
+**Recommendation:** delete it. `app/[locale]/(protected)/dashboard/_components/category-form.tsx:96`
+similarly uses `console.error` where every other path now reports through
+`reportError`.
+
+> **Resolved (`982119e`)**.
+
+## [minor] Prices are formatted as en-US in a bilingual app — `components/PriceFormatter.tsx:9`
+
+**Issue:** `toLocaleString("en-US", …)` is hardcoded, so the Polish site shows
+US grouping and symbol placement. `new Number(amount)` also wraps in a `Number`
+object rather than converting, and `amount: number | undefined` renders
+literal `$NaN` when undefined.
+
+**Recommendation:** use next-intl's `useFormatter().number(amount, { style:
+"currency", currency: "USD" })` so it follows the active locale, and make
+`amount` required.
+
+> **Resolved (`982119e`)**: formats through next-intl; `amount` is required.
+
+## [minor] `lib/dto/` is not a DTO layer — `lib/dto/index.ts:16`
+
+**Issue:** the module strips symbol properties and nothing more; `toPlain` (the
+shallow variant) has no call sites at all. The 2026-08-10 recommendation was
+per-aggregate mappers (`toProductDTO`, `toOrderDTO`), which would also bound
+what crosses the boundary.
+
+**Why it matters:** the name promises a mapping layer that is not there, and
+the over-fetch it was supposed to fix remains: the category page still ships
+every product's full review list, with each author, to render a grid of cards.
+
+**Recommendation:** delete the unused `toPlain`, and either rename the module
+to what it does (`lib/serialize.ts`) or grow the mappers. Doing the ratings fix
+above removes the largest over-fetch on its own.
+
+> **Partially addressed (`982119e`)**: the dead `toPlain` is gone and the
+> largest over-fetch went with the ratings fix. Per-aggregate mappers were
+> not built — `toPlainDeep` still strips symbols rather than mapping to view
+> models, and the module name still promises more than it does.
+
+## [minor] `OrderItemType.product` keeps an index signature — `types/order.ts:22`
+
+**Issue:** `[key: string]: unknown` absorbs whatever a given `select` returned.
+The product and inventory types were narrowed in this round; this one was not.
+
+**Recommendation:** narrow per use case now that the pattern is established.
+
+> **Resolved (`982119e`)**.
+
+## [minor] `sendEmail` is exported but only used inside its own module — `lib/mail.ts`
+
+**Recommendation:** drop the `export` unless a caller is planned; it currently
+reads as public API.
+
+
+---
+
+> **Resolved (`982119e`)**.
+
+## Status of the 2026-08-11 findings
+
+All eleven are addressed. Notes on the three where the fix went beyond the
+recommendation:
+
+- **Ratings** (`41dedbc`): the aggregate moved into the database, and the
+  catalogue queries stopped selecting reviews altogether — they were being
+  fetched, serialised and shipped to the browser with their authors purely to
+  compute one number per card. The E2E seed grew to 14 reviews so the test sits
+  above the `take: 9` threshold; below it, it cannot tell the fix from the bug.
+  Verified by restoring the old computation and watching it fail.
+
+- **Cart** (`d335adf`): alongside the narrow `CartProduct`, `syncItems` now
+  drops products the server no longer returns and names them. The existing unit
+  test asserted the opposite — it pinned the bug in place — and now asserts the
+  new behaviour with an explanation. `migrateCart` is exported so carts saved
+  before the change are covered by a test rather than by hope.
+
+- **Uploads** (`a6ce75c`): the ingredient filename and the delete-time leak
+  were one commit, since both concern the same volume. Covered by an
+  integration test against a real database and a real upload directory,
+  including a missing-file case — a broken path must not make a product
+  undeletable.
+
+**Legacy upload branch: closed.** A read-only pass over the live database
+settled it — all 92 image rows point at `/static/`, the demo assets that ship
+in the repository. There is not a single record in the pre-move scheme, so the
+compatibility branch in `deleteUpload` guarded nothing, and the dry-run of
+`scripts/migrate-uploads.ts` found nothing to move. The branch is gone;
+`deleteUpload` now touches only what lies inside the upload directory. The
+script stays for the case it was written for: restoring an older dump.
+
+Two files under `public/` turned out to be orphans from admin uploads whose
+rows were wiped by a later re-seed — nothing referenced them. They were also
+swept into `c0e6dae` by a careless `git add -A`. Removed going forward rather
+than by rewriting history: they are 300 KB in a 102 MB repository, and that
+commit has 44 descendants across fourteen branches, three of them pushed.
+
+---
+
+## What is not closed
+
+Every finding from both passes has been acted on, but three are partial by
+choice rather than by oversight, and one area has not been reviewed at all:
+
+- **`lib/dto/` is still a serialiser, not a DTO layer.** It strips symbol
+  properties so Prisma results survive the server/client boundary. The
+  per-aggregate mappers (`toProductDTO`, `toOrderDTO`) that would bound what
+  crosses that boundary were never written. The largest over-fetch it was
+  meant to solve went away with the ratings fix, which is why this stopped
+  being urgent — not because it was done.
+
+- **`Category` still describes a query shape.** `parentId`, `children` and
+  `_count` remain optional because the admin views select them and the
+  storefront does not. Narrowing it properly depends on the mappers above.
+
+- **The legacy upload branch is gone, the migration script is not.**
+  `scripts/migrate-uploads.ts` stays for a restored older dump. It has never
+  run against anything but a seeded test database.
+
+- **Nothing written after 2026-08-11 has been reviewed.** The analytics
+  dashboard and the accessibility work landed after the second pass, so
+  `lib/db-analytics.ts`, the analytics page, `revenue-chart.tsx` and the
+  contrast changes across ~110 files have had no refactoring review — only
+  tests and lint.
+
+Lint reports 71 warnings, none of them errors: 65 are unused variables
+(mostly `catch (error)` bindings and leftover icon imports), 4 are
+`exhaustive-deps` on effects with deliberately narrow dependency arrays, and
+2 are `react-hooks/incompatible-library` from react-hook-form's `watch`.
+
+---
+
+# 2026-08-11 (third pass) — the analytics dashboard and the accessibility work
+
+Scope: everything written after the second pass — `lib/db-analytics.ts`, the
+analytics page and chart, `lib/db-orders.ts`, the rewritten cart store, the
+ratings aggregation, and the accessibility changes. The contrast sweep touched
+~110 files but mechanically; it was spot-checked, not re-read line by line.
+
+**Summary: 2 major, 3 minor — all resolved (`8a4c973`, `f8a2d40`, `779b097`).**
+
+## [major] The revenue card and the revenue chart measure different windows — `lib/db-analytics.ts:52`
+
+**Issue:** `getRevenueByDay` buckets by calendar day, from
+`date_trunc('day', NOW()) - (days - 1)`. `getAnalyticsSummary` and
+`getTopProducts` use a rolling window, `NOW() - days`. The two do not cover the
+same span.
+
+**Why it matters:** measured, not theorised — an order placed 29 days and 20
+hours ago produces `SUMMARY 100, CHART 0` on the same screen. The header claims
+revenue the chart below it does not show, and nothing reconciles them. An admin
+comparing the two has no way to tell which is wrong, and the natural conclusion
+is that the dashboard is broken — which, in the sense that matters, it is.
+
+**Recommendation:** define the window once, in calendar days, and have all
+three queries take it as a parameter — the chart's axis is already calendar
+days, so the summary should follow it rather than the other way round. Assert
+in a test that the summary equals the sum of the bars; that single assertion
+would have caught this before it shipped.
+
+## [major] The chart has no text alternative, and no admin page is audited — `app/[locale]/(protected)/dashboard/_components/revenue-chart.tsx:31`
+
+**Issue:** the chart renders as SVG with no `role`, no accessible name and no
+tabular equivalent. The axe spec added in the same unit covers five public
+pages and no dashboard page, so nothing measures it.
+
+**Why it matters:** the whole point of unit 35 was to make accessibility a
+number rather than an intention. Leaving the newest, most visual screen outside
+the audit is exactly how that number stops meaning anything. Revenue per day is
+data a screen-reader user cannot get at all here — unlike top products, which
+did get a real table with a caption.
+
+**Recommendation:** add the analytics page to the axe spec (it needs the admin
+storage state, which the suite already produces), and give the chart a
+visually-hidden table of the same figures. That is the standard pattern and it
+costs a dozen lines.
+
+## [minor] The analytics page authorises four times per render — `lib/db-analytics.ts`
+
+**Issue:** `requireAdmin()` runs in each of the three queries, and the
+`(admin)` layout already guards the route.
+
+**Why it matters:** four session lookups per page view. The repetition itself
+is right — each query must be safe on its own, and that was flagged as correct
+in the first pass — but the layout guard plus three data calls means the same
+answer is fetched four times.
+
+**Recommendation:** leave the guards; consider memoising the session read per
+request with React's `cache()`, which fixes this class of duplication
+everywhere rather than here alone.
+
+## [minor] Day buckets are formed in the database's timezone and rendered in UTC — `lib/db-analytics.ts:64`
+
+**Issue:** `date_trunc('day', NOW())` uses the session timezone; the result is
+then formatted with `toISOString().slice(0, 10)`, which is UTC.
+
+**Why it matters:** identical while the database runs in UTC, which is the case
+today for both the container and the hosted instance — so this is latent, not
+live. On a server set to local time the labels shift by a day, and the shift is
+invisible until someone reconciles a daily figure against an order list.
+
+**Recommendation:** either set the window explicitly with `AT TIME ZONE` or
+return the day as a formatted string from SQL, so one timezone decides both the
+bucket and the label.
+
+## [minor] The axe scan excludes every `aria-hidden` subtree — `tests/e2e/a11y.spec.ts:28`
+
+**Issue:** `.exclude('[aria-hidden="true"]')` was added so the deliberately
+faint background lettering in the auth screens would not fail contrast.
+
+**Why it matters:** it is defensible for decoration — that content is out of
+the accessibility tree by design — but it is a blunt instrument. Anything
+marked `aria-hidden` by mistake now escapes the audit entirely, and marking
+content hidden is a common enough error that the audit should be the thing
+catching it.
+
+**Recommendation:** narrow the exclusion to the decorative container itself
+rather than the attribute in general, so a future misuse of `aria-hidden`
+still fails.
+
+
+## Status of the third pass
+
+- **Window mismatch** (`8a4c973`): one boundary, computed once in SQL, taken by
+  all three queries; the day label is formatted with `to_char` so the bucket,
+  the boundary and the label share a timezone — which closes the separate
+  minor about UTC as well. Two tests assert the reconciliation the dashboard
+  implicitly promises.
+
+- **Chart and audit scope** (`f8a2d40`): the analytics and inventory pages are
+  in the axe spec, and the chart carries a visually-hidden table. Adding those
+  pages immediately found four defects, one of which corrects this very
+  document: the claim that white-on-green buttons were fine held only in dark
+  mode. `--primary-foreground` is now theme-aware; the green is unchanged.
+
+- **`aria-hidden` exclusion**: narrowed to two specific selectors.
+
+- **Four authorisation calls per render**: left alone deliberately. Each query
+  must be safe on its own, and the fix belongs in a request-scoped session
+  cache rather than here.
+
+Found while verifying, and worth more than the item that led to it: the
+integration suites each cleared only their own tables, so once analytics
+started leaving `OrderItem` rows behind, the upload suite failed on a foreign
+key about every second run. `tests/integration/reset.ts` now clears the shared
+tables in one place (`779b097`). The same look found `webhook.test.ts` deleting
+every suite's user, which worked only because that file runs last.
+
+---
+
+# 2026-08-11 — caching: measured, not understood, reverted
+
+Unit 27 of the plan called for `"use cache"` on the catalogue and product
+pages. It was never done: `cacheComponents: true` is set in `next.config.ts`
+and there is not a single `"use cache"` directive in the codebase.
+
+I attempted it and reverted it. What I can state, and what I cannot:
+
+**Measured, repeatable:**
+
+- `/category/all` and `/product/[slug]` cause **zero** table scans across five
+  requests. They are already served from the prerender; they were never the
+  problem.
+- The home page caused **57 scans across five requests** — roughly eleven per
+  visit, for `getMainCategories`, `getAllSales` and the header's nav query.
+- With `"use cache"` added, an instrumented `getNavCategories` executed **zero
+  times across five requests**, and the scan counter also read zero.
+
+**Contradicts the above, and is why this was reverted:** a category inserted
+directly into the database — bypassing the application entirely — appeared in
+the navigation on the next request, on a warm cache, while the instrumented
+function still showed zero executions. Something renders that navigation
+without running the function I instrumented. Removing `revalidateTag` from the
+admin action changed nothing either, so the tag was not what refreshed it.
+
+Two signals say the data is cached; one says it is not; the counter that would
+adjudicate (`pg_stat_user_tables`) may lag behind the requests that produced
+it, so I do not trust it either.
+
+**Why revert rather than ship:** the failure mode of a caching change is stale
+data shown to customers — prices, stock, availability. Shipping a change whose
+mechanism I cannot describe, on the argument that the numbers looked good, is
+how that failure arrives. The home page costs eleven queries per visit, which
+is worth fixing, but not blind.
+
+**What would settle it:** instrument every candidate source of that navigation
+(the layout, `CategorySection`, `getMainCategories`) rather than one of them;
+read Postgres statistics after `pg_stat_clear_snapshot()` or use
+`pg_stat_statements` instead of the table counters; and run each variant
+against a freshly built image so no cache state carries over. That is a
+focused afternoon, not something to squeeze in beside other work.
+
+The E2E suite cannot help here: it runs against `next dev`, where the
+invalidation test passed with the invalidation removed. Any test for this has
+to run against a production build.

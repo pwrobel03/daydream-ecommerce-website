@@ -1,6 +1,7 @@
 // lib/db-products.ts
 import { db } from "@/lib/db";
-import { toPlainDeep } from "@/lib/dto";
+import { toPlainDeep } from "@/lib/serialize";
+import type { Prisma } from "@/lib/generated/prisma/client";
 
 // Te funkcje celowo nie łapią błędów. `null` znaczy "nie ma takiego rekordu"
 // i wywołujący zamienia to na notFound(); awaria bazy leci wyżej, do error.tsx,
@@ -55,6 +56,29 @@ function withRatings<T extends { id: string }>(
   }));
 }
 
+// Typy widoków wynikają z tych selectów — nie ma drugiej, ręcznej kopii kształtu.
+const productCardSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  weight: true,
+  price: true,
+  promoPrice: true,
+  stock: true,
+  images: { select: { url: true } },
+  status: { select: { name: true, color: true } },
+  categories: { select: { name: true } }, // Dla tagów na karcie
+} satisfies Prisma.ProductSelect;
+
+const reviewSelect = {
+  id: true,
+  content: true,
+  rating: true,
+  userId: true,
+  createdAt: true,
+  user: { select: { name: true, image: true } },
+} satisfies Prisma.ReviewSelect;
+
 /**
  * Pobiera konkretną kategorię wraz z limitowaną liczbą produktów
  */
@@ -64,16 +88,13 @@ export const getCategoryWithProducts = async (
 ) => {
   const category = await db.category.findUnique({
     where: { slug },
-    include: {
+    select: {
+      name: true,
+      description: true,
       products: {
         take: limit, // KLUCZOWE DLA LOAD MORE
         orderBy: { createdAt: "desc" },
-        include: {
-          images: true,
-          ingredients: true,
-          status: true,
-          categories: true, // Dla tagów na karcie
-        },
+        select: productCardSelect,
       },
     },
   });
@@ -95,20 +116,13 @@ export const getAllProductsAsCategory = async (limit: number = 25) => {
   const products = await db.product.findMany({
     take: limit, // KLUCZOWE DLA LOAD MORE
     orderBy: { createdAt: "desc" },
-    include: {
-      images: true,
-      ingredients: true,
-      status: true,
-      categories: true,
-    },
+    select: productCardSelect,
   });
 
   const ratings = await ratingsFor(products.map((p) => p.id));
 
   return {
-    id: "all-products-virtual-id",
     name: "All Artifacts",
-    slug: "all",
     description: "A complete collection of every dream captured so far.",
     products: toPlainDeep(withRatings(products, ratings)),
   };
@@ -122,7 +136,7 @@ export const getTotalProductsCount = async (slug?: string) => {
   if (slug && slug !== "all") {
     const category = await db.category.findUnique({
       where: { slug },
-      include: { _count: { select: { products: true } } },
+      select: { _count: { select: { products: true } } },
     });
     return category?._count.products ?? 0;
   }
@@ -138,11 +152,17 @@ export const getProductBySlug = async (
 ) => {
   const product = await db.product.findUnique({
     where: { slug },
-    include: {
-      images: true,
-      ingredients: true,
-      status: true,
-      categories: true, // DODANE: Aby wiedzieć, do jakiej kategorii należy produkt
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      price: true,
+      promoPrice: true,
+      stock: true,
+      images: { select: { id: true, url: true } },
+      ingredients: { select: { id: true, name: true, image: true } },
+      status: { select: { name: true, color: true } },
       _count: { select: { reviews: true } },
     },
   });
@@ -152,7 +172,7 @@ export const getProductBySlug = async (
   const userReview = currentUserId
     ? await db.review.findFirst({
         where: { productId: product.id, userId: currentUserId },
-        include: { user: { select: { name: true, image: true } } },
+        select: reviewSelect,
       })
     : null;
 
@@ -163,7 +183,7 @@ export const getProductBySlug = async (
     },
     take: 9,
     orderBy: { createdAt: "desc" },
-    include: { user: { select: { name: true, image: true } } },
+    select: reviewSelect,
   });
 
   // Agregat obejmuje wszystkie opinie, także tę należącą do wywołującego —
@@ -180,3 +200,14 @@ export const getProductBySlug = async (
 
   return toPlainDeep(result);
 };
+
+export type CategoryWithProducts = NonNullable<
+  Awaited<ReturnType<typeof getCategoryWithProducts>>
+>;
+export type AllProductsCategory = Awaited<
+  ReturnType<typeof getAllProductsAsCategory>
+>;
+export type ProductCardData = CategoryWithProducts["products"][number];
+export type ProductDetail = NonNullable<
+  Awaited<ReturnType<typeof getProductBySlug>>
+>;

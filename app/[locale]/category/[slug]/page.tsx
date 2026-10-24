@@ -6,10 +6,11 @@ import {
   getCategoryWithProducts,
   getAllProductsAsCategory,
   getTotalProductsCount,
+  type AllProductsCategory,
+  type CategoryWithProducts,
 } from "@/lib/db-products";
 import ProductCard from "@/components/product-card/ProductCard";
 import SubTitle from "@/components/sub-title";
-import { ProductType } from "@/types/product";
 import { ArrowRight } from "lucide-react";
 
 interface CategoryPageProps {
@@ -27,7 +28,7 @@ async function CategoryPageContent({
   const currentLimit = parseInt(limit || "10", 10);
 
   // 3. Pobieranie danych w zależności od sluga
-  let category;
+  let category: CategoryWithProducts | AllProductsCategory | null;
   if (slug === "all") {
     category = await getAllProductsAsCategory(currentLimit);
   } else {
@@ -83,7 +84,7 @@ async function CategoryPageContent({
       <section className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-16">
           {category.products.length > 0 ? (
-            category.products.map((product: ProductType) => (
+            category.products.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}

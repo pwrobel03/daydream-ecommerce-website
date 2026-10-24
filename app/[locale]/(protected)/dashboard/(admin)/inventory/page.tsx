@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PackagePlus, Plus } from "lucide-react";
 import { ProductGridSkeleton } from "@/components/skeletons";
 import { db } from "@/lib/db";
-import { toPlainDeep } from "@/lib/dto";
+import { toPlainDeep } from "@/lib/serialize";
 import { getInventoryProducts } from "@/lib/db-inventory";
 import { InventoryFilters } from "../../_components/inventory-filters";
 import { InventoryList } from "../../_components/inventory-list";

@@ -15,7 +15,13 @@ export interface CartItem {
  * i lista opinii z autorami — którego widok koszyka nigdy nie czytał, a który
  * starzał się w nieskończoność.
  */
-export function toCartProduct(product: ProductType): CartProduct {
+export function toCartProduct(
+  product: Pick<ProductType, "id" | "name" | "slug" | "price" | "stock"> & {
+    promoPrice?: number | null;
+    images: { url: string }[];
+    status?: { name: string; color?: string | null } | null;
+  }
+): CartProduct {
   return {
     id: product.id,
     name: product.name,

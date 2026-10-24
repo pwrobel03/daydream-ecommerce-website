@@ -11,6 +11,7 @@ const { db } = await vi.hoisted(async () => {
 vi.mock("@/lib/db", () => ({ db }));
 
 const { POST } = await import("@/app/api/webhook/stripe/route");
+const { POST: runCron } = await import("@/app/api/cron/release-reservations/route");
 
 const WEBHOOK_SECRET = "whsec_dummy";
 const stripe = new Stripe("sk_test_dummy");
@@ -44,6 +45,14 @@ function expiredEvent(id: string, orderId: string) {
     id,
     type: "checkout.session.expired",
     data: { object: { id: "cs_test_1", metadata: { orderId } } },
+  };
+}
+
+function failedEvent(id: string, orderId: string) {
+  return {
+    id,
+    type: "payment_intent.payment_failed",
+    data: { object: { id: "pi_test_1", metadata: { orderId } } },
   };
 }
 
@@ -182,6 +191,67 @@ describe("stripe webhook", () => {
 
     const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
     expect(product.stock).toBe(10);
+  });
+
+  it("ends PAID with consistent stock when a declined card is followed by a successful retry", async () => {
+    // Karta 4000 0000 0000 0002, potem 4242… w tej samej sesji Checkout.
+    await POST(signedRequest(failedEvent("evt_10a", orderId)));
+    expect((await db.order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe("CANCELLED");
+
+    await POST(signedRequest(completedEvent("evt_10b", orderId, 5000)));
+
+    const order = await db.order.findUniqueOrThrow({ where: { id: orderId } });
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    expect(order.status).toBe("PAID");
+    expect(order.isPaid).toBe(true);
+    // Anulowanie oddało towar, a płatność testowa nie oddaje go drugi raz.
+    expect(product.stock).toBe(10);
+  });
+
+  it("acknowledges a completed event for an order that no longer exists and changes nothing", async () => {
+    await db.order.delete({ where: { id: orderId } });
+
+    const response = await POST(signedRequest(completedEvent("evt_11", orderId, 5000)));
+
+    expect(response.status).toBe(200);
+    expect(await db.order.count()).toBe(0);
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    expect(product.stock).toBe(8);
+  });
+
+  it("acknowledges an expired event for an order that no longer exists", async () => {
+    await db.order.delete({ where: { id: orderId } });
+
+    const response = await POST(signedRequest(expiredEvent("evt_12", orderId)));
+
+    expect(response.status).toBe(200);
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    expect(product.stock).toBe(8);
+  });
+
+  it("returns stock once when the expiry event and the reservation cron hit the same order", async () => {
+    await db.order.update({ where: { id: orderId }, data: { reservedUntil: new Date(Date.now() - 1000) } });
+    const cron = new Request("http://localhost/api/cron/release-reservations", {
+      method: "POST",
+      headers: { authorization: "Bearer test-cron-secret-value" },
+    });
+
+    await Promise.all([POST(signedRequest(expiredEvent("evt_13", orderId))), runCron(cron)]);
+
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    const order = await db.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe("CANCELLED");
+    expect(product.stock).toBe(10);
+  });
+
+  it("leaves stock untouched when the amount or session check fails", async () => {
+    await POST(signedRequest(completedEvent("evt_14a", orderId, 1)));
+    await POST(signedRequest(completedEvent("evt_14b", orderId, 5000, "cs_someone_else")));
+
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    const order = await db.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe("PENDING");
+    expect(product.stock).toBe(8);
   });
 
   it("records the event id so a replay is recognised", async () => {

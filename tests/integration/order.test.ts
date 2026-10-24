@@ -18,7 +18,21 @@ const { session, db } = await vi.hoisted(async () => {
 vi.mock("@/auth", () => ({ auth: async () => session }));
 vi.mock("@/lib/db", () => ({ db }));
 
-const { initializeOrder } = await import("@/actions/order/order");
+// Stripe jest zamockowane — test nie ma sieci, a sprawdza wyłącznie parametry sesji.
+const { couponCreate, sessionCreate } = vi.hoisted(() => ({
+  couponCreate: vi.fn(async (_params: { amount_off: number }) => ({ id: "coupon_1" })),
+  sessionCreate: vi.fn(async (_params: {
+    line_items: { price_data: { unit_amount: number }; quantity: number }[];
+  }) => ({ id: "cs_test_retry", url: "https://stripe.test/pay", livemode: false })),
+}));
+vi.mock("stripe", () => ({
+  default: class {
+    coupons = { create: couponCreate };
+    checkout = { sessions: { create: sessionCreate } };
+  },
+}));
+
+const { initializeOrder, recreateStripeSession } = await import("@/actions/order/order");
 
 let userId: string;
 let productId: string;
@@ -147,5 +161,31 @@ describe("initializeOrder", () => {
     expectFail(result, "OUT_OF_STOCK");
     const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
     expect(product.stock).toBe(10);
+  });
+});
+
+describe("recreateStripeSession", () => {
+  it("charges the same total as the first attempt, discount included", async () => {
+    const now = Date.now();
+    await db.sale.create({
+      data: {
+        name: "Spring",
+        couponCode: "SPRING20",
+        discountValue: 20,
+        isActive: true,
+        validFrom: new Date(now - 3600_000),
+        validTo: new Date(now + 3600_000),
+      },
+    });
+    const { orderId } = expectOk(await initializeOrder([{ productId, quantity: 2 }], "SPRING20"));
+    const order = await db.order.findUniqueOrThrow({ where: { id: orderId } });
+
+    expectOk(await recreateStripeSession(orderId));
+
+    const params = sessionCreate.mock.calls.at(-1)![0];
+    const lines = params.line_items.reduce((sum, l) => sum + l.price_data.unit_amount * l.quantity, 0);
+    const off = couponCreate.mock.calls.at(-1)![0].amount_off;
+    expect(lines - off).toBe(Math.round(order.totalAmount * 100));
+    expect(order.discountAmount).toBeGreaterThan(0);
   });
 });

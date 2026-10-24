@@ -77,11 +77,22 @@ describe("initializeOrder", () => {
   });
 
   it("refuses to oversell and leaves stock untouched", async () => {
-    const result = await initializeOrder([{ productId, quantity: 11 }]);
+    await db.product.update({ where: { id: productId }, data: { stock: 5 } });
+    const result = await initializeOrder([{ productId, quantity: 6 }]);
 
     expectFail(result, "OUT_OF_STOCK");
     const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
-    expect(product.stock).toBe(10);
+    expect(product.stock).toBe(5);
+    expect(await db.order.count()).toBe(0);
+  });
+
+  it("rejects more than 10 units of one product", async () => {
+    await db.product.update({ where: { id: productId }, data: { stock: 50 } });
+    const result = await initializeOrder([{ productId, quantity: 11 }]);
+
+    expectFail(result, "INVALID_INPUT");
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    expect(product.stock).toBe(50);
     expect(await db.order.count()).toBe(0);
   });
 
@@ -93,7 +104,7 @@ describe("initializeOrder", () => {
       { productId, quantity: 6 },
     ]);
 
-    expectFail(result, "OUT_OF_STOCK");
+    expectFail(result, "INVALID_INPUT");
     const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
     expect(product.stock).toBe(10);
   });

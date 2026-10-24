@@ -26,6 +26,7 @@
   },
   "cart": {
     "title": "Your Bag",
+    "quantityLimit": "You can order at most {max} units of one product.",
     "summary": "Summary",
     "grandTotal": "Grand Total",
     "couponCode": "Coupon code",
@@ -44,6 +45,7 @@
   "errors": {
     "mustBeSignedIn": "You must be signed in to continue.",
     "invalidCart": "Your cart contains invalid items.",
+    "quantityLimit": "You can order at most {max} units of one product.",
     "productUnavailable": "{name} is no longer available.",
     "someProductUnavailable": "One of the products is no longer available.",
     "invalidCoupon": "This coupon is invalid or has expired.",

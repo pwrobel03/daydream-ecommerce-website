@@ -102,9 +102,34 @@ export async function POST(req: Request) {
       return new NextResponse("Amount mismatch", { status: 200 });
     }
 
-    await db.order.update({
-      where: { id: orderId },
-      data: { isPaid: true, status: "PAID" },
+    // Testowa płatność oddaje towar na stan (ADR 0009). Zwrot tylko wtedy, gdy to
+    // my przeprowadzamy PENDING -> PAID; zamówienie już anulowane (expired,
+    // nieudana płatność, cron) oddało towar wcześniej.
+    await db.$transaction(async (tx) => {
+      const paid = await tx.order.updateMany({
+        where: { id: orderId, status: "PENDING" },
+        data: { isPaid: true, status: "PAID" },
+      });
+
+      if (paid.count !== 1) {
+        await tx.order.update({
+          where: { id: orderId },
+          data: { isPaid: true, status: "PAID" },
+        });
+        return;
+      }
+
+      const items = await tx.orderItem.findMany({
+        where: { orderId },
+        select: { productId: true, quantity: true },
+      });
+
+      for (const item of items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { increment: item.quantity } },
+        });
+      }
     });
 
     await sendOrderConfirmation(orderId);

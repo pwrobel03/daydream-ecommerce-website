@@ -7,6 +7,7 @@ import { env } from "@/lib/env";
 import { ActionError, ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 import { reportError } from "@/lib/logger";
 import { AddressSchema, CheckoutItemsSchema } from "@/schemas";
+import { MAX_UNITS_PER_LINE } from "@/lib/order-limits";
 import { createCheckoutSession } from "@/lib/checkout-session";
 import { requireOwnedOrder } from "@/lib/guards";
 import * as z from "zod";
@@ -41,6 +42,12 @@ export async function initializeOrder(
       item.productId,
       (quantities.get(item.productId) ?? 0) + item.quantity
     );
+  }
+
+  // Limit liczymy po scaleniu, więc dwie pozycje po 6 to 12. Nic nie jest
+  // jeszcze zarezerwowane, więc odrzucamy przed transakcją.
+  if ([...quantities.values()].some((q) => q > MAX_UNITS_PER_LINE)) {
+    return fail("INVALID_INPUT", t("quantityLimit", { max: MAX_UNITS_PER_LINE }));
   }
 
   try {

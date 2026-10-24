@@ -44,6 +44,8 @@ export const register = async (
   })
 
   const verificationToken = await generateVerificationToken(email)
-  await sendVerificationEmail(verificationToken.email, verificationToken.token)
+  const sent = await sendVerificationEmail(verificationToken.email, verificationToken.token, ip)
+  // Konto już istnieje; późniejsze logowanie ponowi wysyłkę w ramach limitów.
+  if (!sent) return fail("EMAIL_NOT_SENT", "We could not send the e-mail right now. Try again later.")
   return ok()
 }

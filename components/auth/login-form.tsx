@@ -37,6 +37,7 @@ type OAuthProvider = "google" | "github";
 
 export const LoginForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthProvider[] }) => {
   const t = useTranslations("auth.login");
+  const tAuth = useTranslations("auth");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
@@ -52,7 +53,7 @@ export const LoginForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthProvi
     setSuccess("");
     startTransition(async () => {
       const data = await login(values);
-      if (!data.ok) return setError(data.message);
+      if (!data.ok) return setError(data.code === "EMAIL_NOT_SENT" ? tAuth("mailNotSent") : data.message);
 
       const result = await signIn("credentials", {
         email: values.email,

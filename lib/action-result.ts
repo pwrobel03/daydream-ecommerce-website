@@ -15,6 +15,7 @@ export type ErrorCode =
   | "OUT_OF_STOCK"
   | "INVALID_COUPON"
   | "RATE_LIMITED"
+  | "EMAIL_NOT_SENT"
   | "CONFLICT"
   | "PAYMENT_ERROR"
   | "INTERNAL";

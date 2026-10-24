@@ -65,7 +65,7 @@ const SettingsPage = () => {
           update(); // Odświeża sesję klienta
           setSuccess(
             res.data.emailChanged
-              ? t("feedback.emailChanged")
+              ? t(res.data.emailSent ? "feedback.emailChanged" : "feedback.emailNotSent")
               : t("feedback.settingsSaved")
           );
         })

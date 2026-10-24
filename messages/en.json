@@ -57,6 +57,7 @@
     "addressSaveFailed": "Could not save your address. Please try again."
   },
   "auth": {
+    "mailNotSent": "We could not send the e-mail right now. Try again later.",
     "oauth": {
       "divider": "Or continue with",
       "google": "Google",
@@ -193,6 +194,7 @@
       "paymentSessionError": "Payment session error",
       "settingsSaved": "Settings updated!",
       "emailChanged": "Email updated & verification link sent!",
+      "emailNotSent": "Email updated, but we could not send the e-mail right now. Try again later.",
       "categoryCreated": "Category forged successfully!",
       "categoryRemoved": "Category removed.",
       "ingredientSaved": "Ingredient saved successfully!",

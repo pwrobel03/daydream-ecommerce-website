@@ -5,6 +5,9 @@ import { env } from "@/lib/env";
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
+const TEST_CARD_NOTE =
+  "Portfolio demo: no real money moves. Pay with test card 4242 4242 4242 4242, any future expiry date, any CVC.";
+
 /** Zamówienie w kształcie potrzebnym do zbudowania sesji płatności. */
 export interface PayableOrder {
   id: string;
@@ -63,6 +66,8 @@ export async function createCheckoutSession(
       quantity: item.quantity,
     })),
     mode: "payment",
+    // ADR 0005: the Stripe page carries the same test-card note as our screens.
+    custom_text: { submit: { message: TEST_CARD_NOTE } },
     // Metadane muszą trafić także do PaymentIntenta — inaczej webhook
     // payment_intent.payment_failed nie ma jak powiązać zdarzenia z zamówieniem.
     payment_intent_data: { metadata: { orderId: order.id } },

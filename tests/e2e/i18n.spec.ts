@@ -62,3 +62,17 @@ test.describe("translated content", () => {
     expect(new URL(page.url()).searchParams.get("q")).toBe("bar");
   });
 });
+
+test.describe("demo notice", () => {
+  for (const [path, text] of [
+    ["/", /portfolio demo, not a real shop/i],
+    ["/auth/login", /portfolio demo, not a real shop/i],
+    ["/pl", /demo portfolio, nie prawdziwy sklep/i],
+    ["/pl/auth/login", /demo portfolio, nie prawdziwy sklep/i],
+  ] as const) {
+    test(`is visible on ${path}`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.getByRole("note").filter({ hasText: text })).toBeVisible();
+    });
+  }
+});

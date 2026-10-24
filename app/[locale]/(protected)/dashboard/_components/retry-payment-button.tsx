@@ -3,11 +3,13 @@
 
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { recreateStripeSession } from "@/actions/order/order";
 import { toast } from "sonner"; // lub inna biblioteka do powiadomień
 import { CreditCard, Loader2 } from "lucide-react";
 
 export function RetryPaymentButton({ orderId }: { orderId: string }) {
+  const t = useTranslations("demo");
   const [loading, setLoading] = useState(false);
 
   const handleRetry = async () => {
@@ -24,6 +26,7 @@ export function RetryPaymentButton({ orderId }: { orderId: string }) {
   };
 
   return (
+    <div className="space-y-2">
     <button
       onClick={handleRetry}
       disabled={loading}
@@ -38,5 +41,7 @@ export function RetryPaymentButton({ orderId }: { orderId: string }) {
         </>
       )}
     </button>
+    <p className="text-center text-sm font-medium">{t("testCard")}</p>
+    </div>
   );
 }

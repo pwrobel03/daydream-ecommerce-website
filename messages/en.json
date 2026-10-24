@@ -78,7 +78,8 @@
       "systemLabel": "System_Registration",
       "headline": "NEW",
       "headlineAccent": "PROTOCOL.",
-      "success": "Confirmation email sent! Please check your inbox."
+      "success": "Confirmation email sent! Please check your inbox.",
+      "demoNote": "This is a portfolio demo: data may be deleted at any time."
     },
     "reset": {
       "title": "Reset password",
@@ -257,5 +258,9 @@
     "shared": "Story shared!",
     "updated": "Your story has been updated!",
     "deleted": "Your voice has been removed."
+  },
+  "demo": {
+    "notice": "Portfolio demo, not a real shop. Nothing is sold, no real money moves, and data may be deleted at any time.",
+    "testCard": "Pay with the Stripe test card 4242 4242 4242 4242, any future expiry date, any CVC."
   }
 }

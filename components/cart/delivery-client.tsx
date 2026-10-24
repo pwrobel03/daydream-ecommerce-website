@@ -9,6 +9,7 @@ import { finalizeAndPay } from "@/actions/order/order"; // Twoja akcja Stripe
 import { useCart } from "@/hooks/use-cart";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Form,
@@ -30,6 +31,7 @@ interface DeliveryClientProps {
 }
 
 export function DeliveryClient({ order, savedAddress }: DeliveryClientProps) {
+  const t = useTranslations("demo");
   const [loading, setLoading] = useState(false);
   const { resetCart } = useCart();
 
@@ -207,6 +209,7 @@ export function DeliveryClient({ order, savedAddress }: DeliveryClientProps) {
           </div>
 
           {/* PRZYCISK PŁATNOŚCI */}
+          <p className="text-center text-sm font-medium">{t("testCard")}</p>
           <Button
             type="submit"
             disabled={loading}

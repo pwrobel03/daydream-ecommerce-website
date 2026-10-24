@@ -13,6 +13,7 @@ import "../globals.css";
 import Header from "@/components/header/Header";
 import { ThemeProvider } from "@/components/header/theme-provider"; // importuj swój nowy provider
 import Footer from "@/components/Footer";
+import { DemoNotice } from "@/components/demo-notice";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -97,6 +98,7 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <Toaster />
+            <DemoNotice />
             <Suspense fallback={<HeaderSkeleton />}>
               <Header />
             </Suspense>

@@ -6,6 +6,7 @@ import authConfig from "./auth.config"
 import Credentials from "next-auth/providers/credentials"
 import { LoginSchema } from "./schemas"
 import { getUserByEmail } from "./data/user"
+import { normalizeEmail } from "./lib/email"
 import { getUserById } from "./data/user"
 import bcrypt from "bcrypt" // or bcryptjs if you installed that
 import { getAccountByUserId } from "./data/account"
@@ -85,7 +86,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     return session;
   },
 },
-  adapter: PrismaAdapter(db),
+  adapter: (() => {
+    const adapter = PrismaAdapter(db)
+    return {
+      ...adapter,
+      // OAuth profiles carry the address as the provider spells it.
+      createUser: (user) => adapter.createUser!({ ...user, email: normalizeEmail(user.email) }),
+      getUserByEmail: (email) => adapter.getUserByEmail!(normalizeEmail(email)),
+    }
+  })(),
   session: { strategy: "jwt" },
   ...authConfig, // Inherit basic config
   providers: [

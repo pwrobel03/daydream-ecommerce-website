@@ -16,7 +16,7 @@ describe("create-admin input validation", () => {
     expect(() => parseInput({ ...valid, email: "not-an-email" })).toThrow();
   });
 
-  it("keeps the e-mail as typed", () => {
-    expect(parseInput({ ...valid, email: "Owner@Example.com" }).email).toBe("Owner@Example.com");
+  it("lower-cases the e-mail", () => {
+    expect(parseInput({ ...valid, email: "Owner@Example.com" }).email).toBe("owner@example.com");
   });
 });

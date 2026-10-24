@@ -159,6 +159,8 @@ export const RegisterForm = () => {
               <FormSuccess message={success} />
             </div>
 
+            <p className="text-center text-sm font-medium">{t("demoNote")}</p>
+
             <Button
               disabled={isPending}
               type="submit"

@@ -78,7 +78,8 @@
       "systemLabel": "System_Rejestracja",
       "headline": "NOWY",
       "headlineAccent": "PROTOKÓŁ.",
-      "success": "Wysłaliśmy e-mail potwierdzający. Sprawdź skrzynkę."
+      "success": "Wysłaliśmy e-mail potwierdzający. Sprawdź skrzynkę.",
+      "demoNote": "To demo portfolio: dane mogą zostać usunięte w dowolnym momencie."
     },
     "reset": {
       "title": "Reset hasła",
@@ -257,5 +258,9 @@
     "shared": "Opinia dodana.",
     "updated": "Opinia zaktualizowana.",
     "deleted": "Twój głos został usunięty."
+  },
+  "demo": {
+    "notice": "Demo portfolio, nie prawdziwy sklep. Nic nie jest sprzedawane, żadne prawdziwe pieniądze nie są przesyłane, a dane mogą zostać usunięte w dowolnym momencie.",
+    "testCard": "Zapłać testową kartą Stripe 4242 4242 4242 4242, dowolną datą ważności w przyszłości i dowolnym kodem CVC."
   }
 }

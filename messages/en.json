@@ -268,6 +268,69 @@
   },
   "demo": {
     "notice": "Portfolio demo, not a real shop. Nothing is sold, no real money moves, and data may be deleted at any time.",
-    "testCard": "Pay with the Stripe test card 4242 4242 4242 4242, any future expiry date, any CVC."
+    "testCard": "Pay with the Stripe test card 4242 4242 4242 4242, any future expiry date, any CVC.",
+    "privacyLink": "Privacy notice"
+  },
+  "privacy": {
+    "title": "Privacy notice",
+    "intro": "Daydream is a portfolio demo. This page explains what personal data the demo keeps, why, for how long and who is responsible for it.",
+    "sections": {
+      "controller": {
+        "heading": "Who is responsible",
+        "body": "The data controller is {name}. Contact: {email}."
+      },
+      "data": {
+        "heading": "What the demo keeps",
+        "items": {
+          "i1": "Accounts: name, e-mail address, password hash, verification date and, if you sign in with GitHub or Google, that provider's account ID.",
+          "i2": "Addresses and orders: full name, street, city, postal code, phone number and order history.",
+          "i3": "Voices (product reviews): the text and rating, public on the product page together with the author's name.",
+          "i4": "Unverified registrations: an e-mail address typed into the registration form, possibly by someone who does not own it.",
+          "i5": "Rate-limit and mail counters in Redis: keys that contain IP addresses and e-mail addresses.",
+          "i6": "Backups of the database and uploads, including the dump taken before a demo reset.",
+          "i7": "Server logs; a failed e-mail is logged with the recipient's address."
+        }
+      },
+      "purposes": {
+        "heading": "Why and on what legal basis",
+        "items": {
+          "i1": "Running the account and the test orders you ask for: Art. 6(1)(b) GDPR.",
+          "i2": "Protecting the demo from abuse with limits, CAPTCHA and logs: Art. 6(1)(f) GDPR."
+        }
+      },
+      "retention": {
+        "heading": "How long it is kept",
+        "items": {
+          "i1": "Accounts, addresses, orders and Voices: until you delete the account or the owner runs a demo reset, whichever comes first. The demo may delete data at any time.",
+          "i2": "Unverified registrations: 24 hours.",
+          "i3": "Redis counters: within an hour.",
+          "i4": "Backups: 7 days.",
+          "i5": "Logs: as set by the server administrator."
+        }
+      },
+      "rights": {
+        "heading": "Your rights",
+        "body": "You can delete your account yourself in the account settings. For access, correction and the other rights under GDPR, write to {email}. You may also complain to the supervisory authority."
+      },
+      "recipients": {
+        "heading": "Who receives data",
+        "items": {
+          "i1": "Stripe: whatever you type into the hosted checkout.",
+          "i2": "Cloudflare Turnstile: your IP address and browser signals on the registration and password reset forms.",
+          "i3": "{provider}: the SMTP provider that delivers our e-mails, which sees the recipient's address and the message."
+        }
+      },
+      "admin": {
+        "heading": "The public demo admin",
+        "body": "The public demo admin account cannot see any of this data."
+      },
+      "cookies": {
+        "heading": "Cookies and storage",
+        "body": "There is no cookie banner because the demo uses only strictly necessary storage: the session cookie, the cart in your browser's localStorage, and Cloudflare Turnstile for security."
+      }
+    }
+  },
+  "footer": {
+    "privacy": "Privacy"
   }
 }

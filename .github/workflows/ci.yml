@@ -25,6 +25,9 @@ env:
   SMTP_PORT: "1025"
   SMTP_SECURE: "false"
   MAIL_FROM: Daydream <ci@example.com>
+  PRIVACY_CONTROLLER_NAME: CI Controller
+  PRIVACY_CONTACT_EMAIL: privacy@example.com
+  PRIVACY_EMAIL_PROVIDER: CI SMTP Provider
   CRON_SECRET: ci-cron-secret-value
   NEXT_PUBLIC_APP_URL: http://localhost:3000
 

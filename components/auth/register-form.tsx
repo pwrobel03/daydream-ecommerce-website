@@ -20,6 +20,7 @@ import { FormError } from "./form-error";
 import { FormSuccess } from "./form-success";
 import { register } from "@/actions/auth/register";
 import Link from "next/link";
+import { Link as LocaleLink } from "@/i18n/navigation";
 import { Atom, Dna, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Social } from "./social";
@@ -28,6 +29,7 @@ type OAuthProvider = "google" | "github";
 
 export const RegisterForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthProvider[] }) => {
   const t = useTranslations("auth.register");
+  const tDemo = useTranslations("demo");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
@@ -162,7 +164,12 @@ export const RegisterForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthPr
               <FormSuccess message={success} />
             </div>
 
-            <p className="text-center text-sm font-medium">{t("demoNote")}</p>
+            <p className="text-center text-sm font-medium">
+              {t("demoNote")}{" "}
+              <LocaleLink href="/privacy" className="underline">
+                {tDemo("privacyLink")}
+              </LocaleLink>
+            </p>
 
             <Button
               disabled={isPending}

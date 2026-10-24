@@ -1,9 +1,12 @@
 // components/layout/footer.tsx
 import Link from "next/link";
 import { Truck, Shield, Leaf } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { Link as LocaleLink } from "@/i18n/navigation";
 import Container from "./Container";
 
-export default function Footer() {
+export default async function Footer() {
+  const t = await getTranslations("footer");
   const currentYear = 2026;
 
   return (
@@ -65,6 +68,12 @@ export default function Footer() {
               >
                 Twitter
               </Link>
+              <LocaleLink
+                href="/privacy"
+                className="text-[10px] font-black uppercase tracking-[0.3em] hover:text-primary-text transition-colors"
+              >
+                {t("privacy")}
+              </LocaleLink>
             </div>
           </div>
 

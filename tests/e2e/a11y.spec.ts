@@ -23,6 +23,8 @@ const pages = [
   { name: "product", path: `/product/${E2E_PRODUCT.slug}` },
   { name: "search", path: "/search?q=bar" },
   { name: "login", path: "/auth/login" },
+  { name: "privacy", path: "/privacy" },
+  { name: "privacy (pl)", path: "/pl/privacy" },
 ];
 
 // Panel wymaga sesji; skanujemy go osobno, bo publiczne strony mają być

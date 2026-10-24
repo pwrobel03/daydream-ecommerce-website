@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 
 /** Persistent, non-dismissible banner: Daydream is a portfolio demo (ADR 0006). */
 export async function DemoNotice() {
@@ -9,7 +10,10 @@ export async function DemoNotice() {
       role="note"
       className="bg-muted text-foreground px-4 py-2 text-center text-sm font-medium"
     >
-      {t("notice")}
+      {t("notice")}{" "}
+      <Link href="/privacy" className="underline">
+        {t("privacyLink")}
+      </Link>
     </div>
   );
 }

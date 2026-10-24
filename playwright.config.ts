@@ -18,6 +18,9 @@ const E2E_ENV = {
   SMTP_PORT: "51025",
   SMTP_SECURE: "false",
   MAIL_FROM: "Daydream <test@example.com>",
+  PRIVACY_CONTROLLER_NAME: "E2E Controller Ltd",
+  PRIVACY_CONTACT_EMAIL: "privacy@example.com",
+  PRIVACY_EMAIL_PROVIDER: "E2E SMTP Provider",
   CRON_SECRET: "e2e-cron-secret-value",
   NEXT_PUBLIC_APP_URL: BASE_URL,
 };

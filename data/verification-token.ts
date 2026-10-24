@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { normalizeEmail } from "@/lib/email";
 
 // Function to get a verification token by email
 export const getVerificationTokenByToken = async (token: string) => {
@@ -18,7 +19,7 @@ export const getVerificationTokenByEmail = async (email: string) => {
   try {
     // Find the verification token in the database
     const verificationToken = await db.verificationToken.findFirst({
-      where: {email}
+      where: {email: normalizeEmail(email)}
     })
     return verificationToken || null
   } catch {

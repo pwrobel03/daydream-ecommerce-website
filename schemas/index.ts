@@ -3,7 +3,7 @@
 import * as z from 'zod';
 // Schema for login
 export const LoginSchema = z.object({
-  email: z.string().email({
+  email: z.string().trim().toLowerCase().email({
   message: "Email is required"
   }),
   password: z.string().min(1, {
@@ -13,7 +13,7 @@ export const LoginSchema = z.object({
 
 // Schema for reset password
 export const ResetPasswordSchema = z.object({
-  email: z.string().email({
+  email: z.string().trim().toLowerCase().email({
   message: "Email is required"
   })
 })
@@ -33,7 +33,7 @@ export const NewPasswordSchema = z.object({
 
 // Schema for registration
 export const RegisterSchema = z.object({
-  email: z.string().email({
+  email: z.string().trim().toLowerCase().email({
     message: "Email is required"
   }),
   password: z.string().min(8, {
@@ -46,7 +46,7 @@ export const RegisterSchema = z.object({
 
 export const SettingsSchema = z.object({
   name: z.optional(z.string()),
-  email: z.optional(z.string().email()),
+  email: z.optional(z.string().trim().toLowerCase().email()),
   password: z.optional(z.string().min(8)),
   newPassword: z.optional(z.string().min(8))
 }).refine((data) => {

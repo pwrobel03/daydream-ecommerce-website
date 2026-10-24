@@ -81,6 +81,16 @@ beforeEach(async () => {
 });
 
 describe("stripe webhook", () => {
+  it("acknowledges a live-mode event and leaves the order PENDING", async () => {
+    const event = { ...completedEvent("evt_live_1", orderId, 5000), livemode: true };
+
+    const response = await POST(signedRequest(event));
+
+    expect(response.status).toBe(200);
+    const order = await db.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe("PENDING");
+  });
+
   it("rejects a request whose signature does not verify", async () => {
     const request = new Request("http://localhost/api/webhook/stripe", {
       method: "POST",

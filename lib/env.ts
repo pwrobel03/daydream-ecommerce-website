@@ -23,8 +23,8 @@ const EnvSchema = z.object({
   AUTH_GITHUB_SECRET: z.string().min(1),
 
   // Stripe
-  STRIPE_SECRET_KEY: z.string().startsWith("sk_", {
-    message: "STRIPE_SECRET_KEY musi zaczynać się od 'sk_'"
+  STRIPE_SECRET_KEY: z.string().regex(/^[sr]k_test_/, {
+    message: "STRIPE_SECRET_KEY musi zaczynać się od 'sk_test_' lub 'rk_test_' (ADR 0005: tylko tryb testowy)"
   }),
   STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_", {
     message: "STRIPE_WEBHOOK_SECRET musi zaczynać się od 'whsec_'"
@@ -61,6 +61,19 @@ const EnvSchema = z.object({
 
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });
+
+// ADR 0005: żaden klucz live nie może trafić do aplikacji, w żadnej zmiennej.
+// Komunikat zawiera wyłącznie nazwę zmiennej, nigdy wartość.
+const LIVE_KEY = /^(sk|rk|pk)_live_/;
+const liveKeyVars = Object.entries(process.env)
+  .filter(([, value]) => value !== undefined && LIVE_KEY.test(value))
+  .map(([name]) => name);
+
+if (liveKeyVars.length > 0) {
+  throw new Error(
+    `Wykryto klucz Stripe w trybie live w zmiennych: ${liveKeyVars.join(", ")}. Aplikacja działa wyłącznie w trybie testowym (ADR 0005).`
+  );
+}
 
 const parsed = EnvSchema.safeParse(process.env);
 

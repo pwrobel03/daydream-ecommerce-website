@@ -33,6 +33,15 @@ export async function POST(req: Request) {
     return new NextResponse(`Webhook Error: ${errorMessage(error, "invalid signature")}`, { status: 400 });
   }
 
+  // ADR 0005: zdarzenia trybu live potwierdzamy, ale niczego z nimi nie robimy.
+  if (event.livemode) {
+    reportError(new Error("Live-mode Stripe event ignored"), {
+      area: "webhook.livemode",
+      eventId: event.id,
+    });
+    return new NextResponse("Ignored", { status: 200 });
+  }
+
   if (!HANDLED_EVENTS.includes(event.type)) {
     return new NextResponse("Ignored", { status: 200 });
   }

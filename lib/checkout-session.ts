@@ -71,6 +71,10 @@ export async function createCheckoutSession(
     metadata: { orderId: order.id },
   });
 
+  if (session.livemode) {
+    throw new Error("Stripe returned a live-mode session; only test mode is allowed");
+  }
+
   if (!session.url) throw new Error("Stripe session failed");
 
   await db.order.update({

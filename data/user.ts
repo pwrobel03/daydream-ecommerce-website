@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
+import { normalizeEmail } from "@/lib/email";
 export const getUserByEmail = async (email:string) => {
   try {
-    const user = await db.user.findUnique({where: {email}})
+    const user = await db.user.findUnique({where: {email: normalizeEmail(email)}})
     return user
   } catch {
     return null

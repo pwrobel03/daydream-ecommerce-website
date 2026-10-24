@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 import { Edit3, Image as ImageIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteProduct } from "@/actions/admin/inventory";
@@ -15,6 +16,7 @@ import type { InventoryProduct } from "@/lib/db-inventory";
 
 export function InventoryList({ products }: { products: InventoryProduct[] }) {
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -145,7 +147,8 @@ export function InventoryList({ products }: { products: InventoryProduct[] }) {
                 </button>
                 <button
                   onClick={() => handleDelete(product.id, product.name)}
-                  disabled={isPending}
+                  disabled={isPending || !!readOnlyReason}
+                  title={readOnlyReason}
                   aria-label={t("actions.delete", { name: product.name })}
                   className="w-12 h-12 rounded-full border bg-card flex items-center justify-center hover:bg-destructive hover:text-white transition-all duration-500 shadow-sm group/btn"
                 >

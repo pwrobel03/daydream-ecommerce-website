@@ -1,6 +1,6 @@
 // lib/db-inventory.ts
 import { db } from "@/lib/db";
-import { requireAdmin } from "@/lib/guards";
+import { requireBackOffice } from "@/lib/guards";
 import { toPlainDeep } from "@/lib/serialize";
 import { reportError } from "@/lib/logger";
 
@@ -26,7 +26,7 @@ export async function getInventoryProducts({
   subCategoryId,
   stockStatus,
 }: InventoryQuery) {
-  await requireAdmin();
+  await requireBackOffice();
 
   const where = {
     ...(search

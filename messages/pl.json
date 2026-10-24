@@ -43,6 +43,7 @@
     "retry": "Spróbuj ponownie"
   },
   "errors": {
+    "demoReadOnly": "To konto demo tylko do odczytu. Zmiany są wyłączone.",
     "mustBeSignedIn": "Musisz być zalogowany, aby kontynuować.",
     "invalidCart": "Koszyk zawiera nieprawidłowe pozycje.",
     "quantityLimit": "Możesz zamówić najwyżej {max, plural, one {# sztukę} few {# sztuki} many {# sztuk} other {# sztuki}} jednego produktu.",
@@ -64,6 +65,10 @@
       "github": "GitHub"
     },
     "login": {
+      "demoTitle": "Demo administratora",
+      "demoEmail": "E-mail",
+      "demoPassword": "Hasło",
+      "demoSignIn": "Zaloguj jako demo administrator",
       "title": "Logowanie",
       "submit": "Zaloguj",
       "submitting": "Sprawdzam...",

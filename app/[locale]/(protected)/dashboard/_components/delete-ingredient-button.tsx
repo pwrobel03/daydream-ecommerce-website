@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 import { Trash2, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -10,6 +11,7 @@ import { deleteIngredient } from "@/actions/admin/ingredients"; // Twoja akcja
 
 export const DeleteIngredientButton = ({ id }: { id: string }) => {
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const [loading, setLoading] = useState(false);
 
   const onDelete = async () => {
@@ -32,7 +34,8 @@ export const DeleteIngredientButton = ({ id }: { id: string }) => {
       variant="destructive"
       size="sm"
       onClick={onDelete}
-      disabled={loading}
+      disabled={loading || !!readOnlyReason}
+      title={readOnlyReason}
       className="w-10 h-10 rounded-full border bg-card hover:text-white transition-all hover:bg-destructive text-foreground dark:bg-card dark:hover:bg-destructive"
     >
       {loading ? (

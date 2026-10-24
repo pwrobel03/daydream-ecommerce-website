@@ -73,7 +73,8 @@
       "forgot": "Nie pamiętasz hasła?",
       "systemLabel": "System_Logowanie",
       "headline": "SKARBIEC",
-      "headlineAccent": "TOŻSAMOŚCI."
+      "headlineAccent": "TOŻSAMOŚCI.",
+      "rateLimited": "Zbyt wiele prób. Spróbuj ponownie za 15 minut."
     },
     "register": {
       "title": "Załóż konto",

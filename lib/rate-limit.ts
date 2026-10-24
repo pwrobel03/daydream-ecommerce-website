@@ -72,6 +72,19 @@ export async function rateLimit(
 }
 
 /**
+ * Sprawdza licznik bez zwiększania go — dla limitów, które liczą tylko nieudane
+ * próby (licznik zwiększa wtedy `rateLimit`). Fail-open jak `rateLimit`.
+ */
+export async function isRateLimited(key: string, limit: number): Promise<boolean> {
+  try {
+    return Number(await redis.get(`rl:${key}`)) >= limit;
+  } catch (error) {
+    reportError(error, { area: "rate-limit.failed-open", key });
+    return false;
+  }
+}
+
+/**
  * Adres klienta na potrzeby kluczy licznika. Czytamy tylko X-Real-IP, który proxy
  * ustawia z adresu połączenia (X-Forwarded-For jest podrabialny).
  * Każde reverse proxy przed aplikacją musi nadpisywać X-Real-IP adresem klienta —

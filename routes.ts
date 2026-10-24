@@ -9,6 +9,7 @@ export const publicRoutes = [
   "/category",
   "/product",
   "/search",
+  "/privacy",
   "/api/webhook/stripe",
   "/api/health", // odpytywany przez monitoring i load balancer, bez sesji
   "/opengraph-image" // pobierany przez crawlery podglądu linków, bez sesji

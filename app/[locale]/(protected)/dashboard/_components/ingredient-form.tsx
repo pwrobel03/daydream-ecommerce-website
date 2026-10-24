@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -35,6 +36,7 @@ interface IngredientFormProps {
 
 export const IngredientForm = ({ initialData }: IngredientFormProps) => {
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -177,9 +179,11 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
           >
             Cancel
           </Button>
+          {readOnlyReason && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || !!readOnlyReason}
+            title={readOnlyReason}
             className="min-w-[150px] cursor-pointer"
           >
             {loading ? <Loader2 className="animate-spin mr-2" /> : null}

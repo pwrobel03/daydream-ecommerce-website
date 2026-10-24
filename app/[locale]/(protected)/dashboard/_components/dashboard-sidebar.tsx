@@ -20,12 +20,13 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isBackOfficeRole } from "@/lib/demo";
 
 export default function DashboardSidebar() {
   const t = useTranslations("dashboard");
   const pathname = usePathname();
   const role = useCurrentRole();
-  const isAdmin = role === "ADMIN";
+  const isAdmin = isBackOfficeRole(role);
 
   const userMenuItems = [
     { title: t("nav.overview"), href: "/dashboard", icon: LayoutDashboard },

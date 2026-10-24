@@ -3,6 +3,8 @@ import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 // app/admin/orders/page.tsx
 import { getAdminOrders } from "@/lib/db-orders";
+import { getCurrentRole } from "@/lib/auth";
+import { NotAllowedView } from "../../_components/not-allowed-view";
 import { AdminOrdersList } from "../../_components/admin-orders-list";
 import { PaginationControls } from "@/components/pagination-controls";
 import { SearchOrders } from "@/components/search-orders";
@@ -12,6 +14,9 @@ async function AdminOrdersPageContent({
 }: {
   searchParams: Promise<{ page?: string; q?: string }>;
 }) {
+  // The demo admin reaches this layout but must not read orders.
+  if ((await getCurrentRole()) !== "ADMIN") return <NotAllowedView />;
+
   // Rozpakowanie parametrów - BEZ TEGO NIE ZADZIAŁA W NEXT 15
   const sParams = await searchParams;
   const page = sParams.page;

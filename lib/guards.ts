@@ -3,6 +3,8 @@
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { ActionError } from "@/lib/action-result";
+import { getTranslations } from "next-intl/server";
+import { isBackOfficeRole, isDemoAdmin } from "@/lib/demo";
 
 /**
  * Przerywa wykonanie, jeśli bieżący użytkownik nie jest adminem.
@@ -13,6 +15,19 @@ import { ActionError } from "@/lib/action-result";
 export async function requireAdmin() {
   const session = await getSession();
   if (session?.user?.role !== "ADMIN") {
+    // Only the demo admin gets the explanatory message; everyone else stays "Unauthorized".
+    const message = isDemoAdmin(session?.user?.role)
+      ? (await getTranslations("errors"))("demoReadOnly")
+      : "Unauthorized";
+    throw new ActionError("FORBIDDEN", message);
+  }
+  return session;
+}
+
+/** Back-office reads: the demo admin may look, but never write (writes use requireAdmin). */
+export async function requireBackOffice() {
+  const session = await getSession();
+  if (!isBackOfficeRole(session?.user?.role)) {
     throw new ActionError("FORBIDDEN", "Unauthorized");
   }
   return session;

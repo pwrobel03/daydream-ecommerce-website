@@ -5,6 +5,8 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../lib/generated/prisma/client";
 import bcrypt from "bcrypt";
 import {
+  DEMO_ADMIN_EMAIL,
+  DEMO_ADMIN_PASSWORD,
   E2E_ADMIN,
   E2E_BULK_REVIEWS,
   E2E_PRODUCT,
@@ -39,6 +41,16 @@ async function main() {
       password: await bcrypt.hash(E2E_ADMIN.password, 10),
       emailVerified: new Date(),
       role: "ADMIN",
+    },
+  });
+
+  await db.user.create({
+    data: {
+      email: DEMO_ADMIN_EMAIL,
+      name: "Demo Admin",
+      password: await bcrypt.hash(DEMO_ADMIN_PASSWORD, 10),
+      emailVerified: new Date(),
+      role: "DEMO_ADMIN",
     },
   });
 

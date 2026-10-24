@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { requireAdmin } from "@/lib/guards";
+import { requireAdmin, requireBackOffice } from "@/lib/guards";
 import { processAndStore } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
@@ -61,7 +61,7 @@ export async function createCategory(formData: FormData): Promise<ActionResult> 
 
 export async function getCategories() {
   try {
-    await requireAdmin();
+    await requireBackOffice();
     return await db.category.findMany({
       orderBy: { name: "asc" },
       include: {

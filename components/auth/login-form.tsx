@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Social } from "./social";
+import { DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD } from "@/lib/demo";
 
 type OAuthProvider = "google" | "github";
 
@@ -46,6 +47,9 @@ export const LoginForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthProvi
     resolver: zodResolver(LoginSchema),
     defaultValues: { email: "", password: "" },
   });
+
+  const signInAsDemoAdmin = () =>
+    onSubmit({ email: DEMO_ADMIN_EMAIL, password: DEMO_ADMIN_PASSWORD });
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setError("");
@@ -166,6 +170,18 @@ export const LoginForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthProvi
         </Form>
 
         <Social providers={oauthProviders} />
+
+        <section className="space-y-3 border-2 border-dashed rounded-2xl p-4 text-xs">
+          <h2 className="font-black uppercase italic tracking-widest">{t("demoTitle")}</h2>
+          <p>
+            {t("demoEmail")}: <code>{DEMO_ADMIN_EMAIL}</code>
+            <br />
+            {t("demoPassword")}: <code>{DEMO_ADMIN_PASSWORD}</code>
+          </p>
+          <Button type="button" variant="outline" disabled={isPending} onClick={signInAsDemoAdmin}>
+            {t("demoSignIn")}
+          </Button>
+        </section>
 
         <p className="text-[10px] font-black uppercase italic tracking-tighter text-foreground/70">
           New Identity Required?{" "}

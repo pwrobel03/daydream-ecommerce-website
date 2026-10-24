@@ -282,7 +282,7 @@
       "data": {
         "heading": "What the demo keeps",
         "items": {
-          "i1": "Accounts: name, e-mail address, password hash and verification date.",
+          "i1": "Accounts: name, e-mail address, password hash, verification date and, if you sign in with GitHub or Google, that provider's account ID.",
           "i2": "Addresses and orders: full name, street, city, postal code, phone number and order history.",
           "i3": "Voices (product reviews): the text and rating, public on the product page together with the author's name.",
           "i4": "Unverified registrations: an e-mail address typed into the registration form, possibly by someone who does not own it.",

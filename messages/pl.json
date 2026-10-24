@@ -282,7 +282,7 @@
       "data": {
         "heading": "Jakie dane przechowuje demo",
         "items": {
-          "i1": "Konta: imię i nazwisko, adres e-mail, skrót hasła i data weryfikacji.",
+          "i1": "Konta: imię i nazwisko, adres e-mail, skrót hasła, data weryfikacji oraz, jeśli logujesz się przez GitHub lub Google, identyfikator konta u tego dostawcy.",
           "i2": "Adresy i zamówienia: imię i nazwisko, ulica, miasto, kod pocztowy, numer telefonu i historia zamówień.",
           "i3": "Opinie (Voices): treść i ocena, publiczne na stronie produktu wraz z imieniem autora.",
           "i4": "Niezweryfikowane rejestracje: adres e-mail wpisany w formularzu rejestracji, być może przez osobę, która nie jest jego właścicielem.",

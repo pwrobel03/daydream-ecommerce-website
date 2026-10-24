@@ -20,8 +20,8 @@ for file in ${DEPLOY_COMPOSE_FILES:-docker-compose.yml docker-compose.prod.yml};
   compose+=(-f "$file")
 done
 
-read -rsp "Password for $1: " secret; echo >&2
-read -rsp "Repeat the password: " repeat; echo >&2
+IFS= read -rsp "Password for $1: " secret; echo >&2
+IFS= read -rsp "Repeat the password: " repeat; echo >&2
 [ "$secret" = "$repeat" ] || { echo "The passwords differ." >&2; exit 1; }
 
 # printf is a shell builtin, so the value is not visible in the process list.

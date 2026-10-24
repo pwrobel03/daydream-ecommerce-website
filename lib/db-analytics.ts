@@ -1,6 +1,6 @@
 // lib/db-analytics.ts
 import { db } from "@/lib/db";
-import { requireAdmin } from "@/lib/guards";
+import { requireBackOffice } from "@/lib/guards";
 
 // Bez łapania błędów, jak reszta warstwy danych: awaria bazy ma dać stronę
 // błędu, a nie panel pokazujący same zera — te są nie do odróżnienia od
@@ -55,7 +55,7 @@ async function windowStart(days: number): Promise<Date> {
  * z dwoma transakcjami wyglądałoby jak dwa dni ciągłej sprzedaży.
  */
 export async function getRevenueByDay(days: number): Promise<RevenuePoint[]> {
-  await requireAdmin();
+  await requireBackOffice();
 
   const rows = await db.$queryRaw<
     { day: string; revenue: number | null; orders: bigint }[]
@@ -97,7 +97,7 @@ export async function getTopProducts(
   days: number,
   limit = 5
 ): Promise<TopProduct[]> {
-  await requireAdmin();
+  await requireBackOffice();
 
   const since = await windowStart(days);
 
@@ -123,7 +123,7 @@ export async function getTopProducts(
 export async function getAnalyticsSummary(
   days: number
 ): Promise<AnalyticsSummary> {
-  await requireAdmin();
+  await requireBackOffice();
 
   const since = await windowStart(days);
 

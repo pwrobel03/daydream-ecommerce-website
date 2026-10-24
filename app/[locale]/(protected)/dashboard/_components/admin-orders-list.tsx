@@ -2,6 +2,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 import { useState } from "react";
 import { format } from "date-fns";
@@ -21,6 +22,7 @@ import type { AdminOrderType } from "@/types/order";
 
 export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -187,7 +189,8 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
 
                   <select
                     value={order.status}
-                    disabled={loadingId === order.id}
+                    disabled={loadingId === order.id || !!readOnlyReason}
+                    title={readOnlyReason}
                     onChange={(e) =>
                       handleStatusChange(order.id, e.target.value)
                     }

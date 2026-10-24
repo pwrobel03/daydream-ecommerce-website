@@ -125,12 +125,15 @@ rusza. Otwórz [http://localhost:3000](http://localhost:3000).
 
 Utworzone przez seed, z potwierdzonym adresem e-mail:
 
-| Rola  | E-mail                         | Hasło         |
-| :---- | :----------------------------- | :------------ |
-| Admin | `peter@admin.com`              | `password123` |
-| User  | `james.miller@daydream.com`    | `password123` |
+| Rola       | E-mail                   | Hasło             |
+| :--------- | :----------------------- | :---------------- |
+| Demo admin | `demo-admin@example.com` | `demo-admin-2026` |
 
-Konto administratora daje dostęp do panelu pod `/dashboard/inventory`.
+Demo administrator jest tylko do odczytu: przegląda panel (`/dashboard/inventory`), ale
+każdy zapis zostaje odrzucony. Strona logowania ma przycisk „Zaloguj jako demo
+administrator”. Przykładowi klienci, do których należą zamówienia z seeda, mają losowe
+hasła, których nikt nie zna; do zakupów załóż własne konto. Seed nie tworzy admina z
+pełnymi prawami: prywatnego admina tworzy skrypt przy wdrożeniu.
 
 ### Co działa bez prawdziwych kluczy API
 

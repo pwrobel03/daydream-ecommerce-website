@@ -43,6 +43,7 @@
     "retry": "Try again"
   },
   "errors": {
+    "demoReadOnly": "This is a read-only demo account. Changes are disabled.",
     "mustBeSignedIn": "You must be signed in to continue.",
     "invalidCart": "Your cart contains invalid items.",
     "quantityLimit": "You can order at most {max} units of one product.",
@@ -63,6 +64,10 @@
       "github": "GitHub"
     },
     "login": {
+      "demoTitle": "Demo admin",
+      "demoEmail": "Email",
+      "demoPassword": "Password",
+      "demoSignIn": "Sign in as demo admin",
       "title": "Login",
       "submit": "Login",
       "submitting": "Validating...",

@@ -21,6 +21,7 @@ datasource db {
 
 enum UserRole {
   ADMIN
+  DEMO_ADMIN
   USER
 }
 

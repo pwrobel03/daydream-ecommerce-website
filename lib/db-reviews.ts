@@ -1,6 +1,6 @@
 // lib/db-reviews.ts
 import { db } from "@/lib/db";
-import { requireAdmin } from "@/lib/guards";
+import { requireBackOffice } from "@/lib/guards";
 import { toPlainDeep } from "@/lib/dto";
 import { reportError } from "@/lib/logger";
 
@@ -18,7 +18,7 @@ export interface VoiceQuery {
  * renderowała się dwa razy: raz pusta, raz z danymi.
  */
 export async function getVoices({ take = 10, rating, search }: VoiceQuery) {
-  await requireAdmin();
+  await requireBackOffice();
 
   const where = {
     ...(rating ? { rating } : {}),

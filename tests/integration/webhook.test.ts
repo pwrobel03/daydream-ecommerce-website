@@ -102,6 +102,31 @@ describe("stripe webhook", () => {
     expect(order.status).toBe("PAID");
   });
 
+  it("returns the stock of a paid order", async () => {
+    await POST(signedRequest(completedEvent("evt_2b", orderId, 5000)));
+
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    expect(product.stock).toBe(10);
+  });
+
+  it("restocks only once when the same completed event is redelivered", async () => {
+    const event = completedEvent("evt_2c", orderId, 5000);
+
+    await POST(signedRequest(event));
+    await POST(signedRequest(event));
+
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    expect(product.stock).toBe(10);
+  });
+
+  it("does not restock again when completed arrives after expired", async () => {
+    await POST(signedRequest(expiredEvent("evt_2d", orderId)));
+    await POST(signedRequest(completedEvent("evt_2e", orderId, 5000)));
+
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    expect(product.stock).toBe(10);
+  });
+
   it("refuses to mark paid when the amount does not match the order total", async () => {
     await POST(signedRequest(completedEvent("evt_3", orderId, 1)));
 

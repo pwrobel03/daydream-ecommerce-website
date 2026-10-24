@@ -7,17 +7,19 @@ import { toast } from "sonner";
 import { CartProduct } from "@/types/product";
 import { useCart } from "@/hooks/use-cart";
 import { cn } from "@/lib/utils";
+import { MAX_UNITS_PER_LINE } from "@/lib/order-limits";
+import { useTranslations } from "next-intl";
 
 const QuantityButtons = ({ product }: { product: CartProduct }) => {
   const { addItem, removeItem, getItemCount, isMounted } = useCart();
   const itemCount = isMounted ? getItemCount(product?.id) : 0;
-  const isAtLimit = itemCount >= (product?.stock ?? 0);
+  const t = useTranslations("cart");
+  const maxUnits = Math.min(MAX_UNITS_PER_LINE, product?.stock ?? 0);
+  const isAtLimit = itemCount >= maxUnits;
 
   const handleIncrease = () => {
     if (isAtLimit) {
-      toast.error("Daydream Storage Limit Reached", {
-        description: "We're holding the last units for you.",
-      });
+      toast.error(t("quantityLimit", { max: maxUnits }));
       return;
     }
     toast.success("Quantity increased");

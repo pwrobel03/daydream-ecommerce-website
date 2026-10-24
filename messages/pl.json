@@ -25,6 +25,7 @@
     "soldOut": "Wyprzedane"
   },
   "cart": {
+    "quantityLimit": "Możesz zamówić najwyżej {max, plural, one {# sztukę} few {# sztuki} many {# sztuk} other {# sztuki}} jednego produktu.",
     "title": "Twój koszyk",
     "summary": "Podsumowanie",
     "grandTotal": "Razem",
@@ -44,6 +45,7 @@
   "errors": {
     "mustBeSignedIn": "Musisz być zalogowany, aby kontynuować.",
     "invalidCart": "Koszyk zawiera nieprawidłowe pozycje.",
+    "quantityLimit": "Możesz zamówić najwyżej {max, plural, one {# sztukę} few {# sztuki} many {# sztuk} other {# sztuki}} jednego produktu.",
     "productUnavailable": "{name} nie jest już dostępny.",
     "someProductUnavailable": "Któryś z produktów nie jest już dostępny.",
     "invalidCoupon": "Ten kupon jest nieprawidłowy lub wygasł.",

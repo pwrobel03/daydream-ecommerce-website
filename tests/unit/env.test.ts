@@ -35,3 +35,21 @@ describe("env: live Stripe keys", () => {
     await expect(loadEnv({ STRIPE_SECRET_KEY: "sk_abc123" })).rejects.toThrow("STRIPE_SECRET_KEY");
   });
 });
+
+describe("env: OAuth pairs", () => {
+  it("accepts no OAuth variables", async () => {
+    const { env } = await loadEnv({});
+    expect(env.AUTH_GITHUB_ID).toBeUndefined();
+  });
+
+  it.each([
+    ["AUTH_GITHUB_ID", "AUTH_GITHUB_SECRET"],
+    ["AUTH_GITHUB_SECRET", "AUTH_GITHUB_ID"],
+    ["AUTH_GOOGLE_ID", "AUTH_GOOGLE_SECRET"],
+    ["AUTH_GOOGLE_SECRET", "AUTH_GOOGLE_ID"],
+  ])("rejects %s without %s, naming the missing one", async (set, missing) => {
+    const error = await loadEnv({ [set]: "x" }).catch((e) => e);
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toContain(`${missing} jest wymagany`);
+  });
+});

@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Header } from "./header";
-import { Social } from "./social";
 import { BackButton } from "./back-button";
 
 interface CardWrapperProps {
@@ -10,7 +9,6 @@ interface CardWrapperProps {
   headerLabel: string;
   backButtonLabel: string;
   backButtonHref: string;
-  showSocial?: boolean;
 }
 
 export const CardWrapper = ({
@@ -18,7 +16,6 @@ export const CardWrapper = ({
   headerLabel,
   backButtonLabel,
   backButtonHref,
-  showSocial,
 }: CardWrapperProps) => {
   return (
     <Card className="w-100 shadow-md">
@@ -26,11 +23,6 @@ export const CardWrapper = ({
         <Header label={headerLabel} />
       </CardHeader>
       <CardContent>{children}</CardContent>
-      {showSocial && (
-        <CardFooter className="w-full">
-          <Social></Social>
-        </CardFooter>
-      )}
       <CardFooter>
         <BackButton label={backButtonLabel} href={backButtonHref} />
       </CardFooter>

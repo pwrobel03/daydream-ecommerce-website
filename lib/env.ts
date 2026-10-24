@@ -12,15 +12,15 @@ const EnvSchema = z.object({
   }),
 
   // Auth.js
-  // AUTH_GOOGLE_* i AUTH_GITHUB_* są wykrywane automatycznie przez Auth.js v5,
-  // ale walidujemy je tutaj, żeby brak klucza nie objawiał się cichym 500 przy logowaniu.
+  // AUTH_GOOGLE_* i AUTH_GITHUB_* są opcjonalne: dostawca jest rejestrowany tylko
+  // wtedy, gdy ustawiono oba klucze pary (auth.config.ts). Niekompletna para to błąd.
   AUTH_SECRET: z.string().min(1, {
     message: "AUTH_SECRET jest wymagany (wygeneruj: npx auth secret)"
   }),
-  AUTH_GOOGLE_ID: z.string().min(1),
-  AUTH_GOOGLE_SECRET: z.string().min(1),
-  AUTH_GITHUB_ID: z.string().min(1),
-  AUTH_GITHUB_SECRET: z.string().min(1),
+  AUTH_GOOGLE_ID: z.string().min(1).optional(),
+  AUTH_GOOGLE_SECRET: z.string().min(1).optional(),
+  AUTH_GITHUB_ID: z.string().min(1).optional(),
+  AUTH_GITHUB_SECRET: z.string().min(1).optional(),
 
   // Stripe
   STRIPE_SECRET_KEY: z.string().regex(/^[sr]k_test_/, {
@@ -60,6 +60,19 @@ const EnvSchema = z.object({
   }),
 
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+}).superRefine((data, ctx) => {
+  for (const provider of ["GOOGLE", "GITHUB"] as const) {
+    const id = `AUTH_${provider}_ID` as const;
+    const secret = `AUTH_${provider}_SECRET` as const;
+    if (!data[id] !== !data[secret]) {
+      const missing = data[id] ? secret : id;
+      ctx.addIssue({
+        code: "custom",
+        path: [missing],
+        message: `${missing} jest wymagany, gdy ustawiono ${data[id] ? id : secret} (para ID i SECRET musi być kompletna)`,
+      });
+    }
+  }
 });
 
 // ADR 0005: żaden klucz live nie może trafić do aplikacji, w żadnej zmiennej.

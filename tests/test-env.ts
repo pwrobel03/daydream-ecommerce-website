@@ -5,10 +5,6 @@
 // To wartości pozorne — nic tutaj nie łączy się z zewnętrznym serwisem.
 export const testEnv = {
   AUTH_SECRET: "test-auth-secret",
-  AUTH_GOOGLE_ID: "test",
-  AUTH_GOOGLE_SECRET: "test",
-  AUTH_GITHUB_ID: "test",
-  AUTH_GITHUB_SECRET: "test",
   STRIPE_SECRET_KEY: "sk_test_dummy",
   STRIPE_WEBHOOK_SECRET: "whsec_dummy",
   SMTP_HOST: "localhost",

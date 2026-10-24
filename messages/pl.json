@@ -57,6 +57,11 @@
     "addressSaveFailed": "Nie udało się zapisać adresu. Spróbuj ponownie."
   },
   "auth": {
+    "oauth": {
+      "divider": "Lub kontynuuj przez",
+      "google": "Google",
+      "github": "GitHub"
+    },
     "login": {
       "title": "Logowanie",
       "submit": "Zaloguj",

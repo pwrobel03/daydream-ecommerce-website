@@ -22,8 +22,11 @@ import { register } from "@/actions/auth/register";
 import Link from "next/link";
 import { Atom, Dna, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Social } from "./social";
 
-export const RegisterForm = () => {
+type OAuthProvider = "google" | "github";
+
+export const RegisterForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthProvider[] }) => {
   const t = useTranslations("auth.register");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
@@ -178,6 +181,8 @@ export const RegisterForm = () => {
             </Button>
           </form>
         </Form>
+
+        <Social providers={oauthProviders} />
 
         <div className="flex items-center justify-between">
           <p className="text-[10px] font-black uppercase italic tracking-tighter text-foreground/70">

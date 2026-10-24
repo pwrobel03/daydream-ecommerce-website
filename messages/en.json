@@ -57,6 +57,11 @@
     "addressSaveFailed": "Could not save your address. Please try again."
   },
   "auth": {
+    "oauth": {
+      "divider": "Or continue with",
+      "google": "Google",
+      "github": "GitHub"
+    },
     "login": {
       "title": "Login",
       "submit": "Login",

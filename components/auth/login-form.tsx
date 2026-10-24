@@ -31,8 +31,11 @@ import {
   
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Social } from "./social";
 
-export const LoginForm = () => {
+type OAuthProvider = "google" | "github";
+
+export const LoginForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthProvider[] }) => {
   const t = useTranslations("auth.login");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -161,6 +164,8 @@ export const LoginForm = () => {
             </Button>
           </form>
         </Form>
+
+        <Social providers={oauthProviders} />
 
         <p className="text-[10px] font-black uppercase italic tracking-tighter text-foreground/70">
           New Identity Required?{" "}

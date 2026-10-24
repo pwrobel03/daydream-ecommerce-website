@@ -26,8 +26,6 @@ ENV DATABASE_URL="postgresql://build:build@localhost:5432/build" \
     UPLOAD_DIR="/data/uploads" \
     REDIS_URL="redis://localhost:6379" \
     AUTH_SECRET="build-time-placeholder" \
-    AUTH_GOOGLE_ID="build" AUTH_GOOGLE_SECRET="build" \
-    AUTH_GITHUB_ID="build" AUTH_GITHUB_SECRET="build" \
     STRIPE_SECRET_KEY="sk_test_build" \
     STRIPE_WEBHOOK_SECRET="whsec_build" \
     SMTP_HOST="localhost" SMTP_PORT="1025" SMTP_SECURE="false" \

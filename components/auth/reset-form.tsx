@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 
 export const ResetForm = () => {
   const t = useTranslations("auth.reset");
+  const tAuth = useTranslations("auth");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
@@ -41,7 +42,7 @@ export const ResetForm = () => {
     setSuccess("");
     startTransition(() => {
       resetPassword(values).then((res) => {
-        if (!res.ok) return setError(res.message);
+        if (!res.ok) return setError(res.code === "EMAIL_NOT_SENT" ? tAuth("mailNotSent") : res.message);
         setSuccess(t("success"));
       });
     });

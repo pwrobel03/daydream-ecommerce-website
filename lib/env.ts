@@ -39,6 +39,10 @@ const EnvSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   MAIL_FROM: z.string().min(1),
+  // Twarde limity wysyłki (ADR 0012), egzekwowane w sendEmail.
+  MAIL_DAILY_LIMIT: z.coerce.number().int().positive().default(50),
+  MAIL_HOURLY_LIMIT_PER_ADDRESS: z.coerce.number().int().positive().default(3),
+  MAIL_HOURLY_LIMIT_PER_IP: z.coerce.number().int().positive().default(3),
 
   // Upload plików. Katalog musi leżeć poza public/ i być montowany jako wolumen,
   // inaczej wgrane zdjęcia znikają przy odtworzeniu kontenera.

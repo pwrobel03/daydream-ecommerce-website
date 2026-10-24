@@ -73,6 +73,7 @@ export const resetPassword = async (
 
   // Generate password reset token and send email
   const passwordResetToken = await generatePasswordResetToken(email)
-  await sendPasswordResetEmail(passwordResetToken.email, passwordResetToken.token)
+  const sent = await sendPasswordResetEmail(passwordResetToken.email, passwordResetToken.token, ip)
+  if (!sent) return fail("EMAIL_NOT_SENT", "We could not send the e-mail right now. Try again later.")
   return ok()
 } 

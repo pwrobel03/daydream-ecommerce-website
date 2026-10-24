@@ -28,6 +28,7 @@ type OAuthProvider = "google" | "github";
 
 export const RegisterForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthProvider[] }) => {
   const t = useTranslations("auth.register");
+  const tAuth = useTranslations("auth");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
@@ -46,7 +47,7 @@ export const RegisterForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthPr
     setSuccess("");
     startTransition(() => {
       register(values).then((res) => {
-        if (!res.ok) return setError(res.message);
+        if (!res.ok) return setError(res.code === "EMAIL_NOT_SENT" ? tAuth("mailNotSent") : res.message);
         setSuccess(t("success"));
       });
     });

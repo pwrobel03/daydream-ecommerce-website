@@ -25,6 +25,8 @@ const pages = [
   { name: "login", path: "/auth/login" },
   { name: "register", path: "/auth/register" },
   { name: "forgot-password", path: "/auth/forgot-password" },
+  { name: "privacy", path: "/privacy" },
+  { name: "privacy (pl)", path: "/pl/privacy" },
 ];
 
 // Panel wymaga sesji; skanujemy go osobno, bo publiczne strony mają być

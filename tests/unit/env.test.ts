@@ -53,3 +53,17 @@ describe("env: OAuth pairs", () => {
     expect(error.message).toContain(`${missing} jest wymagany`);
   });
 });
+
+describe("env: privacy notice", () => {
+  it("rejects an invalid PRIVACY_CONTACT_EMAIL", async () => {
+    await expect(loadEnv({ PRIVACY_CONTACT_EMAIL: "not-an-email" })).rejects.toThrow(
+      "PRIVACY_CONTACT_EMAIL"
+    );
+  });
+
+  it("requires PRIVACY_CONTROLLER_NAME", async () => {
+    await expect(loadEnv({ PRIVACY_CONTROLLER_NAME: "" })).rejects.toThrow(
+      "PRIVACY_CONTROLLER_NAME"
+    );
+  });
+});

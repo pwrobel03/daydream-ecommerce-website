@@ -287,6 +287,69 @@
   },
   "demo": {
     "notice": "Demo portfolio, nie prawdziwy sklep. Nic nie jest sprzedawane, żadne prawdziwe pieniądze nie są przesyłane, a dane mogą zostać usunięte w dowolnym momencie.",
-    "testCard": "Zapłać testową kartą Stripe 4242 4242 4242 4242, dowolną datą ważności w przyszłości i dowolnym kodem CVC."
+    "testCard": "Zapłać testową kartą Stripe 4242 4242 4242 4242, dowolną datą ważności w przyszłości i dowolnym kodem CVC.",
+    "privacyLink": "Informacja o prywatności"
+  },
+  "privacy": {
+    "title": "Informacja o prywatności",
+    "intro": "Daydream to demo portfolio. Ta strona wyjaśnia, jakie dane osobowe demo przechowuje, w jakim celu, jak długo i kto za nie odpowiada.",
+    "sections": {
+      "controller": {
+        "heading": "Kto odpowiada za dane",
+        "body": "Administratorem danych jest {name}. Kontakt: {email}."
+      },
+      "data": {
+        "heading": "Jakie dane przechowuje demo",
+        "items": {
+          "i1": "Konta: imię i nazwisko, adres e-mail, skrót hasła i data weryfikacji.",
+          "i2": "Adresy i zamówienia: imię i nazwisko, ulica, miasto, kod pocztowy, numer telefonu i historia zamówień.",
+          "i3": "Opinie (Voices): treść i ocena, publiczne na stronie produktu wraz z imieniem autora.",
+          "i4": "Niezweryfikowane rejestracje: adres e-mail wpisany w formularzu rejestracji, być może przez osobę, która nie jest jego właścicielem.",
+          "i5": "Liczniki limitów i poczty w Redisie: klucze zawierające adresy IP i adresy e-mail.",
+          "i6": "Kopie zapasowe bazy danych i plików, w tym zrzut wykonywany przed resetem dema.",
+          "i7": "Logi serwera; nieudana wysyłka e-maila jest logowana razem z adresem odbiorcy."
+        }
+      },
+      "purposes": {
+        "heading": "Cel i podstawa prawna",
+        "items": {
+          "i1": "Prowadzenie konta i testowych zamówień, o które prosisz: art. 6 ust. 1 lit. b RODO.",
+          "i2": "Ochrona dema przed nadużyciami za pomocą limitów, CAPTCHA i logów: art. 6 ust. 1 lit. f RODO."
+        }
+      },
+      "retention": {
+        "heading": "Jak długo dane są przechowywane",
+        "items": {
+          "i1": "Konta, adresy, zamówienia i opinie: do usunięcia konta przez Ciebie albo do resetu dema wykonanego przez właściciela, zależnie od tego, co nastąpi wcześniej. Demo może usunąć dane w dowolnym momencie.",
+          "i2": "Niezweryfikowane rejestracje: 24 godziny.",
+          "i3": "Liczniki w Redisie: w ciągu godziny.",
+          "i4": "Kopie zapasowe: 7 dni.",
+          "i5": "Logi: zgodnie z ustawieniami administratora serwera."
+        }
+      },
+      "rights": {
+        "heading": "Twoje prawa",
+        "body": "Konto możesz usunąć samodzielnie w ustawieniach konta. W sprawie dostępu, sprostowania i pozostałych praw wynikających z RODO napisz na {email}. Możesz też złożyć skargę do organu nadzorczego."
+      },
+      "recipients": {
+        "heading": "Kto otrzymuje dane",
+        "items": {
+          "i1": "Stripe: to, co wpiszesz w hostowanym formularzu płatności.",
+          "i2": "Cloudflare Turnstile: Twój adres IP i sygnały przeglądarki w formularzach rejestracji i resetu hasła.",
+          "i3": "{provider}: dostawca SMTP, który dostarcza nasze e-maile i widzi adres odbiorcy oraz treść wiadomości."
+        }
+      },
+      "admin": {
+        "heading": "Publiczny administrator dema",
+        "body": "Publiczne konto administratora dema nie widzi żadnych z tych danych."
+      },
+      "cookies": {
+        "heading": "Pliki cookie i pamięć przeglądarki",
+        "body": "Nie ma banera cookies, bo demo korzysta wyłącznie z niezbędnej pamięci: ciasteczka sesji, koszyka w localStorage przeglądarki i Cloudflare Turnstile ze względów bezpieczeństwa."
+      }
+    }
+  },
+  "footer": {
+    "privacy": "Prywatność"
   }
 }

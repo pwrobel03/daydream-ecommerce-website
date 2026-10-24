@@ -1,33 +1,36 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-const headerValues = new Map<string, string>();
+import { clientIpFromHeaders } from "@/lib/rate-limit";
 
 vi.mock("next/headers", () => ({
-  headers: async () => new Headers(Object.fromEntries(headerValues)),
+  headers: async () => new Headers({ "x-real-ip": "203.0.113.7" }),
 }));
 
-beforeEach(() => headerValues.clear());
+describe("clientIpFromHeaders", () => {
+  it("returns unknown when only X-Forwarded-For is set", () => {
+    expect(clientIpFromHeaders(new Headers({ "x-forwarded-for": "1.2.3.4" }))).toBe("unknown");
+  });
+
+  it("prefers X-Real-IP over a spoofed X-Forwarded-For", () => {
+    const headers = new Headers({ "x-forwarded-for": "1.2.3.4", "x-real-ip": "203.0.113.7" });
+
+    expect(clientIpFromHeaders(headers)).toBe("203.0.113.7");
+  });
+
+  it("returns unknown without headers", () => {
+    expect(clientIpFromHeaders(new Headers())).toBe("unknown");
+  });
+
+  it("trims the value and maps an empty one to unknown", () => {
+    expect(clientIpFromHeaders(new Headers({ "x-real-ip": " 203.0.113.7 " }))).toBe("203.0.113.7");
+    expect(clientIpFromHeaders(new Headers({ "x-real-ip": "  " }))).toBe("unknown");
+  });
+});
 
 describe("getClientIp", () => {
-  it("reads X-Real-IP", async () => {
+  it("delegates to clientIpFromHeaders with the request headers", async () => {
     const { getClientIp } = await import("@/lib/rate-limit");
-    headerValues.set("x-real-ip", "203.0.113.7");
 
     expect(await getClientIp()).toBe("203.0.113.7");
-  });
-
-  it("ignores a spoofed X-Forwarded-For", async () => {
-    const { getClientIp } = await import("@/lib/rate-limit");
-    headerValues.set("x-forwarded-for", "1.2.3.4");
-    headerValues.set("x-real-ip", "203.0.113.7");
-
-    expect(await getClientIp()).toBe("203.0.113.7");
-  });
-
-  it("returns unknown without X-Real-IP", async () => {
-    const { getClientIp } = await import("@/lib/rate-limit");
-    headerValues.set("x-forwarded-for", "1.2.3.4");
-
-    expect(await getClientIp()).toBe("unknown");
   });
 });

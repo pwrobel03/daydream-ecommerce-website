@@ -72,14 +72,19 @@ export async function rateLimit(
 }
 
 /**
- * Adres klienta na potrzeby kluczy licznika. Server Actions nie dostają obiektu
- * żądania, więc czytamy nagłówek proxy. Tylko X-Real-IP: proxy ustawia go z adresu
- * połączenia i nadpisuje wartość klienta (X-Forwarded-For jest podrabialny).
+ * Adres klienta na potrzeby kluczy licznika. Czytamy tylko X-Real-IP, który proxy
+ * ustawia z adresu połączenia (X-Forwarded-For jest podrabialny).
+ * Każde reverse proxy przed aplikacją musi nadpisywać X-Real-IP adresem klienta —
+ * inaczej wartość kontroluje klient.
  * Limity opieramy dodatkowo na adresie e-mail.
  */
+export function clientIpFromHeaders(headers: Headers): string {
+  return headers.get("x-real-ip")?.trim() || "unknown";
+}
+
+/** Wersja dla Server Actions, które nie dostają obiektu żądania. */
 export async function getClientIp(): Promise<string> {
   const { headers } = await import("next/headers");
-  const headerList = await headers();
 
-  return headerList.get("x-real-ip") ?? "unknown";
+  return clientIpFromHeaders(await headers());
 }

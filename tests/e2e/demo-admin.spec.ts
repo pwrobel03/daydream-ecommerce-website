@@ -14,4 +14,7 @@ test("the demo admin opens the inventory but cannot delete", async ({ page }) =>
 
   const remove = page.getByRole("button", { name: `Delete ${E2E_PRODUCT.name}` }).filter({ visible: true });
   await expect(remove).toBeDisabled();
+
+  await page.goto("/dashboard/manage-orders");
+  await expect(page.getByRole("heading", { name: /Access Denied/ })).toBeVisible({ timeout: 60_000 });
 });

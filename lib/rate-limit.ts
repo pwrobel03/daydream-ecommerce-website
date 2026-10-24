@@ -73,15 +73,13 @@ export async function rateLimit(
 
 /**
  * Adres klienta na potrzeby kluczy licznika. Server Actions nie dostają obiektu
- * żądania, więc czytamy nagłówki proxy. Wartość jest pomocnicza — łatwo ją
- * podrobić, dlatego limity opieramy dodatkowo na adresie e-mail.
+ * żądania, więc czytamy nagłówek proxy. Tylko X-Real-IP: proxy ustawia go z adresu
+ * połączenia i nadpisuje wartość klienta (X-Forwarded-For jest podrabialny).
+ * Limity opieramy dodatkowo na adresie e-mail.
  */
 export async function getClientIp(): Promise<string> {
   const { headers } = await import("next/headers");
   const headerList = await headers();
-
-  const forwarded = headerList.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
 
   return headerList.get("x-real-ip") ?? "unknown";
 }

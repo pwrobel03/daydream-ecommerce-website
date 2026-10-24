@@ -1,7 +1,7 @@
 // lib/db-orders.ts
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
-import { toPlainDeep } from "@/lib/dto";
+import { toPlainDeep } from "@/lib/serialize";
 
 /**
  * Zamówienia dla panelu, ze stronicowaniem i globalnym szukaniem.

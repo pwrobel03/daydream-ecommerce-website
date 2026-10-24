@@ -1,7 +1,7 @@
 // lib/db-inventory.ts
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/guards";
-import { toPlainDeep } from "@/lib/dto";
+import { toPlainDeep } from "@/lib/serialize";
 import { reportError } from "@/lib/logger";
 
 export interface InventoryQuery {

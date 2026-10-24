@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import type { Category } from "@/types/product";
+import type { CategoryCard } from "@/lib/db-categories";
 
-export const CategorySection = ({ categories }: { categories: Category[] }) => {
+export const CategorySection = ({ categories }: { categories: CategoryCard[] }) => {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   return (

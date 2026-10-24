@@ -7,7 +7,7 @@ import { ReviewSchema } from "@/schemas";
 import { Review } from "@/types/product";
 import { reportError } from "@/lib/logger";
 import { ActionResult, fail, ok } from "@/lib/action-result";
-import { toPlainDeep } from "@/lib/dto";
+import { toPlainDeep } from "@/lib/serialize";
 import { getSession } from "@/lib/session";
 
 
@@ -71,7 +71,7 @@ export async function createReview(
 
     revalidatePath(`/product/[slug]`, "page");
 
-    return ok({ review: toPlainDeep(newReview) as Review });
+    return ok({ review: toPlainDeep(newReview) });
   } catch (error) {
     reportError(error, { area: "store.reviews", productId });
     return fail("INTERNAL", "Failed to save review.");

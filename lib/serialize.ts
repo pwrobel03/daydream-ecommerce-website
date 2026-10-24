@@ -1,4 +1,4 @@
-// lib/dto/index.ts
+// lib/serialize.ts
 //
 // Konwersja wyników Prismy na zwykłe obiekty przed przekazaniem ich do
 // komponentów klienckich.

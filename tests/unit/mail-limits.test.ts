@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const store = new Map<string, number>();
 let redisDown = false;
+let clientIp = "9.9.9.9";
 const sendMail = vi.fn().mockResolvedValue({});
 
 vi.mock("ioredis", () => ({
@@ -34,12 +35,13 @@ vi.mock("@/lib/token", () => ({
 }));
 vi.mock("bcrypt", () => ({ default: { hash: async () => "hash" } }));
 vi.mock("next/headers", () => ({
-  headers: async () => new Headers({ "x-real-ip": "9.9.9.9" }),
+  headers: async () => new Headers({ "x-real-ip": clientIp }),
 }));
 
 beforeEach(() => {
   store.clear();
   redisDown = false;
+  clientIp = "9.9.9.9";
   sendMail.mockClear();
   vi.resetModules();
 });
@@ -92,5 +94,24 @@ describe("register when the e-mail is not sent", () => {
     const res = await register({ email: "e@example.com", password: "Passw0rd!x", name: "Eve" });
     expect(res).toMatchObject({ ok: false, code: "EMAIL_NOT_SENT" });
     expect(db.user.create).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("login verification e-mail", () => {
+  it("stops at the per-IP limit for one IP and still sends for another", async () => {
+    const { getUserByEmail } = await import("@/data/user");
+    vi.mocked(getUserByEmail).mockImplementation(
+      async (email: string) => ({ email, password: "hash", emailVerified: null }) as never,
+    );
+    const { login } = await import("@/actions/auth/login");
+    const attempt = (n: number) => login({ email: `u${n}@example.com`, password: "Passw0rd!x" });
+
+    clientIp = "1.1.1.1";
+    for (let i = 0; i < 3; i++) expect(await attempt(i)).toMatchObject({ code: "FORBIDDEN" });
+    expect(await attempt(3)).toMatchObject({ code: "EMAIL_NOT_SENT" });
+
+    clientIp = "2.2.2.2";
+    expect(await attempt(4)).toMatchObject({ code: "FORBIDDEN" });
+    expect(sendMail).toHaveBeenCalledTimes(4);
   });
 });

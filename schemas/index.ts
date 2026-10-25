@@ -75,6 +75,12 @@ export const SettingsSchema = z.object({
   path: ["password"]
 })
 
+// Exactly one of the two is used: `password` for accounts with a password, `email` for OAuth ones.
+export const DeleteAccountSchema = z.object({
+  password: z.optional(z.string()),
+  email: z.optional(z.string()),
+})
+
 // Bez `userId` — autor bierze się z sesji po stronie serwera. Dopóki pole tu
 // było, formularz musiał je wysyłać, a schemat sugerował, że klient decyduje,
 // kto podpisuje opinię.

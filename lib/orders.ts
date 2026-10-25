@@ -11,26 +11,31 @@ import { db } from "@/lib/db";
  * Zwraca `true`, jeśli to wywołanie faktycznie anulowało zamówienie.
  */
 export async function releaseOrderReservation(orderId: string) {
-  return db.$transaction(async (tx) => {
-    const cancelled = await tx.order.updateMany({
-      where: { id: orderId, status: "PENDING", isPaid: false },
-      data: { status: "CANCELLED" },
-    });
+  return db.$transaction((tx) => releaseOrderReservationIn(tx, orderId));
+}
 
-    if (cancelled.count !== 1) return false;
+export type Tx = Parameters<Parameters<typeof db.$transaction>[0]>[0];
 
-    const items = await tx.orderItem.findMany({
-      where: { orderId },
-      select: { productId: true, quantity: true },
-    });
-
-    for (const item of items) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: { stock: { increment: item.quantity } },
-      });
-    }
-
-    return true;
+/** To samo co `releaseOrderReservation`, ale w transakcji wywołującego. */
+export async function releaseOrderReservationIn(tx: Tx, orderId: string) {
+  const cancelled = await tx.order.updateMany({
+    where: { id: orderId, status: "PENDING", isPaid: false },
+    data: { status: "CANCELLED" },
   });
+
+  if (cancelled.count !== 1) return false;
+
+  const items = await tx.orderItem.findMany({
+    where: { orderId },
+    select: { productId: true, quantity: true },
+  });
+
+  for (const item of items) {
+    await tx.product.update({
+      where: { id: item.productId },
+      data: { stock: { increment: item.quantity } },
+    });
+  }
+
+  return true;
 }

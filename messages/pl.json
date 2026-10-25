@@ -269,6 +269,15 @@
     "actions": {
       "edit": "Edytuj {name}",
       "delete": "Usuń {name}"
+    },
+    "deleteAccount": {
+      "title": "Usuń konto",
+      "warning": "To trwale usuwa Twoje konto, zamówienia, adresy i opinie. Tej operacji nie można cofnąć.",
+      "password": "Aktualne hasło",
+      "email": "Wpisz swój e-mail, aby potwierdzić",
+      "confirm": "Rozumiem, że tego nie można cofnąć",
+      "submit": "Usuń moje konto",
+      "failed": "Nie udało się usunąć konta. Sprawdź dane i spróbuj ponownie."
     }
   },
   "reviews": {

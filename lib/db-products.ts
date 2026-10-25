@@ -70,7 +70,8 @@ const productCardSelect = {
   categories: { select: { name: true } }, // Dla tagów na karcie
 } satisfies Prisma.ProductSelect;
 
-const reviewSelect = {
+/** Pola opinii pokazywane w sklepie — wspólne dla strony produktu i akcji. */
+export const reviewSelect = {
   id: true,
   content: true,
   rating: true,

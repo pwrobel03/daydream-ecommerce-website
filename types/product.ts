@@ -27,18 +27,6 @@ export interface Status {
   color?: string | null;
 }
 
-export interface Review {
-  id: string;
-  content: string;
-  rating: number;
-  userId: string;
-  user: {
-    name: string | null;
-    image: string | null;
-  };
-  createdAt: Date;
-}
-
 export interface Ingredient {
   id: string;
   name: string;
@@ -71,9 +59,6 @@ export interface ProductType {
   // już opinii ani ich autorów.
   ratingAvg: number;
   ratingCount: number;
-
-  // Tylko widok produktu dociąga listę opinii; katalog jej nie selectuje.
-  reviews?: Review[];
 
   createdAt: Date;
   updatedAt: Date;
@@ -118,14 +103,4 @@ export interface InventoryProduct {
   categories: Category[];
   status?: Status | null;
   images: { url: string }[];
-}
-
-/** Opinia w widoku moderacji — dochodzi produkt, którego dotyczy. */
-export interface VoiceType {
-  id: string;
-  content: string;
-  rating: number;
-  createdAt: Date | string;
-  user: { name: string | null; image: string | null };
-  product: { name: string; slug: string };
 }

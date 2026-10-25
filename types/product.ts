@@ -19,14 +19,3 @@ export interface CartProduct {
   images: { url: string }[];
   status?: { name: string; color: string | null } | null;
 }
-
-/** Kształt zwracany przez `getFreshCartData` — odświeżone ceny i stan magazynowy. */
-export interface CartSyncProduct {
-  id: string;
-  name: string;
-  price: number;
-  promoPrice: number | null;
-  stock: number;
-}
-
-}

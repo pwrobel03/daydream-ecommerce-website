@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { CartProduct, CartSyncProduct } from "./types/product";
+import type { CartSyncProduct } from "./actions/store/sync-cart";
+import { CartProduct } from "./types/product";
 import { activePrice, basePrice } from "./lib/pricing";
 
 export interface CartItem {
@@ -121,7 +122,9 @@ const useCartStore = create<CartState>()(
         })),
       resetCart: () => set({ items: [] }),
       syncItems: (freshData) => {
-        const fresh = new Map(freshData.map((product) => [product.id, product]));
+        const fresh = new Map(
+          freshData.map((product) => [product.id, product])
+        );
 
         // Produkt, którego serwer nie zwrócił, nie istnieje już w katalogu.
         // Wcześniej taka pozycja zostawała w koszyku na zawsze, a
@@ -166,7 +169,8 @@ const useCartStore = create<CartState>()(
       // Migracja przepuszcza je przez ten sam mapper, więc istniejący koszyk
       // przeżywa wdrożenie zamiast zniknąć albo wywrócić render.
       version: 1,
-      migrate: (persisted, version) => migrateCart(persisted, version) as CartState,
+      migrate: (persisted, version) =>
+        migrateCart(persisted, version) as CartState,
     }
   )
 );

@@ -14,5 +14,7 @@ export const testEnv = {
   UPLOAD_DIR: "./storage/uploads-test",
   REDIS_URL: "redis://localhost:6379",
   CRON_SECRET: "test-cron-secret-value",
+  TURNSTILE_SITE_KEY: "1x00000000000000000000AA",
+  TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
   NEXT_PUBLIC_APP_URL: "http://localhost:3000",
 };

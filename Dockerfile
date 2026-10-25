@@ -31,6 +31,8 @@ ENV DATABASE_URL="postgresql://build:build@localhost:5432/build" \
     SMTP_HOST="localhost" SMTP_PORT="1025" SMTP_SECURE="false" \
     MAIL_FROM="Daydream <build@example.com>" \
     CRON_SECRET="build-time-cron-placeholder" \
+    TURNSTILE_SITE_KEY="1x00000000000000000000AA" \
+    TURNSTILE_SECRET_KEY="1x0000000000000000000000000000000AA" \
     NEXT_PUBLIC_APP_URL="http://localhost:3000" \
     NEXT_TELEMETRY_DISABLED=1
 

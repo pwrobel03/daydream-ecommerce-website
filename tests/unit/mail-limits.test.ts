@@ -34,6 +34,7 @@ vi.mock("@/lib/token", () => ({
   generateVerificationToken: async (email: string) => ({ email, token: "t" }),
 }));
 vi.mock("bcrypt", () => ({ default: { hash: async () => "hash" } }));
+vi.mock("@/lib/turnstile", () => ({ verifyTurnstile: async () => true }));
 vi.mock("next/headers", () => ({
   headers: async () => new Headers({ "x-real-ip": clientIp }),
 }));
@@ -91,7 +92,7 @@ describe("register when the e-mail is not sent", () => {
     redisDown = true;
     const { db } = await import("@/lib/db");
     const { register } = await import("@/actions/auth/register");
-    const res = await register({ email: "e@example.com", password: "Passw0rd!x", name: "Eve" });
+    const res = await register({ email: "e@example.com", password: "Passw0rd!x", name: "Eve", turnstileToken: "t" });
     expect(res).toMatchObject({ ok: false, code: "EMAIL_NOT_SENT" });
     expect(db.user.create).toHaveBeenCalledTimes(1);
   });

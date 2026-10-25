@@ -59,6 +59,7 @@
   },
   "auth": {
     "mailNotSent": "We could not send the e-mail right now. Try again later.",
+    "turnstileFailed": "We could not verify that you are human. Reload the check and try again.",
     "oauth": {
       "divider": "Or continue with",
       "google": "Google",

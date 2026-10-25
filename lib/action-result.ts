@@ -16,6 +16,7 @@ export type ErrorCode =
   | "INVALID_COUPON"
   | "RATE_LIMITED"
   | "EMAIL_NOT_SENT"
+  | "TURNSTILE_FAILED"
   | "CONFLICT"
   | "PAYMENT_ERROR"
   | "INTERNAL";

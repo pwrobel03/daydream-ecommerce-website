@@ -58,6 +58,11 @@ const EnvSchema = z.object({
     message: "CRON_SECRET musi mieć co najmniej 16 znaków"
   }),
 
+  // Cloudflare Turnstile. Klucz strony trafia do przeglądarki przez prop z Server
+  // Componentu (czytany w runtime), sekret służy tylko do siteverify.
+  TURNSTILE_SITE_KEY: z.string().min(1),
+  TURNSTILE_SECRET_KEY: z.string().min(1),
+
   // Publiczne
   NEXT_PUBLIC_APP_URL: z.string().url({
     message: "NEXT_PUBLIC_APP_URL musi być pełnym URL-em, np. http://localhost:3000"

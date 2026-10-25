@@ -59,6 +59,7 @@
   },
   "auth": {
     "mailNotSent": "Nie możemy teraz wysłać e-maila. Spróbuj ponownie później.",
+    "turnstileFailed": "Nie udało się potwierdzić, że jesteś człowiekiem. Odśwież weryfikację i spróbuj ponownie.",
     "oauth": {
       "divider": "Lub kontynuuj przez",
       "google": "Google",

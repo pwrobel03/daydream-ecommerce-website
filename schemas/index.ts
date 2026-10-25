@@ -15,6 +15,9 @@ export const LoginSchema = z.object({
 export const ResetPasswordSchema = z.object({
   email: z.string().email({
   message: "Email is required"
+  }),
+  turnstileToken: z.string().min(1, {
+    message: "Complete the verification"
   })
 })
 
@@ -41,6 +44,9 @@ export const RegisterSchema = z.object({
   }),
    name: z.string().min(1, {
     message: "Name is required"
+  }),
+  turnstileToken: z.string().min(1, {
+    message: "Complete the verification"
   })
 })
 

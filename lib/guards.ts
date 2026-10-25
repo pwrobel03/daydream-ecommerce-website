@@ -30,10 +30,9 @@ export async function requireAdmin() {
  */
 export async function requireOwnAccountWrites() {
   const session = await getSession();
-  if (!session?.user?.id) throw new ActionError("UNAUTHORIZED", "Unauthorized");
-  if (isDemoAdmin(session.user.role)) {
-    throw new ActionError("FORBIDDEN", (await getTranslations("errors"))("demoReadOnly"));
-  }
+  const t = await getTranslations("errors");
+  if (!session?.user?.id) throw new ActionError("UNAUTHORIZED", t("unauthorized"));
+  if (isDemoAdmin(session.user.role)) throw new ActionError("FORBIDDEN", t("demoReadOnly"));
   return session;
 }
 

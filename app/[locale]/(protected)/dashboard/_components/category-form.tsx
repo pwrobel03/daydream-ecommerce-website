@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,6 +41,7 @@ export function CategoryForm({
   parentCategories: Pick<CategoryListItem, "id" | "name">[];
 }) {
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -223,9 +225,11 @@ export function CategoryForm({
           )}
         </div>
 
+        {readOnlyReason && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !!readOnlyReason}
+          title={readOnlyReason}
           className="w-full h-16 bg-foreground text-background hover:text-primary-foreground rounded-full font-black italic uppercase tracking-widest hover:bg-primary transition-all disabled:opacity-40 active:scale-95"
         >
           {loading ? t("categories.forging") : t("categories.forge")}

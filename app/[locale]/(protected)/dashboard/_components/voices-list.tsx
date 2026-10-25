@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 import { Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteVoice } from "@/actions/admin/reviews";
@@ -11,6 +12,7 @@ import type { AdminVoice } from "@/lib/db-reviews";
 
 export function VoicesList({ voices }: { voices: AdminVoice[] }) {
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -70,7 +72,8 @@ export function VoicesList({ voices }: { voices: AdminVoice[] }) {
 
             <button
               onClick={() => handleDelete(voice.id)}
-              disabled={isPending}
+              disabled={isPending || !!readOnlyReason}
+              title={readOnlyReason}
               aria-label={t("actions.delete", { name: voice.product.name })}
               className="w-14 h-14 rounded-full border flex items-center justify-center hover:bg-destructive hover:text-white transition-all duration-500 shrink-0 disabled:opacity-40"
             >

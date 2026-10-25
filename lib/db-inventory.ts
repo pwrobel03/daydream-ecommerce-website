@@ -1,6 +1,6 @@
 // lib/db-inventory.ts
 import { db } from "@/lib/db";
-import { requireAdmin } from "@/lib/guards";
+import { requireBackOffice } from "@/lib/guards";
 import { toPlainDeep } from "@/lib/serialize";
 import { reportError } from "@/lib/logger";
 
@@ -26,7 +26,7 @@ export async function getInventoryProducts({
   subCategoryId,
   stockStatus,
 }: InventoryQuery) {
-  await requireAdmin();
+  await requireBackOffice();
 
   const where = {
     ...(search
@@ -83,7 +83,7 @@ export type InventoryProduct = Awaited<
 
 /** Główne kategorie z podkategoriami — filtry asortymentu i formularz produktu. */
 export async function getMainCategoriesWithChildren() {
-  await requireAdmin();
+  await requireBackOffice();
   return db.category.findMany({
     where: { parentId: null },
     select: {
@@ -101,7 +101,7 @@ export type MainCategoryWithChildren = Awaited<
 
 /** Wszystkie kategorie z licznikiem produktów — lista w panelu kategorii. */
 export async function getCategoryList() {
-  await requireAdmin();
+  await requireBackOffice();
   return db.category.findMany({
     select: {
       id: true,
@@ -119,7 +119,7 @@ export type CategoryListItem = Awaited<
 >[number];
 
 export async function getIngredients() {
-  await requireAdmin();
+  await requireBackOffice();
   return db.ingredient.findMany({
     select: { id: true, name: true, image: true },
     orderBy: { name: "asc" },
@@ -131,7 +131,7 @@ export type IngredientOption = Awaited<
 >[number];
 
 export async function getIngredient(id: string) {
-  await requireAdmin();
+  await requireBackOffice();
   return db.ingredient.findUnique({
     where: { id },
     select: { id: true, name: true, image: true },
@@ -139,7 +139,7 @@ export async function getIngredient(id: string) {
 }
 
 export async function getStatuses() {
-  await requireAdmin();
+  await requireBackOffice();
   return db.status.findMany({
     select: { id: true, name: true },
     orderBy: { name: "asc" },
@@ -150,7 +150,7 @@ export type StatusOption = Awaited<ReturnType<typeof getStatuses>>[number];
 
 /** Produkt do edycji w formularzu — tylko pola, które formularz wypełnia. */
 export async function getProductForm(id: string) {
-  await requireAdmin();
+  await requireBackOffice();
   const product = await db.product.findUnique({
     where: { id },
     select: {

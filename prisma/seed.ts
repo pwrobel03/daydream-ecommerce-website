@@ -3,6 +3,8 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, OrderStatus } from "../lib/generated/prisma/client";
 import bcrypt from "bcrypt";
+import { randomBytes } from "crypto";
+import { DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD } from "../lib/demo";
 
 import { users } from "./data/users";
 import { categories } from "./data/categories";
@@ -29,17 +31,29 @@ async function main() {
   await prisma.user.deleteMany();
 
   console.log(`👥 Synthesizing ${users.length} User Identities...`);
-  const hashedPassword = await bcrypt.hash("password123", 12);
   const now = new Date();
+
+  // Public, read-only account. The seed creates no ADMIN (ADR 0011).
+  await prisma.user.create({
+    data: {
+      name: "Demo Admin",
+      email: DEMO_ADMIN_EMAIL,
+      password: await bcrypt.hash(DEMO_ADMIN_PASSWORD, 12),
+      role: "DEMO_ADMIN",
+      emailVerified: now,
+    }
+  });
 
   const createdUsers = [];
   for (const u of users) {
+    // Sample customers exist only to own the seeded orders; nobody knows their password.
+    const password = await bcrypt.hash(randomBytes(24).toString("hex"), 12);
     const addr = await prisma.address.create({ data: u.address });
     const user = await prisma.user.create({
       data: {
         name: u.name,
         email: u.email,
-        password: hashedPassword,
+        password,
         role: u.role,
         emailVerified: now,
         addressId: addr.id,

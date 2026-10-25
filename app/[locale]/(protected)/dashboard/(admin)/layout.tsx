@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { getCurrentRole } from "@/lib/auth";
-import { UserRole } from "@/lib/generated/prisma/client";
+import { isBackOfficeRole } from "@/lib/demo";
 import { NotAllowedView } from "../_components/not-allowed-view";
 import { RowsSkeleton } from "@/components/skeletons";
 
@@ -14,7 +14,7 @@ interface AdminLayoutProps {
 async function AdminGuard({ children }: AdminLayoutProps) {
   const role = await getCurrentRole();
 
-  if (role !== UserRole.ADMIN) {
+  if (!isBackOfficeRole(role)) {
     return <NotAllowedView />;
   }
 

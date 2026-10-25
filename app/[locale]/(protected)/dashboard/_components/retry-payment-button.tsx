@@ -4,12 +4,14 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 import { recreateStripeSession } from "@/actions/order/order";
 import { toast } from "sonner"; // lub inna biblioteka do powiadomień
 import { CreditCard, Loader2 } from "lucide-react";
 
 export function RetryPaymentButton({ orderId }: { orderId: string }) {
   const t = useTranslations("demo");
+  const readOnlyReason = useReadOnlyReason();
   const [loading, setLoading] = useState(false);
 
   const handleRetry = async () => {
@@ -29,7 +31,8 @@ export function RetryPaymentButton({ orderId }: { orderId: string }) {
     <div className="space-y-2">
     <button
       onClick={handleRetry}
-      disabled={loading}
+      disabled={loading || !!readOnlyReason}
+      title={readOnlyReason}
       className="w-full py-6 bg-primary text-primary-foreground rounded-full font-black italic uppercase text-lg hover:scale-105 transition-all shadow-xl active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3"
     >
       {loading ? (

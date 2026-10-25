@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,6 +31,7 @@ export function AddressForm({
   initialData: AddressType | null;
 }) {
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof AddressSchema>>({
@@ -181,9 +183,11 @@ export function AddressForm({
           </CardContent>
         </Card>
 
+        {readOnlyReason && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
         <Button
           type="submit"
-          disabled={loading}
+          disabled={loading || !!readOnlyReason}
+          title={readOnlyReason}
           className="w-full h-24 bg-foreground hover:bg-primary text-background hover:text-primary-foreground rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98]"
         >
           {loading ? (

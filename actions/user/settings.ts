@@ -9,7 +9,8 @@ import { generateVerificationToken } from "@/lib/token"
 import { sendVerificationEmail } from "@/lib/mail"
 import { revalidatePath } from "next/cache"
 import bcrypt from "bcrypt"
-import { ActionResult, fail, ok } from "@/lib/action-result";
+import { requireOwnAccountWrites } from "@/lib/guards";
+import { ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 import { getClientIp } from "@/lib/rate-limit";
 
 // actions/settings.ts
@@ -21,6 +22,11 @@ import { getClientIp } from "@/lib/rate-limit";
 export const settings = async (
   values: z.infer<typeof SettingsSchema>
 ): Promise<ActionResult<{ emailChanged: boolean; emailSent: boolean }>> => {
+  try {
+    await requireOwnAccountWrites();
+  } catch (error) {
+    return failFrom(error, "UNAUTHORIZED", "Unauthorized!");
+  }
   const user = await getCurrentUser();
   if (!user || !user.id) return fail("UNAUTHORIZED", "Unauthorized!");
 

@@ -1,7 +1,6 @@
 // actions/order.ts
 "use server";
 
-import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { ActionError, ActionResult, fail, failFrom, ok } from "@/lib/action-result";
@@ -9,7 +8,7 @@ import { reportError } from "@/lib/logger";
 import { AddressSchema, CheckoutItemsSchema } from "@/schemas";
 import { MAX_UNITS_PER_LINE } from "@/lib/order-limits";
 import { createCheckoutSession } from "@/lib/checkout-session";
-import { requireOwnedOrder } from "@/lib/guards";
+import { requireOwnAccountWrites, requireOwnedOrder } from "@/lib/guards";
 import * as z from "zod";
 import { getTranslations } from "next-intl/server";
 
@@ -23,10 +22,11 @@ export async function initializeOrder(
 ): Promise<ActionResult<{ orderId: string }>> {
   // Komunikat wraca do interfejsu, więc musi być w języku bieżącej trasy.
   const t = await getTranslations("errors");
-  const session = await getSession();
-
-  if (!session?.user?.id) {
-    return fail("UNAUTHORIZED", t("mustBeSignedIn"));
+  let session;
+  try {
+    session = await requireOwnAccountWrites();
+  } catch (error) {
+    return failFrom(error, "UNAUTHORIZED", t("mustBeSignedIn"));
   }
 
   const validated = CheckoutItemsSchema.safeParse(items);
@@ -144,8 +144,12 @@ export async function finalizeAndPay(
   addressData: z.infer<typeof AddressSchema>
 ): Promise<ActionResult<{ url: string }>> {
   const t = await getTranslations("errors");
-  const session = await getSession();
-  if (!session?.user?.id) return fail("UNAUTHORIZED", t("unauthorized"));
+  let session;
+  try {
+    session = await requireOwnAccountWrites();
+  } catch (error) {
+    return failFrom(error, "UNAUTHORIZED", t("unauthorized"));
+  }
 
   const validatedAddress = AddressSchema.safeParse(addressData);
   if (!validatedAddress.success) {
@@ -227,6 +231,7 @@ export async function recreateStripeSession(
   const t = await getTranslations("errors");
 
   try {
+    await requireOwnAccountWrites();
     // Ten sam guard co przy pierwszej płatności — zamówienie musi należeć do
     // wywołującego i wciąż czekać na zapłatę.
     const order = await requireOwnedOrder(orderId, { pendingOnly: true });

@@ -49,3 +49,6 @@ tests/e2e/.auth/
 
 # local Docker env (copy from .env.docker.example)
 .env.docker
+
+# pre-reset dumps (contain personal data)
+/backups/

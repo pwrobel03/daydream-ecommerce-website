@@ -20,6 +20,7 @@ vitest.integration.config.ts
 playwright.config.ts
 docker-compose.test.yml
 
-# Only the admin script is needed by the migrator; the rest of scripts/ stays out.
+# Only the admin and demo-reset scripts are needed by the migrator; the rest of scripts/ stays out.
 scripts/*
 !scripts/create-admin.ts
+!scripts/demo-reset.ts

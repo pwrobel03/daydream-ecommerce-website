@@ -11,7 +11,7 @@ import { deleteProduct } from "@/actions/admin/inventory";
 import PriceFormatter from "@/components/PriceFormatter";
 import ProductStatusBadge from "@/components/product-status-badge";
 import { cn } from "@/lib/utils";
-import type { InventoryProduct } from "@/types/product";
+import type { InventoryProduct } from "@/lib/db-inventory";
 
 export function InventoryList({ products }: { products: InventoryProduct[] }) {
   const t = useTranslations("dashboard");

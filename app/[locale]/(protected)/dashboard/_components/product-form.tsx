@@ -4,7 +4,12 @@ import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Form } from "@/components/ui/form";
-import type { Category, Ingredient, ProductType, Status } from "@/types/product";
+import type {
+  IngredientOption,
+  MainCategoryWithChildren,
+  ProductFormData,
+  StatusOption,
+} from "@/lib/db-inventory";
 import { useProductForm } from "./use-product-form";
 import { ProductBasicsSection } from "./product-basics-section";
 import { ProductImagesSection } from "./product-images-section";
@@ -12,10 +17,10 @@ import { ProductPricingSection } from "./product-pricing-section";
 import { ProductTaxonomySection } from "./product-taxonomy-section";
 
 interface ProductFormProps {
-  initialData: ProductType | null;
-  categories: Category[];
-  ingredients: Ingredient[];
-  statuses: Status[];
+  initialData: ProductFormData | null;
+  categories: MainCategoryWithChildren[];
+  ingredients: IngredientOption[];
+  statuses: StatusOption[];
 }
 
 export function ProductForm({

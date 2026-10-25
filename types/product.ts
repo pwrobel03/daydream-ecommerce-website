@@ -1,68 +1,5 @@
 // types/product.ts
 
-export interface ProductImage {
-  id: string;
-  url: string;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  image?: string | null;
-  description?: string | null;
-
-  // Samorelacja kategorii. Widoki admina dociągają dzieci i licznik produktów,
-  // storefront nie — stąd pola opcjonalne.
-  parentId?: string | null;
-  parent?: Category | null;
-  children?: Category[];
-  _count?: { products: number };
-}
-
-export interface Status {
-  id: string;
-  name: string;
-  slug: string;
-  color?: string | null;
-}
-
-export interface Ingredient {
-  id: string;
-  name: string;
-  image?: string | null;
-  /** Alias używany przez formularz w panelu. */
-  imageUrl?: string | null;
-}
-
-export interface ProductType {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string | null;
-  // Rozszerzenie klienta Prismy (lib/db.ts) zamienia Decimal na number
-  // u źródła, więc tu jest jeden typ zamiast unii.
-  price: number;
-  promoPrice?: number | null;
-  weight?: string | null;
-  stock: number;
-  statusId?: string | null;
-  
-  // RELACJE (To tutaj brakowało kategorii i recenzji)
-  status?: Status | null;
-  images: ProductImage[];
-  categories: Category[];
-  ingredients: Ingredient[]
-
-  // Podsumowanie ocen liczy baza (patrz `ratingsFor` w lib/db-products.ts).
-  // Karta katalogu potrzebuje tylko tych dwóch liczb, więc siatka nie wozi
-  // już opinii ani ich autorów.
-  ratingAvg: number;
-  ratingCount: number;
-
-  createdAt: Date;
-  updatedAt: Date;
-}
 /**
  * Produkt zapisany w koszyku.
  *
@@ -92,15 +29,4 @@ export interface CartSyncProduct {
   stock: number;
 }
 
-/** Produkt w liście inwentarza — kształt zwracany przez `getInventoryProducts`. */
-export interface InventoryProduct {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  promoPrice: number | null;
-  stock: number;
-  categories: Category[];
-  status?: Status | null;
-  images: { url: string }[];
 }

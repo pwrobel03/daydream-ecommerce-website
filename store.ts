@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { CartProduct, CartSyncProduct, ProductType } from "./types/product";
+import { CartProduct, CartSyncProduct } from "./types/product";
 import { activePrice, basePrice } from "./lib/pricing";
 
 export interface CartItem {
@@ -15,13 +15,18 @@ export interface CartItem {
  * i lista opinii z autorami — którego widok koszyka nigdy nie czytał, a który
  * starzał się w nieskończoność.
  */
-export function toCartProduct(
-  product: Pick<ProductType, "id" | "name" | "slug" | "price" | "stock"> & {
-    promoPrice?: number | null;
-    images: { url: string }[];
-    status?: { name: string; color?: string | null } | null;
-  }
-): CartProduct {
+type CatalogueProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  stock: number;
+  promoPrice?: number | null;
+  images: { url: string }[];
+  status?: { name: string; color?: string | null } | null;
+};
+
+export function toCartProduct(product: CatalogueProduct): CartProduct {
   return {
     id: product.id,
     name: product.name,
@@ -37,7 +42,7 @@ export function toCartProduct(
 }
 
 interface PersistedCart {
-  items?: { product: ProductType; quantity: number }[];
+  items?: { product: CatalogueProduct; quantity: number }[];
 }
 
 /**

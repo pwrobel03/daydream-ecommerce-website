@@ -1,10 +1,14 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { FormSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
-import { db } from "@/lib/db";
+import {
+  getIngredients,
+  getMainCategoriesWithChildren,
+  getProductForm,
+  getStatuses,
+} from "@/lib/db-inventory";
 import { ProductForm } from "../../../_components/product-form";
 import { notFound } from "next/navigation";
-import { ProductType } from "@/types/product";
 
 async function ProductPageContent({
   params,
@@ -23,38 +27,14 @@ async function ProductPageContent({
 
   // get helpfull data for product
   const [categories, ingredients, statuses] = await Promise.all([
-    db.category.findMany({
-      include: { children: true },
-      where: { parentId: null },
-      orderBy: { name: "asc" },
-    }),
-    db.ingredient.findMany({ orderBy: { name: "asc" } }),
-    db.status.findMany({ orderBy: { name: "asc" } }),
+    getMainCategoriesWithChildren(),
+    getIngredients(),
+    getStatuses(),
   ]);
 
-  let product: ProductType | null = null;
-
   // get existing product data
-  if (!isNew) {
-    const rawProduct = await db.product.findUnique({
-      where: { id: productId },
-      include: {
-        categories: true,
-        ingredients: true,
-        images: true,
-        status: true,
-      },
-    });
-
-    if (!rawProduct) notFound();
-
-    product = {
-      ...rawProduct,
-      price: Number(rawProduct.price),
-      promoPrice: rawProduct.promoPrice !== null ? Number(rawProduct.promoPrice) : null,
-      createdAt: rawProduct.createdAt.toISOString(),
-    } as unknown as ProductType;
-  }
+  const product = isNew ? null : await getProductForm(productId);
+  if (!isNew && !product) notFound();
 
   return (
     <div className="space-y-12 pb-20 p-10">

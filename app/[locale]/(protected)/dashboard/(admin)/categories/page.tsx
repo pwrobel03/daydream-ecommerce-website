@@ -1,22 +1,12 @@
 import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
-import { db } from "@/lib/db";
+import { getCategoryList } from "@/lib/db-inventory";
 import { CategoryForm } from "../../_components/category-form";
 import { FolderTree } from "lucide-react";
 import CategoryList from "../../_components/category-list";
 import GiveInNotice from "../../_components/give-in-notice";
 async function CategoriesPageContent() {
-  const allCategories = await db.category.findMany({
-    include: {
-      children: true,
-      _count: {
-        select: { products: true },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  const allCategories = await getCategoryList();
 
   const mainCategories = allCategories.filter((cat) => !cat.parentId);
 

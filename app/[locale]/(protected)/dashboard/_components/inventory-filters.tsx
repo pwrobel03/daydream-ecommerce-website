@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Category } from "@/types/product";
+import type { MainCategoryWithChildren } from "@/lib/db-inventory";
 
 export interface InventoryFilterState {
   search: string;
@@ -22,7 +22,7 @@ export function InventoryFilters({
   categories,
   filters,
 }: {
-  categories: Category[];
+  categories: MainCategoryWithChildren[];
   filters: InventoryFilterState;
 }) {
   const t = useTranslations("dashboard");

@@ -2,16 +2,14 @@ import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Plus, Edit3 } from "lucide-react";
-import { db } from "@/lib/db";
+import { getIngredients } from "@/lib/db-inventory";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 import { DeleteIngredientButton } from "@/app/[locale]/(protected)/dashboard/_components/delete-ingredient-button";
 
 async function IngredientsListPageContent() {
-  const ingredients = await db.ingredient.findMany({
-    orderBy: { name: "asc" },
-  });
+  const ingredients = await getIngredients();
 
   const fallbackImage = "/static/placeholder-ingredient.webp";
 

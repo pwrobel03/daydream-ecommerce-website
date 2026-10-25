@@ -11,11 +11,11 @@ import { deleteCategory } from "@/actions/admin/categories";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import type { Category } from "@/types/product";
+import type { CategoryListItem } from "@/lib/db-inventory";
 import { useTranslations } from "next-intl";
 
 interface CategoryListProps {
-  initialCategories: Category[];
+  initialCategories: CategoryListItem[];
 }
 
 export default function CategoryList({ initialCategories }: CategoryListProps) {
@@ -87,7 +87,7 @@ export default function CategoryList({ initialCategories }: CategoryListProps) {
                 <div className="flex flex-row mt-2">
                   <div className="flex items-center gap-4 opacity-70 font-black uppercase text-xs tracking-widest">
                     <span className="flex items-center gap-1">
-                      <Package size={10} /> {main._count?.products || 0}{" "}
+                      <Package size={10} /> {main._count.products || 0}{" "}
                       Products
                     </span>
                   </div>
@@ -114,7 +114,7 @@ export default function CategoryList({ initialCategories }: CategoryListProps) {
                         {sub.name}
                       </p>
                       <p className="text-xs font-black uppercase tracking-widest opacity-70">
-                        {sub._count?.products || 0} Products
+                        {sub._count.products || 0} Products
                       </p>
                     </div>
                     <button

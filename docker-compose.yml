@@ -67,6 +67,10 @@ services:
       - .env.docker
     environment:
       DATABASE_URL: postgresql://daydream:daydream@postgres:5432/daydream
+      # Same volume as the app, so scripts/demo-reset.sh sees the uploaded files.
+      UPLOAD_DIR: /data/uploads
+    volumes:
+      - uploads:/data/uploads
     restart: "no"
 
   app:

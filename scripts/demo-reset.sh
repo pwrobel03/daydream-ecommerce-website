@@ -20,8 +20,7 @@ for file in ${DEPLOY_COMPOSE_FILES:-docker-compose.yml docker-compose.prod.yml};
 done
 
 # Every container call reads /dev/null, or it would swallow the owner's typed answer.
-# The migrator does not mount the uploads volume by default, so every run mounts it.
-migrate=("${compose[@]}" run --rm -T -e UPLOAD_DIR=/data/uploads -v uploads:/data/uploads migrate)
+migrate=("${compose[@]}" run --rm -T migrate)
 
 echo "== Preview: what the reset will delete =="
 "${migrate[@]}" npx tsx scripts/demo-reset.ts --preview </dev/null

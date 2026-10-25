@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import bcrypt from "bcrypt";
 import { expectFail, expectOk } from "../helpers/action-result";
 import { resetDatabase } from "./reset";
@@ -21,6 +21,13 @@ const EMAIL = "doomed@example.com";
 
 afterAll(async () => {
   await db.$disconnect();
+});
+
+// Other suites assume an empty `Address` table, so leave nothing behind.
+afterEach(async () => {
+  await resetDatabase(db);
+  await db.user.deleteMany({ where: { id: "doomed" } });
+  await db.address.deleteMany();
 });
 
 let productId: string;
@@ -70,9 +77,6 @@ beforeEach(async () => {
     },
   });
   await db.review.create({ data: { userId: "doomed", productId, content: "ok" } });
-  await db.account.create({
-    data: { userId: "doomed", type: "oauth", provider: "github", providerAccountId: "gh-1" },
-  });
   await db.verificationToken.create({
     data: { email: EMAIL, token: "v", expires: new Date(Date.now() + 1e6) },
   });
@@ -96,12 +100,21 @@ describe("deleteAccount", () => {
     expect(await db.passwordResetToken.count({ where: { email: EMAIL } })).toBe(0);
   });
 
-  it("deletes an account without a password when the e-mail matches", async () => {
-    await db.user.update({ where: { id: "doomed" }, data: { password: null } });
+  it("confirms an OAuth account by e-mail, also when it has set a password", async () => {
+    await db.account.create({
+      data: { userId: "doomed", type: "oauth", provider: "github", providerAccountId: "gh-1" },
+    });
+    expectFail(await deleteAccount({ password: "correct-horse" }), "INVALID_INPUT");
     expectFail(await deleteAccount({ email: "other@example.com" }), "INVALID_INPUT");
     expect(await db.user.count({ where: { id: "doomed" } })).toBe(1);
     expectOk(await deleteAccount({ email: EMAIL.toUpperCase() }));
     expect(await db.user.count({ where: { id: "doomed" } })).toBe(0);
+  });
+
+  it("returns INVALID_INPUT for non-string values", async () => {
+    expectFail(await deleteAccount({ password: 123 } as never), "INVALID_INPUT");
+    expectFail(await deleteAccount({ email: {} } as never), "INVALID_INPUT");
+    expect(await db.user.count({ where: { id: "doomed" } })).toBe(1);
   });
 
   it("deletes nothing on a wrong password", async () => {

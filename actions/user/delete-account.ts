@@ -24,17 +24,21 @@ export const deleteAccount = async (
     return failFrom(error, "UNAUTHORIZED", "Unauthorized!")
   }
 
+  const parsed = DeleteAccountSchema.safeParse(values)
+  if (!parsed.success) return fail("INVALID_INPUT", "Invalid fields!")
+  const { password, email } = parsed.data
+
   const user = await db.user.findUnique({
     where: { id: userId },
-    select: { email: true, password: true, role: true, addressId: true },
+    select: { email: true, password: true, role: true, addressId: true, _count: { select: { accounts: true } } },
   })
   if (!user) return fail("NOT_FOUND", "User not found!")
   if (isBackOfficeRole(user.role)) return fail("FORBIDDEN", "Admin accounts cannot be deleted")
 
-  // Konto z hasłem potwierdza hasłem, konto OAuth — wpisanym ponownie e-mailem.
-  const confirmed = user.password
-    ? !!values.password && (await bcrypt.compare(values.password, user.password))
-    : !!values.email && !!user.email && values.email.trim().toLowerCase() === user.email.toLowerCase()
+  // Ta sama reguła co w UI i settings.ts: konto z wiązaniem OAuth potwierdza e-mailem, reszta hasłem.
+  const confirmed = user._count.accounts > 0
+    ? !!email && !!user.email && email.trim().toLowerCase() === user.email.toLowerCase()
+    : !!password && !!user.password && (await bcrypt.compare(password, user.password))
   if (!confirmed) return fail("INVALID_INPUT", "Confirmation does not match")
 
   await db.$transaction(async (tx) => {

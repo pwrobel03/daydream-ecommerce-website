@@ -27,6 +27,7 @@ import { FormError } from "@/components/auth/form-error";
 import { FormSuccess } from "@/components/auth/form-success";
 import { Loader2, UserCog, ShieldCheck, Fingerprint } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DeleteAccountSection } from "@/components/user/delete-account-section";
 
 const SettingsPage = () => {
   const t = useTranslations("dashboard");
@@ -234,6 +235,10 @@ const SettingsPage = () => {
             </div>
           </form>
         </Form>
+
+        <div className="mt-12">
+          <DeleteAccountSection />
+        </div>
       </div>
     </>
   );

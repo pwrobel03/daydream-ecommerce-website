@@ -15,12 +15,16 @@ vi.mock("@/lib/mail", () => ({
   sendVerificationEmail: async () => {},
   sendPasswordResetEmail: async () => {},
 }));
+vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
+const currentUser = vi.hoisted(() => ({ value: null as { id: string; email: string; isOAuth: boolean } | null }));
+vi.mock("@/lib/auth", () => ({ getCurrentUser: async () => currentUser.value }));
 vi.mock("@/lib/rate-limit", () => ({
   getClientIp: async () => "127.0.0.1",
   rateLimit: async () => ({ allowed: true }),
 }));
 
 import { register } from "@/actions/auth/register";
+import { settings } from "@/actions/user/settings";
 import { resetPassword } from "@/actions/auth/reset-password";
 import { newVerification } from "@/actions/auth/verify-email";
 import { getUserByEmail } from "@/data/user";
@@ -61,6 +65,16 @@ describe("e-mail case", () => {
     const second = await register({ email: "mixed@example.com", password: "password-1", name: "Mixed" });
     expect(second.ok).toBe(false);
     expect(await db.user.count()).toBe(1);
+  });
+
+  it("settings stores a changed e-mail lower-cased", async () => {
+    expectOk(await register({ email: "old@example.com", password: "password-1", name: "Old" }));
+    const user = await db.user.findUniqueOrThrow({ where: { email: "old@example.com" } });
+    currentUser.value = { id: user.id, email: user.email!, isOAuth: false };
+
+    expectOk(await settings({ email: "New@Example.com" }));
+
+    expect((await db.user.findUniqueOrThrow({ where: { id: user.id } })).email).toBe("new@example.com");
   });
 
   it("createAdmin with two casings updates one row", async () => {

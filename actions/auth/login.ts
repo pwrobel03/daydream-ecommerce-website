@@ -4,6 +4,7 @@ import { LoginSchema } from "@/schemas";
 import { getUserByEmail } from "@/data/user";
 import { generateVerificationToken } from "@/lib/token";
 import { sendVerificationEmail } from "@/lib/mail";
+import { getClientIp } from "@/lib/rate-limit";
 import { ActionResult, fail, ok } from "@/lib/action-result";
 
 export const login = async (
@@ -24,7 +25,7 @@ export const login = async (
 
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(existingUser.email);
-    const sent = await sendVerificationEmail(verificationToken.email, verificationToken.token);
+    const sent = await sendVerificationEmail(verificationToken.email, verificationToken.token, await getClientIp());
     if (!sent) return fail("EMAIL_NOT_SENT", "We could not send the e-mail right now. Try again later.");
     return fail("FORBIDDEN", "Email not verified! New email sent.");
   }

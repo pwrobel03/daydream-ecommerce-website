@@ -4,14 +4,14 @@ import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import ProductStatusBadge from "../product-status-badge";
-import type { ProductImage, Status } from "@/types/product";
+import type { ProductDetail } from "@/lib/db-products";
 
 export default function ProductGallery({
   images,
   status,
 }: {
-  images: ProductImage[];
-  status: Status | null;
+  images: ProductDetail["images"];
+  status: ProductDetail["status"];
 }) {
   const [active, setActive] = useState<string>(images[0]?.url ?? "");
 

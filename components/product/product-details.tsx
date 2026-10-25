@@ -2,9 +2,9 @@
 "use client";
 
 import Image from "next/image";
-import type { ProductType } from "@/types/product";
+import type { ProductDetail } from "@/lib/db-products";
 
-export default function ProductDetails({ product }: { product: ProductType }) {
+export default function ProductDetails({ product }: { product: ProductDetail }) {
   return (
     <div className="flex flex-col lg:flex-row gap-16 items-start my-12 pt-8">
       {/* LEWA STRONA: Opis (Editorial Copy) */}

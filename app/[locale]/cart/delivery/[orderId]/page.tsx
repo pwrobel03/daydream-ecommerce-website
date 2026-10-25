@@ -4,7 +4,7 @@ import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import { DeliveryClient } from "@/components/cart/delivery-client";
-import { toPlainDeep } from "@/lib/dto";
+import { toPlainDeep } from "@/lib/serialize";
 
 async function DeliveryPageContent({
   params,
@@ -30,7 +30,7 @@ async function DeliveryPageContent({
 
   if (!order) notFound();
 
-  // Wynik Prismy niesie własności symboliczne — patrz lib/dto.
+  // Wynik Prismy niesie własności symboliczne — patrz lib/serialize.
   const orderForClient = toPlainDeep(order);
 
 

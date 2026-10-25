@@ -38,8 +38,3 @@ export interface OrderType {
   userId?: string;
   address?: AddressType | null;
 }
-
-/** Zamówienie w widoku admina — dochodzą dane kupującego. */
-export interface AdminOrderType extends OrderType {
-  user: { name: string | null; email: string | null };
-}

@@ -161,7 +161,8 @@
       "recent": "Recent Orders",
       "deliveryAddress": "Delivery address",
       "noAddress": "No address provided",
-      "statusLabel": "Status"
+      "statusLabel": "Status",
+      "customer": "Customer {tag}"
     },
     "address": {
       "title": "Address Book",

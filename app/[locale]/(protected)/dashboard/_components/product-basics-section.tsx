@@ -19,14 +19,14 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { Status } from "@/types/product";
+import type { StatusOption } from "@/lib/db-inventory";
 import type { ProductSectionProps } from "./product-form-types";
 
 export function ProductBasicsSection({
   form,
   loading,
   statuses,
-}: ProductSectionProps & { statuses: Status[] }) {
+}: ProductSectionProps & { statuses: StatusOption[] }) {
   const t = useTranslations("dashboard");
 
   return (

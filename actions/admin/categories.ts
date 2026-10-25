@@ -64,14 +64,22 @@ export async function getCategories() {
     await requireAdmin();
     return await db.category.findMany({
       orderBy: { name: "asc" },
-      include: {
-        _count: { select: { products: true } }
-      }
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        image: true,
+        description: true,
+        parentId: true,
+        _count: { select: { products: true } },
+      },
     });
   } catch {
     return [];
   }
 }
+
+export type AdminCategory = Awaited<ReturnType<typeof getCategories>>[number];
 
 export async function deleteCategory(id: string): Promise<ActionResult> {
   try {

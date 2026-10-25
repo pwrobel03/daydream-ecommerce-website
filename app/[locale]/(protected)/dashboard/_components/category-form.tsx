@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { Category } from "@/types/product";
+import type { CategoryListItem } from "@/lib/db-inventory";
 import * as z from "zod";
 
 type CategoryFormInput = z.input<typeof categorySchema>;
@@ -37,7 +37,7 @@ type CategoryFormValues = z.output<typeof categorySchema>;
 export function CategoryForm({
   parentCategories,
 }: {
-  parentCategories: Category[];
+  parentCategories: Pick<CategoryListItem, "id" | "name">[];
 }) {
   const t = useTranslations("dashboard");
   const [loading, setLoading] = useState(false);

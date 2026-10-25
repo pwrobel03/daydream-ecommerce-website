@@ -23,12 +23,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Loader2 } from "lucide-react";
-import type { AddressType } from "@/types/order";
+import type { UserAddress } from "@/lib/db-orders";
 
 export function AddressForm({
   initialData,
 }: {
-  initialData: AddressType | null;
+  initialData: UserAddress | null;
 }) {
   const t = useTranslations("dashboard");
   const readOnlyReason = useReadOnlyReason();

@@ -14,10 +14,10 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
-import type { OrderType } from "@/types/order";
+import type { UserOrder } from "@/lib/db-orders";
 
 interface OrdersListProps {
-  orders: OrderType[];
+  orders: UserOrder[];
 }
 
 export function OrdersList({ orders }: OrdersListProps) {

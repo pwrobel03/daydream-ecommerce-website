@@ -24,11 +24,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CreditCard, Loader2, BookmarkCheck } from "lucide-react";
-import type { AddressType, OrderType } from "@/types/order";
+import type { DeliveryOrder, UserAddress } from "@/lib/db-orders";
 
 interface DeliveryClientProps {
-  order: OrderType;
-  savedAddress: AddressType | null;
+  order: DeliveryOrder;
+  savedAddress: UserAddress | null;
 }
 
 export function DeliveryClient({ order, savedAddress }: DeliveryClientProps) {

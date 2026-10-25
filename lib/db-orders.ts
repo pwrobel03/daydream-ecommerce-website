@@ -131,3 +131,78 @@ export const getAdminOrders = async (
     totalCount,
   };
 };
+
+const addressSelect = {
+  id: true,
+  fullName: true,
+  street: true,
+  city: true,
+  zipCode: true,
+  phone: true,
+} satisfies Prisma.AddressSelect;
+
+/** The signed-in customer's orders for the history list. */
+export const getUserOrders = async (userId: string) =>
+  toPlainDeep(
+    await db.order.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        totalAmount: true,
+        status: true,
+        isPaid: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    })
+  );
+
+/** One of the customer's orders with its address and items. */
+export const getUserOrderDetails = (userId: string, orderId: string) =>
+  db.order.findUnique({
+    where: { id: orderId, userId },
+    select: {
+      id: true,
+      totalAmount: true,
+      status: true,
+      isPaid: true,
+      createdAt: true,
+      address: { select: addressSelect },
+      items: {
+        select: {
+          id: true,
+          quantity: true,
+          price: true,
+          product: {
+            select: { name: true, slug: true, images: { select: { url: true } } },
+          },
+        },
+      },
+    },
+  });
+
+/** The order the delivery step pays for. */
+export const getOrderForDelivery = async (userId: string, orderId: string) =>
+  toPlainDeep(
+    await db.order.findUnique({
+      where: { id: orderId, userId },
+      select: { id: true },
+    })
+  );
+
+/** The customer's saved delivery address, if any. */
+export const getUserAddress = async (userId: string) => {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { address: { select: addressSelect } },
+  });
+  return toPlainDeep(user?.address ?? null);
+};
+
+type Read<T extends (...args: never[]) => Promise<unknown>> = NonNullable<Awaited<ReturnType<T>>>;
+
+export type UserOrder = Read<typeof getUserOrders>[number];
+export type UserOrderDetails = Read<typeof getUserOrderDetails>;
+export type UserOrderItem = UserOrderDetails["items"][number];
+export type DeliveryOrder = Read<typeof getOrderForDelivery>;
+export type UserAddress = Read<typeof getUserAddress>;

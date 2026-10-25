@@ -1,7 +1,7 @@
 import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 import { getSession } from "@/lib/session";
-import { db } from "@/lib/db";
+import { getUserOrders } from "@/lib/db-orders";
 import { redirect } from "next/navigation";
 import { OrdersList } from "../_components/orders-list";
 
@@ -12,37 +12,7 @@ async function OrdersPageContent() {
     redirect("/auth/login");
   }
 
-  // Pobieramy zamówienia użytkownika
-  const orders = await db.order.findMany({
-    where: {
-      userId: session.user.id,
-    },
-    include: {
-      items: {
-        include: {
-          product: {
-            select: {
-              name: true,
-              images: { take: 1 },
-            },
-          },
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  // serialize data
-  const serializedOrders = orders.map((order) => ({
-    ...order,
-    createdAt: order.createdAt.toISOString(), // Konwersja Date -> String (bezpieczniejsze)
-    updatedAt: order.updatedAt.toISOString(),
-    items: order.items.map((item) => ({
-      ...item,
-    })),
-  }));
+  const orders = await getUserOrders(session.user.id);
 
   return (
     <div className="container mx-auto py-20 flex flex-col space-y-16">
@@ -58,7 +28,7 @@ async function OrdersPageContent() {
       </header>
 
       {/* Przekazujemy dane do komponentu prezentacyjnego */}
-      <OrdersList orders={serializedOrders} />
+      <OrdersList orders={orders} />
     </div>
   );
 }

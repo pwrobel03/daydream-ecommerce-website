@@ -1,6 +1,6 @@
 // lib/db-inventory.ts
 import { db } from "@/lib/db";
-import { requireBackOffice } from "@/lib/guards";
+import { requireAdmin, requireBackOffice } from "@/lib/guards";
 import { toPlainDeep } from "@/lib/serialize";
 import { reportError } from "@/lib/logger";
 

@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { db } = await vi.hoisted(async () => {
   // lib/env.ts czyta REDIS_URL przy imporcie, więc adres kontenera musi być
@@ -31,6 +31,8 @@ beforeEach(async () => {
   vi.mocked(sendVerificationEmail).mockClear();
   vi.mocked(sendPasswordResetEmail).mockClear();
 });
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe("Turnstile on register and resetPassword", () => {
   it("creates no user and sends no e-mail when Cloudflare rejects the token", async () => {

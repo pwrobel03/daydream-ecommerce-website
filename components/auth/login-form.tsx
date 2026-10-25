@@ -61,7 +61,9 @@ export const LoginForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthProvi
         redirect: false,
       });
 
-      if (result?.error) {
+      if (result?.code === "rate_limited") {
+        setError(t("rateLimited"));
+      } else if (result?.error) {
         setError("Invalid Registry Key");
       } else {
         setSuccess("Identity Verified. Accessing Archive...");

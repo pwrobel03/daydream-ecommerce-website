@@ -13,6 +13,9 @@ export default defineConfig({
     testTimeout: 60_000,
     hookTimeout: 180_000,
     env: testEnv,
+    // next-auth importuje "next/server" bez rozszerzenia, czego Node w trybie ESM
+    // nie rozwiązuje; przepuszczenie paczki przez Vite to naprawia.
+    server: { deps: { inline: ["next-auth"] } },
   },
   resolve: {
     alias: { "@": path.resolve(__dirname, "./") },

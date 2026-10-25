@@ -74,7 +74,8 @@
       "forgot": "Forgot password?",
       "systemLabel": "System_Login",
       "headline": "IDENTITY",
-      "headlineAccent": "VAULT."
+      "headlineAccent": "VAULT.",
+      "rateLimited": "Too many attempts. Try again in 15 minutes."
     },
     "register": {
       "title": "Create Account",

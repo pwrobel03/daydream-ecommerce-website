@@ -1,21 +1,25 @@
 // actions/address.ts
 "use server";
 
-import { getSession } from "@/lib/session";
+import { requireOwnAccountWrites } from "@/lib/guards";
 import { db } from "@/lib/db";
 import { reportError } from "@/lib/logger";
 import { AddressSchema } from "@/schemas";
 import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import { getTranslations } from "next-intl/server";
-import { ActionResult, fail, ok } from "@/lib/action-result";
+import { ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 
 export async function saveUserAddress(
   values: z.infer<typeof AddressSchema>
 ): Promise<ActionResult> {
   const t = await getTranslations("errors");
-  const session = await getSession();
-  if (!session?.user?.id) return fail("UNAUTHORIZED", t("unauthorized"));
+  let session;
+  try {
+    session = await requireOwnAccountWrites();
+  } catch (error) {
+    return failFrom(error, "UNAUTHORIZED", t("unauthorized"));
+  }
 
   const validated = AddressSchema.safeParse(values);
   if (!validated.success) return fail("INVALID_INPUT", t("invalidAddress"));

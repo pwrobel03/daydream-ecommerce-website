@@ -6,9 +6,9 @@ import { z } from "zod";
 import { ReviewSchema } from "@/schemas";
 import { reviewSelect } from "@/lib/db-products";
 import { reportError } from "@/lib/logger";
-import { ActionResult, fail, ok } from "@/lib/action-result";
+import { ActionResult, fail, failFrom, ok } from "@/lib/action-result";
 import { toPlainDeep } from "@/lib/serialize";
-import { getSession } from "@/lib/session";
+import { requireOwnAccountWrites } from "@/lib/guards";
 
 
 export async function getMoreReviews(
@@ -43,9 +43,13 @@ export async function createReview(
   // Autor bierze się z sesji, nie z formularza. Wcześniej `userId` przychodził
   // w payloadzie, więc dowolny zalogowany użytkownik mógł wystawić opinię
   // podpisaną cudzym kontem.
-  const session = await getSession();
-  if (!session?.user?.id) return fail("UNAUTHORIZED", "You must be signed in.");
-  const userId = session.user.id;
+  let session;
+  try {
+    session = await requireOwnAccountWrites();
+  } catch (error) {
+    return failFrom(error, "UNAUTHORIZED", "You must be signed in.");
+  }
+  const userId = session.user.id!; // guard guarantees an id
 
   const validatedFields = ReviewSchema.safeParse(values);
   if (!validatedFields.success) return fail("INVALID_INPUT", "Invalid fields!");
@@ -80,8 +84,12 @@ export async function updateReview(
   values: { rating: number; content: string },
   slug: string
 ): Promise<ActionResult<{ review: StoreVoice }>> {
-  const session = await getSession();
-  if (!session?.user?.id) return fail("UNAUTHORIZED", "You must be signed in.");
+  let session;
+  try {
+    session = await requireOwnAccountWrites();
+  } catch (error) {
+    return failFrom(error, "UNAUTHORIZED", "You must be signed in.");
+  }
 
   try {
     // `userId` w predykacie, nie samo `id` — bez niego wystarczyło znać cudze
@@ -109,8 +117,12 @@ export async function deleteReview(
   reviewId: string,
   slug: string
 ): Promise<ActionResult> {
-  const session = await getSession();
-  if (!session?.user?.id) return fail("UNAUTHORIZED", "You must be signed in.");
+  let session;
+  try {
+    session = await requireOwnAccountWrites();
+  } catch (error) {
+    return failFrom(error, "UNAUTHORIZED", "You must be signed in.");
+  }
 
   try {
     // Ten sam brakujący predykat co w updateReview.

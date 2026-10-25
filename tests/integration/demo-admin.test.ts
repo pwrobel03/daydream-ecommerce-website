@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { expectFail } from "../helpers/action-result";
+import { expectFail, expectOk } from "../helpers/action-result";
 import { resetDatabase } from "./reset";
 
 // Real database, only the session is replaced: the demo admin must be refused
@@ -21,7 +21,11 @@ const { createCategory, deleteCategory, getCategories } = await import("@/action
 const { upsertIngredient, deleteIngredient } = await import("@/actions/admin/ingredients");
 const { updateOrderStatus } = await import("@/actions/admin/orders");
 const { deleteVoice } = await import("@/actions/admin/reviews");
-const { requireAdmin, requireBackOffice } = await import("@/lib/guards");
+const { settings } = await import("@/actions/user/settings");
+const { saveUserAddress } = await import("@/actions/user/address");
+const { createReview, updateReview, deleteReview } = await import("@/actions/store/reviews");
+const { initializeOrder, finalizeAndPay, recreateStripeSession } = await import("@/actions/order/order");
+const { requireAdmin, requireBackOffice, requireOwnAccountWrites } = await import("@/lib/guards");
 
 afterAll(async () => {
   await db.$disconnect();
@@ -102,5 +106,51 @@ describe("DEMO_ADMIN", () => {
   it("is not let in by a plain USER session", async () => {
     session.user.role = "USER";
     await expect(requireBackOffice()).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+});
+
+describe("DEMO_ADMIN own-account writes", () => {
+  const address = { fullName: "Jane Doe", street: "Main Street 1", city: "Warsaw", zipCode: "00-001", phone: "123456789" };
+
+  const attempts = () => [
+    () => settings({ name: "Hacked" }),
+    () => saveUserAddress(address),
+    () => createReview({ productId: ids.product, rating: 5, content: "Hacked" }),
+    () => updateReview(ids.review, { rating: 1, content: "Hacked" }, "bar"),
+    () => deleteReview(ids.review, "bar"),
+    () => initializeOrder([{ productId: ids.product, quantity: 1 }]),
+    () => finalizeAndPay(ids.order, address),
+    () => recreateStripeSession(ids.order),
+  ];
+
+  it("is refused by every action and changes nothing", async () => {
+    const before = await snapshot();
+    const users = await db.user.findMany({ orderBy: { id: "asc" } });
+
+    for (const attempt of attempts()) {
+      const result = await attempt();
+      expectFail(result, "FORBIDDEN");
+      expect(result).toMatchObject({ message: "demoReadOnly" });
+    }
+
+    expect(JSON.stringify(await snapshot())).toBe(JSON.stringify(before));
+    expect(await db.user.findMany({ orderBy: { id: "asc" } })).toEqual(users);
+    expect(await db.address.count()).toBe(0);
+  });
+
+  it("lets a USER through", async () => {
+    session.user.role = "USER";
+    expectOk(await saveUserAddress(address));
+    expect(await db.address.count()).toBe(1);
+  });
+
+  it("rejects a missing session", async () => {
+    const saved = session.user;
+    (session as { user: unknown }).user = undefined;
+    try {
+      await expect(requireOwnAccountWrites()).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+    } finally {
+      session.user = saved;
+    }
   });
 });

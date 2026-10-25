@@ -24,6 +24,19 @@ export async function requireAdmin() {
   return session;
 }
 
+/**
+ * Own-account writes (profile, address, Voices, orders): signed-in USER or ADMIN.
+ * The demo account is shared by all visitors, so it must never write.
+ */
+export async function requireOwnAccountWrites() {
+  const session = await getSession();
+  if (!session?.user?.id) throw new ActionError("UNAUTHORIZED", "Unauthorized");
+  if (isDemoAdmin(session.user.role)) {
+    throw new ActionError("FORBIDDEN", (await getTranslations("errors"))("demoReadOnly"));
+  }
+  return session;
+}
+
 /** Back-office reads: the demo admin may look, but never write (writes use requireAdmin). */
 export async function requireBackOffice() {
   const session = await getSession();

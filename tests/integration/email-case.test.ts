@@ -12,8 +12,8 @@ const { db } = await vi.hoisted(async () => {
 
 vi.mock("@/lib/db", () => ({ db }));
 vi.mock("@/lib/mail", () => ({
-  sendVerificationEmail: async () => {},
-  sendPasswordResetEmail: async () => {},
+  sendVerificationEmail: async () => true,
+  sendPasswordResetEmail: async () => true,
 }));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 const currentUser = vi.hoisted(() => ({ value: null as { id: string; email: string; isOAuth: boolean } | null }));

@@ -41,7 +41,11 @@ export async function getVoices({ take = 10, rating, search }: VoiceQuery) {
       db.review.findMany({
         where,
         take,
-        include: {
+        select: {
+          id: true,
+          content: true,
+          rating: true,
+          createdAt: true,
           user: { select: { name: true, image: true } },
           product: { select: { name: true, slug: true } },
         },
@@ -56,3 +60,5 @@ export async function getVoices({ take = 10, rating, search }: VoiceQuery) {
     return { reviews: [], totalCount: 0 };
   }
 }
+
+export type AdminVoice = Awaited<ReturnType<typeof getVoices>>["reviews"][number];

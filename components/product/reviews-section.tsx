@@ -6,18 +6,18 @@ import { Star, Plus, Loader2 } from "lucide-react";
 import { getMoreReviews } from "@/actions/store/reviews";
 import Image from "next/image";
 import AddReviewForm from "./add-review-form";
-import { Review } from "@/types/product";
-import { UserType } from "@/types/user";
+import type { StoreVoice } from "@/actions/store/reviews";
+import type { Session } from "next-auth";
 
 interface ReviewsSectionProps {
   productId: string;
   productSlug: string;
-  userReview: Review | null;
-  initialReviews: Review[];
+  userReview: StoreVoice | null;
+  initialReviews: StoreVoice[];
   totalCount: number;
   /** Średnia ze wszystkich opinii, policzona przez bazę. */
   ratingAvg: number;
-  user: UserType | null;
+  user: Session["user"] | null;
 }
 
 import UserReviewCard from "./user-review-card";
@@ -32,8 +32,8 @@ export default function ReviewsSection({
   user,
 }: ReviewsSectionProps) {
   const router = useRouter();
-  const [reviews, setReviews] = useState<Review[]>(initialReviews);
-  const [currentUserReview, setCurrentUserReview] = useState<Review | null>(
+  const [reviews, setReviews] = useState<StoreVoice[]>(initialReviews);
+  const [currentUserReview, setCurrentUserReview] = useState<StoreVoice | null>(
     userReview
   );
   const [isEditing, setIsEditing] = useState(false);
@@ -56,7 +56,7 @@ export default function ReviewsSection({
       9,
       user?.id
     );
-    setReviews((prev) => [...prev, ...(nextReviews as Review[])]);
+    setReviews((prev) => [...prev, ...(nextReviews)]);
     setLoading(false);
   };
 

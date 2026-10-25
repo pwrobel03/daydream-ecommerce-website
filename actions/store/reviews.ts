@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { ReviewSchema } from "@/schemas";
-import { Review } from "@/types/product";
+import { reviewSelect } from "@/lib/db-products";
 import { reportError } from "@/lib/logger";
 import { ActionResult, fail, ok } from "@/lib/action-result";
 import { toPlainDeep } from "@/lib/serialize";
@@ -27,10 +27,10 @@ export async function getMoreReviews(
       skip: skip,
       take: take,
       orderBy: { createdAt: 'desc' },
-      include: { user: { select: { name: true, image: true } } }
+      select: reviewSelect,
     });
-    
-    return reviews;
+
+    return toPlainDeep(reviews);
   } catch (error) {
     reportError(error, { area: "store.reviews" });
     return [];
@@ -39,7 +39,7 @@ export async function getMoreReviews(
 
 export async function createReview(
   values: z.infer<typeof ReviewSchema>
-): Promise<ActionResult<{ review: Review }>> {
+): Promise<ActionResult<{ review: StoreVoice }>> {
   // Autor bierze się z sesji, nie z formularza. Wcześniej `userId` przychodził
   // w payloadzie, więc dowolny zalogowany użytkownik mógł wystawić opinię
   // podpisaną cudzym kontem.
@@ -62,11 +62,7 @@ export async function createReview(
     // KLUCZ: Tworzymy i od razu pobieramy z relacją user
     const newReview = await db.review.create({
       data: { productId, userId, rating, content },
-      include: {
-        user: {
-          select: { name: true, image: true }
-        }
-      }
+      select: reviewSelect,
     });
 
     revalidatePath(`/product/[slug]`, "page");
@@ -83,7 +79,7 @@ export async function updateReview(
   reviewId: string,
   values: { rating: number; content: string },
   slug: string
-): Promise<ActionResult<{ review: Review }>> {
+): Promise<ActionResult<{ review: StoreVoice }>> {
   const session = await getSession();
   if (!session?.user?.id) return fail("UNAUTHORIZED", "You must be signed in.");
 
@@ -96,15 +92,7 @@ export async function updateReview(
         rating: values.rating,
         content: values.content,
       },
-      // KLUCZOWE: Musisz dołączyć usera, inaczej TS zgłosi błąd braku właściwości 'user'
-      include: {
-        user: {
-          select: {
-            name: true,
-            image: true,
-          }
-        }
-      }
+      select: reviewSelect,
     });
 
     revalidatePath(`/product/${slug}`);
@@ -134,3 +122,4 @@ export async function deleteReview(
     return fail("NOT_FOUND", "Failed to delete review.");
   }
 }
+export type StoreVoice = Awaited<ReturnType<typeof getMoreReviews>>[number];

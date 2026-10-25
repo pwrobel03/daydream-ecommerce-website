@@ -8,8 +8,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Star, SendHorizontal, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
-import { Review } from "@/types/product";
-import { UserType } from "@/types/user";
+import type { StoreVoice } from "@/actions/store/reviews";
+import type { Session } from "next-auth";
 
 import {
   Form,
@@ -34,9 +34,9 @@ const formSchema = z.object({
 interface AddReviewFormProps {
   productId: string;
   productSlug: string; // Dodane dla rewalidacji w akcji update
-  user: UserType;
-  initialData?: Review | null; // Dane do edycji
-  onSuccess: (review: Review) => void;
+  user: Session["user"];
+  initialData?: StoreVoice | null; // Dane do edycji
+  onSuccess: (review: StoreVoice) => void;
   onCancel?: () => void; // Funkcja do wyjścia z trybu edycji
 }
 

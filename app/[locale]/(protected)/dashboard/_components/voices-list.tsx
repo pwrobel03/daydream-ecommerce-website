@@ -7,9 +7,9 @@ import { useTranslations } from "next-intl";
 import { Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteVoice } from "@/actions/admin/reviews";
-import type { VoiceType } from "@/types/product";
+import type { AdminVoice } from "@/lib/db-reviews";
 
-export function VoicesList({ voices }: { voices: VoiceType[] }) {
+export function VoicesList({ voices }: { voices: AdminVoice[] }) {
   const t = useTranslations("dashboard");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();

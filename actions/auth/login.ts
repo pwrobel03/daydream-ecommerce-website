@@ -24,7 +24,7 @@ export const login = async (
 
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(existingUser.email);
-    const sent = await sendVerificationEmail(verificationToken.email, verificationToken.token, ip);
+    const sent = await sendVerificationEmail(verificationToken.email, verificationToken.token);
     if (!sent) return fail("EMAIL_NOT_SENT", "We could not send the e-mail right now. Try again later.");
     return fail("FORBIDDEN", "Email not verified! New email sent.");
   }

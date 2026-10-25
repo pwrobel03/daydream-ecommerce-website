@@ -57,6 +57,7 @@
     "addressSaveFailed": "Nie udało się zapisać adresu. Spróbuj ponownie."
   },
   "auth": {
+    "mailNotSent": "Nie możemy teraz wysłać e-maila. Spróbuj ponownie później.",
     "oauth": {
       "divider": "Lub kontynuuj przez",
       "google": "Google",
@@ -193,6 +194,7 @@
       "paymentSessionError": "Błąd sesji płatności",
       "settingsSaved": "Ustawienia zapisane.",
       "emailChanged": "E-mail zmieniony — wysłaliśmy link weryfikacyjny.",
+      "emailNotSent": "E-mail zmieniony, ale nie możemy teraz wysłać wiadomości. Spróbuj ponownie później.",
       "categoryCreated": "Kategoria utworzona.",
       "categoryRemoved": "Kategoria usunięta.",
       "ingredientSaved": "Składnik zapisany.",

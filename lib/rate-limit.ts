@@ -38,12 +38,14 @@ export type RateLimitResult = {
  *
  * Zachowanie przy niedostępnym Redisie jest **fail-open** — przepuszczamy żądanie
  * i logujemy błąd. Awaria Redisa nie może wyłączyć logowania w całym sklepie;
- * ceną jest brak ochrony przed brute-force w oknie awarii.
+ * ceną jest brak ochrony przed brute-force w oknie awarii. Limit maili wybiera
+ * `failClosed` (ADR 0012): lepiej nie wysłać maila niż otworzyć nadawcę spamu.
  */
 export async function rateLimit(
   key: string,
   limit: number,
-  windowSeconds: number
+  windowSeconds: number,
+  options: { failClosed?: boolean } = {}
 ): Promise<RateLimitResult> {
   try {
     const redisKey = `rl:${key}`;
@@ -66,7 +68,13 @@ export async function rateLimit(
   } catch (error) {
     // Fail-open bez sygnału jest niewykrywalny: limitowanie przestaje działać,
     // a wszystko wygląda normalnie. Zgłaszamy to jako błąd, nie jako szum.
-    reportError(error, { area: "rate-limit.failed-open", key });
+    reportError(error, {
+      area: options.failClosed ? "rate-limit.failed-closed" : "rate-limit.failed-open",
+      key,
+    });
+    if (options.failClosed) {
+      return { allowed: false, remaining: 0, retryAfterSeconds: windowSeconds };
+    }
     return { allowed: true, remaining: limit, retryAfterSeconds: 0 };
   }
 }

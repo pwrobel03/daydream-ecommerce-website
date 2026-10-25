@@ -10,6 +10,7 @@ import { sendVerificationEmail } from "@/lib/mail"
 import { revalidatePath } from "next/cache"
 import bcrypt from "bcrypt"
 import { ActionResult, fail, ok } from "@/lib/action-result";
+import { getClientIp } from "@/lib/rate-limit";
 
 // actions/settings.ts
 /**
@@ -19,7 +20,7 @@ import { ActionResult, fail, ok } from "@/lib/action-result";
  */
 export const settings = async (
   values: z.infer<typeof SettingsSchema>
-): Promise<ActionResult<{ emailChanged: boolean }>> => {
+): Promise<ActionResult<{ emailChanged: boolean; emailSent: boolean }>> => {
   const user = await getCurrentUser();
   if (!user || !user.id) return fail("UNAUTHORIZED", "Unauthorized!");
 
@@ -39,6 +40,8 @@ export const settings = async (
     values.newPassword = undefined;
   }
 
+  let emailSent = true;
+
   // 3. Logika zmiany EMAIL (Natychmiastowa zmiana + cofnięcie weryfikacji)
   if (values.email && values.email !== user.email) {
     const existingUser = await getUserByEmail(values.email);
@@ -47,7 +50,8 @@ export const settings = async (
     }
 
     const verificationToken = await generateVerificationToken(values.email);
-    await sendVerificationEmail(verificationToken.email, verificationToken.token);
+    // Zmiana adresu zapisuje się mimo nieudanej wysyłki — użytkownik dostaje o tym informację.
+    emailSent = await sendVerificationEmail(verificationToken.email, verificationToken.token, await getClientIp());
 
     // Tu dzieje się magia: aktualizujemy maila i zerujemy datę weryfikacji
     updateData.email = values.email;
@@ -73,5 +77,5 @@ export const settings = async (
 
   revalidatePath("/dashboard/profile");
   
-  return ok({ emailChanged: updateData.emailVerified === null });
+  return ok({ emailChanged: updateData.emailVerified === null, emailSent });
 };

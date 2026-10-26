@@ -116,7 +116,8 @@ Przy wdrożeniu w Dockerze użyj `scripts/create-admin.sh <email> [imię]`; patr
 
 Pull request zmieniający UI dostaje jeden komentarz ze zrzutami przed/po
 (`.github/workflows/screenshots.yml`). Workflow buduje i seeduje tak samo gałąź PR i gałąź bazową
-(`tests/e2e/seed.ts`), robi zrzuty każdej strony w rozmiarach 1440×900 i 390×844, po angielsku,
+(`tests/e2e/seed.ts`), robi zrzuty każdej strony w rozmiarach 1440×900 i 390×844, po angielsku, w motywie jasnym i ciemnym
+(pliki `<name>-<desktop|mobile>-<light|dark>.png`; zrzut sprawdza, że klasa `dark` jest ustawiona),
 i porównuje je piksel po pikselu. To informacja dla recenzenta, nie bramka.
 
 Aby dodać stronę, dopisz wpis do `tests/screenshots/routes.ts`:

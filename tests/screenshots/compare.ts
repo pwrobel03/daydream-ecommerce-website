@@ -27,26 +27,26 @@ mkdirSync(outDir, { recursive: true });
 const url = (kind: string, file: string) =>
   `https://raw.githubusercontent.com/${repo}/screenshots/pr-${pr}/${kind}-${file}?v=${sha}`;
 const label = (file: string) => {
-  const [, name, size] = /^(.*)-(desktop|mobile)\.png$/.exec(file)!;
-  return { name, size };
+  const [, name, size, theme] = /^(.*)-(desktop|mobile)-(light|dark)\.png$/.exec(file)!;
+  return { name, size, theme };
 };
 
 const lines = [MARKER, "### Screenshots", ""];
 if (changed.length === 0) {
   lines.push("No visual changes in the captured pages.");
 } else {
-  lines.push("| Page | Size | Before | After |", "| --- | --- | --- | --- |");
+  lines.push("| Page | Size | Theme | Before | After |", "| --- | --- | --- | --- | --- |");
   for (const file of changed) {
-    const { name, size } = label(file);
+    const { name, size, theme } = label(file);
     const before = baseFiles.has(file);
     if (before) copyFileSync(path.join(beforeDir, file), path.join(outDir, `before-${file}`));
     copyFileSync(path.join(afterDir, file), path.join(outDir, `after-${file}`));
     const cell = (kind: string, ok: boolean) => (ok ? `<img src="${url(kind, file)}" width="${size === "mobile" ? 160 : 320}">` : "–");
-    lines.push(`| ${name} | ${size} | ${cell("before", before)} | ${cell("after", true)} |`);
+    lines.push(`| ${name} | ${size} | ${theme} | ${cell("before", before)} | ${cell("after", true)} |`);
   }
 }
 if (unchanged.length > 0) {
-  const names = unchanged.map((f) => { const { name, size } = label(f); return `${name} (${size})`; });
+  const names = unchanged.map((f) => { const { name, size, theme } = label(f); return `${name} (${size}, ${theme})`; });
   lines.push("", "<details>", `<summary>Unchanged pages (${unchanged.length})</summary>`, "", names.join(", "), "", "</details>");
 }
 lines.push("", `Made from ${sha.slice(0, 7)}.`);

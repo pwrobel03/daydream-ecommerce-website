@@ -44,11 +44,13 @@ The flow spans two pages and four Server Actions.
    `checkout.session.completed` marks the order `PAID`, and on
    `checkout.session.expired` / `payment_intent.payment_failed` returns the reserved stock
    and cancels the order. Every event id is recorded, so a re-delivery is ignored;
-   `amount_total` and the session id must match the order, otherwise it stays unpaid;
+   `amount_total` must match the order, otherwise it stays unpaid, while a payment in an older
+   session of the order is accepted;
    live-mode events and events for orders that no longer exist are acknowledged with 200
    and ignored. A paid test order puts its stock back, since no goods ship. A declined card
    cancels the order, and a successful retry in the same Checkout session still ends
-   `PAID` with the stock unchanged.
+   `PAID` with the stock unchanged. Only the expiry of the order's current session cancels it;
+   an older session expiring is ignored.
 4. **`recreateStripeSession`** — issues a fresh payment session for a `PENDING`, unpaid
    order from `/dashboard/orders/[orderId]`, so an interrupted payment can be resumed. It
    charges the same total as the first attempt, discount included.

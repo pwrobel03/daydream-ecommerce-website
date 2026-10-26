@@ -51,7 +51,7 @@ repository directory. If you use the Cloudflare overlay (deployment guide, step 
 #!/usr/bin/env bash
 set -euo pipefail
 umask 077
-cd "${DEPLOY_DIR:-/srv/daydream}"
+cd "${DEPLOY_DIR:?set DEPLOY_DIR}"
 backups=${BACKUP_DIR:-/var/backups/daydream}
 stamp=$(date -u +%Y%m%dT%H%M%SZ)
 compose=(docker compose --env-file .env.docker)
@@ -60,7 +60,8 @@ for file in ${DEPLOY_COMPOSE_FILES:-docker-compose.yml docker-compose.prod.yml};
 mkdir -p "$backups/offsite" backups
 "${compose[@]}" exec -T postgres sh -c 'pg_dump -Fc -U "$POSTGRES_USER" "$POSTGRES_DB"' </dev/null > "$backups/db-$stamp.dump"
 "${compose[@]}" run --rm -T migrate tar -czf - -C /data/uploads . </dev/null > "$backups/uploads-$stamp.tar.gz"
-[ -s "$backups/db-$stamp.dump" ] && [ -s "$backups/uploads-$stamp.tar.gz" ]
+[ -s "$backups/db-$stamp.dump" ] || exit 1
+[ -s "$backups/uploads-$stamp.tar.gz" ] || exit 1
 
 # Encrypt the newest pair for the off-server copy; the private key is not on this server.
 for f in "db-$stamp.dump" "uploads-$stamp.tar.gz"; do
@@ -79,15 +80,18 @@ Crontab of the same user, at 03:15 every day (`crontab -e`):
 
 ```cron
 AGE_RECIPIENT=age1...your-public-key
+DEPLOY_DIR=/path/to/daydream-ecommerce-website
 15 3 * * * /usr/local/sbin/daydream-backup.sh >> /var/backups/daydream/backup.log 2>&1
 ```
+
+Rotation runs only after a successful backup, so check `backup.log` from time to time: while backups fail, nothing expires.
 
 `pg_dump` runs inside the `postgres` container and reads its own credentials, so no password is on the
 command line. The user running cron must be able to run `docker`. Run the script once by hand and
 check that the files are not empty:
 
 ```bash
-AGE_RECIPIENT=age1... /usr/local/sbin/daydream-backup.sh && ls -l /var/backups/daydream
+DEPLOY_DIR=/path/to/daydream-ecommerce-website AGE_RECIPIENT=age1... /usr/local/sbin/daydream-backup.sh && ls -l /var/backups/daydream
 ```
 
 ## 3. The off-server copy
@@ -113,7 +117,7 @@ server, together with any local proxy config you added (for example
 `docker-compose.cloudflare.yml`, or the files of a replaced proxy):
 
 ```bash
-cd /srv/daydream
+cd /path/to/daydream-ecommerce-website
 tar -czf - .env.docker docker-compose.cloudflare.yml | age -r age1...your-public-key -o daydream-config.tar.gz.age
 ```
 
@@ -144,7 +148,9 @@ On the new server, with the prerequisites of the deployment guide (step 1):
    Extract the configuration in the repository directory, run `chmod 600 .env.docker`, point the DNS
    record at the new server, and build the images (step 2). Issue the TLS certificate again (step 4).
 
-2. Start PostgreSQL only. It creates an empty database from `.env.docker`:
+   Behind Cloudflare, add `-f docker-compose.cloudflare.yml` to every command below.
+
+2. Start PostgreSQL only. It creates an empty `daydream` database:
 
    ```bash
    docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml up -d postgres

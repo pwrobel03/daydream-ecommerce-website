@@ -51,7 +51,7 @@ repozytorium. Jeśli używasz nakładki Cloudflare (instrukcja wdrożenia, krok 
 #!/usr/bin/env bash
 set -euo pipefail
 umask 077
-cd "${DEPLOY_DIR:-/srv/daydream}"
+cd "${DEPLOY_DIR:?set DEPLOY_DIR}"
 backups=${BACKUP_DIR:-/var/backups/daydream}
 stamp=$(date -u +%Y%m%dT%H%M%SZ)
 compose=(docker compose --env-file .env.docker)
@@ -60,7 +60,8 @@ for file in ${DEPLOY_COMPOSE_FILES:-docker-compose.yml docker-compose.prod.yml};
 mkdir -p "$backups/offsite" backups
 "${compose[@]}" exec -T postgres sh -c 'pg_dump -Fc -U "$POSTGRES_USER" "$POSTGRES_DB"' </dev/null > "$backups/db-$stamp.dump"
 "${compose[@]}" run --rm -T migrate tar -czf - -C /data/uploads . </dev/null > "$backups/uploads-$stamp.tar.gz"
-[ -s "$backups/db-$stamp.dump" ] && [ -s "$backups/uploads-$stamp.tar.gz" ]
+[ -s "$backups/db-$stamp.dump" ] || exit 1
+[ -s "$backups/uploads-$stamp.tar.gz" ] || exit 1
 
 # Szyfrujemy najnowszą parę do kopii poza serwerem; klucza prywatnego nie ma na tym serwerze.
 for f in "db-$stamp.dump" "uploads-$stamp.tar.gz"; do
@@ -79,15 +80,18 @@ Crontab tego samego użytkownika, codziennie o 03:15 (`crontab -e`):
 
 ```cron
 AGE_RECIPIENT=age1...twoj-klucz-publiczny
+DEPLOY_DIR=/path/to/daydream-ecommerce-website
 15 3 * * * /usr/local/sbin/daydream-backup.sh >> /var/backups/daydream/backup.log 2>&1
 ```
+
+Rotacja działa tylko po udanej kopii, więc zaglądaj od czasu do czasu do `backup.log`: gdy kopie się nie udają, nic nie wygasa.
 
 `pg_dump` działa wewnątrz kontenera `postgres` i bierze jego własne dane logowania, więc hasło nie
 pojawia się w poleceniu. Użytkownik crona musi mieć prawo uruchamiać `docker`. Uruchom skrypt raz
 ręcznie i sprawdź, czy pliki nie są puste:
 
 ```bash
-AGE_RECIPIENT=age1... /usr/local/sbin/daydream-backup.sh && ls -l /var/backups/daydream
+DEPLOY_DIR=/path/to/daydream-ecommerce-website AGE_RECIPIENT=age1... /usr/local/sbin/daydream-backup.sh && ls -l /var/backups/daydream
 ```
 
 ## 3. Kopia poza serwerem
@@ -113,7 +117,7 @@ zaszyfrowanego poza serwerem, razem z każdą lokalną konfiguracją proxy, któ
 `docker-compose.cloudflare.yml` albo pliki zastępczego proxy):
 
 ```bash
-cd /srv/daydream
+cd /path/to/daydream-ecommerce-website
 tar -czf - .env.docker docker-compose.cloudflare.yml | age -r age1...twoj-klucz-publiczny -o daydream-config.tar.gz.age
 ```
 
@@ -144,7 +148,9 @@ Na nowym serwerze, po spełnieniu wymagań z instrukcji wdrożenia (krok 1):
    Konfigurację rozpakuj w katalogu repozytorium, wykonaj `chmod 600 .env.docker`, skieruj rekord DNS
    na nowy serwer i zbuduj obrazy (krok 2). Wydaj certyfikat TLS od nowa (krok 4).
 
-2. Uruchom samego PostgreSQL-a. Utworzy pustą bazę z danych w `.env.docker`:
+   Za Cloudflare dopisz `-f docker-compose.cloudflare.yml` do każdego poniższego polecenia.
+
+2. Uruchom samego PostgreSQL-a. Utworzy pustą bazę `daydream`:
 
    ```bash
    docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml up -d postgres
@@ -168,7 +174,7 @@ Na nowym serwerze, po spełnieniu wymagań z instrukcji wdrożenia (krok 1):
 
    ```bash
    docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml up -d
-   curl -fsS https://<domain>/api/health
+   curl -fsS https://<domena>/api/health
    ```
 
 6. Zaloguj się jako prywatny admin i otwórz produkt z wgranym zdjęciem. Potem usuń z serwera

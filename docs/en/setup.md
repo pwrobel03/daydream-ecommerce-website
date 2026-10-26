@@ -34,39 +34,9 @@ Copy `.env.example` to `.env` and fill in the values. Every key is validated at 
 `lib/env.ts`, so a missing or malformed value stops the app with a message naming the
 offending variable rather than failing later at runtime.
 
-```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/daydream"
-
-# Auth.js — generate the secret with: npx auth secret
-AUTH_SECRET="your_auth_secret_here"
-AUTH_URL="http://localhost:3000"
-AUTH_TRUST_HOST="true"
-
-# OAuth providers.
-# Auth.js v5 discovers these by name — the keys are not passed explicitly in
-# auth.config.ts, so the AUTH_<PROVIDER>_ID / _SECRET spelling is required.
-AUTH_GOOGLE_ID="your_google_client_id"
-AUTH_GOOGLE_SECRET="your_google_client_secret"
-AUTH_GITHUB_ID="your_github_client_id"
-AUTH_GITHUB_SECRET="your_github_client_secret"
-
-# Stripe
-STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
-
-# Resend
-RESEND_API_KEY="re_..."
-MAILING_ACCOUNT_PROVIDER="onboarding@resend.dev"
-MAILING_ACCOUNT="your_verified_inbox@example.com"
-
-# Application
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-```
-
-> **Note on email.** Until you verify a sending domain in Resend, both transactional
-> emails are delivered to `MAILING_ACCOUNT` regardless of the recipient. Set it to an
-> inbox you control, otherwise email verification links will be unreachable.
+Every variable, its format, an example, its default and where to get the value are in the
+[environment variable reference](./environment.md). Stripe keys must be test keys, and `AUTH_URL`
+and `NEXT_PUBLIC_APP_URL` must match the public URL; the reference states these rules.
 
 ---
 

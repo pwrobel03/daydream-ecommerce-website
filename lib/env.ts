@@ -116,3 +116,6 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
+
+// Klucze schematu; test tests/unit/env-reference.test.ts pilnuje, by każdy był w docs/*/environment.md.
+export const ENV_KEYS = Object.keys(EnvSchema.shape);

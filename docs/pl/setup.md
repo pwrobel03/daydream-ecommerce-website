@@ -139,3 +139,27 @@ UPDATE "User" SET role = 'ADMIN' WHERE email = 'ty@example.com';
   typów.
 - **`npm run lint` wywala się na `compat is not defined`** — flat config ESLinta jest
   obecnie zepsuty, patrz `markdown/improvement.md`.
+
+## 📸 Zrzuty ekranu w pull requestach
+
+Pull request zmieniający UI dostaje jeden komentarz ze zrzutami przed/po
+(`.github/workflows/screenshots.yml`). Workflow buduje i seeduje tak samo gałąź PR i gałąź bazową
+(`tests/e2e/seed.ts`), robi zrzuty każdej strony w rozmiarach 1440×900 i 390×844, po angielsku,
+i porównuje je piksel po pikselu. To informacja dla recenzenta, nie bramka.
+
+Aby dodać stronę, dopisz wpis do `tests/screenshots/routes.ts`:
+
+```ts
+{ name: "privacy", path: "/privacy" },
+{ name: "admin-inventory", path: "/dashboard/inventory", admin: true, mask: ["time"] },
+```
+
+- `name` to nazwa pliku i etykieta w komentarzu.
+- `path` otwiera się po angielsku; dane z seeda muszą zawierać to, co strona pokazuje.
+- `admin: true` robi zrzut jako zaseedowany demo admin.
+- `mask` to selektory CSS zamalowywane przed zrzutem: użyj go dla dat i generowanych ID, żeby dwa
+  przebiegi na tym samym commicie dawały identyczne pliki.
+
+Lokalnie, na działającej i zaseedowanej aplikacji:
+`SCREENSHOT_BASE_URL=http://localhost:3100 npm run screenshots` (pliki trafiają do `screenshots-out/`
+albo do `SCREENSHOT_DIR`).

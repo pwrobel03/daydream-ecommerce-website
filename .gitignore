@@ -54,3 +54,4 @@ tests/e2e/.auth/
 /backups/
 /stripe-results.json
 /stripe-listen.log
+screenshots-out/

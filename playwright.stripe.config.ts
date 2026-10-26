@@ -18,6 +18,7 @@ export default defineConfig({
     ...devices["Desktop Chrome"],
     baseURL: BASE_URL,
     trace: "retain-on-failure",
+    screenshot: "only-on-failure",
   },
   webServer: {
     command: `npx next dev --port ${PORT}`,

@@ -11,7 +11,7 @@ message naming each bad key. Templates: [`.env.example`](../../.env.example) (de
 starts and can change without rebuilding the image. *Build* values are read by `next build` and
 `prisma generate`. `lib/env.ts` validates every key in the Application table during `next build`, so the
 `Dockerfile` sets a placeholder for each one that has no safe default. Those placeholders are not used at
-runtime, with one exception: `NEXT_PUBLIC_APP_URL` is also baked into the build output (see its row).
+runtime.
 
 ## Rules
 
@@ -55,7 +55,7 @@ runtime, with one exception: `NEXT_PUBLIC_APP_URL` is also baked into the build 
 | `PRIVACY_CONTROLLER_NAME` | yes | non-empty string | `Jan Kowalski` | none | The data controller: the owner of the deployment. Shown on `/privacy`. | runtime |
 | `PRIVACY_CONTACT_EMAIL` | yes | e-mail address | `privacy@example.com` | none | A mailbox the owner reads. Shown on `/privacy`. | runtime |
 | `PRIVACY_EMAIL_PROVIDER` | yes | non-empty string | `Example SMTP Provider` | none | The name of the SMTP provider that sends the mail. Shown on `/privacy`. | runtime |
-| `NEXT_PUBLIC_APP_URL` | yes | URL | `http://localhost:3000` | none | The public URL of the app. Read per request for Stripe redirects and links in e-mails. Also baked in at build: `robots.txt` (sitemap line), the sitemap and the page metadata (`og:url`, absolute OG image URLs) are prerendered by `next build`, so the image must be built with the real public URL; changing it later and restarting does not fix them. See the rules. | build **and** runtime |
+| `NEXT_PUBLIC_APP_URL` | yes | URL | `http://localhost:3000` | none | The public URL of the app. Read per request: Stripe redirects, links in e-mails, `robots.txt`, the sitemap and the page metadata (`og:url`, absolute OG image URLs). Change it and restart the container; no rebuild. | runtime |
 | `NODE_ENV` | no | `development`, `test` or `production` | `production` | `development` | Set by `next dev`, `next build` and the `Dockerfile` (`production`). Do not set it by hand. | runtime |
 
 ## Docker and compose

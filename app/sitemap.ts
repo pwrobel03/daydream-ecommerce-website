@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
+import { connection } from "next/server";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { reportError } from "@/lib/logger";
 
-const base = env.NEXT_PUBLIC_APP_URL;
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Adres i zawartość bazy mają być z chwili żądania, nie z buildu.
+  await connection();
+  const base = env.NEXT_PUBLIC_APP_URL;
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: base, changeFrequency: "weekly", priority: 1 },
     { url: `${base}/category/all`, changeFrequency: "daily", priority: 0.9 },

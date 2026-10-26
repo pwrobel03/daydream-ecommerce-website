@@ -1,7 +1,10 @@
 import type { MetadataRoute } from "next";
+import { connection } from "next/server";
 import { env } from "@/lib/env";
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  // Adres z env ma być z chwili żądania, nie z buildu.
+  await connection();
   return {
     rules: {
       userAgent: "*",

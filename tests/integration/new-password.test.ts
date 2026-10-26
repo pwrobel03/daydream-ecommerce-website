@@ -1,6 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import bcrypt from "bcrypt";
 import { expectFail, expectOk } from "../helpers/action-result";
+import { resetDatabase } from "./reset";
 
 const { db } = await vi.hoisted(async () => {
   const { createPrismaClient } = await import("@/lib/db");
@@ -31,6 +32,7 @@ async function passwordHash() {
 }
 
 beforeEach(async () => {
+  await resetDatabase(db);
   await db.passwordResetToken.deleteMany();
   await db.user.deleteMany();
   await db.user.create({ data: { email: EMAIL, name: "User", password: await bcrypt.hash(OLD_PASSWORD, 4) } });

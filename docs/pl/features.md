@@ -43,12 +43,13 @@ Przepływ obejmuje dwie strony i cztery Server Actions.
    `checkout.session.completed` oznacza zamówienie jako `PAID`, a przy
    `checkout.session.expired` / `payment_intent.payment_failed` zwraca zarezerwowany
    towar na stan i anuluje zamówienie. Id każdego zdarzenia jest zapisywane, więc
-   ponowne dostarczenie jest ignorowane; `amount_total` i id sesji muszą zgadzać się
-   z zamówieniem, inaczej zostaje nieopłacone; zdarzenia trybu live i zdarzenia dla
+   ponowne dostarczenie jest ignorowane; `amount_total` musi zgadzać się z zamówieniem,
+   inaczej zostaje nieopłacone, a płatność w starszej sesji zamówienia jest przyjmowana; zdarzenia trybu live i zdarzenia dla
    zamówień, których już nie ma, są kwitowane 200 i ignorowane. Opłacone zamówienie
    testowe oddaje towar na stan, bo nic nie jest wysyłane. Odrzucona karta anuluje
    zamówienie, a udana ponowna próba w tej samej sesji Checkout i tak kończy się
-   statusem `PAID` przy niezmienionym stanie magazynu.
+   statusem `PAID` przy niezmienionym stanie magazynu. Anuluje je tylko wygaśnięcie bieżącej
+   sesji zamówienia; wygaśnięcie starszej sesji jest pomijane.
 4. **`recreateStripeSession`** — tworzy nową sesję płatności dla nieopłaconego zamówienia
    `PENDING` z poziomu `/dashboard/orders/[orderId]`, żeby przerwaną płatność dało się
    dokończyć. Pobiera tę samą kwotę co pierwsze podejście, z rabatem.

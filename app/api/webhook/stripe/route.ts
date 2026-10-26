@@ -78,7 +78,7 @@ export async function POST(req: Request) {
 
     const order = await db.order.findUnique({
       where: { id: orderId },
-      select: { id: true, totalAmount: true, stripeSessionId: true },
+      select: { id: true, totalAmount: true },
     });
 
     if (!order) {
@@ -86,11 +86,8 @@ export async function POST(req: Request) {
       return new NextResponse("Order not found", { status: 200 });
     }
 
-    // Sesja musi być tą, którą sami utworzyliśmy dla tego zamówienia.
-    if (order.stripeSessionId && order.stripeSessionId !== session.id) {
-      logger.error({ eventId: event.id, orderId }, "webhook session mismatch");
-      return new NextResponse("Session mismatch", { status: 200 });
-    }
+    // Każda sesja Checkout tego zamówienia jest nasza (orderId ustawia tylko nasz
+    // klucz), więc zapłata w starszej sesji po ponowieniu płatności też się liczy.
 
     // Kwota zapłacona musi zgadzać się z sumą zamówienia (Stripe liczy w groszach).
     const expected = Math.round(order.totalAmount * 100);
@@ -144,6 +141,20 @@ export async function POST(req: Request) {
     await sendOrderConfirmation(orderId);
 
     return new NextResponse("Webhook received", { status: 200 });
+  }
+
+  if (event.type === "checkout.session.expired") {
+    const session = object as Stripe.Checkout.Session;
+    const order = await db.order.findUnique({
+      where: { id: orderId },
+      select: { stripeSessionId: true },
+    });
+
+    // Wygaśnięcie starszej sesji nie anuluje zamówienia, które ma nowszą, płatną sesję.
+    if (order?.stripeSessionId && order.stripeSessionId !== session.id) {
+      logger.info({ eventId: event.id, orderId, sessionId: session.id }, "webhook expired non-current session");
+      return new NextResponse("Webhook received", { status: 200 });
+    }
   }
 
   // Płatność nieudana lub sesja wygasła — zwracamy towar na stan.

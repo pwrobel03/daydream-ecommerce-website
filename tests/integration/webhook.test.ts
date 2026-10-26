@@ -49,11 +49,11 @@ function completedEvent(id: string, orderId: string, amountTotal: number, sessio
   };
 }
 
-function expiredEvent(id: string, orderId: string) {
+function expiredEvent(id: string, orderId: string, sessionId = "cs_test_1") {
   return {
     id,
     type: "checkout.session.expired",
-    data: { object: { id: "cs_test_1", metadata: { orderId } } },
+    data: { object: { id: sessionId, metadata: { orderId } } },
   };
 }
 
@@ -162,11 +162,30 @@ describe("stripe webhook", () => {
     expect(order.isPaid).toBe(false);
   });
 
-  it("refuses to mark paid when the session is not the one we opened", async () => {
-    await POST(signedRequest(completedEvent("evt_4", orderId, 5000, "cs_someone_else")));
+  it("marks paid and restocks once when an older session of the order is paid", async () => {
+    await POST(signedRequest(completedEvent("evt_4", orderId, 5000, "cs_older")));
 
     const order = await db.order.findUniqueOrThrow({ where: { id: orderId } });
-    expect(order.isPaid).toBe(false);
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    expect(order.status).toBe("PAID");
+    expect(product.stock).toBe(10);
+  });
+
+  it("refuses an older session payment with the wrong amount", async () => {
+    await POST(signedRequest(completedEvent("evt_4b", orderId, 1, "cs_older")));
+
+    const order = await db.order.findUniqueOrThrow({ where: { id: orderId } });
+    expect(order.status).toBe("PENDING");
+  });
+
+  it("ignores the expiry of a session that is not the current one", async () => {
+    const response = await POST(signedRequest(expiredEvent("evt_4c", orderId, "cs_older")));
+
+    const order = await db.order.findUniqueOrThrow({ where: { id: orderId } });
+    const product = await db.product.findUniqueOrThrow({ where: { id: productId } });
+    expect(response.status).toBe(200);
+    expect(order.status).toBe("PENDING");
+    expect(product.stock).toBe(8);
   });
 
   it("restocks and cancels the order when the session expires", async () => {

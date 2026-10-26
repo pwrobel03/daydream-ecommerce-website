@@ -113,6 +113,7 @@ E2E suites, including the WCAG A/AA accessibility specs in `tests/e2e/a11y.spec.
 - [0013. A privacy notice page describes the visitor data the demo keeps](docs/adr/0013-privacy-notice.md)
 - [0014. Back up the database and uploads daily, keep 7 days, and keep the configuration off the server](docs/adr/0014-backups.md)
 - [0015. Types at the server/client boundary are derived from the queries; lib/dto becomes lib/serialize](docs/adr/0015-query-derived-view-types.md)
+- [0016. The redesign gives the storefront a display face and quiets everything else](docs/adr/0016-visual-redesign.md) (proposed)
 
 New decisions start from [`docs/adr/0000-template.md`](docs/adr/0000-template.md).
 

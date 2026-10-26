@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Tx } from "@/lib/orders";
 import { resetDatabase } from "./reset";
 
 // Fabryka asynchroniczna — patrz komentarz w order.test.ts.
@@ -9,6 +10,14 @@ const { db } = await vi.hoisted(async () => {
 });
 
 vi.mock("@/lib/db", () => ({ db }));
+
+// Domyślnie przepuszcza do prawdziwej implementacji; testy podmieniają ją na rzucającą.
+vi.mock("@/lib/orders", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/orders")>();
+  return { ...actual, releaseOrderReservationIn: vi.fn(actual.releaseOrderReservationIn) };
+});
+
+const { releaseOrderReservationIn } = await import("@/lib/orders");
 
 const { POST } = await import("@/app/api/webhook/stripe/route");
 const { POST: runCron } = await import("@/app/api/cron/release-reservations/route");
@@ -259,6 +268,60 @@ describe("stripe webhook", () => {
 
     const recorded = await db.processedWebhookEvent.findUnique({ where: { id: "evt_8" } });
     expect(recorded).not.toBeNull();
+  });
+
+  it("leaves no trace when an expiry fails mid-way, and handles the redelivery in full", async () => {
+    const event = expiredEvent("evt_10", orderId);
+    vi.mocked(releaseOrderReservationIn).mockRejectedValueOnce(new Error("boom"));
+
+    await expect(POST(signedRequest(event))).rejects.toThrow("boom");
+
+    expect(await db.processedWebhookEvent.count()).toBe(0);
+    expect((await db.order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe("PENDING");
+    expect((await db.product.findUniqueOrThrow({ where: { id: productId } })).stock).toBe(8);
+
+    expect((await POST(signedRequest(event))).status).toBe(200);
+
+    expect((await db.order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe("CANCELLED");
+    expect((await db.product.findUniqueOrThrow({ where: { id: productId } })).stock).toBe(10);
+    expect(await db.processedWebhookEvent.findUnique({ where: { id: "evt_10" } })).not.toBeNull();
+  });
+
+  it("leaves no trace when a completed event fails mid-way, and handles the redelivery in full", async () => {
+    const event = completedEvent("evt_11", orderId, 5000);
+    // Stan magazynowy jest aktualizowany w transakcji, więc psujemy go przez `tx`.
+    type Run = (fn: (tx: Tx) => Promise<unknown>) => Promise<unknown>;
+    const original = db.$transaction.bind(db) as Run;
+    const transaction = vi.spyOn(db, "$transaction").mockImplementationOnce(((fn: Parameters<Run>[0]) =>
+      original((tx) =>
+        fn(
+          new Proxy(tx, {
+            get: (target, key) =>
+              key === "product" ? { update: () => Promise.reject(new Error("boom")) } : Reflect.get(target, key),
+          })
+        )
+      )) as never);
+
+    await expect(POST(signedRequest(event))).rejects.toThrow("boom");
+    transaction.mockRestore();
+
+    expect(await db.processedWebhookEvent.count()).toBe(0);
+    expect((await db.order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe("PENDING");
+
+    expect((await POST(signedRequest(event))).status).toBe(200);
+
+    expect((await db.order.findUniqueOrThrow({ where: { id: orderId } })).status).toBe("PAID");
+    expect((await db.product.findUniqueOrThrow({ where: { id: productId } })).stock).toBe(10);
+    expect(await db.processedWebhookEvent.findUnique({ where: { id: "evt_11" } })).not.toBeNull();
+  });
+
+  it("returns 200 and restocks once for two concurrent deliveries of the same event", async () => {
+    const event = expiredEvent("evt_12", orderId);
+
+    const responses = await Promise.all([POST(signedRequest(event)), POST(signedRequest(event))]);
+
+    expect(responses.map((r) => r.status)).toEqual([200, 200]);
+    expect((await db.product.findUniqueOrThrow({ where: { id: productId } })).stock).toBe(10);
   });
 
   it("acknowledges unrelated event types without recording them", async () => {

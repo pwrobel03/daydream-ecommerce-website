@@ -78,9 +78,11 @@ Mailpit stays in the local development stack only.
    stock in one transaction; `reservedUntil` is set 45 minutes ahead.
 3. `finalizeAndPay` attaches the visitor's delivery address and creates a Stripe Checkout session
    (`lib/checkout-session.ts`). The visitor pays with `4242 4242 4242 4242`.
-4. Stripe calls `POST /api/webhook/stripe`. The handler verifies the signature, records the event
-   in `ProcessedWebhookEvent` (idempotency), compares `amount_total` with the order total and
-   marks the order `PAID`. Expired or failed sessions restore stock and cancel the order.
+4. Stripe calls `POST /api/webhook/stripe`. The handler verifies the signature, compares
+   `amount_total` with the order total and marks the order `PAID`. Expired or failed sessions
+   restore stock and cancel the order. The event is recorded in `ProcessedWebhookEvent`
+   (idempotency) in the same transaction as the order change, so a failed attempt leaves no
+   record and Stripe's retry is processed in full.
 5. Orders that never reach payment are released by the reservation cron.
 6. Paid test orders give their stock back, so they never deplete the catalogue
    ([ADR 0009](adr/0009-demo-mode-mechanics.md)). The confirmation e-mail counts against the mail

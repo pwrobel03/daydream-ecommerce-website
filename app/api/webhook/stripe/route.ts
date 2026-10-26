@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@/lib/generated/prisma/client";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import { releaseOrderReservation } from "@/lib/orders";
+import { releaseOrderReservationIn, type Tx } from "@/lib/orders";
 import { errorMessage, logger, reportError } from "@/lib/logger";
 import { sendOrderConfirmationEmail } from "@/lib/mail";
 
@@ -16,6 +16,22 @@ const HANDLED_EVENTS = [
   "checkout.session.expired",
   "payment_intent.payment_failed",
 ];
+
+// Idempotencja: id eventu jest kluczem głównym, a wiersz powstaje w tej samej
+// transakcji co zmiana zamówienia. Zapisuje się więc tylko razem z nią — nieudana
+// obsługa zostawia Stripe'owi ponowienie, a udana odbija się na kolizji (P2002).
+function recordEvent(tx: Tx, event: Stripe.Event) {
+  return tx.processedWebhookEvent.create({
+    data: { id: event.id, type: event.type },
+  });
+}
+
+function isAlreadyProcessed(error: unknown) {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  );
+}
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -44,22 +60,6 @@ export async function POST(req: Request) {
 
   if (!HANDLED_EVENTS.includes(event.type)) {
     return new NextResponse("Ignored", { status: 200 });
-  }
-
-  // Idempotencja: id eventu jest kluczem głównym, więc ponowione dostarczenie
-  // odbija się na kolizji i kończy tutaj, zanim wykonamy jakąkolwiek logikę.
-  try {
-    await db.processedWebhookEvent.create({
-      data: { id: event.id, type: event.type },
-    });
-  } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      return new NextResponse("Already processed", { status: 200 });
-    }
-    throw error;
   }
 
   const object = event.data.object as
@@ -105,32 +105,41 @@ export async function POST(req: Request) {
     // Testowa płatność oddaje towar na stan (ADR 0009). Zwrot tylko wtedy, gdy to
     // my przeprowadzamy PENDING -> PAID; zamówienie już anulowane (expired,
     // nieudana płatność, cron) oddało towar wcześniej.
-    await db.$transaction(async (tx) => {
-      const paid = await tx.order.updateMany({
-        where: { id: orderId, status: "PENDING" },
-        data: { isPaid: true, status: "PAID" },
-      });
+    try {
+      await db.$transaction(async (tx) => {
+        await recordEvent(tx, event);
 
-      if (paid.count !== 1) {
-        await tx.order.update({
-          where: { id: orderId },
+        const paid = await tx.order.updateMany({
+          where: { id: orderId, status: "PENDING" },
           data: { isPaid: true, status: "PAID" },
         });
-        return;
-      }
 
-      const items = await tx.orderItem.findMany({
-        where: { orderId },
-        select: { productId: true, quantity: true },
-      });
+        if (paid.count !== 1) {
+          await tx.order.update({
+            where: { id: orderId },
+            data: { isPaid: true, status: "PAID" },
+          });
+          return;
+        }
 
-      for (const item of items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { increment: item.quantity } },
+        const items = await tx.orderItem.findMany({
+          where: { orderId },
+          select: { productId: true, quantity: true },
         });
+
+        for (const item of items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } },
+          });
+        }
+      });
+    } catch (error) {
+      if (isAlreadyProcessed(error)) {
+        return new NextResponse("Already processed", { status: 200 });
       }
-    });
+      throw error;
+    }
 
     await sendOrderConfirmation(orderId);
 
@@ -138,7 +147,17 @@ export async function POST(req: Request) {
   }
 
   // Płatność nieudana lub sesja wygasła — zwracamy towar na stan.
-  await releaseOrderReservation(orderId);
+  try {
+    await db.$transaction(async (tx) => {
+      await recordEvent(tx, event);
+      await releaseOrderReservationIn(tx, orderId);
+    });
+  } catch (error) {
+    if (isAlreadyProcessed(error)) {
+      return new NextResponse("Already processed", { status: 200 });
+    }
+    throw error;
+  }
 
   return new NextResponse("Webhook received", { status: 200 });
 }

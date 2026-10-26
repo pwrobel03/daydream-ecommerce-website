@@ -117,7 +117,13 @@ services:
       - ./docker/nginx/cloudflare-real-ip.conf:/etc/nginx/conf.d/cloudflare-real-ip.conf:ro
 ```
 
-and add `-f docker-compose.cloudflare.yml` to the compose command. `daydream.conf` still sets
+and from now on add this file to the prefix of **every** later command, including `build` and `up -d` in step 13:
+
+```bash
+docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.cloudflare.yml
+```
+
+Or set `COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml:docker-compose.cloudflare.yml` in the shell profile. If a later `up -d` omits the file, nginx is recreated without the mount and all visitors share one address and one rate limit. `scripts/create-admin.sh` and `scripts/demo-reset.sh` only touch `migrate` and `postgres`, so they do not need it. `daydream.conf` still sets
 `X-Real-IP` from `$remote_addr`, which nginx now rewrites to the real client. Compare the ranges in the
 file with <https://www.cloudflare.com/ips/> when you deploy and from time to time after. With another
 proxy, take the address from `CF-Connecting-IP` in the same way and trust it only from Cloudflare.
@@ -282,6 +288,7 @@ e-mails (app). Set it up once:
 git pull --ff-only
 # Read the changes to .env.docker.example; add any new variable to .env.docker.
 # Take the pre-upgrade dump (step 6) if prisma/migrations/ changed.
+# Behind Cloudflare, add -f docker-compose.cloudflare.yml (step 4) to both commands below.
 docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml build
 docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml up -d
 curl -fsS https://<domain>/api/health

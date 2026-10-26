@@ -118,7 +118,13 @@ services:
       - ./docker/nginx/cloudflare-real-ip.conf:/etc/nginx/conf.d/cloudflare-real-ip.conf:ro
 ```
 
-i dopisz `-f docker-compose.cloudflare.yml` do polecenia compose. `daydream.conf` nadal ustawia
+i od teraz dopisuj ten plik do prefiksu **każdego** kolejnego polecenia, także `build` i `up -d` w kroku 13:
+
+```bash
+docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.cloudflare.yml
+```
+
+Możesz też ustawić `COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml:docker-compose.cloudflare.yml` w profilu powłoki. Jeśli późniejsze `up -d` pominie ten plik, nginx zostanie odtworzony bez zamontowanego pliku i wszyscy odwiedzający dostaną jeden adres i jeden limit. `scripts/create-admin.sh` i `scripts/demo-reset.sh` dotykają tylko `migrate` i `postgres`, więc go nie potrzebują. `daydream.conf` nadal ustawia
 `X-Real-IP` z `$remote_addr`, które nginx podmienia teraz na prawdziwego klienta. Porównaj zakresy
 w pliku z <https://www.cloudflare.com/ips/> przy wdrożeniu i co jakiś czas potem. W innym proxy bierz
 adres z `CF-Connecting-IP` tak samo i ufaj mu tylko od Cloudflare.
@@ -283,6 +289,7 @@ zaleca **najwyżej 14 dni**. Logi zawierają adresy IP (nginx) i adresy odbiorc�
 git pull --ff-only
 # Przejrzyj zmiany w .env.docker.example; dopisz nowe zmienne do .env.docker.
 # Zrób dump przed aktualizacją (krok 6), jeśli zmienił się prisma/migrations/.
+# Za Cloudflare dopisz -f docker-compose.cloudflare.yml (krok 4) do obu poniższych poleceń.
 docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml build
 docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml up -d
 curl -fsS https://<domena>/api/health

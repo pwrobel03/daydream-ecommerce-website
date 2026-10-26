@@ -12,8 +12,18 @@ services:
     # Port publikowany przez bazowy plik zostaje cofnięty — aplikacja jest
     # osiągalna tylko z sieci compose.
     ports: !reset []
+    # The base file points the app at Mailpit. Drop that so production uses the
+    # SMTP_* values from .env.docker.
+    depends_on:
+      mailpit: !reset null
     environment:
       RUN_SEED: "false"
+      SMTP_HOST: !reset null
+      SMTP_PORT: !reset null
+
+  # Local SMTP catcher: only started with `--profile local`, never in production.
+  mailpit:
+    profiles: ["local"]
 
   nginx:
     image: nginx:alpine

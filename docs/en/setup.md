@@ -114,7 +114,8 @@ UPDATE "User" SET role = 'ADMIN' WHERE email = 'you@example.com';
 
 A pull request that touches the UI gets one comment with before/after screenshots
 (`.github/workflows/screenshots.yml`). The workflow builds and seeds the PR head and the base
-branch the same way (`tests/e2e/seed.ts`), captures every page at 1440×900 and 390×844 in English,
+branch the same way (`tests/e2e/seed.ts`), captures every page at 1440×900 and 390×844 in English, in the light and the dark theme
+(files `<name>-<desktop|mobile>-<light|dark>.png`; the capture checks the `dark` class is set),
 and compares them pixel by pixel. It is information for the reviewer, not a gate.
 
 To add a page, add an entry to `tests/screenshots/routes.ts`:

@@ -52,3 +52,5 @@ tests/e2e/.auth/
 
 # pre-reset dumps (contain personal data)
 /backups/
+/stripe-results.json
+/stripe-listen.log

@@ -50,10 +50,10 @@ The project uses **Prisma ORM**.
    npx prisma generate
    ```
 
-2. **Push the schema:**
+2. **Apply the migrations:**
 
    ```bash
-   npx prisma db push
+   npx prisma migrate deploy
    ```
 
 3. **Seed:**
@@ -61,7 +61,7 @@ The project uses **Prisma ORM**.
    Recommended — without it the storefront renders empty.
 
    ```bash
-   npx prisma db seed
+   npx tsx --env-file=.env prisma/seed.ts
    ```
 
 ---
@@ -90,12 +90,16 @@ npm run dev
 
 Available at [http://localhost:3000](http://localhost:3000).
 
-To sign in as an administrator, set the role directly in the database — there is no
-self-service promotion:
+To sign in as an administrator, create the private admin with the script — there is no
+self-service promotion. It asks for the password (at least 12 characters) on standard input;
+creating it again for the same e-mail resets the password:
 
-```sql
-UPDATE "User" SET role = 'ADMIN' WHERE email = 'you@example.com';
+```bash
+printf '%s\n' 'a-password-of-12+-chars' | npx tsx --env-file=.env scripts/create-admin.ts you@example.com "Your Name"
 ```
+
+On a Docker deployment use `scripts/create-admin.sh <email> [name]` instead; see the
+[deployment guide](./deployment.md).
 
 ---
 
@@ -103,12 +107,10 @@ UPDATE "User" SET role = 'ADMIN' WHERE email = 'you@example.com';
 
 - **App exits on start with a list of environment variables** — that is `lib/env.ts`
   doing its job. The message names each offending key.
-- **Schema changes not visible** — re-run `npx prisma db push` followed by
+- **Schema changes not visible** — run `npx prisma migrate deploy` followed by
   `npx prisma generate`.
 - **Stale route type errors after deleting a page** — remove the `.next` directory and
   re-run the type check.
-- **`npm run lint` fails with `compat is not defined`** — the ESLint flat config is
-  currently broken; see `markdown/improvement.md`.
 
 ## 📸 Screenshots on pull requests
 

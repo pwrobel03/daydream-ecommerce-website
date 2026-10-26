@@ -86,8 +86,11 @@ export const DeleteAccountSchema = z.object({
 // kto podpisuje opinię.
 export const ReviewSchema = z.object({
   productId: z.string(),
-  rating: z.number().min(1).max(5),
-  content: z.string().min(3, "You're story is a little too short..."),
+  rating: z.number().int().min(1).max(5),
+  content: z
+    .string()
+    .min(3, "You're story is a little too short...")
+    .max(2000, "Your story is too long (2000 characters max)."),
 });
 
 export const categorySchema = z.object({

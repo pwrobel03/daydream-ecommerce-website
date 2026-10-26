@@ -101,4 +101,3 @@ Karta odrzucana to `4000 0000 0000 0002`. Patrz [ADR 0005](../adr/0005-stripe-te
 | Obszar | Ograniczenie |
 | :--- | :--- |
 | **Przechowywanie obrazów** | Wgrywane pliki trafiają do `UPLOAD_DIR` na lokalnym dysku. Działa to lokalnie i na hoście z trwałym dyskiem, ale nie na hostingu serverless, gdzie system plików jest tylko do odczytu i efemeryczny. |
-| **Ponawiane sesje płatności** | `recreateStripeSession` podmienia `stripeSessionId`. Płatność dokończona w starszej sesji nie zostanie dopasowana do zamówienia i zostawi je nieopłacone; zdarzenie wygaśnięcia starszej sesji może nadal anulować zamówienie. |

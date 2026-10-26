@@ -61,10 +61,10 @@ jobs:
           npx tsx tests/e2e/seed.ts
       - name: Forward Stripe webhooks to the app
         run: |
-          webhook_secret="$(stripe listen --print-secret)"
+          webhook_secret="$(stripe listen --events checkout.session.completed --print-secret)"
           echo "::add-mask::$webhook_secret"
           echo "STRIPE_WEBHOOK_SECRET=$webhook_secret" >> "$GITHUB_ENV"
-          nohup stripe listen --forward-to localhost:3100/api/webhook/stripe > "$STRIPE_LISTEN_LOG" 2>&1 &
+          nohup stripe listen --events checkout.session.completed,checkout.session.expired,payment_intent.payment_failed --forward-to localhost:3100/api/webhook/stripe > "$STRIPE_LISTEN_LOG" 2>&1 &
           for _ in $(seq 30); do grep -q Ready "$STRIPE_LISTEN_LOG" && exit 0; sleep 1; done
           echo "::error::stripe listen did not become ready"; exit 1
       - name: Run the checklist

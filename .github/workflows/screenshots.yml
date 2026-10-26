@@ -129,7 +129,7 @@ jobs:
         run: |
           pr="${{ github.event.number }}"
           id=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${pr}/comments" --paginate \
-            --jq '[.[] | select(.body | contains("<!-- screenshots -->"))][0].id // empty')
+            --jq '[.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- screenshots -->")))][0].id // empty' | head -n1)
           if [ -n "$id" ]; then
             gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" -F body=@out/comment.md
           else

@@ -4,7 +4,7 @@ Jak właściciel i administrator serwera wdrażają i utrzymują demo przez Dock
 ([ADR 0007](../adr/0007-deployment-from-a-docker-image.md)). Wersja angielska:
 [`docs/en/deployment.md`](../en/deployment.md). Każda zmienna jest opisana w
 [opisie zmiennych środowiskowych](environment.md). Kopie zapasowe i odtwarzanie opisuje osobny
-dokument (ADR 0014).
+dokument: [`backups.md`](backups.md) (ADR 0014).
 
 Obrazy buduje się na serwerze (albo na komputerze właściciela); nic nie trafia do rejestru. Całość to
 `docker-compose.yml` z nakładką produkcyjną `docker-compose.prod.yml`: PostgreSQL, Redis, migrator,

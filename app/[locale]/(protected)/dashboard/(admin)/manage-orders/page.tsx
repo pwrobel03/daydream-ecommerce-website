@@ -20,7 +20,7 @@ async function AdminOrdersPageContent({
   const currentPage = parseInt(page || "1", 10);
   const searchQuery = q || "";
 
-  const { orders, totalPages, totalCount } = await getAdminOrders(
+  const result = await getAdminOrders(
     currentPage,
     15,
     searchQuery
@@ -34,7 +34,7 @@ async function AdminOrdersPageContent({
             Terminal
           </h1>
           <p className="text-xs font-black uppercase tracking-[0.4em] text-primary-text">
-            Active Records: {totalCount}
+            Active Records: {result.totalCount}
           </p>
         </div>
         <Suspense fallback={<Skeleton className="h-14 w-full rounded-full" />}>
@@ -43,11 +43,11 @@ async function AdminOrdersPageContent({
       </header>
 
       {/* Wyświetlamy listę - sprawdzamy czy orders to tablica */}
-      <AdminOrdersList orders={orders || []} />
+      <AdminOrdersList result={result} />
 
       <PaginationControls
         currentPage={currentPage}
-        totalPages={totalPages}
+        totalPages={result.totalPages}
         searchQuery={searchQuery}
       />
     </div>

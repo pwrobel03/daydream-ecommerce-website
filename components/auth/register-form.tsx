@@ -16,26 +16,38 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { TurnstileWidget } from "./turnstile-widget";
 import { FormError } from "./form-error";
 import { FormSuccess } from "./form-success";
 import { register } from "@/actions/auth/register";
 import Link from "next/link";
+import { Link as LocaleLink } from "@/i18n/navigation";
 import { Atom, Dna, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Social } from "./social";
 
 type OAuthProvider = "google" | "github";
 
-export const RegisterForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthProvider[] }) => {
+export const RegisterForm = ({
+  oauthProviders = [],
+  turnstileSiteKey,
+}: {
+  oauthProviders?: OAuthProvider[];
+  turnstileSiteKey: string;
+}) => {
   const t = useTranslations("auth.register");
+  const tAuth = useTranslations("auth");
+  const tDemo = useTranslations("demo");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
+  const [widgetKey, setWidgetKey] = useState(0);
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
       email: "",
+      turnstileToken: "",
       password: "",
       name: "",
     },
@@ -46,7 +58,14 @@ export const RegisterForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthPr
     setSuccess("");
     startTransition(() => {
       register(values).then((res) => {
-        if (!res.ok) return setError(res.message);
+        // Token jest jednorazowy — każda próba wymaga nowego wyzwania.
+        form.setValue("turnstileToken", "");
+        setWidgetKey((k) => k + 1);
+        if (!res.ok) return setError(
+          res.code === "EMAIL_NOT_SENT" ? tAuth("mailNotSent")
+            : res.code === "TURNSTILE_FAILED" ? tAuth("turnstileFailed")
+            : res.message
+        );
         setSuccess(t("success"));
       });
     });
@@ -157,12 +176,28 @@ export const RegisterForm = ({ oauthProviders = [] }: { oauthProviders?: OAuthPr
               />
             </div>
 
+            <div className="space-y-2">
+              <TurnstileWidget
+                key={widgetKey}
+                siteKey={turnstileSiteKey}
+                onToken={(token) => form.setValue("turnstileToken", token, { shouldValidate: form.formState.isSubmitted })}
+              />
+              {form.formState.errors.turnstileToken && (
+                <p role="alert" className="text-[10px] font-bold uppercase">{tAuth("turnstileFailed")}</p>
+              )}
+            </div>
+
             <div className="space-y-4">
               <FormError message={error} />
               <FormSuccess message={success} />
             </div>
 
-            <p className="text-center text-sm font-medium">{t("demoNote")}</p>
+            <p className="text-center text-sm font-medium">
+              {t("demoNote")}{" "}
+              <LocaleLink href="/privacy" className="underline">
+                {tDemo("privacyLink")}
+              </LocaleLink>
+            </p>
 
             <Button
               disabled={isPending}

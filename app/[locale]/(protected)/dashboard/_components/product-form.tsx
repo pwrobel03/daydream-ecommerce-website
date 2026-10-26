@@ -2,9 +2,15 @@
 
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 import { Form } from "@/components/ui/form";
-import type { Category, Ingredient, ProductType, Status } from "@/types/product";
+import type {
+  IngredientOption,
+  MainCategoryWithChildren,
+  ProductFormData,
+  StatusOption,
+} from "@/lib/db-inventory";
 import { useProductForm } from "./use-product-form";
 import { ProductBasicsSection } from "./product-basics-section";
 import { ProductImagesSection } from "./product-images-section";
@@ -12,10 +18,10 @@ import { ProductPricingSection } from "./product-pricing-section";
 import { ProductTaxonomySection } from "./product-taxonomy-section";
 
 interface ProductFormProps {
-  initialData: ProductType | null;
-  categories: Category[];
-  ingredients: Ingredient[];
-  statuses: Status[];
+  initialData: ProductFormData | null;
+  categories: MainCategoryWithChildren[];
+  ingredients: IngredientOption[];
+  statuses: StatusOption[];
 }
 
 export function ProductForm({
@@ -25,6 +31,7 @@ export function ProductForm({
   statuses = [],
 }: ProductFormProps) {
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const { form, loading, images, onSubmit } = useProductForm(initialData);
 
   return (
@@ -47,9 +54,11 @@ export function ProductForm({
             ingredients={ingredients}
           />
 
+          {readOnlyReason && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !!readOnlyReason}
+            title={readOnlyReason}
             className="w-full h-24 bg-foreground text-background hover:text-primary-foreground rounded-[2rem] font-black uppercase italic text-xl hover:bg-primary transition-all shadow-2xl"
           >
             {loading ? (

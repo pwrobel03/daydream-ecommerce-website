@@ -5,14 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 import PriceView from "./PriceView";
 import { Star } from "lucide-react";
-import { ProductType } from "@/types/product";
+import type { ProductCardData } from "@/lib/db-products";
 import AddToCartButton from "./AddToCartButton";
 import { toCartProduct } from "@/store";
 import { cn } from "@/lib/utils";
 import ProductStatusBadge from "@/components/product-status-badge";
 
 interface ProductCardProps {
-  product: ProductType;
+  product: ProductCardData;
   // categoryName zostawiamy jako fallback, ale priorytet mają kategorie z obiektu
   categoryName?: string;
 }

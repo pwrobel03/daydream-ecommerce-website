@@ -12,8 +12,8 @@ export async function updateOrderStatus(
   orderId: string,
   status: OrderStatus
 ): Promise<ActionResult> {
-  await requireAdmin(); // Sprawdzamy uprawnienia admina
   try {
+    await requireAdmin(); // Sprawdzamy uprawnienia admina
     await db.order.update({
       where: {
         id: orderId,

@@ -1,0 +1,94 @@
+name: Stripe checklist
+
+# Lista kontrolna płatności z #41 (przypadki 2, 3 i 5) na Stripe w trybie testowym.
+# Osobny workflow, bo potrzebuje sekretu i prawdziwej sieci; ci.yml się nie zmienia.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/stripe-checklist.yml
+      - tests/stripe/**
+      - playwright.stripe.config.ts
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stripe:
+    name: Stripe checklist
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      STRIPE_CLI_VERSION: 1.53.1
+      DATABASE_URL: postgresql://daydream:daydream@localhost:55432/daydream_e2e
+      REDIS_URL: redis://localhost:56379
+      CRON_SECRET: stripe-checklist-cron-secret
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+      # Tę zmienną czyta `stripe` CLI; wartość nie trafia do logów.
+      STRIPE_API_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+      STRIPE_LISTEN_LOG: ${{ github.workspace }}/stripe-listen.log
+    steps:
+      - name: Require a Stripe test mode key
+        run: |
+          case "$STRIPE_SECRET_KEY" in
+            sk_test_*) ;;
+            *) echo "::error::STRIPE_TEST_SECRET_KEY is missing or is not an sk_test_ key"; exit 1 ;;
+          esac
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Install Stripe CLI
+        run: |
+          base="https://github.com/stripe/stripe-cli/releases/download/v${STRIPE_CLI_VERSION}"
+          archive="stripe_${STRIPE_CLI_VERSION}_linux_x86_64.tar.gz"
+          mkdir -p "$RUNNER_TEMP/stripe-cli" && cd "$RUNNER_TEMP/stripe-cli"
+          curl -fsSLO "$base/$archive"
+          curl -fsSLO "$base/stripe-linux-checksums.txt"
+          grep " $archive\$" stripe-linux-checksums.txt | sha256sum --check -
+          tar -xzf "$archive"
+          echo "$PWD" >> "$GITHUB_PATH"
+      - name: Start services, migrate, seed
+        run: |
+          docker compose -p daydream-e2e -f docker-compose.test.yml up -d --wait
+          npx prisma migrate deploy
+          npx tsx tests/e2e/seed.ts
+      - name: Forward Stripe webhooks to the app
+        run: |
+          webhook_secret="$(stripe listen --events checkout.session.completed --print-secret)"
+          echo "::add-mask::$webhook_secret"
+          echo "STRIPE_WEBHOOK_SECRET=$webhook_secret" >> "$GITHUB_ENV"
+          nohup stripe listen --events checkout.session.completed,checkout.session.expired,payment_intent.payment_failed --forward-to localhost:3100/api/webhook/stripe > "$STRIPE_LISTEN_LOG" 2>&1 &
+          for _ in $(seq 30); do grep -q Ready "$STRIPE_LISTEN_LOG" && exit 0; sleep 1; done
+          echo "::error::stripe listen did not become ready"; exit 1
+      - name: Run the checklist
+        run: npx playwright test -c playwright.stripe.config.ts
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "### Stripe checklist (test mode)"
+            echo "| Case | Result |"
+            echo "| --- | --- |"
+            if [ -f stripe-results.json ]; then
+              jq -r '[.. | objects | select(has("specs")) | .specs[]] | .[] | "| \(.title) | \(if .ok then "pass" else "FAIL" end) |"' stripe-results.json
+            else
+              echo "| (no results) | FAIL |"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Stop services
+        if: always()
+        run: docker compose -p daydream-e2e -f docker-compose.test.yml down -v
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: stripe-checklist-report
+          path: |
+            test-results/
+          retention-days: 7

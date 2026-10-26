@@ -9,6 +9,7 @@ import { sendPasswordResetEmail } from "@/lib/mail";
 import { generatePasswordResetToken } from "@/lib/token";
 import { ResetPasswordSchema } from "@/schemas";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { verifyTurnstile } from "@/lib/turnstile";
 import { ActionResult, fail, ok } from "@/lib/action-result";
 
 export const newPassword = async (
@@ -57,10 +58,14 @@ export const resetPassword = async (
   if (!validatedFields.success) return fail("INVALID_INPUT", "Invalid fields!")
 
   // Extract email from validated data
-  const {email} = validatedFields.data
+  const {email, turnstileToken} = validatedFields.data
+
+  const ip = await getClientIp();
+  if (!(await verifyTurnstile(turnstileToken, ip))) {
+    return fail("TURNSTILE_FAILED", "Verification failed. Please try again.")
+  }
 
   // Każde przejście wysyła maila — limit trzyma to poza zasięgiem automatu.
-  const ip = await getClientIp();
   const limit = await rateLimit(`reset:${email}:${ip}`, 3, 60 * 60);
   if (!limit.allowed) {
     return fail("RATE_LIMITED", "Too many reset requests. Please try again later.");
@@ -73,6 +78,7 @@ export const resetPassword = async (
 
   // Generate password reset token and send email
   const passwordResetToken = await generatePasswordResetToken(email)
-  await sendPasswordResetEmail(passwordResetToken.email, passwordResetToken.token)
+  const sent = await sendPasswordResetEmail(passwordResetToken.email, passwordResetToken.token, ip)
+  if (!sent) return fail("EMAIL_NOT_SENT", "We could not send the e-mail right now. Try again later.")
   return ok()
 } 

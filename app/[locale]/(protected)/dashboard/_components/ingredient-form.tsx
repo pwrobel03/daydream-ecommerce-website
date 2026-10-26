@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -15,7 +16,7 @@ import GiveInNotice from "./give-in-notice";
 import { upsertIngredient } from "@/actions/admin/ingredients";
 import { Button } from "@/components/ui/button"; // Zakładam shadcn/ui
 import { Input } from "@/components/ui/input";
-import type { Ingredient } from "@/types/product";
+import type { IngredientOption } from "@/lib/db-inventory";
 
 // Schemat powstaje w ciele komponentu, bo komunikat walidacji jest widoczny
 // dla użytkownika i musi być w jego języku — a hooka nie da się wywołać
@@ -30,16 +31,17 @@ function buildSchema(t: (key: string) => string) {
 type IngredientFormValues = z.infer<ReturnType<typeof buildSchema>>;
 
 interface IngredientFormProps {
-  initialData?: Ingredient | null; // Dane z bazy jeśli edytujemy
+  initialData?: IngredientOption | null; // Dane z bazy jeśli edytujemy
 }
 
 export const IngredientForm = ({ initialData }: IngredientFormProps) => {
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(
-    initialData?.imageUrl || null
+    initialData?.image || null
   );
 
   const form = useForm<IngredientFormValues>({
@@ -72,7 +74,7 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
       }
 
       // Jeśli edytujemy i usuwamy zdjęcie (brak pliku i brak podglądu)
-      if (!preview && initialData?.imageUrl) {
+      if (!preview && initialData?.image) {
         formData.append("removeImage", "true");
       }
 
@@ -177,9 +179,11 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
           >
             Cancel
           </Button>
+          {readOnlyReason && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || !!readOnlyReason}
+            title={readOnlyReason}
             className="min-w-[150px] cursor-pointer"
           >
             {loading ? <Loader2 className="animate-spin mr-2" /> : null}

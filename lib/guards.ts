@@ -3,6 +3,8 @@
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { ActionError } from "@/lib/action-result";
+import { getTranslations } from "next-intl/server";
+import { isBackOfficeRole, isDemoAdmin } from "@/lib/demo";
 
 /**
  * Przerywa wykonanie, jeśli bieżący użytkownik nie jest adminem.
@@ -13,6 +15,31 @@ import { ActionError } from "@/lib/action-result";
 export async function requireAdmin() {
   const session = await getSession();
   if (session?.user?.role !== "ADMIN") {
+    // Only the demo admin gets the explanatory message; everyone else stays "Unauthorized".
+    const message = isDemoAdmin(session?.user?.role)
+      ? (await getTranslations("errors"))("demoReadOnly")
+      : "Unauthorized";
+    throw new ActionError("FORBIDDEN", message);
+  }
+  return session;
+}
+
+/**
+ * Own-account writes (profile, address, Voices, orders): signed-in USER or ADMIN.
+ * The demo account is shared by all visitors, so it must never write.
+ */
+export async function requireOwnAccountWrites() {
+  const session = await getSession();
+  const t = await getTranslations("errors");
+  if (!session?.user?.id) throw new ActionError("UNAUTHORIZED", t("unauthorized"));
+  if (isDemoAdmin(session.user.role)) throw new ActionError("FORBIDDEN", t("demoReadOnly"));
+  return session;
+}
+
+/** Back-office reads: the demo admin may look, but never write (writes use requireAdmin). */
+export async function requireBackOffice() {
+  const session = await getSession();
+  if (!isBackOfficeRole(session?.user?.role)) {
     throw new ActionError("FORBIDDEN", "Unauthorized");
   }
   return session;

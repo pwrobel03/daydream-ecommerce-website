@@ -9,7 +9,6 @@ import ProductHero from "@/components/product/product-hero";
 import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/lib/db-products";
 import { getSession } from "@/lib/session";
-import { UserType } from "@/types/user";
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { slug } = await params;
@@ -110,7 +109,7 @@ async function ProductPageContent({ params }: ProductPageProps) {
           initialReviews={product.reviews}
           totalCount={product._count.reviews}
           ratingAvg={product.ratingAvg}
-          user={session?.user as UserType}
+          user={session?.user ?? null}
         />
       </Container>
     </main>

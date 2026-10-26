@@ -16,6 +16,8 @@ export const E2E_ADMIN = {
   name: "E2E Admin",
 };
 
+export { DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD } from "../../lib/demo";
+
 export const E2E_PRODUCT = {
   name: "Test Bar",
   slug: "test-bar",

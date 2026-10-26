@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { FormSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
-import { db } from "@/lib/db";
+import { getIngredient } from "@/lib/db-inventory";
 import { notFound } from "next/navigation";
 import { IngredientForm } from "../../../_components/ingredient-form";
 
@@ -21,11 +21,7 @@ async function IngredientPageContent({ params }: IngredientPageProps) {
 
   // 2. Teraz id będzie stringiem, a nie obietnicą
   if (!isNew) {
-    ingredient = await db.ingredient.findUnique({
-      where: {
-        id: id,
-      },
-    });
+    ingredient = await getIngredient(id);
 
     if (!ingredient) {
       notFound();

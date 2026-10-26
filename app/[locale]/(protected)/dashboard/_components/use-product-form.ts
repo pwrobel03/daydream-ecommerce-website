@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 import { productSchema } from "@/schemas";
 import { upsertProduct } from "@/actions/admin/inventory";
-import type { ProductType } from "@/types/product";
+import type { ProductFormData } from "@/lib/db-inventory";
 import type {
   ProductForm,
   ProductFormInput,
@@ -27,7 +27,7 @@ export interface ProductImages {
   removeNewImage: (index: number) => void;
 }
 
-function defaultValues(initialData: ProductType | null): ProductFormInput {
+function defaultValues(initialData: ProductFormData | null): ProductFormInput {
   if (!initialData) {
     return {
       name: "",
@@ -64,7 +64,7 @@ function defaultValues(initialData: ProductType | null): ProductFormInput {
  * Dzięki temu walidację rozmiaru plików i budowanie FormData da się czytać
  * bez przewijania przez pola formularza.
  */
-export function useProductForm(initialData: ProductType | null) {
+export function useProductForm(initialData: ProductFormData | null) {
   const t = useTranslations("dashboard");
   const router = useRouter();
   const [loading, setLoading] = useState(false);

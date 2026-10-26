@@ -1,7 +1,7 @@
 // lib/db-reviews.ts
 import { db } from "@/lib/db";
-import { requireAdmin } from "@/lib/guards";
-import { toPlainDeep } from "@/lib/dto";
+import { requireBackOffice } from "@/lib/guards";
+import { toPlainDeep } from "@/lib/serialize";
 import { reportError } from "@/lib/logger";
 
 export interface VoiceQuery {
@@ -18,7 +18,7 @@ export interface VoiceQuery {
  * renderowała się dwa razy: raz pusta, raz z danymi.
  */
 export async function getVoices({ take = 10, rating, search }: VoiceQuery) {
-  await requireAdmin();
+  await requireBackOffice();
 
   const where = {
     ...(rating ? { rating } : {}),
@@ -41,7 +41,11 @@ export async function getVoices({ take = 10, rating, search }: VoiceQuery) {
       db.review.findMany({
         where,
         take,
-        include: {
+        select: {
+          id: true,
+          content: true,
+          rating: true,
+          createdAt: true,
           user: { select: { name: true, image: true } },
           product: { select: { name: true, slug: true } },
         },
@@ -56,3 +60,5 @@ export async function getVoices({ take = 10, rating, search }: VoiceQuery) {
     return { reviews: [], totalCount: 0 };
   }
 }
+
+export type AdminVoice = Awaited<ReturnType<typeof getVoices>>["reviews"][number];

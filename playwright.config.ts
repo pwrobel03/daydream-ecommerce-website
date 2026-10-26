@@ -18,7 +18,16 @@ const E2E_ENV = {
   SMTP_PORT: "51025",
   SMTP_SECURE: "false",
   MAIL_FROM: "Daydream <test@example.com>",
+  // Cały zestaw E2E wysyła z jednego IP i kilku adresów — limity nie mogą go zatrzymać.
+  MAIL_DAILY_LIMIT: "100000",
+  MAIL_HOURLY_LIMIT_PER_ADDRESS: "100000",
+  MAIL_HOURLY_LIMIT_PER_IP: "100000",
+  PRIVACY_CONTROLLER_NAME: "E2E Controller Ltd",
+  PRIVACY_CONTACT_EMAIL: "privacy@example.com",
+  PRIVACY_EMAIL_PROVIDER: "E2E SMTP Provider",
   CRON_SECRET: "e2e-cron-secret-value",
+  TURNSTILE_SITE_KEY: "1x00000000000000000000AA",
+  TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
   NEXT_PUBLIC_APP_URL: BASE_URL,
 };
 

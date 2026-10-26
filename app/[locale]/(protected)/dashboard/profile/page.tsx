@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 import { useEffect, useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
@@ -26,9 +27,11 @@ import { FormError } from "@/components/auth/form-error";
 import { FormSuccess } from "@/components/auth/form-success";
 import { Loader2, UserCog, ShieldCheck, Fingerprint } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DeleteAccountSection } from "@/components/user/delete-account-section";
 
 const SettingsPage = () => {
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const user = useCurrentUser();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
@@ -65,7 +68,7 @@ const SettingsPage = () => {
           update(); // Odświeża sesję klienta
           setSuccess(
             res.data.emailChanged
-              ? t("feedback.emailChanged")
+              ? t(res.data.emailSent ? "feedback.emailChanged" : "feedback.emailNotSent")
               : t("feedback.settingsSaved")
           );
         })
@@ -220,8 +223,10 @@ const SettingsPage = () => {
               <FormError message={error} />
               <FormSuccess message={success} />
 
+              {readOnlyReason && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
               <Button
-                disabled={isPending}
+                disabled={isPending || !!readOnlyReason}
+                title={readOnlyReason}
                 type="submit"
                 className="w-full h-24 bg-foreground hover:bg-primary text-background hover:text-primary-foreground rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98]"
               >
@@ -230,6 +235,10 @@ const SettingsPage = () => {
             </div>
           </form>
         </Form>
+
+        <div className="mt-12">
+          <DeleteAccountSection />
+        </div>
       </div>
     </>
   );

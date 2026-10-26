@@ -2,6 +2,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 import { useState } from "react";
 import { format } from "date-fns";
@@ -17,10 +18,16 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { OrderStatus } from "@/lib/generated/prisma/client";
-import type { AdminOrderType } from "@/types/order";
+import type { AdminOrder, MaskedAdminOrder, getAdminOrders } from "@/lib/db-orders";
 
-export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
+export function AdminOrdersList({
+  result,
+}: {
+  result: Awaited<ReturnType<typeof getAdminOrders>>;
+}) {
+  const orders: (AdminOrder | MaskedAdminOrder)[] = result.orders;
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -29,7 +36,7 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
     setLoadingId(null);
   };
 
-  if (!orders || orders.length === 0) {
+  if (orders.length === 0) {
     return (
       <div className="py-20 text-center border-2 border-dashed border-black/5 rounded-[3rem]">
         <p className="text-muted-foreground font-black italic text-xl uppercase tracking-tighter opacity-70">
@@ -77,14 +84,19 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
                   <div className="flex items-center gap-1 mt-2 opacity-40">
                     <User className="w-3 h-3" />
                     <span className="text-[9px] uppercase font-black tracking-tighter">
-                      {order.user?.name}
+                      {"customerTag" in order
+                        ? t("orders.customer", { tag: order.customerTag })
+                        : order.user.name}
                     </span>
                   </div>
                 </div>
               </td>
 
               {/* KOLUMNA 2: ADRES */}
-              {order.address ? (
+              {"customerTag" in order ? (
+                // The demo admin never receives the address (ADR 0009).
+                <td className="py-8 px-2" />
+              ) : order.address ? (
                 <td className="py-8 px-2">
                   <div className="flex items-start gap-3 max-w-[280px]">
                     <MapPin className="w-4 h-4 mt-1 opacity-20 shrink-0 text-primary-text" />
@@ -187,7 +199,8 @@ export function AdminOrdersList({ orders = [] }: { orders: AdminOrderType[] }) {
 
                   <select
                     value={order.status}
-                    disabled={loadingId === order.id}
+                    disabled={loadingId === order.id || !!readOnlyReason}
+                    title={readOnlyReason}
                     onChange={(e) =>
                       handleStatusChange(order.id, e.target.value)
                     }

@@ -35,6 +35,10 @@ test.describe("transactional email", () => {
     await page.getByPlaceholder("EX: DAYDREAM USER").fill("Signup Tester");
     await page.getByPlaceholder("USER@DAYDREAM.COM").fill(address);
     await page.getByPlaceholder("••••••••••••").fill("verystrongpassword123");
+    // Klucze testowe Cloudflare zawsze przechodzą, ale token pojawia się chwilę po załadowaniu widżetu.
+    await expect(page.locator('[name="cf-turnstile-response"]')).not.toHaveValue("", {
+      timeout: 20_000,
+    });
     await page.getByRole("button", { name: /register|sign up|create/i }).click();
 
     await expect

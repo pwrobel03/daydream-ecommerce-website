@@ -11,8 +11,13 @@ export const testEnv = {
   SMTP_PORT: "1025",
   SMTP_SECURE: "false",
   MAIL_FROM: "Daydream <test@example.com>",
+  PRIVACY_CONTROLLER_NAME: "Test Controller",
+  PRIVACY_CONTACT_EMAIL: "privacy@example.com",
+  PRIVACY_EMAIL_PROVIDER: "Test SMTP Provider",
   UPLOAD_DIR: "./storage/uploads-test",
   REDIS_URL: "redis://localhost:6379",
   CRON_SECRET: "test-cron-secret-value",
+  TURNSTILE_SITE_KEY: "1x00000000000000000000AA",
+  TURNSTILE_SECRET_KEY: "1x0000000000000000000000000000000AA",
   NEXT_PUBLIC_APP_URL: "http://localhost:3000",
 };

@@ -1,7 +1,7 @@
 import { FormSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 import { getSession } from "@/lib/session";
-import { db } from "@/lib/db";
+import { getUserAddress } from "@/lib/db-orders";
 import { redirect } from "next/navigation";
 import { AddressForm } from "../_components/address-form";
 import { Globe } from "lucide-react";
@@ -10,10 +10,7 @@ async function AddressPageContent() {
   const session = await getSession();
   if (!session?.user?.id) redirect("/auth/login");
 
-  const user = await db.user.findUnique({
-    where: { id: session.user.id },
-    include: { address: true },
-  });
+  const address = await getUserAddress(session.user.id);
 
   return (
     <div className="container mx-auto px-6 py-20 max-w-5xl">
@@ -34,7 +31,7 @@ async function AddressPageContent() {
         {/* Dekoracyjna linia boczna */}
         <div className="absolute -left-6 top-0 bottom-0 w-[1px] bg-gradient-to-b from-primary via-black/5 to-transparent hidden md:block" />
 
-        <AddressForm initialData={user?.address ?? null} />
+        <AddressForm initialData={address} />
       </div>
     </div>
   );

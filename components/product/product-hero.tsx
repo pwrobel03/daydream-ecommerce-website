@@ -5,10 +5,10 @@ import SubTitle from "@/components/sub-title";
 import PriceFormatter from "../PriceFormatter";
 import ProductStatusBadge from "../product-status-badge";
 import AddToCartButton from "../product-card/AddToCartButton";
-import type { ProductType } from "@/types/product";
+import type { ProductDetail } from "@/lib/db-products";
 import { toCartProduct } from "@/store";
 
-export default function ProductHero({ product }: { product: ProductType }) {
+export default function ProductHero({ product }: { product: ProductDetail }) {
 
   return (
     <div className="space-y-8">

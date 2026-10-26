@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { initializeOrder } from "@/actions/order/order";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 const CartPage = () => {
   const t = useTranslations("cart");
@@ -29,6 +30,7 @@ const CartPage = () => {
     isMounted,
   } = useCart();
   const router = useRouter();
+  const readOnlyReason = useReadOnlyReason();
   const [isPending, setIsPending] = useState(false);
   const [isSyncing, setIsSyncing] = useState(true);
   const [syncFailed, setSyncFailed] = useState(false);
@@ -220,11 +222,17 @@ const CartPage = () => {
               />
             </div>
 
+            {readOnlyReason && (
+              <p className="text-center text-sm text-muted-foreground">{readOnlyReason}</p>
+            )}
+
             <button
-              disabled={hasErrors || isPending}
+              disabled={hasErrors || isPending || !!readOnlyReason}
+              title={readOnlyReason}
               onClick={handleSecureFlow}
               className={cn(
                 "group relative w-full h-24 rounded-full overflow-hidden transition-all shadow-xl active:scale-95",
+                readOnlyReason && "cursor-not-allowed opacity-60",
                 hasErrors
                   ? "cursor-not-allowed bg-destructive/25 text-primary-foreground"
                   : "bg-primary text-primary-foreground hover:scale-[1.02]"

@@ -134,14 +134,17 @@ existing data and leaves it alone. Open [http://localhost:3000](http://localhost
 
 ### Demo accounts
 
-Seeded, with their email already verified:
+Seeded, with its email already verified:
 
-| Role  | Email                          | Password      |
-| :---- | :----------------------------- | :------------ |
-| Admin | `peter@admin.com`              | `password123` |
-| User  | `james.miller@daydream.com`    | `password123` |
+| Role       | Email                    | Password          |
+| :--------- | :----------------------- | :---------------- |
+| Demo admin | `demo-admin@example.com` | `demo-admin-2026` |
 
-The admin account reaches the back-office at `/dashboard/inventory`.
+The demo admin is read-only: it browses the back-office (`/dashboard/inventory`) but every
+write is refused. The login page has a "Sign in as demo admin" button. The sample customers
+that own the seeded orders get random passwords nobody knows; register your own account to
+shop. The seed creates no full-rights admin: the private admin is created by a script at
+deployment.
 
 ### What works without real API keys
 

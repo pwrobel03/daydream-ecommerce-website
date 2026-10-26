@@ -1,10 +1,9 @@
 import { Suspense } from "react";
 import { FormSkeleton } from "@/components/skeletons";
 import { getSession } from "@/lib/session";
-import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import { DeliveryClient } from "@/components/cart/delivery-client";
-import { toPlainDeep } from "@/lib/dto";
+import { getOrderForDelivery, getUserAddress } from "@/lib/db-orders";
 
 async function DeliveryPageContent({
   params,
@@ -14,25 +13,14 @@ async function DeliveryPageContent({
   const session = await getSession();
   const { orderId } = await params;
 
-  if (!session) redirect("/auth/login");
+  if (!session?.user?.id) redirect("/auth/login");
 
-  // Pobieramy zamówienie i dane użytkownika z jego zapisanym adresem
-  const [order, userWithAddress] = await Promise.all([
-    db.order.findUnique({
-      where: { id: orderId, userId: session.user.id },
-      include: { items: { include: { product: true } } },
-    }),
-    db.user.findUnique({
-      where: { id: session.user.id },
-      include: { address: true },
-    }),
+  const [order, savedAddress] = await Promise.all([
+    getOrderForDelivery(session.user.id, orderId),
+    getUserAddress(session.user.id),
   ]);
 
   if (!order) notFound();
-
-  // Wynik Prismy niesie własności symboliczne — patrz lib/dto.
-  const orderForClient = toPlainDeep(order);
-
 
   return (
     <div className="container mx-auto px-6 py-20 max-w-7xl">
@@ -46,8 +34,8 @@ async function DeliveryPageContent({
       </header>
 
       <DeliveryClient
-        order={orderForClient}
-        savedAddress={userWithAddress?.address ?? null}
+        order={order}
+        savedAddress={savedAddress}
       />
     </div>
   );

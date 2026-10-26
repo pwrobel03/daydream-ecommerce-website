@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 import * as z from "zod";
 import { useState, useTransition, useEffect } from "react";
@@ -8,8 +9,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Star, SendHorizontal, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
-import { Review } from "@/types/product";
-import { UserType } from "@/types/user";
+import type { StoreVoice } from "@/actions/store/reviews";
+import type { Session } from "next-auth";
 
 import {
   Form,
@@ -34,9 +35,9 @@ const formSchema = z.object({
 interface AddReviewFormProps {
   productId: string;
   productSlug: string; // Dodane dla rewalidacji w akcji update
-  user: UserType;
-  initialData?: Review | null; // Dane do edycji
-  onSuccess: (review: Review) => void;
+  user: Session["user"];
+  initialData?: StoreVoice | null; // Dane do edycji
+  onSuccess: (review: StoreVoice) => void;
   onCancel?: () => void; // Funkcja do wyjścia z trybu edycji
 }
 
@@ -49,6 +50,7 @@ export default function AddReviewForm({
   onCancel,
 }: AddReviewFormProps) {
   const t = useTranslations("errors");
+  const readOnlyReason = useReadOnlyReason();
   const tReviews = useTranslations("reviews");
   const [isPending, startTransition] = useTransition();
   const [hoverRating, setHoverRating] = useState(0);
@@ -212,9 +214,11 @@ export default function AddReviewForm({
 
           {/* UPDATE BUTTON */}
           <div className="flex flex-col md:flex-row gap-4">
+            {readOnlyReason && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
             <button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || !!readOnlyReason}
+              title={readOnlyReason}
               className="group relative w-full md:w-fit px-16 h-20 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full overflow-hidden transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
             >
               <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />

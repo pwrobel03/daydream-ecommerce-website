@@ -35,3 +35,8 @@ export async function getFreshCartData(productIds: string[]) {
     stock: product.stock,
   }));
 }
+
+/** Kształt zwracany przez `getFreshCartData` — odświeżone ceny i stan magazynowy. */
+export type CartSyncProduct = Awaited<
+  ReturnType<typeof getFreshCartData>
+>[number];

@@ -16,6 +16,7 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { TurnstileWidget } from "./turnstile-widget";
 import { FormError } from "./form-error";
 import { FormSuccess } from "./form-success";
 import { resetPassword } from "@/actions/auth/reset-password";
@@ -23,16 +24,19 @@ import Link from "next/link";
 import { Radio, Cpu, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const ResetForm = () => {
+export const ResetForm = ({ turnstileSiteKey }: { turnstileSiteKey: string }) => {
   const t = useTranslations("auth.reset");
+  const tAuth = useTranslations("auth");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
+  const [widgetKey, setWidgetKey] = useState(0);
 
   const form = useForm<z.infer<typeof ResetPasswordSchema>>({
     resolver: zodResolver(ResetPasswordSchema),
     defaultValues: {
       email: "",
+      turnstileToken: "",
     },
   });
 
@@ -41,7 +45,14 @@ export const ResetForm = () => {
     setSuccess("");
     startTransition(() => {
       resetPassword(values).then((res) => {
-        if (!res.ok) return setError(res.message);
+        // Token jest jednorazowy — każda próba wymaga nowego wyzwania.
+        form.setValue("turnstileToken", "");
+        setWidgetKey((k) => k + 1);
+        if (!res.ok) return setError(
+          res.code === "EMAIL_NOT_SENT" ? tAuth("mailNotSent")
+            : res.code === "TURNSTILE_FAILED" ? tAuth("turnstileFailed")
+            : res.message
+        );
         setSuccess(t("success"));
       });
     });
@@ -114,6 +125,17 @@ export const ResetForm = () => {
                   </FormItem>
                 )}
               />
+            </div>
+
+            <div className="space-y-2">
+              <TurnstileWidget
+                key={widgetKey}
+                siteKey={turnstileSiteKey}
+                onToken={(token) => form.setValue("turnstileToken", token, { shouldValidate: form.formState.isSubmitted })}
+              />
+              {form.formState.errors.turnstileToken && (
+                <p role="alert" className="text-[10px] font-bold uppercase">{tAuth("turnstileFailed")}</p>
+              )}
             </div>
 
             <div className="space-y-4">

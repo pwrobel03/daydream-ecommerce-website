@@ -1,7 +1,7 @@
 import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 import { getSession } from "@/lib/session";
-import { db } from "@/lib/db";
+import { getUserOrderDetails } from "@/lib/db-orders";
 import { notFound, redirect } from "next/navigation";
 import PriceFormatter from "@/components/PriceFormatter";
 import { OrderItemCard } from "../../_components/order-item-card";
@@ -18,48 +18,11 @@ async function OrderDetailsPageContent({
   const session = await getSession();
   const { orderId } = await params;
 
-  if (!session) redirect("/auth/login");
+  if (!session?.user?.id) redirect("/auth/login");
 
-  // app/dashboard/orders/[orderId]/page.tsx
-
-  const order = await db.order.findUnique({
-    where: {
-      id: orderId,
-      userId: session.user.id,
-    },
-    include: {
-      address: true,
-      items: {
-        include: {
-          product: {
-            include: {
-              images: true, // TO BYŁ BRAKUJĄCY ELEMENT
-            },
-          },
-        },
-      },
-    },
-  });
+  const order = await getUserOrderDetails(session.user.id, orderId);
 
   if (!order) notFound();
-
-  // SERIALIZACJA DANYCH (Konwersja Decimal -> Number)
-  const serializedOrder = {
-    ...order,
-    totalAmount: Number(order.totalAmount),
-    createdAt: order.createdAt.toISOString(),
-    items: order.items.map((item) => ({
-      ...item,
-      price: Number(item.price),
-      product: {
-        ...item.product,
-        // Teraz images będą dostępne tutaj:
-        images: item.product.images.map((img) => ({
-          url: img.url,
-        })),
-      },
-    })),
-  };
 
   return (
     <div className="container mx-auto py-20">
@@ -97,7 +60,7 @@ async function OrderDetailsPageContent({
             <Package className="text-primary-text" /> Manifest
           </h2>
           <div className="space-y-4">
-            {serializedOrder.items.map((item) => (
+            {order.items.map((item) => (
               <OrderItemCard key={item.id} item={item} />
             ))}
           </div>
@@ -144,7 +107,7 @@ async function OrderDetailsPageContent({
                   Grand Total
                 </span>
                 <span className="text-2xl font-black italic tracking-tighter text-primary-text">
-                  <PriceFormatter amount={serializedOrder.totalAmount} />
+                  <PriceFormatter amount={order.totalAmount} />
                 </span>
               </div>
             </div>
@@ -153,7 +116,7 @@ async function OrderDetailsPageContent({
               // <button className="w-full py-6 bg-primary text-primary-foreground rounded-full font-black italic uppercase text-lg hover:scale-105 transition-all shadow-xl active:scale-95">
               //   Retry Payment
               // </button>
-              <RetryPaymentButton orderId={serializedOrder.id} />
+              <RetryPaymentButton orderId={order.id} />
             )}
           </div>
         </div>

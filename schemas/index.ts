@@ -3,7 +3,7 @@
 import * as z from 'zod';
 // Schema for login
 export const LoginSchema = z.object({
-  email: z.string().email({
+  email: z.string().trim().toLowerCase().email({
   message: "Email is required"
   }),
   password: z.string().min(1, {
@@ -13,8 +13,11 @@ export const LoginSchema = z.object({
 
 // Schema for reset password
 export const ResetPasswordSchema = z.object({
-  email: z.string().email({
+  email: z.string().trim().toLowerCase().email({
   message: "Email is required"
+  }),
+  turnstileToken: z.string().min(1, {
+    message: "Complete the verification"
   })
 })
 
@@ -33,7 +36,7 @@ export const NewPasswordSchema = z.object({
 
 // Schema for registration
 export const RegisterSchema = z.object({
-  email: z.string().email({
+  email: z.string().trim().toLowerCase().email({
     message: "Email is required"
   }),
   password: z.string().min(8, {
@@ -41,12 +44,15 @@ export const RegisterSchema = z.object({
   }),
    name: z.string().min(1, {
     message: "Name is required"
+  }),
+  turnstileToken: z.string().min(1, {
+    message: "Complete the verification"
   })
 })
 
 export const SettingsSchema = z.object({
   name: z.optional(z.string()),
-  email: z.optional(z.string().email()),
+  email: z.optional(z.string().trim().toLowerCase().email()),
   password: z.optional(z.string().min(8)),
   newPassword: z.optional(z.string().min(8))
 }).refine((data) => {
@@ -67,6 +73,12 @@ export const SettingsSchema = z.object({
 }, {
   message: "Password is required",
   path: ["password"]
+})
+
+// Exactly one of the two is used: `password` for accounts with a password, `email` for OAuth ones.
+export const DeleteAccountSchema = z.object({
+  password: z.optional(z.string()),
+  email: z.optional(z.string()),
 })
 
 // Bez `userId` — autor bierze się z sesji po stronie serwera. Dopóki pole tu

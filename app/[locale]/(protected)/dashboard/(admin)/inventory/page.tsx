@@ -2,12 +2,12 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { PackagePlus, Plus } from "lucide-react";
 import { ProductGridSkeleton } from "@/components/skeletons";
-import { db } from "@/lib/db";
-import { toPlainDeep } from "@/lib/dto";
-import { getInventoryProducts } from "@/lib/db-inventory";
+import {
+  getInventoryProducts,
+  getMainCategoriesWithChildren,
+} from "@/lib/db-inventory";
 import { InventoryFilters } from "../../_components/inventory-filters";
 import { InventoryList } from "../../_components/inventory-list";
-import type { Category, InventoryProduct } from "@/types/product";
 
 const PAGE_SIZE = 5;
 
@@ -27,11 +27,8 @@ async function InventoryPageContent({
   const { search, category, sub, stock, take } = await searchParams;
   const currentTake = Number(take) || PAGE_SIZE;
 
-  const [allCategories, { products, totalCount }] = await Promise.all([
-    db.category.findMany({
-      include: { children: true },
-      orderBy: { name: "asc" },
-    }),
+  const [mainCategories, { products, totalCount }] = await Promise.all([
+    getMainCategoriesWithChildren(),
     getInventoryProducts({
       take: currentTake,
       search: search || "",
@@ -40,10 +37,6 @@ async function InventoryPageContent({
       stockStatus: stock,
     }),
   ]);
-
-  const mainCategories = toPlainDeep(
-    allCategories.filter((cat) => !cat.parentId)
-  ) as Category[];
 
   const nextParams = new URLSearchParams();
   if (search) nextParams.set("search", search);
@@ -87,7 +80,7 @@ async function InventoryPageContent({
           </span>
         </Link>
 
-        <InventoryList products={products as InventoryProduct[]} />
+        <InventoryList products={products} />
 
         {products.length < totalCount && (
           <div className="flex justify-center pt-10">

@@ -39,6 +39,10 @@ const EnvSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   MAIL_FROM: z.string().min(1),
+  // Twarde limity wysyłki (ADR 0012), egzekwowane w sendEmail.
+  MAIL_DAILY_LIMIT: z.coerce.number().int().positive().default(50),
+  MAIL_HOURLY_LIMIT_PER_ADDRESS: z.coerce.number().int().positive().default(3),
+  MAIL_HOURLY_LIMIT_PER_IP: z.coerce.number().int().positive().default(3),
 
   // Upload plików. Katalog musi leżeć poza public/ i być montowany jako wolumen,
   // inaczej wgrane zdjęcia znikają przy odtworzeniu kontenera.
@@ -53,6 +57,17 @@ const EnvSchema = z.object({
   CRON_SECRET: z.string().min(16, {
     message: "CRON_SECRET musi mieć co najmniej 16 znaków"
   }),
+
+  // Cloudflare Turnstile. Klucz strony trafia do przeglądarki przez prop z Server
+  // Componentu (czytany w runtime), sekret służy tylko do siteverify.
+  TURNSTILE_SITE_KEY: z.string().min(1),
+  TURNSTILE_SECRET_KEY: z.string().min(1),
+
+  // Strona /privacy (ADR 0013): dane administratora i dostawcy poczty wpisuje
+  // właściciel przy wdrożeniu, bez przebudowy obrazu.
+  PRIVACY_CONTROLLER_NAME: z.string().min(1),
+  PRIVACY_CONTACT_EMAIL: z.string().email(),
+  PRIVACY_EMAIL_PROVIDER: z.string().min(1),
 
   // Publiczne
   NEXT_PUBLIC_APP_URL: z.string().url({

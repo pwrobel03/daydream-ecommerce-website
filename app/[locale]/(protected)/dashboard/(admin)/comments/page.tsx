@@ -5,7 +5,6 @@ import { ProductGridSkeleton } from "@/components/skeletons";
 import { getVoices } from "@/lib/db-reviews";
 import { VoicesFilters } from "../../_components/voices-filters";
 import { VoicesList } from "../../_components/voices-list";
-import type { VoiceType } from "@/types/product";
 
 const PAGE_SIZE = 10;
 
@@ -53,7 +52,7 @@ async function CommentsPageContent({
         <VoicesFilters rating={currentRating} />
       </header>
 
-      <VoicesList voices={reviews as VoiceType[]} />
+      <VoicesList voices={reviews} />
 
       {reviews.length < totalCount && (
         <div className="flex justify-center pt-6">

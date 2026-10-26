@@ -1,8 +1,10 @@
 import {v4 as uuid} from "uuid"
 import { db } from "./db"
+import { normalizeEmail } from "./email"
 
 // Function to generate a verification token
-export const generateVerificationToken = async (email: string) => {
+export const generateVerificationToken = async (rawEmail: string) => {
+  const email = normalizeEmail(rawEmail)
   const token = uuid()
   const expires = new Date(Date.now() + 30 * 60 * 1000) // Token valid for 30 minutes
 
@@ -24,7 +26,8 @@ export const generateVerificationToken = async (email: string) => {
 }
 
 // Function to generate a password reset token
-export const generatePasswordResetToken = async (email: string) => {
+export const generatePasswordResetToken = async (rawEmail: string) => {
+  const email = normalizeEmail(rawEmail)
   const token = uuid()
   const expires = new Date(Date.now() + 30 * 60 * 1000) // Token valid for 30 minutes
 

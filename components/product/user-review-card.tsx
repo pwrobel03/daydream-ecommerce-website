@@ -1,14 +1,14 @@
 "use client";
 
 import { Star, Pencil, Trash2 } from "lucide-react";
-import { Review } from "@/types/product";
+import type { StoreVoice } from "@/actions/store/reviews";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useTransition } from "react";
 import { deleteReview } from "@/actions/store/reviews";
 
 interface UserReviewCardProps {
-  review: Review;
+  review: StoreVoice;
   productSlug: string;
   onEdit: () => void;
   onDelete: () => void;

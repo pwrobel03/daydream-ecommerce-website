@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { normalizeEmail } from "@/lib/email";
 
 // get password reset token by token string
 export const getPasswordResetTokenByToken = async (token: string) => {
@@ -17,7 +18,7 @@ export const getPasswordResetTokenByToken = async (token: string) => {
 export const getPasswordResetTokenByEmail = async (email: string) => {
   try {
     const resetToken = await db.passwordResetToken.findFirst({
-      where: { email }
+      where: { email: normalizeEmail(email) }
     });
 
     return resetToken || null;

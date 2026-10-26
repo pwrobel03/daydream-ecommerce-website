@@ -19,18 +19,3 @@ export type UserType = SessionUser & {
   createdAt: Date;
   updatedAt: Date;
 };
-
-// Często potrzebny jest użytkownik wraz z jego adresem (np. w ustawieniach profilu)
-export type ExtendedUser = UserType & {
-  address: AddressType | null;
-};
-
-// Pomocniczy typ dla adresu (pasujący do modelu Address w Prisma)
-export type AddressType = {
-  id: string;
-  fullName: string;
-  street: string;
-  city: string;
-  zipCode: string;
-  phone: string;
-};

@@ -3,7 +3,10 @@
 import { Layers, Beaker } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import type { Category, Ingredient } from "@/types/product";
+import type {
+  IngredientOption,
+  MainCategoryWithChildren,
+} from "@/lib/db-inventory";
 import type { ProductSectionProps } from "./product-form-types";
 
 export function ProductTaxonomySection({
@@ -12,8 +15,8 @@ export function ProductTaxonomySection({
   categories,
   ingredients,
 }: ProductSectionProps & {
-  categories: Category[];
-  ingredients: Ingredient[];
+  categories: MainCategoryWithChildren[];
+  ingredients: IngredientOption[];
 }) {
   return (
   <div className="bg-card/60 p-10 rounded-[2rem] border space-y-8">

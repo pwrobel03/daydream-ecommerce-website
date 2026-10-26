@@ -11,15 +11,17 @@ import { deleteCategory } from "@/actions/admin/categories";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import type { Category } from "@/types/product";
+import type { CategoryListItem } from "@/lib/db-inventory";
 import { useTranslations } from "next-intl";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 interface CategoryListProps {
-  initialCategories: Category[];
+  initialCategories: CategoryListItem[];
 }
 
 export default function CategoryList({ initialCategories }: CategoryListProps) {
   const t = useTranslations("dashboard");
+  const readOnlyReason = useReadOnlyReason();
   const router = useRouter();
 
   // Lista przychodzi z Server Componentu, a router.refresh() dostarcza nową —
@@ -87,12 +89,14 @@ export default function CategoryList({ initialCategories }: CategoryListProps) {
                 <div className="flex flex-row mt-2">
                   <div className="flex items-center gap-4 opacity-70 font-black uppercase text-xs tracking-widest">
                     <span className="flex items-center gap-1">
-                      <Package size={10} /> {main._count?.products || 0}{" "}
+                      <Package size={10} /> {main._count.products || 0}{" "}
                       Products
                     </span>
                   </div>
                   <button
                     onClick={() => handleDelete(main.id, main.name)}
+                    disabled={!!readOnlyReason}
+                    title={readOnlyReason}
                     className="w-8 h-8 ml-4 rounded-full border flex items-center justify-center hover:bg-destructive hover:text-white transition-all flex-shrink-0"
                   >
                     <Trash2 size={18} />
@@ -114,11 +118,13 @@ export default function CategoryList({ initialCategories }: CategoryListProps) {
                         {sub.name}
                       </p>
                       <p className="text-xs font-black uppercase tracking-widest opacity-70">
-                        {sub._count?.products || 0} Products
+                        {sub._count.products || 0} Products
                       </p>
                     </div>
                     <button
                       onClick={() => handleDelete(sub.id, sub.name)}
+                      disabled={!!readOnlyReason}
+                      title={readOnlyReason}
                       className="hover:text-destructive transition-colors p-2 flex-shrink-0"
                     >
                       <Trash2 size={14} />

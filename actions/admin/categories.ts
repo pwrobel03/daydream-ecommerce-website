@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { requireAdmin } from "@/lib/guards";
+import { requireAdmin, requireBackOffice } from "@/lib/guards";
 import { processAndStore } from "@/lib/uploads";
 import { revalidatePath } from "next/cache";
 import slugify from "slugify";
@@ -61,17 +61,25 @@ export async function createCategory(formData: FormData): Promise<ActionResult> 
 
 export async function getCategories() {
   try {
-    await requireAdmin();
+    await requireBackOffice();
     return await db.category.findMany({
       orderBy: { name: "asc" },
-      include: {
-        _count: { select: { products: true } }
-      }
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        image: true,
+        description: true,
+        parentId: true,
+        _count: { select: { products: true } },
+      },
     });
   } catch {
     return [];
   }
 }
+
+export type AdminCategory = Awaited<ReturnType<typeof getCategories>>[number];
 
 export async function deleteCategory(id: string): Promise<ActionResult> {
   try {

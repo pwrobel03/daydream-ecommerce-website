@@ -1,7 +1,7 @@
 // lib/db-inventory.ts
 import { db } from "@/lib/db";
-import { requireAdmin } from "@/lib/guards";
-import { toPlainDeep } from "@/lib/dto";
+import { requireBackOffice } from "@/lib/guards";
+import { toPlainDeep } from "@/lib/serialize";
 import { reportError } from "@/lib/logger";
 
 export interface InventoryQuery {
@@ -26,7 +26,7 @@ export async function getInventoryProducts({
   subCategoryId,
   stockStatus,
 }: InventoryQuery) {
-  await requireAdmin();
+  await requireBackOffice();
 
   const where = {
     ...(search
@@ -54,9 +54,15 @@ export async function getInventoryProducts({
       db.product.findMany({
         where,
         take,
-        include: {
-          categories: { include: { parent: true } },
-          status: true,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          price: true,
+          promoPrice: true,
+          stock: true,
+          categories: { select: { id: true, name: true } },
+          status: { select: { name: true, color: true } },
           images: { take: 1, select: { url: true } },
         },
         orderBy: { createdAt: "desc" },
@@ -70,3 +76,101 @@ export async function getInventoryProducts({
     return { products: [], totalCount: 0 };
   }
 }
+
+export type InventoryProduct = Awaited<
+  ReturnType<typeof getInventoryProducts>
+>["products"][number];
+
+/** Główne kategorie z podkategoriami — filtry asortymentu i formularz produktu. */
+export async function getMainCategoriesWithChildren() {
+  await requireBackOffice();
+  return db.category.findMany({
+    where: { parentId: null },
+    select: {
+      id: true,
+      name: true,
+      children: { select: { id: true, name: true } },
+    },
+    orderBy: { name: "asc" },
+  });
+}
+
+export type MainCategoryWithChildren = Awaited<
+  ReturnType<typeof getMainCategoriesWithChildren>
+>[number];
+
+/** Wszystkie kategorie z licznikiem produktów — lista w panelu kategorii. */
+export async function getCategoryList() {
+  await requireBackOffice();
+  return db.category.findMany({
+    select: {
+      id: true,
+      name: true,
+      image: true,
+      parentId: true,
+      _count: { select: { products: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export type CategoryListItem = Awaited<
+  ReturnType<typeof getCategoryList>
+>[number];
+
+export async function getIngredients() {
+  await requireBackOffice();
+  return db.ingredient.findMany({
+    select: { id: true, name: true, image: true },
+    orderBy: { name: "asc" },
+  });
+}
+
+export type IngredientOption = Awaited<
+  ReturnType<typeof getIngredients>
+>[number];
+
+export async function getIngredient(id: string) {
+  await requireBackOffice();
+  return db.ingredient.findUnique({
+    where: { id },
+    select: { id: true, name: true, image: true },
+  });
+}
+
+export async function getStatuses() {
+  await requireBackOffice();
+  return db.status.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+}
+
+export type StatusOption = Awaited<ReturnType<typeof getStatuses>>[number];
+
+/** Produkt do edycji w formularzu — tylko pola, które formularz wypełnia. */
+export async function getProductForm(id: string) {
+  await requireBackOffice();
+  const product = await db.product.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      price: true,
+      promoPrice: true,
+      weight: true,
+      stock: true,
+      status: { select: { id: true } },
+      categories: { select: { id: true } },
+      ingredients: { select: { id: true } },
+      images: { select: { url: true } },
+    },
+  });
+  return product && toPlainDeep(product);
+}
+
+export type ProductFormData = NonNullable<
+  Awaited<ReturnType<typeof getProductForm>>
+>;

@@ -91,5 +91,4 @@ jobs:
           name: stripe-checklist-report
           path: |
             test-results/
-            stripe-listen.log
           retention-days: 7

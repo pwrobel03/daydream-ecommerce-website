@@ -63,6 +63,8 @@ async function payWith(page: Page, card: string) {
       await field.fill(value);
     }
   }
+  // Zaznaczone domyślnie Link wymaga telefonu, a nie jest częścią listy kontrolnej.
+  await page.getByRole("checkbox", { name: /save my information/i }).uncheck().catch(() => {});
   await page.getByTestId("hosted-payment-submit-button").click();
 }
 

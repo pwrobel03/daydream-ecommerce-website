@@ -109,3 +109,26 @@ UPDATE "User" SET role = 'ADMIN' WHERE email = 'you@example.com';
   re-run the type check.
 - **`npm run lint` fails with `compat is not defined`** — the ESLint flat config is
   currently broken; see `markdown/improvement.md`.
+
+## 📸 Screenshots on pull requests
+
+A pull request that touches the UI gets one comment with before/after screenshots
+(`.github/workflows/screenshots.yml`). The workflow builds and seeds the PR head and the base
+branch the same way (`tests/e2e/seed.ts`), captures every page at 1440×900 and 390×844 in English,
+and compares them pixel by pixel. It is information for the reviewer, not a gate.
+
+To add a page, add an entry to `tests/screenshots/routes.ts`:
+
+```ts
+{ name: "privacy", path: "/privacy" },
+{ name: "admin-inventory", path: "/dashboard/inventory", admin: true, mask: ["time"] },
+```
+
+- `name` becomes the file name and the label in the comment.
+- `path` is opened in English; the seed data must contain whatever the page shows.
+- `admin: true` captures it as the seeded demo admin.
+- `mask` lists CSS selectors painted over before the capture: use it for dates and generated IDs,
+  so two runs of the same commit give identical files.
+
+Run it locally against a running, seeded app: `SCREENSHOT_BASE_URL=http://localhost:3100 npm run screenshots`
+(files go to `screenshots-out/`, or `SCREENSHOT_DIR`).

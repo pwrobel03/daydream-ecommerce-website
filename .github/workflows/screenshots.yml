@@ -1,0 +1,137 @@
+name: Screenshots
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "app/**"
+      - "components/**"
+      - "messages/**"
+      - "public/**"
+      - "**/*.css"
+      - "tailwind.config.*"
+      - "postcss.config.*"
+      - "tests/screenshots/**"
+      - "playwright.screenshots.config.ts"
+      - ".github/workflows/screenshots.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Placeholder values: lib/env.ts validates them at startup, nothing connects to an external service.
+env:
+  DATABASE_URL: postgresql://daydream:daydream@localhost:5432/daydream_shots
+  UPLOAD_DIR: ./storage/uploads-shots
+  REDIS_URL: redis://localhost:6379
+  AUTH_SECRET: shots-auth-secret-value
+  AUTH_URL: http://localhost:3000
+  AUTH_TRUST_HOST: "true"
+  STRIPE_SECRET_KEY: sk_test_shots
+  STRIPE_WEBHOOK_SECRET: whsec_shots
+  SMTP_HOST: localhost
+  SMTP_PORT: "1025"
+  SMTP_SECURE: "false"
+  MAIL_FROM: Daydream <ci@example.com>
+  PRIVACY_CONTROLLER_NAME: E2E Controller Ltd
+  PRIVACY_CONTACT_EMAIL: privacy@example.com
+  PRIVACY_EMAIL_PROVIDER: E2E SMTP Provider
+  CRON_SECRET: shots-cron-secret-value
+  TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+  TURNSTILE_SECRET_KEY: 1x0000000000000000000000000000000AA
+  NEXT_PUBLIC_APP_URL: http://localhost:3000
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  screenshots:
+    name: Before/after screenshots
+    # Pull requests from forks get a read-only token and cannot push images.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: daydream
+          POSTGRES_PASSWORD: daydream
+          POSTGRES_DB: daydream_shots
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U daydream" --health-interval 2s --health-timeout 3s --health-retries 15
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 2s --health-timeout 3s --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: head
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: head/.nvmrc
+          cache: npm
+          cache-dependency-path: |
+            head/package-lock.json
+            base/package-lock.json
+      # Both trees are installed, migrated, seeded, built and captured the same way,
+      # with the capture code from the PR head (the base branch may not have it yet).
+      - name: Capture the PR head
+        run: bash head/tests/screenshots/capture.sh "$GITHUB_WORKSPACE/head" "$GITHUB_WORKSPACE/after"
+      - name: Capture the base branch
+        run: |
+          # Not compare.ts: it needs pixelmatch, which the base tree does not have, and `next build` typechecks it.
+          mkdir -p base/tests/screenshots
+          cp head/tests/screenshots/{capture.sh,capture.spec.ts,routes.ts} base/tests/screenshots/
+          cp head/playwright.screenshots.config.ts base/
+          bash head/tests/screenshots/capture.sh "$GITHUB_WORKSPACE/base" "$GITHUB_WORKSPACE/before"
+
+      - name: Compare
+        working-directory: head
+        run: >-
+          npx tsx tests/screenshots/compare.ts "$GITHUB_WORKSPACE/before" "$GITHUB_WORKSPACE/after"
+          "$GITHUB_WORKSPACE/out" "$GITHUB_REPOSITORY" "${{ github.event.number }}" "${{ github.event.pull_request.head.sha }}"
+
+      - name: Push the images to the screenshots branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          dir="pr-${{ github.event.number }}"
+          url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git clone --quiet --depth 1 --branch screenshots "$url" shots 2>/dev/null || {
+            git init --quiet shots && git -C shots checkout --quiet --orphan screenshots
+            git -C shots remote add origin "$url"
+          }
+          cd shots
+          rm -rf "$dir" && mkdir "$dir"
+          cp ../out/*.png "$dir"/ 2>/dev/null || true
+          git add -A
+          git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com \
+            commit --quiet --allow-empty -m "Screenshots for #${{ github.event.number }}"
+          for attempt in 1 2 3; do
+            git push --quiet origin HEAD:screenshots && exit 0
+            git pull --quiet --rebase origin screenshots
+          done
+          exit 1
+
+      - name: Post the comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr="${{ github.event.number }}"
+          id=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${pr}/comments" --paginate \
+            --jq '[.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- screenshots -->")))][0].id // empty' | head -n1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${id}" -F body=@out/comment.md
+          else
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/issues/${pr}/comments" -F body=@out/comment.md
+          fi

@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:integration": "vitest run --config vitest.integration.config.ts",
-    "test:e2e": "bash scripts/e2e.sh"
+    "test:e2e": "bash scripts/e2e.sh",
+    "screenshots": "playwright test --config playwright.screenshots.config.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
@@ -66,6 +67,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/node": "^20.19.27",
     "@types/nodemailer": "^8.0.1",
+    "@types/pngjs": "^6.0.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^4.1.10",
@@ -74,6 +76,8 @@
     "eslint": "^9.39.2",
     "eslint-config-next": "16.0.10",
     "eslint-config-prettier": "^10.1.8",
+    "pixelmatch": "^8.0.0",
+    "pngjs": "^7.0.0",
     "prisma": "^7.9.1",
     "react-email": "^6.9.2",
     "tailwindcss": "^4",

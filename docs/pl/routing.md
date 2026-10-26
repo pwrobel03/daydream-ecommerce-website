@@ -33,12 +33,13 @@ Logika biznesowa znajduje się w `@/actions`, podzielona na foldery domenowe.
 | `inventory.ts`   | `getInventoryProducts`, `upsertProduct`, `deleteProduct`     |
 | `categories.ts`  | `createCategory`, `getCategories`, `deleteCategory`          |
 | `ingredients.ts` | `upsertIngredient`, `deleteIngredient`                       |
-| `orders.ts`      | `getAdminOrders`, `updateOrderStatus`                        |
+| `orders.ts`      | `updateOrderStatus`                                          |
 | `reviews.ts`     | `getVoices`, `deleteVoice`                                   |
 
 Każdy eksport w tej domenie wywołuje `requireAdmin()` z `@/lib/guards`, które rzuca
 wyjątek, gdy rola w sesji nie jest `ADMIN`. Guard rzuca, zamiast zwracać błąd — dzięki
-temu pominięcie wyniku w miejscu wywołania nie przepuszcza żądania dalej.
+temu pominięcie wyniku w miejscu wywołania nie przepuszcza żądania dalej. Listę zamówień dla
+admina, `getAdminOrders`, znajdziesz w `@/lib/db-orders`.
 
 ### 🔐 Domena autoryzacji (`@/actions/auth/`)
 

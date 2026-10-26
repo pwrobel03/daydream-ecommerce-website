@@ -43,6 +43,7 @@
     "retry": "Try again"
   },
   "errors": {
+    "orderStatusConflict": "This order status cannot be changed to that value.",
     "demoReadOnly": "This is a read-only demo account. Changes are disabled.",
     "mustBeSignedIn": "You must be signed in to continue.",
     "invalidCart": "Your cart contains invalid items.",
@@ -161,6 +162,7 @@
       "recent": "Recent Orders",
       "deliveryAddress": "Delivery address",
       "noAddress": "No address provided",
+      "statusChangeFailed": "Could not change the order status.",
       "statusLabel": "Status",
       "customer": "Customer {tag}"
     },

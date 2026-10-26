@@ -11,7 +11,7 @@ Kolumna **Kiedy** mówi, kiedy wartość jest czytana. *Runtime* oznacza odczyt 
 lub serwera deweloperskiego; wartość można zmienić bez przebudowy obrazu. *Build* oznacza odczyt przez
 `next build` i `prisma generate`. `lib/env.ts` waliduje każdy klucz z tabeli Aplikacja podczas `next build`, więc
 `Dockerfile` ustawia wartość zastępczą dla każdego, który nie ma bezpiecznej wartości domyślnej. Nie są
-one używane w runtime, z jednym wyjątkiem: `NEXT_PUBLIC_APP_URL` trafia też do wyniku builda (zobacz jego wiersz).
+one używane w runtime.
 
 ## Zasady
 
@@ -55,7 +55,7 @@ one używane w runtime, z jednym wyjątkiem: `NEXT_PUBLIC_APP_URL` trafia też d
 | `PRIVACY_CONTROLLER_NAME` | tak | niepusty ciąg | `Jan Kowalski` | brak | Administrator danych, czyli właściciel wdrożenia. Widoczny na `/privacy`. | runtime |
 | `PRIVACY_CONTACT_EMAIL` | tak | adres e-mail | `privacy@example.com` | brak | Skrzynka, którą czyta właściciel. Widoczna na `/privacy`. | runtime |
 | `PRIVACY_EMAIL_PROVIDER` | tak | niepusty ciąg | `Example SMTP Provider` | brak | Nazwa dostawcy SMTP, który wysyła pocztę. Widoczna na `/privacy`. | runtime |
-| `NEXT_PUBLIC_APP_URL` | tak | URL | `http://localhost:3000` | brak | Publiczny adres aplikacji. Czytany przy każdym żądaniu w przekierowaniach Stripe i linkach w mailach. Trafia też do builda: `robots.txt` (linia sitemap), mapa witryny i metadane stron (`og:url`, bezwzględne adresy obrazów OG) są prerenderowane przez `next build`, więc obraz trzeba zbudować z prawdziwym publicznym adresem; późniejsza zmiana i restart tego nie naprawią. Zobacz zasady. | build **i** runtime |
+| `NEXT_PUBLIC_APP_URL` | tak | URL | `http://localhost:3000` | brak | Publiczny adres aplikacji. Czytany przy każdym żądaniu: przekierowania Stripe, linki w mailach, `robots.txt`, mapa witryny i metadane stron (`og:url`, bezwzględne adresy obrazów OG). Zmień go i zrestartuj kontener; przebudowa niepotrzebna. | runtime |
 | `NODE_ENV` | nie | `development`, `test` lub `production` | `production` | `development` | Ustawia `next dev`, `next build` i `Dockerfile` (`production`). Nie ustawiaj ręcznie. | runtime |
 
 ## Docker i compose

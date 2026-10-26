@@ -167,6 +167,10 @@ docker compose --env-file .env.docker \
   -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
+Pełne kroki (budowa obrazów, `.env.docker`, migracje, prywatny admin, reverse proxy
+i Cloudflare, konta zewnętrzne, aktualizacja) opisuje
+[instrukcja wdrożenia](docs/pl/deployment.md) ([English](docs/en/deployment.md)).
+
 ---
 
 ## 🚧 Status projektu

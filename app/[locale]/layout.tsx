@@ -3,6 +3,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { HeaderSkeleton } from "@/components/skeletons";
 import type { Metadata } from "next";
 import { env } from "@/lib/env";
@@ -25,32 +26,37 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  // metadataBase sprawia, że względne URL-e w Open Graph rozwijają się do
-  // pełnych adresów — bez tego podgląd linku nie znajdzie obrazka.
-  metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
-  title: {
-    default: "Daydream — handcrafted granola & breakfast bars",
-    // Podstrony podają samą nazwę, szablon dokłada markę.
-    template: "%s | Daydream",
-  },
-  description:
-    "Small-batch granola, muesli and breakfast bars. Handcrafted from whole ingredients, shipped fresh.",
-  openGraph: {
-    type: "website",
-    siteName: "Daydream",
-    title: "Daydream — handcrafted granola & breakfast bars",
+export async function generateMetadata(): Promise<Metadata> {
+  // Adres z env ma być z chwili żądania, nie z buildu.
+  await connection();
+  const appUrl = env.NEXT_PUBLIC_APP_URL;
+  return {
+    // metadataBase sprawia, że względne URL-e w Open Graph rozwijają się do
+    // pełnych adresów — bez tego podgląd linku nie znajdzie obrazka.
+    metadataBase: new URL(appUrl),
+    title: {
+      default: "Daydream — handcrafted granola & breakfast bars",
+      // Podstrony podają samą nazwę, szablon dokłada markę.
+      template: "%s | Daydream",
+    },
     description:
       "Small-batch granola, muesli and breakfast bars. Handcrafted from whole ingredients, shipped fresh.",
-    url: env.NEXT_PUBLIC_APP_URL,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Daydream — handcrafted granola & breakfast bars",
-    description:
-      "Small-batch granola, muesli and breakfast bars. Handcrafted from whole ingredients, shipped fresh.",
-  },
-};
+    openGraph: {
+      type: "website",
+      siteName: "Daydream",
+      title: "Daydream — handcrafted granola & breakfast bars",
+      description:
+        "Small-batch granola, muesli and breakfast bars. Handcrafted from whole ingredients, shipped fresh.",
+      url: appUrl,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Daydream — handcrafted granola & breakfast bars",
+      description:
+        "Small-batch granola, muesli and breakfast bars. Handcrafted from whole ingredients, shipped fresh.",
+    },
+  };
+}
 
 // SessionProvider nie dostaje sesji z serwera i dociąga ją sam po stronie
 // klienta. Odczyt sesji w root layoucie blokowałby prerenderowanie każdej trasy
@@ -85,27 +91,31 @@ export default async function RootLayout({
 
   return (
     <SessionProvider>
-      <html lang={locale} suppressHydrationWarning data-scrool-behavior="smooth">
+      <html
+        lang={locale}
+        suppressHydrationWarning
+        data-scrool-behavior="smooth"
+      >
         {/* Dodajemy min-h-screen do body, aby tło zawsze wypełniało ekran */}
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         >
           <NextIntlClientProvider messages={messages}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Toaster />
-            <DemoNotice />
-            <Suspense fallback={<HeaderSkeleton />}>
-              <Header />
-            </Suspense>
-            {/* Owijamy children w tag main, aby poprawnie zarządzać przestrzenią */}
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </ThemeProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Toaster />
+              <DemoNotice />
+              <Suspense fallback={<HeaderSkeleton />}>
+                <Header />
+              </Suspense>
+              {/* Owijamy children w tag main, aby poprawnie zarządzać przestrzenią */}
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </ThemeProvider>
           </NextIntlClientProvider>
         </body>
       </html>

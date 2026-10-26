@@ -16,8 +16,10 @@ vi.mock("@/lib/mail", () => ({
   sendPasswordResetEmail: async () => true,
 }));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
+vi.mock("@/lib/turnstile", () => ({ verifyTurnstile: async () => true }));
 const currentUser = vi.hoisted(() => ({ value: null as { id: string; email: string; isOAuth: boolean } | null }));
 vi.mock("@/lib/auth", () => ({ getCurrentUser: async () => currentUser.value }));
+vi.mock("@/lib/session", () => ({ getSession: async () => (currentUser.value ? { user: { id: currentUser.value.id, role: "USER" } } : null) }));
 vi.mock("@/lib/rate-limit", () => ({
   getClientIp: async () => "127.0.0.1",
   rateLimit: async () => ({ allowed: true }),
@@ -46,13 +48,13 @@ afterAll(async () => {
 
 describe("e-mail case", () => {
   it("registers Mixed@Example.com and finds, resets and verifies it as mixed@example.com", async () => {
-    expectOk(await register({ email: "Mixed@Example.com", password: "password-1", name: "Mixed" }));
+    expectOk(await register({ email: "Mixed@Example.com", password: "password-1", name: "Mixed", turnstileToken: "token" }));
 
     const user = await getUserByEmail("mixed@example.com");
     expect(user?.email).toBe("mixed@example.com");
     expect((await getUserByEmail("MIXED@example.com"))?.id).toBe(user?.id);
 
-    expectOk(await resetPassword({ email: "mixed@example.com" }));
+    expectOk(await resetPassword({ email: "mixed@example.com", turnstileToken: "token" }));
     expect(await db.passwordResetToken.count({ where: { email: "mixed@example.com" } })).toBe(1);
 
     const verification = await db.verificationToken.findFirstOrThrow({ where: { email: "mixed@example.com" } });
@@ -61,14 +63,14 @@ describe("e-mail case", () => {
   });
 
   it("registering a second casing is refused as a duplicate", async () => {
-    expectOk(await register({ email: "Mixed@Example.com", password: "password-1", name: "Mixed" }));
-    const second = await register({ email: "mixed@example.com", password: "password-1", name: "Mixed" });
+    expectOk(await register({ email: "Mixed@Example.com", password: "password-1", name: "Mixed", turnstileToken: "token" }));
+    const second = await register({ email: "mixed@example.com", password: "password-1", name: "Mixed", turnstileToken: "token" });
     expect(second.ok).toBe(false);
     expect(await db.user.count()).toBe(1);
   });
 
   it("settings stores a changed e-mail lower-cased", async () => {
-    expectOk(await register({ email: "old@example.com", password: "password-1", name: "Old" }));
+    expectOk(await register({ email: "old@example.com", password: "password-1", name: "Old", turnstileToken: "token" }));
     const user = await db.user.findUniqueOrThrow({ where: { email: "old@example.com" } });
     currentUser.value = { id: user.id, email: user.email!, isOAuth: false };
 

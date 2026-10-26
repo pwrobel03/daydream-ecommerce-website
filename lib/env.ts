@@ -63,6 +63,12 @@ const EnvSchema = z.object({
   TURNSTILE_SITE_KEY: z.string().min(1),
   TURNSTILE_SECRET_KEY: z.string().min(1),
 
+  // Strona /privacy (ADR 0013): dane administratora i dostawcy poczty wpisuje
+  // właściciel przy wdrożeniu, bez przebudowy obrazu.
+  PRIVACY_CONTROLLER_NAME: z.string().min(1),
+  PRIVACY_CONTACT_EMAIL: z.string().email(),
+  PRIVACY_EMAIL_PROVIDER: z.string().min(1),
+
   // Publiczne
   NEXT_PUBLIC_APP_URL: z.string().url({
     message: "NEXT_PUBLIC_APP_URL musi być pełnym URL-em, np. http://localhost:3000"

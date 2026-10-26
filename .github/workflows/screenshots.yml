@@ -89,7 +89,9 @@ jobs:
         run: bash head/tests/screenshots/capture.sh "$GITHUB_WORKSPACE/head" "$GITHUB_WORKSPACE/after"
       - name: Capture the base branch
         run: |
-          cp -r head/tests/screenshots base/tests/
+          # Not compare.ts: it needs pixelmatch, which the base tree does not have, and `next build` typechecks it.
+          mkdir -p base/tests/screenshots
+          cp head/tests/screenshots/{capture.sh,capture.spec.ts,routes.ts} base/tests/screenshots/
           cp head/playwright.screenshots.config.ts base/
           bash head/tests/screenshots/capture.sh "$GITHUB_WORKSPACE/base" "$GITHUB_WORKSPACE/before"
 

@@ -9,8 +9,9 @@ message naming each bad key. Templates: [`.env.example`](../../.env.example) (de
 
 **When** means when the value is read. *Runtime* values are read when the container or the dev server
 starts and can change without rebuilding the image. *Build* values are read by `next build` and
-`prisma generate`; the `Dockerfile` sets placeholders for them so the build passes, and they are never
-used at runtime.
+`prisma generate`. `lib/env.ts` validates every key in the Application table during `next build`, so the
+`Dockerfile` sets a placeholder for each one that has no safe default. Those placeholders are not used at
+runtime, with one exception: `NEXT_PUBLIC_APP_URL` is also baked into the build output (see its row).
 
 ## Rules
 
@@ -30,15 +31,15 @@ used at runtime.
 
 | Variable | Required | Format | Example | Default | Where it comes from | When |
 | --- | --- | --- | --- | --- | --- | --- |
-| `DATABASE_URL` | yes | PostgreSQL URL | `postgresql://user:password@localhost:5432/daydream` | none | Your PostgreSQL instance. Compose sets it for `app` and `migrate`. | runtime; build (placeholder, needed by `prisma generate`) |
+| `DATABASE_URL` | yes | PostgreSQL URL | `postgresql://user:password@localhost:5432/daydream` | none | Your PostgreSQL instance. Compose sets it for `app` and `migrate`. | runtime; build (needed by `prisma generate`) |
 | `REDIS_URL` | yes | URL | `redis://localhost:6379` | none | Your Redis instance. Compose sets it to the `redis` service. | runtime |
 | `AUTH_SECRET` | yes | non-empty string | `k3J…` (32 random bytes, base64) | none | Generate with `npx auth secret`. | runtime |
 | `AUTH_URL` | yes in practice | URL | `http://localhost:3000` | none | The public URL of the app. Read by Auth.js, not by `lib/env.ts`. See the rules. | runtime |
 | `AUTH_TRUST_HOST` | when behind a proxy | `true` | `true` | none | Set to `true` for Docker, nginx or any host other than localhost. Read by Auth.js. | runtime |
 | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | optional, as a pair | non-empty strings | `123-abc.apps.googleusercontent.com` | none | Google Cloud Console → APIs & Services → Credentials → OAuth client ID. | runtime |
 | `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET` | optional, as a pair | non-empty strings | `Iv1.abc123` | none | GitHub → Settings → Developer settings → OAuth Apps. | runtime |
-| `STRIPE_SECRET_KEY` | yes | `sk_test_…` or `rk_test_…` | `sk_test_51Abc…` | none | Stripe test dashboard → Developers → API keys → secret key. | runtime; build (placeholder) |
-| `STRIPE_WEBHOOK_SECRET` | yes | `whsec_…` | `whsec_abc123…` | none | Locally: `stripe listen --forward-to localhost:3000/api/webhook/stripe` prints it. Deployed: Stripe test dashboard → Developers → Webhooks → endpoint → signing secret. | runtime; build (placeholder) |
+| `STRIPE_SECRET_KEY` | yes | `sk_test_…` or `rk_test_…` | `sk_test_51Abc…` | none | Stripe test dashboard → Developers → API keys → secret key. | runtime |
+| `STRIPE_WEBHOOK_SECRET` | yes | `whsec_…` | `whsec_abc123…` | none | Locally: `stripe listen --forward-to localhost:3000/api/webhook/stripe` prints it. Deployed: Stripe test dashboard → Developers → Webhooks → endpoint → signing secret. | runtime |
 | `SMTP_HOST` | yes | host name | `localhost` | none | Your SMTP server; Mailpit in the demo. Compose sets it to `mailpit`. | runtime |
 | `SMTP_PORT` | no | positive integer | `1025` | `1025` | Your SMTP server. Compose sets it to `1025`. | runtime |
 | `SMTP_SECURE` | no | `true` or `false` | `false` | `false` | `true` for implicit TLS (usually port 465). | runtime |
@@ -47,21 +48,21 @@ used at runtime.
 | `MAIL_DAILY_LIMIT` | no | positive integer | `50` | `50` | Your choice. Hard cap on e-mails per day (ADR 0012). | runtime |
 | `MAIL_HOURLY_LIMIT_PER_ADDRESS` | no | positive integer | `3` | `3` | Your choice. Cap per recipient per hour. | runtime |
 | `MAIL_HOURLY_LIMIT_PER_IP` | no | positive integer | `3` | `3` | Your choice. Cap per client IP per hour. | runtime |
-| `UPLOAD_DIR` | yes | path outside `public/` | `./storage/uploads` | none | A directory you mount as a volume. Compose sets `/data/uploads`. | runtime; build (placeholder) |
+| `UPLOAD_DIR` | yes | path outside `public/` | `./storage/uploads` | none | A directory you mount as a volume. Compose sets `/data/uploads`. | runtime |
 | `CRON_SECRET` | yes | string, 16 characters or more | `change_me_to_a_long_random_string` | none | Generate, for example with `openssl rand -base64 32`. The `cron` service sends it as a bearer token. | runtime |
 | `TURNSTILE_SITE_KEY` | yes | non-empty string | `1x00000000000000000000AA` | none | Cloudflare dashboard → Turnstile → widget → site key. Locally use the test key. | runtime |
 | `TURNSTILE_SECRET_KEY` | yes | non-empty string | `1x0000000000000000000000000000000AA` | none | Cloudflare dashboard → Turnstile → widget → secret key. Locally use the test key. | runtime |
 | `PRIVACY_CONTROLLER_NAME` | yes | non-empty string | `Jan Kowalski` | none | The data controller: the owner of the deployment. Shown on `/privacy`. | runtime |
 | `PRIVACY_CONTACT_EMAIL` | yes | e-mail address | `privacy@example.com` | none | A mailbox the owner reads. Shown on `/privacy`. | runtime |
 | `PRIVACY_EMAIL_PROVIDER` | yes | non-empty string | `Example SMTP Provider` | none | The name of the SMTP provider that sends the mail. Shown on `/privacy`. | runtime |
-| `NEXT_PUBLIC_APP_URL` | yes | URL | `http://localhost:3000` | none | The public URL of the app. Used for Stripe redirects, sitemap and links in e-mails. See the rules. | runtime; build (placeholder) |
+| `NEXT_PUBLIC_APP_URL` | yes | URL | `http://localhost:3000` | none | The public URL of the app. Read per request for Stripe redirects and links in e-mails. Also baked in at build: `robots.txt` (sitemap line), the sitemap and the page metadata (`og:url`, absolute OG image URLs) are prerendered by `next build`, so the image must be built with the real public URL; changing it later and restarting does not fix them. See the rules. | build **and** runtime |
 | `NODE_ENV` | no | `development`, `test` or `production` | `production` | `development` | Set by `next dev`, `next build` and the `Dockerfile` (`production`). Do not set it by hand. | runtime |
 
 ## Docker and compose
 
 | Variable | Used by | Required | Format | Example | Default | Where it comes from | When |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `RUN_SEED` | `migrate` (`docker/migrate.sh`) | no | `true` or `false` | `true` | unset (no seed) | `.env.docker`. `true` loads the demo catalogue when the catalogue is empty. The production overlay sets `false` for `app`. | runtime |
+| `RUN_SEED` | `migrate` (`docker/migrate.sh`) | no | `true` or `false` | `true` | unset (no seed) | `.env.docker`. `true` loads the demo catalogue when the catalogue is empty. Only `migrate` reads it; the production overlay sets `false` for `app`, which ignores it, so production still seeds an empty catalogue while `.env.docker` has `true` (the template default). Set `RUN_SEED=false` in `.env.docker` for production. | runtime |
 | `DOMAIN` | `nginx` in `docker-compose.prod.yml` | production only | host name | `daydream.example.com` | none | The public domain pointing at the server. Compose stops when it is unset. | runtime |
 | `CRON_SECRET` | `cron` in `docker-compose.prod.yml` | production only | same as above | | none | Must equal the `CRON_SECRET` of the app; read from `.env.docker`. | runtime |
 | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | `postgres` | set in the compose files | strings | `daydream` | `daydream` | Written in `docker-compose.yml` (`daydream_e2e` database in `docker-compose.test.yml`). They must match `DATABASE_URL`. | runtime |

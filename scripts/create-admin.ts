@@ -9,19 +9,20 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcrypt";
 import { z } from "zod";
+import { normalizeEmail } from "../lib/email";
 import { PrismaClient } from "../lib/generated/prisma/client";
 
 const MIN_PASSWORD_LENGTH = 12;
 
 const InputSchema = z.object({
-  email: z.string().email("A valid e-mail is required"),
+  email: z.string().email("A valid e-mail is required").transform(normalizeEmail),
   name: z.string().min(1).optional(),
   password: z.string().min(MIN_PASSWORD_LENGTH, `The password needs at least ${MIN_PASSWORD_LENGTH} characters`),
 });
 
 type Input = z.input<typeof InputSchema>;
 
-// The e-mail is stored exactly as given: the login looks users up by the typed value, unchanged.
+// The e-mail is lower-cased: the login looks users up by the normalised address.
 export function parseInput(input: Input) {
   return InputSchema.parse(input);
 }

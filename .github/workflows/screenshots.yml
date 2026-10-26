@@ -83,10 +83,6 @@ jobs:
           cache-dependency-path: |
             head/package-lock.json
             base/package-lock.json
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-        working-directory: head
-
       # Both trees are installed, migrated, seeded, built and captured the same way,
       # with the capture code from the PR head (the base branch may not have it yet).
       - name: Capture the PR head

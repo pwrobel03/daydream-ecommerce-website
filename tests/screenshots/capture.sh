@@ -8,6 +8,8 @@ tree="$1"; out="$2"
 cd "$tree"
 
 npm ci --no-audit --no-fund
+# After npm ci: the browser build must match this tree's Playwright version.
+npx playwright install --with-deps chromium
 npx prisma generate
 # Start from an empty schema: the base branch may have different migrations.
 echo "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" | npx prisma db execute --stdin

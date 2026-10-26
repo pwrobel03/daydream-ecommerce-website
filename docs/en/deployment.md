@@ -3,7 +3,7 @@
 How the owner and the server administrator deploy and run the demo with Docker Compose
 ([ADR 0007](../adr/0007-deployment-from-a-docker-image.md)). Polish version:
 [`docs/pl/deployment.md`](../pl/deployment.md). Every variable is described in the
-[environment reference](environment.md). Backups and restore are covered separately (ADR 0014).
+[environment reference](environment.md). Backups and restore are covered in [`backups.md`](backups.md) (ADR 0014).
 
 Images are built on the server (or on the owner's machine); nothing is pushed to a registry. The stack
 is `docker-compose.yml` plus the production overlay `docker-compose.prod.yml`: PostgreSQL, Redis, the

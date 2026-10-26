@@ -34,39 +34,9 @@ Skopiuj `.env.example` do `.env` i uzupełnij wartości. Każdy klucz jest walid
 starcie przez `lib/env.ts`, więc brakująca lub zniekształcona wartość zatrzymuje aplikację
 z komunikatem wskazującym konkretną zmienną, zamiast wywalać się później w runtime.
 
-```env
-# Baza danych
-DATABASE_URL="postgresql://user:password@localhost:5432/daydream"
-
-# Auth.js — sekret wygenerujesz przez: npx auth secret
-AUTH_SECRET="your_auth_secret_here"
-AUTH_URL="http://localhost:3000"
-AUTH_TRUST_HOST="true"
-
-# Dostawcy OAuth.
-# Auth.js v5 wykrywa te zmienne po nazwie — klucze nie są przekazywane jawnie
-# w auth.config.ts, więc pisownia AUTH_<PROVIDER>_ID / _SECRET jest wymagana.
-AUTH_GOOGLE_ID="your_google_client_id"
-AUTH_GOOGLE_SECRET="your_google_client_secret"
-AUTH_GITHUB_ID="your_github_client_id"
-AUTH_GITHUB_SECRET="your_github_client_secret"
-
-# Stripe
-STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
-
-# Resend
-RESEND_API_KEY="re_..."
-MAILING_ACCOUNT_PROVIDER="onboarding@resend.dev"
-MAILING_ACCOUNT="twoja_zweryfikowana_skrzynka@example.com"
-
-# Aplikacja
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-```
-
-> **Uwaga o mailach.** Dopóki nie zweryfikujesz domeny nadawcy w Resend, oba maile
-> transakcyjne trafiają na adres z `MAILING_ACCOUNT`, niezależnie od odbiorcy. Ustaw tam
-> skrzynkę, do której masz dostęp — inaczej linki weryfikacyjne będą nieosiągalne.
+Każda zmienna, jej format, przykład, wartość domyślna i źródło wartości są w
+[opisie zmiennych środowiskowych](./environment.md). Klucze Stripe muszą być testowe, a `AUTH_URL`
+i `NEXT_PUBLIC_APP_URL` muszą zgadzać się z publicznym adresem; opis podaje te zasady.
 
 ---
 

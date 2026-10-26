@@ -178,15 +178,19 @@ docker compose --env-file .env.docker \
   -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
+The full steps (building the images, `.env.docker`, migrations, the private admin, the reverse proxy
+and Cloudflare, external accounts, updating) are in the
+[deployment guide](docs/en/deployment.md) ([Polski](docs/pl/deployment.md)).
+
 ---
 
 ## 🚧 Project Status
 
-Feature-complete as an application, with known gaps in hardening. The payment path has
-open issues (client-supplied price snapshots, no webhook idempotency, no reservation
-expiry), image uploads target the local filesystem so the app does not yet run on
-serverless hosting, and there are no automated tests.
+Feature-complete as an application. The payment path has been checked against Stripe test
+mode: prices and discounts come from the database, stock reservations expire, and webhooks
+are idempotent and verify the paid amount. Stripe runs in test mode only (a live key stops the
+app at startup) and no real money moves: pay with test card `4242 4242 4242 4242`, any future
+expiry, any CVC. Paid test orders put their stock back. Image uploads target the local
+filesystem, so the app does not yet run on serverless hosting.
 
-These are documented rather than hidden: see
-[known limitations](./docs/en/features.md#-known-limitations) and the full analysis and
-roadmap in `markdown/improvement.md`.
+See the [known limitations](./docs/en/features.md#-known-limitations) for what is left.

@@ -33,18 +33,35 @@ Koszyk żyje w całości po stronie klienta i jest uzgadniany z bazą przy zakup
 
 Przepływ obejmuje dwie strony i cztery Server Actions.
 
-1. **`initializeOrder`** — otwiera transakcję, waliduje stan magazynowy każdej pozycji,
-   zdejmuje go i tworzy zamówienie `PENDING` ze snapshotem ceny w `OrderItem`.
+1. **`initializeOrder`** — w jednej transakcji czyta ceny z bazy (kupon aktywnej promocji
+   też jest brany z bazy), rezerwuje towar warunkowym `UPDATE` i tworzy zamówienie
+   `PENDING` ze snapshotem ceny w `OrderItem`. Jedna pozycja ma limit 10 sztuk.
 2. **`finalizeAndPay`** — zapisuje adres dostawy, wiąże go z zamówieniem i profilem
    użytkownika, tworzy sesję Stripe Checkout (ważną 30 minut) i zapisuje
    `stripeSessionId` przy zamówieniu.
 3. **`POST /api/webhook/stripe`** — weryfikuje podpis Stripe, następnie przy
    `checkout.session.completed` oznacza zamówienie jako `PAID`, a przy
    `checkout.session.expired` / `payment_intent.payment_failed` zwraca zarezerwowany
-   towar na stan i anuluje zamówienie.
+   towar na stan i anuluje zamówienie. Id każdego zdarzenia jest zapisywane, więc
+   ponowne dostarczenie jest ignorowane; `amount_total` musi zgadzać się z zamówieniem,
+   inaczej zostaje nieopłacone, a płatność w starszej sesji zamówienia jest przyjmowana; zdarzenia trybu live i zdarzenia dla
+   zamówień, których już nie ma, są kwitowane 200 i ignorowane. Opłacone zamówienie
+   testowe oddaje towar na stan, bo nic nie jest wysyłane. Odrzucona karta anuluje
+   zamówienie, a udana ponowna próba w tej samej sesji Checkout i tak kończy się
+   statusem `PAID` przy niezmienionym stanie magazynu. Anuluje je tylko wygaśnięcie bieżącej
+   sesji zamówienia; wygaśnięcie starszej sesji jest pomijane.
 4. **`recreateStripeSession`** — tworzy nową sesję płatności dla nieopłaconego zamówienia
    `PENDING` z poziomu `/dashboard/orders/[orderId]`, żeby przerwaną płatność dało się
-   dokończyć.
+   dokończyć. Pobiera tę samą kwotę co pierwsze podejście, z rabatem.
+
+Zamówienia nieopłacone w ciągu 45 minut są anulowane, a towar wraca na stan przez
+`POST /api/cron/release-reservations`; ma to samo warunkowe `UPDATE` co webhook, więc towar
+wraca raz, także gdy oba trafią w to samo zamówienie.
+
+**Tylko tryb testowy.** Klucze Stripe muszą być testowe (klucz live zatrzymuje aplikację
+przy starcie), sesje i zdarzenia live są odrzucane, a ekrany zakupu i płatności oraz strona
+Stripe pokazują kartę testową `4242 4242 4242 4242` (dowolna przyszła data, dowolny CVC).
+Karta odrzucana to `4000 0000 0000 0002`. Patrz [ADR 0005](../adr/0005-stripe-test-mode-only.md).
 
 ---
 
@@ -81,17 +98,7 @@ Przepływ obejmuje dwie strony i cztery Server Actions.
 
 ## ⚠️ Znane ograniczenia
 
-Spisane celowo — to realne luki w obecnej implementacji, prowadzone
-w `markdown/improvement.md`.
-
 | Obszar | Ograniczenie |
 | :--- | :--- |
-| **Ceny zamówienia** | `initializeOrder` bierze snapshot ceny do `OrderItem` z danych przysłanych przez klienta, a nie z bazy — przez co pozycje sesji Stripe powstają z wejścia kontrolowanego przez klienta. |
-| **Transakcja Stripe** | Sesja Checkout jest tworzona wewnątrz interaktywnej transakcji Prismy, co grozi rollbackiem zapisu po utworzeniu sesji. |
-| **Webhook** | Brak klucza idempotencji, więc ponowienie zdarzenia `checkout.session.expired` przez Stripe może zwrócić towar na stan wielokrotnie. Zapłacona kwota nie jest porównywana z sumą zamówienia. |
-| **Rezerwacje stanu** | Stan magazynowy jest zdejmowany w `initializeOrder`, ale nic go nie zwalnia, jeśli klient porzuci zakup przed utworzeniem sesji Stripe. |
-| **Przechowywanie obrazów** | Wgrywane pliki trafiają do `public/` na lokalnym dysku. Działa to lokalnie i na VPS-ie z trwałym dyskiem, ale nie na hostingu serverless, gdzie system plików jest tylko do odczytu i efemeryczny. |
-| **Maile transakcyjne** | `sendVerificationEmail` i `sendPasswordResetEmail` ignorują argument `to` i wysyłają na stały adres z `MAILING_ACCOUNT` — obejście sandboxa Resend, które zdejmuje dopiero zweryfikowana domena nadawcy. |
-| **Walidacja** | Zod pokrywa formularze autoryzacji. `initializeOrder`, `finalizeAndPay` i `upsertProduct` wciąż przyjmują niewalidowane wejście. |
-| **Rate limiting** | Brak na akcjach autoryzacji. |
-| **Testy** | Brak. |
+| **Przechowywanie obrazów** | Wgrywane pliki trafiają do `UPLOAD_DIR` na lokalnym dysku. Działa to lokalnie i na hoście z trwałym dyskiem, ale nie na hostingu serverless, gdzie system plików jest tylko do odczytu i efemeryczny. |
+| **Ponawiane sesje płatności** | `recreateStripeSession` podmienia `stripeSessionId`. Płatność dokończona w starszej sesji nie zostanie dopasowana do zamówienia i zostawi je nieopłacone; zdarzenie wygaśnięcia starszej sesji może nadal anulować zamówienie. |

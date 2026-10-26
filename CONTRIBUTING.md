@@ -27,7 +27,7 @@ PORT=3100 npm run dev
 ```
 
 `AUTH_URL` and `NEXT_PUBLIC_APP_URL` in `.env` must use the same port as `PORT`. The full environment
-reference is in [`docs/en/setup.md`](docs/en/setup.md).
+reference is in [`docs/en/environment.md`](docs/en/environment.md).
 
 ## Commands
 

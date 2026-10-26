@@ -268,6 +268,8 @@ model Sale {
 // Rejestr obsłużonych zdarzeń Stripe.
 // Stripe ponawia dostarczenie eventu do 3 dni, a klucz główny na jego id sprawia,
 // że powtórka odbija się na kolizji zamiast wykonać logikę drugi raz.
+// Wiersz powstaje w tej samej transakcji co zmiana zamówienia, więc zapisuje się
+// tylko razem z nią; nieudana obsługa nie zostawia śladu i Stripe może ją ponowić.
 model ProcessedWebhookEvent {
   id          String   @id
   type        String

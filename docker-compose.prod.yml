@@ -17,9 +17,14 @@ services:
     depends_on:
       mailpit: !reset null
     environment:
-      RUN_SEED: "false"
       SMTP_HOST: !reset null
       SMTP_PORT: !reset null
+
+  migrate:
+    # Tylko migrate czyta RUN_SEED; produkcja nigdy nie sieje katalogu demo,
+    # niezależnie od wartości w .env.docker.
+    environment:
+      RUN_SEED: "false"
 
   # Local SMTP catcher: only started with `--profile local`, never in production.
   mailpit:

@@ -62,7 +62,7 @@ runtime.
 
 | Variable | Used by | Required | Format | Example | Default | Where it comes from | When |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `RUN_SEED` | `migrate` (`docker/migrate.sh`) | no | `true` or `false` | `true` | unset (no seed) | `.env.docker`. `true` loads the demo catalogue when the catalogue is empty. Only `migrate` reads it; the production overlay sets `false` for `app`, which ignores it, so production still seeds an empty catalogue while `.env.docker` has `true` (the template default). Set `RUN_SEED=false` in `.env.docker` for production. | runtime |
+| `RUN_SEED` | `migrate` (`docker/migrate.sh`) | no | `true` or `false` | `true` | unset (no seed) | `.env.docker`. `true` loads the demo catalogue when the catalogue is empty. Only `migrate` reads it. The production overlay forces `false` for `migrate`, so production never seeds, whatever `.env.docker` says. | runtime |
 | `DOMAIN` | `nginx` in `docker-compose.prod.yml` | production only | host name | `daydream.example.com` | none | The public domain pointing at the server. Compose stops when it is unset. | runtime |
 | `CRON_SECRET` | `cron` in `docker-compose.prod.yml` | production only | same as above | | none | Must equal the `CRON_SECRET` of the app; read from `.env.docker`. | runtime |
 | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | `postgres` | set in the compose files | strings | `daydream` | `daydream` | Written in `docker-compose.yml` (`daydream_e2e` database in `docker-compose.test.yml`). They must match `DATABASE_URL`. | runtime |

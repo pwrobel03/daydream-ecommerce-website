@@ -66,7 +66,7 @@ Ustaw każdą wartość według [opisu zmiennych środowiskowych](environment.md
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | twój dostawca SMTP (krok 11) |
 | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | twój widżet Turnstile, nie testowe klucze, które zawsze przechodzą |
 | `PRIVACY_CONTROLLER_NAME`, `PRIVACY_CONTACT_EMAIL`, `PRIVACY_EMAIL_PROVIDER` | dane właściciela, pokazywane na `/privacy` |
-| `RUN_SEED` | `true` tylko przy pierwszym starcie (krok 6), potem `false` |
+| `RUN_SEED` | zostaw `true`; nakładka produkcyjna wymusza `false` dla `migrate` (seed jednorazowo, krok 6) |
 
 Nakładka nie ustawia `SMTP_HOST` ani `SMTP_PORT`, więc aplikacja bierze wartości z `.env.docker`
 (plik bazowy kieruje je na Mailpita). Nie commituj `.env.docker`.
@@ -152,9 +152,14 @@ nie powiedzie, aplikacja nie wystartuje; przyczynę zobaczysz tak:
 docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml logs migrate
 ```
 
-**Pierwszy seed.** Przy `RUN_SEED=true` w `.env.docker` `migrate` ładuje katalog demonstracyjny, gdy
-katalog produktów jest pusty, a w przeciwnym razie go pomija. Zostaw `true` tylko na pierwszy start,
-potem ustaw `RUN_SEED=false` w `.env.docker`. Seed tworzy demo admina (`demo-admin@example.com`, tylko
+**Pierwszy seed.** Nakładka produkcyjna wymusza `RUN_SEED=false` dla `migrate`, więc `up` nigdy nie sieje.
+Zasiej raz, po pierwszym `up`, jednorazowym uruchomieniem:
+
+```bash
+docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml run --rm -e RUN_SEED=true migrate
+```
+
+Ładuje katalog demonstracyjny, gdy katalog produktów jest pusty, a w przeciwnym razie go pomija. Seed tworzy demo admina (`demo-admin@example.com`, tylko
 do odczytu) i przykładowych klientów; nie tworzy admina z pełnymi prawami.
 
 **Przed wdrożeniem nowych migracji** (każda aktualizacja, która dodaje katalog w `prisma/migrations/`)

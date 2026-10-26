@@ -17,9 +17,13 @@ services:
     depends_on:
       mailpit: !reset null
     environment:
-      RUN_SEED: "false"
       SMTP_HOST: !reset null
       SMTP_PORT: !reset null
+
+  migrate:
+    # Fix: production never seeds; only migrate reads RUN_SEED.
+    environment:
+      RUN_SEED: "false"
 
   # Local SMTP catcher: only started with `--profile local`, never in production.
   mailpit:

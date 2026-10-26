@@ -62,7 +62,7 @@ one używane w runtime.
 
 | Zmienna | Używana przez | Wymagana | Format | Przykład | Domyślnie | Skąd wartość | Kiedy |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `RUN_SEED` | `migrate` (`docker/migrate.sh`) | nie | `true` lub `false` | `true` | brak (bez seeda) | `.env.docker`. `true` ładuje katalog demonstracyjny, gdy katalog produktów jest pusty. Czyta ją tylko `migrate`; nakładka produkcyjna ustawia `false` dla `app`, który ją ignoruje, więc produkcja nadal zasieje pusty katalog, gdy `.env.docker` ma `true` (domyślnie w szablonie). Na produkcji ustaw `RUN_SEED=false` w `.env.docker`. | runtime |
+| `RUN_SEED` | `migrate` (`docker/migrate.sh`) | nie | `true` lub `false` | `true` | brak (bez seeda) | `.env.docker`. `true` ładuje katalog demonstracyjny, gdy katalog produktów jest pusty. Czyta ją tylko `migrate`. Nakładka produkcyjna wymusza `false` dla `migrate`, więc produkcja nigdy nie sieje katalogu, niezależnie od `.env.docker`. | runtime |
 | `DOMAIN` | `nginx` w `docker-compose.prod.yml` | tylko produkcja | nazwa hosta | `daydream.example.com` | brak | Publiczna domena wskazująca na serwer. Compose przerywa pracę, gdy jej brak. | runtime |
 | `CRON_SECRET` | `cron` w `docker-compose.prod.yml` | tylko produkcja | jak wyżej | | brak | Musi być równy `CRON_SECRET` aplikacji; czytany z `.env.docker`. | runtime |
 | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | `postgres` | ustawione w plikach compose | ciągi znaków | `daydream` | `daydream` | Wpisane w `docker-compose.yml` (baza `daydream_e2e` w `docker-compose.test.yml`). Muszą zgadzać się z `DATABASE_URL`. | runtime |

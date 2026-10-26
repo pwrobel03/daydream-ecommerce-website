@@ -65,7 +65,7 @@ Set every value from the [environment reference](environment.md). For production
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM` | your SMTP provider (step 11) |
 | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | your Turnstile widget, not the always-pass test keys |
 | `PRIVACY_CONTROLLER_NAME`, `PRIVACY_CONTACT_EMAIL`, `PRIVACY_EMAIL_PROVIDER` | the owner's details, shown on `/privacy` |
-| `RUN_SEED` | `true` for the first start only (step 6), then `false` |
+| `RUN_SEED` | leave `true`; the production overlay forces `false` for `migrate` (seed once, step 6) |
 
 The overlay does not set `SMTP_HOST` or `SMTP_PORT`, so the app uses the values from `.env.docker`
 (the base file points them at Mailpit). Do not commit `.env.docker`.
@@ -151,9 +151,14 @@ not start if it fails; read the reason with:
 docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml logs migrate
 ```
 
-**The first seed.** With `RUN_SEED=true` in `.env.docker`, `migrate` loads the demo catalogue when the
-catalogue is empty, and skips it otherwise. Leave it `true` for the first start only, then set
-`RUN_SEED=false` in `.env.docker`. The seed creates the demo admin (`demo-admin@example.com`, read-only)
+**The first seed.** The production overlay forces `RUN_SEED=false` for `migrate`, so `up` never seeds.
+Seed once, after the first `up`, with a one-off run:
+
+```bash
+docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.prod.yml run --rm -e RUN_SEED=true migrate
+```
+
+It loads the demo catalogue when the catalogue is empty, and skips it otherwise. The seed creates the demo admin (`demo-admin@example.com`, read-only)
 and sample customers; it creates no full-rights admin.
 
 **Before deploying new migrations** (any update that adds a directory under `prisma/migrations/`),

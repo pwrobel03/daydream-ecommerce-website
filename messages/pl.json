@@ -43,6 +43,7 @@
     "retry": "Spróbuj ponownie"
   },
   "errors": {
+    "orderStatusConflict": "Status tego zamówienia nie może zostać zmieniony na tę wartość.",
     "demoReadOnly": "To konto demo tylko do odczytu. Zmiany są wyłączone.",
     "mustBeSignedIn": "Musisz być zalogowany, aby kontynuować.",
     "invalidCart": "Koszyk zawiera nieprawidłowe pozycje.",
@@ -161,6 +162,7 @@
       "recent": "Ostatnie zamówienia",
       "deliveryAddress": "Adres dostawy",
       "noAddress": "Nie podano adresu",
+      "statusChangeFailed": "Nie udało się zmienić statusu zamówienia.",
       "statusLabel": "Status",
       "customer": "Klient {tag}"
     },

@@ -6,7 +6,9 @@ import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
 import { useState } from "react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { updateOrderStatus } from "@/actions/admin/orders";
+import { nextOrderStatus } from "@/lib/order-transitions";
 import PriceFormatter from "@/components/PriceFormatter";
 import { cn } from "@/lib/utils";
 import {
@@ -32,8 +34,14 @@ export function AdminOrdersList({
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setLoadingId(orderId);
-    await updateOrderStatus(orderId, newStatus as OrderStatus);
-    setLoadingId(null);
+    try {
+      const res = await updateOrderStatus(orderId, newStatus as OrderStatus);
+      if (!res.ok) toast.error(res.message); // the controlled select snaps back to the stored status
+    } catch {
+      toast.error(t("orders.statusChangeFailed"));
+    } finally {
+      setLoadingId(null);
+    }
   };
 
   if (orders.length === 0) {
@@ -199,7 +207,7 @@ export function AdminOrdersList({
 
                   <select
                     value={order.status}
-                    disabled={loadingId === order.id || !!readOnlyReason}
+                    disabled={loadingId === order.id || !!readOnlyReason || !nextOrderStatus(order.status)}
                     title={readOnlyReason}
                     onChange={(e) =>
                       handleStatusChange(order.id, e.target.value)
@@ -220,11 +228,12 @@ export function AdminOrdersList({
                       loadingId === order.id && "opacity-70 cursor-wait"
                     )}
                   >
-                    <option value="PENDING">{t("status.PENDING")}</option>
-                    <option value="PAID">{t("status.PAID")}</option>
-                    <option value="SHIPPED">{t("status.SHIPPED")}</option>
-                    <option value="DELIVERED">{t("status.DELIVERED")}</option>
-                    <option value="CANCELLED">{t("status.CANCELLED")}</option>
+                    <option value={order.status}>{t(`status.${order.status}`)}</option>
+                    {nextOrderStatus(order.status) && (
+                      <option value={nextOrderStatus(order.status)!}>
+                        {t(`status.${nextOrderStatus(order.status)!}`)}
+                      </option>
+                    )}
                   </select>
                 </div>
               </td>

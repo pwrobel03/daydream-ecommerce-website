@@ -28,8 +28,11 @@ import { createReview } from "@/actions/store/reviews";
 // Schemat walidacji
 const formSchema = z.object({
   productId: z.string(),
-  rating: z.number().min(1, "Proszę wybrać ocenę").max(5),
-  content: z.string().min(3, "Twoja historia jest nieco za krótka..."),
+  rating: z.number().int().min(1, "Proszę wybrać ocenę").max(5),
+  content: z
+    .string()
+    .min(3, "Twoja historia jest nieco za krótka...")
+    .max(2000, "Twoja historia jest za długa (maks. 2000 znaków)."),
 });
 
 interface AddReviewFormProps {

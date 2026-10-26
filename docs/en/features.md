@@ -33,17 +33,34 @@ The cart lives entirely on the client and is reconciled with the database at che
 
 The flow spans two pages and four Server Actions.
 
-1. **`initializeOrder`** — opens a transaction, validates stock for every item, decrements
-   it, and creates a `PENDING` order with an `OrderItem` price snapshot.
+1. **`initializeOrder`** — in one transaction reads prices from the database (the active
+   sale's coupon is applied from the database too), reserves stock with a conditional
+   update, and creates a `PENDING` order with an `OrderItem` price snapshot. A line is
+   capped at 10 units.
 2. **`finalizeAndPay`** — saves the delivery address, links it to the order and the user
    profile, creates a Stripe Checkout session (30 minute expiry) and stores
    `stripeSessionId` on the order.
 3. **`POST /api/webhook/stripe`** — verifies the Stripe signature, then on
    `checkout.session.completed` marks the order `PAID`, and on
    `checkout.session.expired` / `payment_intent.payment_failed` returns the reserved stock
-   and cancels the order.
+   and cancels the order. Every event id is recorded, so a re-delivery is ignored;
+   `amount_total` and the session id must match the order, otherwise it stays unpaid;
+   live-mode events and events for orders that no longer exist are acknowledged with 200
+   and ignored. A paid test order puts its stock back, since no goods ship. A declined card
+   cancels the order, and a successful retry in the same Checkout session still ends
+   `PAID` with the stock unchanged.
 4. **`recreateStripeSession`** — issues a fresh payment session for a `PENDING`, unpaid
-   order from `/dashboard/orders/[orderId]`, so an interrupted payment can be resumed.
+   order from `/dashboard/orders/[orderId]`, so an interrupted payment can be resumed. It
+   charges the same total as the first attempt, discount included.
+
+Orders not paid within 45 minutes are cancelled and their stock returned by
+`POST /api/cron/release-reservations`; it shares one conditional update with the webhook, so
+stock comes back once even when both hit the same order.
+
+**Test mode only.** Stripe keys must be test keys (a live key stops the app at startup), live
+sessions and events are refused, and the checkout and payment screens, and the Stripe page,
+show the test card `4242 4242 4242 4242` (any future expiry, any CVC). A declined card
+is `4000 0000 0000 0002`. See [ADR 0005](../adr/0005-stripe-test-mode-only.md).
 
 ---
 
@@ -78,17 +95,7 @@ The flow spans two pages and four Server Actions.
 
 ## ⚠️ Known limitations
 
-Documented deliberately — these are real gaps in the current implementation, tracked in
-`markdown/improvement.md`.
-
 | Area | Limitation |
 | :--- | :--- |
-| **Order pricing** | `initializeOrder` takes the `OrderItem` price snapshot from the client payload rather than the database, so the Stripe line items are derived from client-controlled input. |
-| **Stripe transaction** | The Checkout session is created inside a Prisma interactive transaction, which risks a rollback after the session already exists. |
-| **Webhook** | No idempotency key, so a Stripe retry on `checkout.session.expired` can restock an order more than once. The paid amount is not compared against the order total. |
-| **Stock reservations** | Stock is decremented at `initializeOrder`, but nothing releases it if the customer abandons checkout before a Stripe session is ever created. |
-| **Image storage** | Uploads are written to `public/` on the local filesystem. This works in development and on a VPS with a persistent disk, but not on serverless hosting, where the filesystem is read-only and ephemeral. |
-| **Transactional email** | `sendVerificationEmail` and `sendPasswordResetEmail` ignore their `to` argument and send to the fixed `MAILING_ACCOUNT` address — a workaround for Resend sandbox mode, which requires a verified sending domain to lift. |
-| **Validation** | Zod covers the auth forms. `initializeOrder`, `finalizeAndPay` and `upsertProduct` still accept unvalidated input. |
-| **Rate limiting** | None on the auth actions. |
-| **Tests** | None. |
+| **Image storage** | Uploads are written to `UPLOAD_DIR` on the local filesystem. This works in development and on a host with a persistent disk, but not on serverless hosting, where the filesystem is read-only and ephemeral. |
+| **Retried payment sessions** | `recreateStripeSession` replaces `stripeSessionId`. A payment completed in the older session is not matched to the order and leaves it unpaid; the older session's expiry event can still cancel the order. |

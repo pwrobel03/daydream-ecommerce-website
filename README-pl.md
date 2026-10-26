@@ -171,11 +171,12 @@ docker compose --env-file .env.docker \
 
 ## 🚧 Status projektu
 
-Aplikacja jest kompletna funkcjonalnie, ale ma znane braki w utwardzeniu. Ścieżka
-płatności zawiera otwarte problemy (snapshot ceny pochodzący od klienta, brak idempotencji
-webhooka, brak wygaszania rezerwacji), upload obrazów trafia na lokalny system plików,
-więc aplikacja nie działa jeszcze na hostingu serverless, i nie ma testów automatycznych.
+Aplikacja jest kompletna funkcjonalnie. Ścieżka płatności została sprawdzona ze Stripe
+w trybie testowym: ceny i rabaty pochodzą z bazy, rezerwacje towaru wygasają, a webhooki
+są idempotentne i weryfikują zapłaconą kwotę. Stripe działa wyłącznie w trybie testowym
+(klucz live zatrzymuje aplikację przy starcie) i nie przechodzą prawdziwe pieniądze: płać
+kartą testową `4242 4242 4242 4242`, dowolna przyszła data ważności, dowolny CVC. Opłacone
+zamówienia testowe oddają towar na stan. Upload obrazów trafia na lokalny system plików,
+więc aplikacja nie działa jeszcze na hostingu serverless.
 
-Te braki są udokumentowane, a nie ukryte: patrz
-[znane ograniczenia](./docs/pl/features.md#-znane-ograniczenia) oraz pełna analiza
-i plan rozwoju w `markdown/improvement.md`.
+Co zostało, opisują [znane ograniczenia](./docs/pl/features.md#-znane-ograniczenia).

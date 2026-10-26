@@ -27,7 +27,7 @@ da się jej obejść, a proces płatności rezerwuje towar przed obciążeniem k
 - **Auth.js v5** — kontrola dostępu oparta na rolach, sesje JWT w ciasteczkach HttpOnly.
   Callback `jwt` odczytuje użytkownika przy każdym wywołaniu, więc zmiana roli i usunięcie
   konta działają natychmiast.
-- **Prisma + PostgreSQL** — 12 modeli obejmujących użytkowników, katalog, zamówienia
+- **Prisma + PostgreSQL** — 15 modeli obejmujących użytkowników, katalog, zamówienia
   i promocje, z rezerwacją stanu magazynowego wewnątrz transakcji.
 - **Walidacja Zod** — formularze autoryzacji oraz, od czasu `lib/env.ts`, samo środowisko:
   brakujący lub zniekształcony klucz zatrzymuje aplikację przy starcie, zamiast objawiać
@@ -84,6 +84,9 @@ da się jej obejść, a proces płatności rezerwuje towar przed obciążeniem k
    seed bazy, przekierowanie webhooków Stripe.
 3. [**Funkcjonalności i logika**](./docs/pl/features.md) — przepływ zakupu, system opinii,
    model bezpieczeństwa i lista znanych ograniczeń.
+4. [**Środowisko**](./docs/pl/environment.md) — wszystkie zmienne czytane przez aplikację.
+5. [**Wdrożenie**](./docs/pl/deployment.md) — uruchomienie dema przez Docker Compose.
+6. [**Kopie zapasowe i odtwarzanie**](./docs/pl/backups.md) — kopia i odtwarzanie bazy oraz wgranych plików.
 
 ---
 
@@ -97,8 +100,8 @@ npm install
 cp .env.example .env      # następnie uzupełnij wartości
 
 npx prisma generate
-npx prisma db push
-npx prisma db seed        # opcjonalne, ale bez tego sklep jest pusty
+npx prisma migrate deploy
+npx tsx --env-file=.env prisma/seed.ts  # opcjonalne, ale bez tego sklep jest pusty
 
 npm run dev
 ```

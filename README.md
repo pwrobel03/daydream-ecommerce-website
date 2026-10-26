@@ -26,7 +26,7 @@ bypassed, and the payment flow reserves stock before charging.
 - **Auth.js v5** — role-based access control with JWT sessions in HttpOnly cookies.
   The `jwt` callback re-reads the user on every call, so role changes and account
   deletions take effect immediately.
-- **Prisma + PostgreSQL** — 12 models covering users, catalog, orders and promotions,
+- **Prisma + PostgreSQL** — 15 models covering users, catalog, orders and promotions,
   with stock reservation handled inside a transaction.
 - **Zod validation** — auth forms and, since `lib/env.ts`, the environment itself:
   a missing or malformed key stops the app at startup instead of surfacing as `undefined`
@@ -81,6 +81,9 @@ bypassed, and the payment flow reserves stock before charging.
    seeding, Stripe webhook forwarding.
 3. [**Features & Logic**](./docs/en/features.md) — checkout flow, review system, security
    model, and a list of known limitations.
+4. [**Environment**](./docs/en/environment.md) — every variable the app reads.
+5. [**Deployment**](./docs/en/deployment.md) — running the demo with Docker Compose.
+6. [**Backups & restore**](./docs/en/backups.md) — backing up and restoring the database and uploads.
 
 ---
 
@@ -94,8 +97,8 @@ npm install
 cp .env.example .env      # then fill in the values
 
 npx prisma generate
-npx prisma db push
-npx prisma db seed        # optional, but the storefront is empty without it
+npx prisma migrate deploy
+npx tsx --env-file=.env prisma/seed.ts  # optional, but the storefront is empty without it
 
 npm run dev
 ```

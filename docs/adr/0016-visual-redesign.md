@@ -100,8 +100,15 @@ neutral dominance, tinted greys.)
 | `--destructive-foreground` (new) | `#FFFFFF` | `#1B1916` |
 | `--chart-1` … `--chart-5` | `#6B7834`, `#8C7B5E`, `#B9AE8E`, `#4A4238`, `#C9C2B0` | `#B4BF6E`, `#C2AE84`, `#8A8170`, `#E0D9C8`, `#6E6656` |
 
-Every text pair in the table meets 4.5:1: the lowest is muted text on the dark accent (5.00:1) and on the
-light accent (5.08:1); olive text is 5.74:1 or more in light and 6.69:1 or more in dark. The ring meets
+Every `*-foreground` token not listed (`--card-foreground`, `--popover-foreground`, `--secondary-foreground`,
+`--accent-foreground`, `--sidebar-foreground`, `--sidebar-accent-foreground`) equals `--foreground`, and
+`--sidebar-primary-foreground` equals `--primary-foreground`. `--foreground` on `--secondary` is 12.89:1
+light and 12.0:1 dark, on `--accent` 13.33:1 and 10.83:1.
+
+Every text pair in the table meets 4.5:1. The lowest is dark destructive text on the dark accent
+(4.53:1), which has almost no margin: a later change to either colour can drop it below AA. The next
+lowest are light muted text on `--secondary` (4.91:1) and muted text on the dark accent (5.00:1) and the
+light accent (5.08:1). Olive text is 5.74:1 or more in light and 6.69:1 or more in dark. The ring meets
 3:1 against the background in both themes. The `--sidebar-*` tokens follow the same values (`--sidebar`
 = `--background`, `--sidebar-primary` = `--primary`, `--sidebar-accent` = `--accent`). The product
 status badge stops painting the colour stored with the status, because white text on an arbitrary colour

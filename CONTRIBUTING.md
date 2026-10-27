@@ -58,7 +58,8 @@ E2E suites, including the WCAG A/AA accessibility specs in `tests/e2e/a11y.spec.
   `next dev` on port 3100. It removes the containers and volumes when it finishes.
   To use other ports (for example a second checkout), set `E2E_PORT_BASE`:
   `E2E_PORT_BASE=3200 npm run test:e2e` puts the app on 3200, PostgreSQL on 3201, Redis on 3202,
-  SMTP on 3203 and the Mailpit UI on 3204.
+  SMTP on 3203 and the Mailpit UI on 3204. `tests/e2e/email.spec.ts` still expects Mailpit on 58025,
+  so run it with the default ports.
 
 ## Project structure
 

@@ -11,10 +11,13 @@ fi
 
 export DATABASE_URL="postgresql://daydream:daydream@localhost:${E2E_POSTGRES_PORT:-55432}/daydream_e2e"
 
-cleanup() { docker compose -p "${COMPOSE_PROJECT_NAME:-daydream-e2e}" -f docker-compose.test.yml down -v >/dev/null 2>&1 || true; }
+# Nazwa projektu zależy od bazy portów, a nie od COMPOSE_PROJECT_NAME (to nazwa lokalnego stosu dev).
+PROJECT="daydream-e2e${E2E_PORT_BASE:+-$E2E_PORT_BASE}"
+
+cleanup() { docker compose -p "$PROJECT" -f docker-compose.test.yml down -v >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 
-docker compose -p "${COMPOSE_PROJECT_NAME:-daydream-e2e}" -f docker-compose.test.yml up -d --wait
+docker compose -p "$PROJECT" -f docker-compose.test.yml up -d --wait
 
 npx prisma migrate deploy
 npx tsx tests/e2e/seed.ts

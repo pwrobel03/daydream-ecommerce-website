@@ -69,7 +69,10 @@ const ProductCard = ({
               />
               {item.product.promoPrice && (
                 <span className="text-muted-foreground line-through">
-                  <PriceFormatter amount={Number(item.product.price)} />
+                  <PriceFormatter
+                    className="font-normal text-muted-foreground"
+                    amount={Number(item.product.price)}
+                  />
                 </span>
               )}
             </div>
@@ -96,7 +99,10 @@ const ProductCard = ({
           )}
         >
           <PriceFormatter
-            className="sm:justify-end"
+            className={cn(
+              "sm:justify-end",
+              isOutOfStock && "font-normal text-muted-foreground"
+            )}
             amount={
               Number(item.product.promoPrice ?? item.product.price) *
               item.quantity

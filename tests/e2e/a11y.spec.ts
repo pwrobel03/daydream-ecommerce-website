@@ -50,8 +50,15 @@ for (const theme of ["light", "dark"]) {
       test("cart has no WCAG A/AA violations", async ({ page }) => {
         test.setTimeout(120_000);
 
+        // Skan pustego koszyka pomija wiersze, podsumowanie i kupon — dodajemy produkt.
+        await page.goto(`/product/${E2E_PRODUCT.slug}`);
+        await page
+          .getByRole("button", { name: /grab the dream/i })
+          .first()
+          .click();
+
         await page.goto("/cart");
-        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        await expect(page.getByText(E2E_PRODUCT.name).first()).toBeVisible();
         const results = await scan(page).analyze();
 
         expect(

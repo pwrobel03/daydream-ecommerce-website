@@ -37,6 +37,7 @@ const QuantityButtons = ({ product }: { product: CartProduct }) => {
           removeItem(product.id);
           toast.success("Quantity decreased");
         }}
+        aria-label={t("decrease")}
         disabled={itemCount === 0 || !isMounted}
       >
         <Minus className="w-3 h-3" />
@@ -63,6 +64,7 @@ const QuantityButtons = ({ product }: { product: CartProduct }) => {
           isAtLimit ? "opacity-30 cursor-not-allowed" : ""
         )}
         onClick={handleIncrease}
+        aria-label={t("increase")}
         disabled={!isMounted}
       >
         <Plus className="w-3 h-3" />

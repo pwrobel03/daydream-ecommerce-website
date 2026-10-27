@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { FormSkeleton } from "@/components/skeletons";
 import { getSession } from "@/lib/session";
@@ -12,6 +13,7 @@ async function DeliveryPageContent({
 }) {
   const session = await getSession();
   const { orderId } = await params;
+  const t = await getTranslations("delivery");
 
   if (!session?.user?.id) redirect("/auth/login");
 
@@ -23,13 +25,13 @@ async function DeliveryPageContent({
   if (!order) notFound();
 
   return (
-    <div className="container mx-auto px-6 py-20 max-w-7xl">
-      <header className="mb-16 border-b pb-10">
-        <h1 className="text-7xl font-black italic uppercase tracking-tighter">
-          Delivery
+    <div className="container mx-auto max-w-7xl px-6 py-16 md:py-24">
+      <header className="mb-8">
+        <h1 className="font-display text-4xl leading-[1.1] tracking-tight text-balance">
+          {t("title")}
         </h1>
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 mt-2">
-          Secure Reservation ID: {orderId}
+        <p className="mt-2 break-all font-mono text-sm text-muted-foreground">
+          {t("reservation", { id: orderId })}
         </p>
       </header>
 

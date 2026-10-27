@@ -36,21 +36,27 @@
   },
   "cart": {
     "quantityLimit": "Możesz zamówić najwyżej {max, plural, one {# sztukę} few {# sztuki} many {# sztuk} other {# sztuki}} jednego produktu.",
-    "title": "Twój koszyk",
-    "summary": "Podsumowanie",
+    "title": "Koszyk",
+    "summary": "Podsumowanie zamówienia",
     "grandTotal": "Razem",
     "couponCode": "Kod rabatowy",
-    "couponOptional": "OPCJONALNY",
-    "checkout": "Do kasy",
-    "fixIssues": "Popraw koszyk",
-    "stockProblem": "Rozwiąż problemy ze stanem magazynowym przed zakupem",
-    "empty": "Pusty koszyk",
-    "findDream": "Znajdź coś dla siebie",
-    "verifyingStock": "Sprawdzam dostępność...",
-    "reserved": "Towar zarezerwowany. Przekierowuję...",
+    "couponOptional": "Opcjonalnie",
+    "checkout": "Przejdź do dostawy",
+    "decrease": "Zmniejsz ilość",
+    "increase": "Zwiększ ilość",
+    "fixIssues": "Popraw oznaczone produkty, aby kontynuować",
+    "stockProblem": "Niektórych produktów nie ma na stanie albo zamawiasz ich za dużo. Popraw je, aby kontynuować.",
+    "empty": "Twój koszyk jest pusty",
+    "findDream": "Przeglądaj produkty",
+    "verifyingStock": "Sprawdzam ceny i dostępność…",
+    "reserved": "Produkty zarezerwowane. Przechodzę do dostawy…",
     "removedUnavailable": "Usunięto z koszyka, produkt niedostępny: {names}",
     "syncFailed": "Nie udało się teraz zweryfikować cen i dostępności.",
-    "retry": "Spróbuj ponownie"
+    "retry": "Spróbuj ponownie",
+    "outOfStock": "Brak w magazynie",
+    "overLimit": "Na stanie jest tylko {stock}. Zmniejsz ilość, aby kontynuować.",
+    "remove": "Usuń z koszyka: {name}",
+    "processing": "Przetwarzanie"
   },
   "errors": {
     "orderStatusConflict": "Status tego zamówienia nie może zostać zmieniony na tę wartość.",
@@ -493,5 +499,30 @@
       "code": "Kod rabatowy",
       "cta": "Przeglądaj katalog"
     }
+  },
+  "delivery": {
+    "title": "Dostawa",
+    "reservation": "Rezerwacja {id}",
+    "savedAddress": "Uzupełniliśmy Twój zapisany adres. Sprawdź go przed zapłatą.",
+    "fullName": "Imię i nazwisko",
+    "phone": "Telefon",
+    "street": "Ulica i numer",
+    "zipCode": "Kod pocztowy",
+    "city": "Miejscowość",
+    "fullNamePlaceholder": "Anna Kowalska",
+    "streetPlaceholder": "ul. Długa 1/2",
+    "payment": "Przejdź do płatności",
+    "redirecting": "Przechodzę do płatności…",
+    "errFullName": "Podaj imię i nazwisko odbiorcy.",
+    "errStreet": "Podaj ulicę i numer.",
+    "errCity": "Podaj miejscowość.",
+    "errZipCode": "Podaj kod pocztowy.",
+    "errPhone": "Podaj numer telefonu.",
+    "processing": "Przetwarzanie"
+  },
+  "orderSuccess": {
+    "title": "Dziękujemy za zamówienie",
+    "body": "Otrzymaliśmy Twoją płatność.",
+    "back": "Wróć do sklepu"
   }
 }

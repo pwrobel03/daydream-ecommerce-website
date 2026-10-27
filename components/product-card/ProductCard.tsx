@@ -52,17 +52,9 @@ const ProductCard = ({ product, categoryName }: ProductCardProps) => {
           </Link>
         )}
 
-        {!isStock && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 p-4 pointer-events-none">
-            <span className="text-lg font-medium text-white">
-              {t("soldOut")}
-            </span>
-          </div>
-        )}
-
-        {product.status && isStock && (
+        {(!isStock || product.status) && (
           <div className="absolute left-3 top-3 z-10">
-            <ProductStatusBadge name={product.status.name} />
+            <ProductStatusBadge name={isStock ? product.status!.name : t("soldOut")} />
           </div>
         )}
       </div>

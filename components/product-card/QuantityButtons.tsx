@@ -60,6 +60,8 @@ const QuantityButtons = ({ product }: { product: CartProduct }) => {
         size="icon-sm"
         aria-label={tq("increase")}
         className={cn(isAtLimit && "opacity-50")}
+        // Stays clickable so the limit toast can explain why.
+        aria-disabled={isAtLimit}
         onClick={handleIncrease}
         aria-label={t("increase")}
         disabled={!isMounted}

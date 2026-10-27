@@ -4,7 +4,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { AddressSchema } from "@/schemas/index";
 import { finalizeAndPay } from "@/actions/order/order"; // Twoja akcja Stripe
 import { useCart } from "@/hooks/use-cart";
 import { toast } from "sonner";
@@ -22,8 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { CreditCard, Loader2, BookmarkCheck } from "lucide-react";
+import { Loader2, BookmarkCheck } from "lucide-react";
 import type { DeliveryOrder, UserAddress } from "@/lib/db-orders";
 
 interface DeliveryClientProps {
@@ -32,13 +30,23 @@ interface DeliveryClientProps {
 }
 
 export function DeliveryClient({ order, savedAddress }: DeliveryClientProps) {
-  const t = useTranslations("demo");
+  const t = useTranslations("delivery");
+  const tDemo = useTranslations("demo");
   const readOnlyReason = useReadOnlyReason();
   const [loading, setLoading] = useState(false);
   const { resetCart } = useCart();
 
-  const form = useForm<z.infer<typeof AddressSchema>>({
-    resolver: zodResolver(AddressSchema),
+  // Same rules as AddressSchema, which the server applies again; only the messages are localized.
+  const schema = z.object({
+    fullName: z.string().min(3, t("errFullName")),
+    street: z.string().min(5, t("errStreet")),
+    city: z.string().min(2, t("errCity")),
+    zipCode: z.string().min(5, t("errZipCode")),
+    phone: z.string().min(9, t("errPhone")),
+  });
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: savedAddress || {
       fullName: "",
       street: "",
@@ -48,7 +56,7 @@ export function DeliveryClient({ order, savedAddress }: DeliveryClientProps) {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof AddressSchema>) {
+  async function onSubmit(values: z.infer<typeof schema>) {
     setLoading(true);
 
     // Wywołujemy akcję Stripe, przekazując ID zamówienia i dane adresowe
@@ -62,170 +70,64 @@ export function DeliveryClient({ order, savedAddress }: DeliveryClientProps) {
 
     setLoading(false);
     resetCart();
-    toast.success("Redirecting to secure vault...");
+    toast.success(t("redirecting"));
     window.location.assign(res.data.url);
   }
 
-  const artifactInputStyle =
-    "bg-input/40 rounded-[1rem] h-14 text-lg font-black italic tracking-tighter transition-all";
+  const fields = [
+    { name: "fullName", label: t("fullName"), placeholder: t("fullNamePlaceholder"), autoComplete: "name" },
+    { name: "phone", label: t("phone"), placeholder: "+48 600 100 200", autoComplete: "tel" },
+    { name: "street", label: t("street"), placeholder: t("streetPlaceholder"), autoComplete: "street-address" },
+    { name: "zipCode", label: t("zipCode"), placeholder: "00-000", autoComplete: "postal-code" },
+    { name: "city", label: t("city"), placeholder: "", autoComplete: "address-level2" },
+  ] as const;
 
   return (
-    <div className="space-y-12">
-      {/* OPCJONALNY BANER: Jeśli znaleziono zapisany adres */}
+    <div className="max-w-xl space-y-6">
       {savedAddress && (
-        <div className="flex items-center gap-4 p-6 bg-primary/10 border border-primary/20 rounded-[1.5rem] italic font-bold text-sm">
-          <BookmarkCheck className="text-primary-text" />
-          <span>
-            Artifact Registry recognized. Shipping coordinates pre-loaded.
-          </span>
+        <div className="flex items-start gap-3 rounded-lg border bg-muted p-4 text-sm">
+          <BookmarkCheck className="mt-0.5 size-4 shrink-0 text-primary-text" aria-hidden />
+          <span>{t("savedAddress")}</span>
         </div>
       )}
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
-          <div className="flex flex-col md:flex-row gap-10">
-            {/* SEKCJA 1: IDENTITY (Taka sama jak w Dashboardzie) */}
-            <Card className="bg-card/60 rounded-[2rem] overflow-hidden border-none shadow-none flex-1">
-              <CardContent className="p-8 md:p-12 space-y-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="h-2 w-2 bg-primary rounded-full animate-pulse" />
-                  <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-70">
-                    Consignee Identity
-                  </h2>
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
-                        Full Identity
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          className={artifactInputStyle}
-                          placeholder="Enter Name..."
-                        />
-                      </FormControl>
-                      <FormMessage className="text-sm font-bold uppercase italic" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
-                        Contact Signal
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          className={artifactInputStyle}
-                          placeholder="+48 --- --- ---"
-                        />
-                      </FormControl>
-                      <FormMessage className="text-sm font-bold uppercase italic" />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            {/* SEKCJA 2: LOGISTICS */}
-            <Card className="bg-card/60 rounded-[2rem] overflow-hidden border-none shadow-none flex-1">
-              <CardContent className="p-8 md:p-12 space-y-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="h-2 w-2 bg-zinc-900 rounded-full" />
-                  <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-70">
-                    Logistics Coordinates
-                  </h2>
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="street"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
-                        Street Address
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          className={artifactInputStyle}
-                          placeholder="Street & Number..."
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="zipCode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
-                          Postal Code
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className={artifactInputStyle}
-                            placeholder="00-000"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-black uppercase tracking-widest ml-1">
-                          Sector / City
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className={artifactInputStyle}
-                            placeholder="City Name..."
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="space-y-4">
+            {fields.map((f) => (
+              <FormField
+                key={f.name}
+                control={form.control}
+                name={f.name}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{f.label}</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        autoComplete={f.autoComplete}
+                        placeholder={f.placeholder}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
           </div>
 
-          {/* PRZYCISK PŁATNOŚCI */}
-          <p className="text-center text-sm font-medium">{t("testCard")}</p>
-          {readOnlyReason && <p className="text-center text-sm text-muted-foreground">{readOnlyReason}</p>}
+          <p className="text-sm text-muted-foreground">{tDemo("testCard")}</p>
+          {readOnlyReason && (
+            <p className="text-sm text-muted-foreground">{readOnlyReason}</p>
+          )}
           <Button
             type="submit"
+            size="lg"
+            className="w-full"
             disabled={loading || !!readOnlyReason}
             title={readOnlyReason}
-            className="w-full h-24 hover:bg-primary hover:text-primary-foreground rounded-[2rem] text-3xl font-black italic uppercase tracking-tighter transition-all active:scale-[0.98] bg-foreground text-background"
           >
-            {loading ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <div className="flex items-center gap-4 ">
-                Pay with Stripe <CreditCard size={28} />
-              </div>
-            )}
+            {loading ? <Loader2 className="animate-spin" aria-label={t("processing")} /> : t("payment")}
           </Button>
         </form>
       </Form>

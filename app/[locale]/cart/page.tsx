@@ -4,14 +4,11 @@ import React, { useEffect, useState } from "react";
 import { useCart } from "@/hooks/use-cart";
 import { getFreshCartData } from "@/actions/store/sync-cart";
 import PriceFormatter from "@/components/PriceFormatter";
-import {
-  ArrowRight,
-  
-  ShoppingBag,
-  X,
-} from "lucide-react";
+import { ArrowRight, Loader2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import ProductCard from "@/components/cart/product-card";
 import { useRouter } from "next/navigation";
 import { initializeOrder } from "@/actions/order/order";
@@ -66,27 +63,23 @@ const CartPage = () => {
 
   if (syncFailed) {
     return (
-      <div className="container mx-auto px-6 py-40 flex flex-col items-center gap-4 text-center">
-        <p className="text-sm font-black uppercase tracking-widest">
-          {t("syncFailed")}
-        </p>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-8 py-4 rounded-full border font-black uppercase italic text-xs tracking-widest hover:bg-primary hover:text-primary-foreground transition-all"
-        >
+      <div className="container mx-auto flex flex-col items-center gap-4 px-6 py-24 text-center">
+        <p className="text-base">{t("syncFailed")}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
           {t("retry")}
-        </button>
+        </Button>
       </div>
     );
   }
 
   if (!isMounted || isSyncing) {
     return (
-      <div className="container mx-auto px-6 py-40 flex flex-col items-center gap-4">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 italic">
-          {t("verifyingStock")}
-        </p>
+      <div
+        role="status"
+        className="container mx-auto flex flex-col items-center gap-4 px-6 py-24"
+      >
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">{t("verifyingStock")}</p>
       </div>
     );
   }
@@ -127,42 +120,28 @@ const CartPage = () => {
       item.product.stock === 0 || item.quantity > (item.product.stock || 0)
   );
 
-  // No items in stock
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-6 py-40 text-center">
-        <div className="flex flex-col items-center justify-center space-y-8">
-          <div className="relative">
-            <ShoppingBag size={120} className="opacity-5 italic" />
-            <X className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary-text h-12 w-12" />
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-6xl font-black italic uppercase tracking-tighter">
-              {t("empty")}
-            </h1>
-          </div>
-          <Link
-            href="/"
-            className="group relative px-12 py-6 bg-foreground text-background hover:text-white rounded-full overflow-hidden transition-all hover:scale-105"
-          >
-            <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-            <span className="relative z-10 font-black uppercase italic tracking-tighter text-xl">
-              {t("findDream")}
-            </span>
-          </Link>
-        </div>
+      <div className="container mx-auto flex flex-col items-center gap-6 px-6 py-24 text-center">
+        <ShoppingBag size={40} className="text-muted-foreground" aria-hidden />
+        <h1 className="font-display text-4xl leading-[1.1] tracking-tight text-balance">
+          {t("empty")}
+        </h1>
+        <Button asChild>
+          <Link href="/">{t("findDream")}</Link>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-6 py-20 max-w-7xl">
-      <div className="flex justify-between items-end mb-16 border-b pb-10 font-black italic uppercase tracking-tighter">
-        <h1 className="text-7xl">{t("title")}</h1>
-      </div>
+    <div className="container mx-auto max-w-7xl px-6 py-16 md:py-24">
+      <h1 className="mb-8 font-display text-4xl leading-[1.1] tracking-tight text-balance">
+        {t("title")}
+      </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <div className="lg:col-span-8 space-y-6">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <div className="space-y-4 lg:col-span-8">
           {items.map((item) => {
             const stock = item.product.stock || 0;
             const isOutOfStock = stock === 0;
@@ -181,71 +160,58 @@ const CartPage = () => {
           })}
         </div>
 
-        {/* SUMMARY */}
         <div className="lg:col-span-4">
-          <div className="sticky top-10 p-12 shadow-2xl space-y-10 bg-card rounded-[2rem]">
-            <h2 className="text-5xl font-black italic uppercase tracking-tighter leading-tight">
+          <div className="sticky top-24 space-y-6 rounded-lg border bg-card p-6">
+            <h2 className="font-display text-2xl leading-[1.2] tracking-tight">
               {t("summary")}
             </h2>
 
-            <div className="space-y-4">
-              <div className="flex justify-between items-end border-t  pt-8 mt-8">
-                <span className="text-md font-black uppercase tracking-[0.4em] opacity-70">
-                  {t("grandTotal")}
-                </span>
-                <span className="text-3xl font-black italic tracking-tighter text-primary-text">
-                  <PriceFormatter amount={getTotalPrice()} />
-                </span>
-              </div>
+            <div className="flex items-baseline justify-between gap-4 border-t pt-4">
+              <span className="text-sm text-muted-foreground">
+                {t("grandTotal")}
+              </span>
+              <span className="text-2xl font-semibold tabular-nums">
+                <PriceFormatter amount={getTotalPrice()} />
+              </span>
             </div>
 
             {hasErrors && (
-              <p className="text-destructive text-[10px] font-black uppercase tracking-widest text-center animate-pulse">
+              <p role="alert" className="text-sm text-destructive">
                 {t("stockProblem")}
               </p>
             )}
 
-            <div className="space-y-3">
-              <label
-                htmlFor="coupon"
-                className="block text-[10px] font-black uppercase tracking-[0.3em] opacity-70"
-              >
-                {t("couponCode")}
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="coupon">{t("couponCode")}</Label>
+              <Input
                 id="coupon"
                 value={coupon}
                 onChange={(e) => setCoupon(e.target.value.toUpperCase())}
                 placeholder={t("couponOptional")}
                 autoComplete="off"
-                className="h-14 w-full rounded-full border bg-transparent px-6 text-sm font-black uppercase tracking-widest outline-none transition-colors focus:border-primary"
               />
             </div>
 
             {readOnlyReason && (
-              <p className="text-center text-sm text-muted-foreground">{readOnlyReason}</p>
+              <p className="text-sm text-muted-foreground">{readOnlyReason}</p>
             )}
 
-            <button
+            <Button
+              size="lg"
+              className="w-full"
               disabled={hasErrors || isPending || !!readOnlyReason}
               title={readOnlyReason}
               onClick={handleSecureFlow}
-              className={cn(
-                "group relative w-full h-24 rounded-full overflow-hidden transition-all shadow-xl active:scale-95",
-                readOnlyReason && "cursor-not-allowed opacity-60",
-                hasErrors
-                  ? "cursor-not-allowed bg-destructive/25 text-primary-foreground"
-                  : "bg-primary text-primary-foreground hover:scale-[1.02]"
-              )}
             >
-              {!hasErrors && (
-                <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+              {isPending ? (
+                <Loader2 className="animate-spin" aria-label={t("processing")} />
+              ) : (
+                <>
+                  {hasErrors ? t("fixIssues") : t("checkout")}
+                  {!hasErrors && <ArrowRight />}
+                </>
               )}
-              <div className="relative z-10 flex items-center justify-center gap-4 text-2xl font-black uppercase italic tracking-tighter">
-                <span>{hasErrors ? t("fixIssues") : t("checkout")}</span>
-                <ArrowRight className="h-7 w-7 group-hover:translate-x-2 transition-transform" />
-              </div>
-            </button>
+            </Button>
           </div>
         </div>
       </div>

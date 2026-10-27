@@ -2,8 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useCurrentRole } from "@/hooks/use-current-role";
 import {
   BarChart3,
@@ -29,7 +28,7 @@ export default function DashboardSidebar() {
   const userMenuItems = [
     { title: t("nav.overview"), href: "/dashboard", icon: LayoutDashboard },
     { title: t("nav.profile"), href: "/dashboard/profile", icon: User },
-    { title: t("labels.deliveryAddress"), href: "/dashboard/address", icon: Van },
+    { title: t("nav.address"), href: "/dashboard/address", icon: Van },
     { title: t("nav.orders"), href: "/dashboard/orders", icon: Package },
   ];
 

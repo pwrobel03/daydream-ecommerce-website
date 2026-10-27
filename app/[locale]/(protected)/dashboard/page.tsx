@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { getSession } from "@/lib/session";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@/lib/db";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Package, MapPin, UserCog } from "lucide-react";
 
 async function DashboardPageContent() {
@@ -31,7 +31,7 @@ async function DashboardPageContent() {
       icon: MapPin,
     },
     {
-      title: t("nav.accountSettings"),
+      title: t("nav.profile"),
       description: t("tiles.profileDesc"),
       href: "/dashboard/profile",
       icon: UserCog,

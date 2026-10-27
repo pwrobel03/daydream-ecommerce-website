@@ -138,7 +138,7 @@
       "overview": "Przegląd",
       "orders": "Zamówienia",
       "profile": "Mój profil",
-      "address": "Adresy",
+      "address": "Adres dostawy",
       "adminConsole": "Panel administratora",
       "inventory": "Asortyment",
       "categories": "Kategorie",
@@ -146,7 +146,6 @@
       "manageOrders": "Zarządzaj zamówieniami",
       "manageVoices": "Zarządzaj opiniami",
       "identity": "Tożsamość",
-      "accountSettings": "Ustawienia konta",
       "analytics": "Analityka"
     },
     "status": {

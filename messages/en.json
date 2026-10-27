@@ -137,16 +137,15 @@
     "nav": {
       "overview": "Overview",
       "orders": "Orders",
-      "profile": "My Profile",
-      "address": "Address Book",
+      "profile": "Profile",
+      "address": "Delivery address",
       "adminConsole": "Admin Console",
       "inventory": "Inventory",
       "categories": "Categories",
       "ingredients": "Ingredients",
-      "manageOrders": "Manage Orders",
-      "manageVoices": "Manage Voices",
+      "manageOrders": "Manage orders",
+      "manageVoices": "Manage reviews",
       "identity": "Identity",
-      "accountSettings": "Account Settings",
       "analytics": "Analytics"
     },
     "status": {
@@ -169,8 +168,8 @@
     "address": {
       "title": "Address Book",
       "subtitle": "Manage your delivery and billing locations.",
-      "cityPlaceholder": "City Name...",
-      "namePlaceholder": "Enter Name...",
+      "cityPlaceholder": "City",
+      "namePlaceholder": "Full name",
       "contact": "Contact",
       "location": "Address",
       "fullName": "Full name",
@@ -213,7 +212,7 @@
       "transmissionError": "Something went wrong. Try again.",
       "paymentSessionError": "Payment session error",
       "settingsSaved": "Settings saved.",
-      "emailChanged": "Email updated & verification link sent!",
+      "emailChanged": "Email updated. We sent you a verification link.",
       "emailNotSent": "Email updated, but we could not send the e-mail right now. Try again later.",
       "categoryCreated": "Category forged successfully!",
       "categoryRemoved": "Category removed.",
@@ -236,7 +235,7 @@
       "products": "Search by name..."
     },
     "placeholders": {
-      "street": "Street & Number...",
+      "street": "Street and number",
       "categoryStory": "Tell the story of this category...",
       "selectParent": "Select parent..."
     },

@@ -29,6 +29,7 @@ export const routes: Route[] = [
   { name: "forgot-password", path: "/auth/forgot-password" },
   { name: "privacy", path: "/privacy" },
   { name: "account-profile", path: "/dashboard/profile", admin: true },
+  { name: "account-address", path: "/dashboard/address", admin: true },
   { name: "account-orders", path: "/dashboard/orders", admin: true, mask: ["time"] },
   { name: "admin-dashboard", path: "/dashboard", admin: true, mask: ["time"] },
   { name: "admin-analytics", path: "/dashboard/analytics", admin: true, mask: ["time"] },

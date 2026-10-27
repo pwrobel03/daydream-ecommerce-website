@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { ImageIcon, X } from "lucide-react";
+import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 import GiveInNotice from "./give-in-notice";
 import type { ProductImages } from "./use-product-form";
 
@@ -12,6 +14,7 @@ export function ProductImagesSection({
   loading: boolean;
   images: ProductImages;
 }) {
+  const t = useTranslations("dashboard");
   const {
     existingImages,
     previews,
@@ -22,26 +25,25 @@ export function ProductImagesSection({
 
   return (
     <>
-  <div className="bg-card/60 p-10 rounded-[2rem] border">
-    <div className="flex justify-between mb-8 flex-row flex-wrap gap-2">
-      <div className="flex items-center gap-3">
-        <ImageIcon size={18} className="text-primary-text" />
-        <h2 className="text-xl font-black italic uppercase tracking-tight">
-          Media
-        </h2>
-      </div>
-      <label className="cursor-pointer max-w-40 bg-foreground text-background hover:text-primary-foreground px-8 py-2 rounded-full text-[10px] font-black uppercase italic tracking-widest hover:bg-primary transition-all">
-        Upload{" "}
-        <input
-          disabled={loading}
-          type="file"
-          multiple
-          className="hidden"
-          onChange={handleFileChange}
-        />
-      </label>
+  <div className="flex flex-col gap-4 rounded-lg border bg-card p-6">
+    <div className="flex flex-row flex-wrap items-center justify-between gap-4">
+      <h2 className="text-lg font-semibold leading-[1.35]">
+        {t("product.images")}
+      </h2>
+      <Button asChild variant="outline" size="sm" aria-disabled={loading}>
+        <label className="cursor-pointer has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/50">
+          {t("product.upload")}
+          <input
+            disabled={loading}
+            type="file"
+            multiple
+            className="sr-only"
+            onChange={handleFileChange}
+          />
+        </label>
+      </Button>
     </div>
-    <div className="grid sm:grid-cols-3 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
       {existingImages.map((url, idx) => (
         <div
           key={idx}
@@ -52,7 +54,8 @@ export function ProductImagesSection({
             disabled={loading}
             type="button"
             onClick={() => removeExistingImage(url)}
-            className="absolute top-2 right-2 bg-white rounded-full p-1 text-destructive/50 shadow-sm"
+            aria-label={t("product.removeImage")}
+            className="absolute right-2 top-2 rounded-full border bg-background p-1.5 text-destructive"
           >
             <X size={14} />
           </button>
@@ -61,13 +64,14 @@ export function ProductImagesSection({
       {previews.map((url, idx) => (
         <div
           key={idx}
-          className="relative aspect-square rounded-md overflow-hidden border-primary/20 border"
+          className="relative aspect-square rounded-md overflow-hidden border-primary border"
         >
           <Image src={url} alt="" fill className="object-cover" />
           <button
             type="button"
             onClick={() => removeNewImage(idx)}
-            className="absolute top-2 right-2 bg-white rounded-full p-1 text-destructive/50 shadow-sm"
+            aria-label={t("product.removeImage")}
+            className="absolute right-2 top-2 rounded-full border bg-background p-1.5 text-destructive"
           >
             <X size={14} />
           </button>
@@ -75,7 +79,7 @@ export function ProductImagesSection({
       ))}
     </div>
   </div>
-  <GiveInNotice note="Note: The recommended image resolution is up to 2048x2048 pixels. Photos with square aspect ratio will look the best." />
+  <GiveInNotice note={t("product.imageHint")} />
     </>
   );
 }

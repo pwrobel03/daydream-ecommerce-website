@@ -45,9 +45,9 @@ test.describe("admin product form", () => {
     await field(page, "Description").fill("A product created by the end-to-end suite to cover the admin form.");
     await field(page, "Weight").fill("250g");
     await field(page, "Price", true).fill("42");
-    await field(page, "Inventory Stock").fill("7");
+    await field(page, "Stock").fill("7");
 
-    await page.getByRole("button", { name: /forge|confirm/i }).click();
+    await page.getByRole("button", { name: /add product|save changes/i }).click();
     await page.waitForURL(/\/dashboard\/inventory$/, { timeout: 60_000 });
 
     const created = await db.product.findFirstOrThrow({ where: { name } });
@@ -70,15 +70,15 @@ test.describe("admin product form", () => {
     await field(page, "Description").fill("A product whose promo price is higher than its base price.");
     await field(page, "Weight").fill("100g");
     await field(page, "Price", true).fill("10");
-    await field(page, "Promo", true).fill("20");
-    await field(page, "Inventory Stock").fill("1");
+    await field(page, "Promo price", true).fill("20");
+    await field(page, "Stock").fill("1");
 
-    await page.getByRole("button", { name: /forge|confirm/i }).click();
+    await page.getByRole("button", { name: /add product|save changes/i }).click();
 
     // Konkretny tekst, nie /promo/i — ten wzorzec pasował też do etykiety pola,
     // więc asercja przechodziłaby przy całkiem wyłączonej walidacji.
     await expect(
-      page.getByText("The price cannot be lower than the promo price")
+      page.getByText("The promo price must be lower than the price.")
     ).toBeVisible();
 
     await expect(page).toHaveURL(/\/dashboard\/inventory\/new$/);

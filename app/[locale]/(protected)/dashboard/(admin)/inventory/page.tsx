@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { PackagePlus, Plus } from "lucide-react";
+import { PackagePlus } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { Button } from "@/components/ui/button";
 import { ProductGridSkeleton } from "@/components/skeletons";
 import {
   getInventoryProducts,
@@ -26,6 +28,7 @@ async function InventoryPageContent({
 }) {
   const { search, category, sub, stock, take } = await searchParams;
   const currentTake = Number(take) || PAGE_SIZE;
+  const t = await getTranslations("dashboard.inventory");
 
   const [mainCategories, { products, totalCount }] = await Promise.all([
     getMainCategoriesWithChildren(),
@@ -46,19 +49,18 @@ async function InventoryPageContent({
   nextParams.set("take", String(currentTake + PAGE_SIZE));
 
   return (
-    <div className="space-y-16 pb-20">
-      <header className="flex justify-between items-end border-b pb-10">
-        <div className="space-y-1 overflow-hidden">
-          <h1 className="text-5xl sm:text-7xl font-black italic uppercase tracking-tighter">
-            Inventory
-          </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 ml-1">
-            Global Artifact Control
-          </p>
-        </div>
+    <div className="flex flex-col gap-6 pb-6">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b pb-6">
+        <h1 className="text-2xl font-semibold leading-tight">{t("title")}</h1>
+        <Button asChild>
+          <Link href="/dashboard/inventory/new">
+            <PackagePlus aria-hidden />
+            {t("addProduct")}
+          </Link>
+        </Button>
       </header>
 
-      <div className="space-y-12">
+      <div className="flex flex-col gap-6">
         <InventoryFilters
           categories={mainCategories}
           filters={{
@@ -69,34 +71,14 @@ async function InventoryPageContent({
           }}
         />
 
-        <Link
-          href="/dashboard/inventory/new"
-          className="group relative px-10 py-5 rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95 border hover:text-white shadow-xl flex items-center gap-3 bg-card/90"
-        >
-          <div className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-          <PackagePlus className="relative z-10 w-4 h-4" />
-          <span className="relative z-10 font-black uppercase italic tracking-tighter text-sm">
-            Add Product
-          </span>
-        </Link>
-
         <InventoryList products={products} />
 
         {products.length < totalCount && (
-          <div className="flex justify-center pt-10">
-            <Link
-              href={`?${nextParams.toString()}`}
-              scroll={false}
-              className="group flex flex-col items-center gap-4"
-            >
-              <div className="w-16 h-16 rounded-full border border-black/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-700 shadow-xl bg-card group-hover:scale-110">
-                <Plus size={24} />
-              </div>
-              <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-70 italic transition-all group-hover:tracking-[0.6em] group-hover:opacity-100">
-                Reveal More Artifacts
-              </span>
+          <Button asChild variant="outline" className="self-center">
+            <Link href={`?${nextParams.toString()}`} scroll={false}>
+              {t("showMore")}
             </Link>
-          </div>
+          </Button>
         )}
       </div>
     </div>

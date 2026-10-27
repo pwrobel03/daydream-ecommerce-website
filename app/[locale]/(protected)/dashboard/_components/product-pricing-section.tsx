@@ -5,35 +5,39 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  
+  FormMessage,
 } from "@/components/ui/form";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import type { ProductSectionProps } from "./product-form-types";
 
 export function ProductPricingSection({ form, loading }: ProductSectionProps) {
+  const t = useTranslations("dashboard");
+
   return (
-  <div className="p-10 rounded-[2rem] shadow-2xl space-y-6 bg-card/60">
-    <h2 className="text-xl font-black italic uppercase tracking-tight text-primary-text">
-      Economics
+  <div className="flex flex-col gap-4 rounded-lg border bg-card p-6">
+    <h2 className="text-lg font-semibold leading-[1.35]">
+      {t("product.pricing")}
     </h2>
-    <div className="grid grid-cols-1 gap-6">
+    <div className="grid grid-cols-1 gap-4">
       <FormField
         control={form.control}
         name="price"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
-              Price
+            <FormLabel className="text-sm font-medium">
+              {t("product.priceLabel")}
             </FormLabel>
             <FormControl>
               <Input
                 disabled={loading}
                 {...field}
-                className="rounded-md h-12 capitalize font-black"
-                placeholder="set default price"
+                className="tabular-nums"
+                placeholder={t("product.pricePlaceholder")}
                 autoComplete="off"
               />
             </FormControl>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -42,19 +46,20 @@ export function ProductPricingSection({ form, loading }: ProductSectionProps) {
         name="promoPrice"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
-              Promo
+            <FormLabel className="text-sm font-medium">
+              {t("product.promoPrice")}
             </FormLabel>
             <FormControl>
               <Input
                 disabled={loading}
                 {...field}
                 value={field.value ?? ""}
-                className="rounded-md h-12 capitalize font-black"
-                placeholder="promo price"
+                className="tabular-nums"
+                placeholder={t("product.promoPlaceholder")}
                 autoComplete="off"
               />
             </FormControl>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -64,8 +69,8 @@ export function ProductPricingSection({ form, loading }: ProductSectionProps) {
       name="stock"
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
-            Inventory Stock
+          <FormLabel className="text-sm font-medium">
+            {t("product.stockLabel")}
           </FormLabel>
           <FormControl>
             <Input
@@ -73,10 +78,11 @@ export function ProductPricingSection({ form, loading }: ProductSectionProps) {
               type="number"
               {...field}
               value={field.value as number}
-              className="rounded-md text-sm font-black italic"
+              className="tabular-nums"
               min={0}
             />
           </FormControl>
+          <FormMessage />
         </FormItem>
       )}
     />

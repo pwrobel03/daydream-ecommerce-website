@@ -32,7 +32,8 @@
     "noMatches": "Nic nie pasuje do \"{query}\"",
     "browseInstead": "Przejrzyj cały katalog",
     "results": "{count, plural, one {# wynik} few {# wyniki} many {# wyników} other {# wyniku}} dla \"{query}\"",
-    "soldOut": "Wyprzedane"
+    "soldOut": "Wyprzedane",
+    "noMatchesHelp": "Sprawdź pisownię albo wpisz krótsze słowo."
   },
   "cart": {
     "quantityLimit": "Możesz zamówić najwyżej {max, plural, one {# sztukę} few {# sztuki} many {# sztuk} other {# sztuki}} jednego produktu.",
@@ -581,5 +582,27 @@
     "title": "Dziękujemy za zamówienie",
     "body": "Otrzymaliśmy Twoją płatność.",
     "back": "Wróć do sklepu"
+  },
+  "catalogue": {
+    "empty": "Nie ma tu jeszcze produktów.",
+    "count": "Pokazano {shown} z {total}",
+    "showMore": "Pokaż więcej",
+    "soldOut": "Wyprzedane",
+    "inStock": "{count} szt. w magazynie",
+    "allTitle": "Wszystkie produkty",
+    "allDescription": "Wszystko, co jest w sklepie."
+  },
+  "addToCart": {
+    "add": "Dodaj do koszyka",
+    "added": "Dodano {name} do koszyka",
+    "inCart": "W koszyku",
+    "subtotal": "Suma częściowa",
+    "increased": "Zwiększono ilość",
+    "decreased": "Zmniejszono ilość"
+  },
+  "pagination": {
+    "previous": "Poprzednia",
+    "next": "Następna",
+    "page": "Strona {current} z {total}"
   }
 }

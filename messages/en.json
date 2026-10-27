@@ -32,7 +32,8 @@
     "noMatches": "Nothing matches \"{query}\"",
     "browseInstead": "Browse everything instead",
     "results": "{count, plural, one {# result} other {# results}} for \"{query}\"",
-    "soldOut": "Sold out"
+    "soldOut": "Sold out",
+    "noMatchesHelp": "Check the spelling or try a shorter word."
   },
   "cart": {
     "title": "Cart",
@@ -581,5 +582,27 @@
     "title": "Thank you for your order",
     "body": "We received your payment.",
     "back": "Back to the shop"
+  },
+  "catalogue": {
+    "empty": "There are no products here yet.",
+    "count": "Showing {shown} of {total}",
+    "showMore": "Show more",
+    "soldOut": "Sold out",
+    "inStock": "{count} in stock",
+    "allTitle": "All products",
+    "allDescription": "Everything in the shop."
+  },
+  "addToCart": {
+    "add": "Add to cart",
+    "added": "Added {name} to cart",
+    "inCart": "In your cart",
+    "subtotal": "Subtotal",
+    "increased": "Quantity increased",
+    "decreased": "Quantity decreased"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {current} of {total}"
   }
 }

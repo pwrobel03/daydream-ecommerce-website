@@ -28,7 +28,7 @@ test.describe("checkout", () => {
     await page.goto(`/product/${E2E_PRODUCT.slug}`);
     await expect(page.getByRole("heading", { name: E2E_PRODUCT.name })).toBeVisible();
 
-    await page.getByRole("button", { name: /grab the dream/i }).first().click();
+    await page.getByRole("button", { name: /add to cart/i }).first().click();
 
     await page.goto("/cart");
     await expect(page.getByText(E2E_PRODUCT.name).first()).toBeVisible();

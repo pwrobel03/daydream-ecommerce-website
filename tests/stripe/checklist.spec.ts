@@ -21,9 +21,9 @@ const orderOf = (id: string) => db.order.findUniqueOrThrow({ where: { id } });
 
 async function login(page: Page) {
   await page.goto("/auth/login");
-  await page.getByPlaceholder("USER@DAYDREAM.COM").fill(E2E_USER.email);
-  await page.getByPlaceholder("••••••••••••").fill(E2E_USER.password);
-  await page.getByRole("button", { name: /login/i }).click();
+  await page.getByLabel("Email").fill(E2E_USER.email);
+  await page.getByLabel("Password").fill(E2E_USER.password);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.waitForURL(/\/dashboard/, { timeout: 30_000 });
 }
 
@@ -31,18 +31,18 @@ async function login(page: Page) {
 async function startCheckout(page: Page) {
   await login(page);
   await page.goto(`/product/${E2E_PRODUCT.slug}`);
-  await page.getByRole("button", { name: /grab the dream/i }).first().click();
+  await page.getByRole("button", { name: /add to cart/i }).first().click();
   await page.goto("/cart");
-  await page.getByRole("button", { name: /secure flow/i }).click();
+  await page.getByRole("button", { name: /continue to delivery/i }).click();
   await page.waitForURL(/\/cart\/delivery\/[a-z0-9]+/i, { timeout: 30_000 });
   const orderId = page.url().split("/").pop()!;
 
-  await page.getByPlaceholder("Enter Name...").fill("Stripe Checklist");
-  await page.getByPlaceholder("+48 --- --- ---").fill("123456789");
-  await page.getByPlaceholder("Street & Number...").fill("Main Street 1");
-  await page.getByPlaceholder("00-000").fill("00-001");
-  await page.getByPlaceholder("City Name...").fill("Warsaw");
-  await page.getByRole("button", { name: /pay with stripe/i }).click();
+  await page.getByLabel("Full name").fill("Stripe Checklist");
+  await page.getByLabel("Phone").fill("123456789");
+  await page.getByLabel("Street and number").fill("Main Street 1");
+  await page.getByLabel("Postal code").fill("00-001");
+  await page.getByLabel("City", { exact: true }).fill("Warsaw");
+  await page.getByRole("button", { name: /continue to payment/i }).click();
   await page.waitForURL(/checkout\.stripe\.com/, { timeout: 60_000 });
   return orderId;
 }

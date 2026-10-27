@@ -589,7 +589,8 @@
     "showMore": "Pokaż więcej",
     "soldOut": "Wyprzedane",
     "inStock": "{count} szt. w magazynie",
-    "noRating": "Brak opinii"
+    "allTitle": "Wszystkie produkty",
+    "allDescription": "Wszystko, co jest w sklepie."
   },
   "addToCart": {
     "add": "Dodaj do koszyka",

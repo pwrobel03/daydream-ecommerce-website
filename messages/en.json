@@ -589,7 +589,8 @@
     "showMore": "Show more",
     "soldOut": "Sold out",
     "inStock": "{count} in stock",
-    "noRating": "No reviews yet"
+    "allTitle": "All products",
+    "allDescription": "Everything in the shop."
   },
   "addToCart": {
     "add": "Add to cart",

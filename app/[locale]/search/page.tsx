@@ -70,7 +70,7 @@ async function Results({ searchParams }: SearchPageProps) {
                   alt={hit.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 25vw"
-                  className="object-cover "
+                  className="object-cover"
                 />
               )}
               {hit.stock === 0 && (

@@ -41,6 +41,9 @@ async function CategoryPageContent({
   if (!category) {
     notFound();
   }
+  const name = slug === "all" ? t("allTitle") : category.name;
+  const description =
+    slug === "all" ? t("allDescription") : category.description;
 
   // 5. Pobranie całkowitej liczby produktów dla tej kategorii/widoku
   const totalArtifacts = await getTotalProductsCount(slug);
@@ -49,10 +52,10 @@ async function CategoryPageContent({
   return (
     <main className="min-h-screen bg-background pb-24">
       <header className="mx-auto max-w-7xl px-6 pt-16 pb-8">
-        <SubTitle text={category.name} className="mb-0" />
-        {category.description && (
+        <SubTitle text={name} className="mb-0" />
+        {description && (
           <p className="mt-4 max-w-[65ch] text-pretty text-muted-foreground">
-            {category.description}
+            {description}
           </p>
         )}
       </header>
@@ -64,7 +67,7 @@ async function CategoryPageContent({
               <ProductCard
                 key={product.id}
                 product={product}
-                categoryName={category.name}
+                categoryName={name}
               />
             ))}
           </div>

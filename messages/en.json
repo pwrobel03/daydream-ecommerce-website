@@ -142,7 +142,7 @@
     },
     "error": {
       "title": "Sign-in error",
-    "invalidKey": "Something went wrong while signing you in. Try again.",
+      "invalidKey": "Something went wrong while signing you in. Try again.",
       "missingToken": "This link is incomplete. Request a new one.",
       "back": "Back to sign in"
     },
@@ -273,7 +273,6 @@
       "identity": "Identity",
       "status": "Status",
       "preview": "Preview",
-      "awaitingPayment": "Awaiting Payment",
       "update": "Update"
     },
     "validation": {
@@ -339,6 +338,24 @@
       "email": "Email",
       "currentPassword": "Current password",
       "newPassword": "New password"
+    },
+    "orderList": {
+      "title": "Orders",
+      "subtitle": "Your past orders and where they stand.",
+      "empty": "No orders yet",
+      "emptyHint": "Orders you place will show up here.",
+      "view": "View order {number}"
+    },
+    "orderDetail": {
+      "title": "Order details",
+      "number": "Order number",
+      "items": "Items",
+      "quantity": "Quantity {count}",
+      "each": "each",
+      "phone": "Phone",
+      "payment": "Payment",
+      "total": "Total",
+      "retryPayment": "Retry payment"
     }
   },
   "reviews": {

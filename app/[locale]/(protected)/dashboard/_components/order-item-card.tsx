@@ -1,57 +1,52 @@
-// app/dashboard/orders/_components/order-item-card.tsx
-import React from "react";
 import Image from "next/image";
 import { Image as ImageIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import PriceFormatter from "@/components/PriceFormatter";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { UserOrderItem } from "@/lib/db-orders";
 
 export const OrderItemCard = ({ item }: { item: UserOrderItem }) => {
+  const t = useTranslations("dashboard.orderDetail");
+
   return (
-    <div className="group relative flex flex-row items-center gap-4 p-4 md:gap-8 md:p-6 rounded-[1.5rem] border bg-card/60 transition-all hover:border-black/20">
-      {/* Image */}
-      <div className="h-20 w-20 sm:h-32 sm:w-32 rounded-[1rem] overflow-hidden flex-shrink-0 relative border">
+    <div className="flex items-center gap-4 rounded-lg border bg-card p-3">
+      <div className="relative size-16 shrink-0 overflow-hidden rounded-md border sm:size-20">
         {item.product.images?.[0]?.url ? (
           <Image
             src={item.product.images[0].url}
             alt={item.product.name}
             fill
-            className="object-cover transition-all"
+            sizes="80px"
+            className="object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-zinc-100">
-            <ImageIcon size={20} className="opacity-20" />
+          <div className="flex h-full w-full items-center justify-center bg-muted">
+            <ImageIcon size={20} className="text-muted-foreground" />
           </div>
         )}
       </div>
 
-      {/* Content */}
-      <div className="w-full flex flex-col lg:flex-row justify-between gap-4">
-        <div className="space-y-2">
-          <Link href={`/product/${item.product.slug}`}>
-            <h3 className="text-xl md:text-2xl font-black italic uppercase tracking-tighter leading-none">
-              {item.product.name}
-            </h3>
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-black uppercase tracking-[0.2em] px-3 py-1 bg-input/60 rounded-full">
-              QTY: {item.quantity}
-            </span>
-            <span className="text-sm font-bold opacity-70">
-              <PriceFormatter amount={Number(item.price)} /> / unit
-            </span>
-          </div>
-        </div>
-
-        <div className="lg::text-right flex flex-col justify-center">
-          <p className="text-sm font-black uppercase opacity-70 leading-none mb-1">
-            Subtotal
-          </p>
-          <p className="text-3xl font-black italic tracking-tighter">
-            <PriceFormatter amount={Number(item.price) * item.quantity} />
-          </p>
-        </div>
+      <div className="min-w-0 flex-1 space-y-1">
+        <Link
+          href={`/product/${item.product.slug}`}
+          className="block font-medium break-words hover:underline"
+        >
+          {item.product.name}
+        </Link>
+        <p className="flex flex-wrap gap-x-1 text-sm text-muted-foreground tabular-nums">
+          <span>{t("quantity", { count: item.quantity })}</span>
+          <span aria-hidden>·</span>
+          <span className="inline-flex gap-1">
+            <PriceFormatter amount={Number(item.price)} className="font-normal text-muted-foreground" />
+            {t("each")}
+          </span>
+        </p>
       </div>
+
+      <PriceFormatter
+        amount={Number(item.price) * item.quantity}
+        className="shrink-0 tabular-nums"
+      />
     </div>
   );
 };

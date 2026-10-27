@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { FilterX, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 /**
  * Filtry moderacji opinii, trzymane w adresie URL.
@@ -48,40 +48,49 @@ export function VoicesFilters({ rating }: { rating: number | null }) {
   }, [search]);
 
   return (
-    <div className="flex flex-wrap items-center gap-6">
-      <div className="relative flex-grow max-w-md group bg-input/50 rounded-[2rem]">
-        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 group-focus-within:text-primary-text transition-colors" />
+    <div className="flex flex-wrap items-center gap-4">
+      <div className="relative min-w-60 max-w-md flex-1">
+        <Search
+          aria-hidden
+          className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+        />
         <input
-          type="text"
+          type="search"
           value={search}
+          aria-label={t("search.comments")}
           placeholder={t("search.comments")}
-          className="w-full rounded-full py-5 pl-14 pr-8 font-black italic uppercase text-[10px] tracking-widest focus:ring-2 ring-primary/20 outline-none transition-all"
+          className="h-9 w-full rounded-md border bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      <div className="flex items-center gap-2 p-2 border rounded-full">
+      <div
+        role="group"
+        aria-label={t("filters.rating")}
+        className="flex items-center gap-2"
+      >
         {[5, 4, 3, 2, 1].map((star) => (
-          <button
+          <Button
             key={star}
+            variant={rating === star ? "default" : "outline"}
+            size="sm"
+            aria-pressed={rating === star}
             onClick={() =>
               apply({ rating: rating === star ? null : String(star) })
             }
-            className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center transition-all font-black text-xs",
-              rating === star ? "bg-primary text-primary-foreground" : "hover:bg-primary/40"
-            )}
           >
             {star}★
-          </button>
+          </Button>
         ))}
         {rating && (
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={t("filters.clearRating")}
             onClick={() => apply({ rating: null })}
-            className="p-2 hover:text-destructive"
           >
-            <FilterX size={16} />
-          </button>
+            <FilterX />
+          </Button>
         )}
       </div>
     </div>

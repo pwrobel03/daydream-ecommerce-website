@@ -40,7 +40,7 @@ export default function DashboardSidebar() {
       icon: BarChart3,
     },
     {
-      title: t("nav.manageVoices"),
+      title: t("nav.reviews"),
       href: "/dashboard/comments",
       icon: MessageSquare,
     },

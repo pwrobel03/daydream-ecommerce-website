@@ -178,7 +178,7 @@
       "categories": "Categories",
       "ingredients": "Ingredients",
       "manageOrders": "Manage orders",
-      "manageVoices": "Manage reviews",
+      "reviews": "Reviews",
       "identity": "Identity",
       "analytics": "Analytics"
     },
@@ -246,20 +246,50 @@
       "deleteConfirm": "Delete \"{name}\"? This cannot be undone."
     },
     "ingredients": {
+      "title": "Ingredients",
+      "add": "Add ingredient",
+      "empty": "No ingredients yet.",
       "create": "Create ingredient",
       "edit": "Edit ingredient",
-      "forge": "Forge Essence",
-      "confirm": "Confirm Essence",
-      "editEssence": "Edit Essence",
-      "forging": "Forging...",
-      "deleteConfirm": "Are you sure you want to destroy this essence?",
-      "deleted": "Essence faded away",
-      "deleteFailed": "Failed to destroy essence"
+      "note": "Changes to an ingredient apply to every product that uses it.",
+      "name": "Name",
+      "namePlaceholder": "E.g. Erythritol",
+      "icon": "Icon",
+      "addImage": "Add a WebP, PNG or JPG image",
+      "removeImage": "Remove image",
+      "fileTooLarge": "The file is too large (max 5 MB).",
+      "cancel": "Cancel",
+      "save": "Save ingredient",
+      "saveFailed": "Could not save the ingredient.",
+      "deleteConfirm": "Delete this ingredient? This cannot be undone.",
+      "deleted": "Ingredient deleted.",
+      "deleteFailed": "Could not delete the ingredient."
     },
     "categories": {
-      "forge": "Forge Category",
-      "namePlaceholder": "E.g. Dark Stories",
-      "forging": "Forging..."
+      "title": "Categories",
+      "createTitle": "New category",
+      "createHint": "Add a main category or a subcategory.",
+      "note": "Deleting a parent category does not delete its products. They become uncategorized.",
+      "listTitle": "All categories",
+      "name": "Name",
+      "namePlaceholder": "E.g. Dark stories",
+      "image": "Cover image",
+      "description": "Description",
+      "isSubcategory": "This is a subcategory",
+      "parent": "Parent category",
+      "create": "Create category",
+      "creating": "Creating…",
+      "main": "Main",
+      "products": "{count, plural, one {# product} other {# products}}",
+      "empty": "No categories yet. Create the first one with the form.",
+      "deleteConfirm": "Delete \"{name}\"? This cannot be undone."
+    },
+    "reviews": {
+      "title": "Reviews",
+      "count": "Showing {shown} of {total}",
+      "empty": "No reviews match.",
+      "showMore": "Show more",
+      "deleteConfirm": "Delete this review? This cannot be undone."
     },
     "feedback": {
       "saved": "Saved.",
@@ -271,12 +301,13 @@
       "settingsSaved": "Settings saved.",
       "emailChanged": "Email updated. We sent you a verification link.",
       "emailNotSent": "Email updated, but we could not send the e-mail right now. Try again later.",
-      "categoryCreated": "Category forged successfully!",
+      "categoryCreated": "Category created.",
       "categoryRemoved": "Category removed.",
-      "ingredientSaved": "Ingredient saved successfully!",
+      "ingredientSaved": "Ingredient saved.",
       "productSaved": "Product saved.",
       "productRemoved": "Product removed.",
-      "voiceRemoved": "Voice removed."
+      "voiceRemoved": "Review removed.",
+      "uploadFailed": "The server could not process the request. The image may be too large or corrupted (limit 8 MB)."
     },
     "tiles": {
       "ordersDesc": "Track your current shipments and history.",
@@ -310,13 +341,13 @@
       "imageHint": "Square photos up to 2048 × 2048 pixels look best."
     },
     "search": {
-      "comments": "Search by product or content...",
+      "comments": "Search by product or text",
       "products": "Search by name..."
     },
     "placeholders": {
       "street": "Street and number",
-      "categoryStory": "Tell the story of this category...",
-      "selectParent": "Select parent..."
+      "categoryStory": "What products belong here?",
+      "selectParent": "Select a parent category"
     },
     "labels": {
       "deliveryAddress": "Delivery address",
@@ -359,7 +390,10 @@
       "subCategory": "Filter by sub-category",
       "stockAll": "All stock",
       "stockLow": "Low stock (5 or fewer)",
-      "stockEmpty": "Out of stock"
+      "stockEmpty": "Out of stock",
+      "rating": "Filter by rating",
+      "ratingValue": "{count, plural, one {# star} other {# stars}}",
+      "clearRating": "Clear rating filter"
     },
     "actions": {
       "edit": "Edit {name}",

@@ -112,6 +112,18 @@ On a Docker deployment use `scripts/create-admin.sh <email> [name]` instead; see
 - **Stale route type errors after deleting a page** — remove the `.next` directory and
   re-run the type check.
 
+## 🧪 End-to-end tests on other ports
+
+`npm run test:e2e` uses the app on 3100, PostgreSQL on 55432, Redis on 56379 and Mailpit on 51025 (SMTP) / 58025 (UI).
+To run on another free set of ports, e.g. for a second checkout, set one variable:
+
+```bash
+E2E_PORT_BASE=3200 npm run test:e2e
+```
+
+The app gets the base port, PostgreSQL base + 1, Redis base + 2, SMTP base + 3 and the Mailpit UI base + 4.
+Without `E2E_PORT_BASE` the ports above stay as they are.
+
 ## 📸 Screenshots on pull requests
 
 A pull request that touches the UI gets one comment with before/after screenshots

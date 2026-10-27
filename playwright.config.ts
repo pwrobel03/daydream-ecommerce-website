@@ -1,21 +1,27 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 3100;
+// E2E_PORT_BASE przesuwa wszystkie porty naraz; bez niego zostają wartości domyślne.
+// Układ portów musi być zgodny z scripts/e2e.sh.
+const base = process.env.E2E_PORT_BASE ? Number(process.env.E2E_PORT_BASE) : undefined;
+const PORT = base ?? 3100;
+const POSTGRES_PORT = base ? base + 1 : 55432;
+const REDIS_PORT = base ? base + 2 : 56379;
+const SMTP_PORT = base ? base + 3 : 51025;
 const BASE_URL = `http://localhost:${PORT}`;
 
 // Wartości spójne z docker-compose.test.yml. Skrypt `npm run test:e2e`
 // podnosi te usługi i wypycha schemat, zanim Playwright wystartuje serwer.
 const E2E_ENV = {
-  DATABASE_URL: "postgresql://daydream:daydream@localhost:55432/daydream_e2e",
+  DATABASE_URL: `postgresql://daydream:daydream@localhost:${POSTGRES_PORT}/daydream_e2e`,
   UPLOAD_DIR: "./storage/uploads-e2e",
-  REDIS_URL: "redis://localhost:56379",
+  REDIS_URL: `redis://localhost:${REDIS_PORT}`,
   AUTH_SECRET: "e2e-auth-secret-value",
   AUTH_URL: BASE_URL,
   AUTH_TRUST_HOST: "true",
   STRIPE_SECRET_KEY: "sk_test_e2e",
   STRIPE_WEBHOOK_SECRET: "whsec_e2e",
   SMTP_HOST: "localhost",
-  SMTP_PORT: "51025",
+  SMTP_PORT: String(SMTP_PORT),
   SMTP_SECURE: "false",
   MAIL_FROM: "Daydream <test@example.com>",
   // Cały zestaw E2E wysyła z jednego IP i kilku adresów — limity nie mogą go zatrzymać.

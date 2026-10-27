@@ -37,10 +37,10 @@ test.describe("admin inventory", () => {
     await page.selectOption("select", "empty");
     await page.waitForURL(/stock=empty/, { timeout: 30_000 });
 
-    await expect(visible(page, "The Vault is Empty")).toBeVisible();
+    await expect(visible(page, "No products found")).toBeVisible();
     await expect(visible(page, E2E_PRODUCT.name)).toHaveCount(0);
 
     await page.reload();
-    await expect(visible(page, "The Vault is Empty")).toBeVisible();
+    await expect(visible(page, "No products found")).toBeVisible();
   });
 });

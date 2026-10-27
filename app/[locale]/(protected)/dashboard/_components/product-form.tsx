@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 
+import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import type {
   IngredientOption,
@@ -38,14 +39,14 @@ export function ProductForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-1 lg:grid-cols-12 gap-12"
+        className="grid grid-cols-1 lg:grid-cols-12 gap-6"
       >
-        <div className="lg:col-span-7 space-y-8">
+        <div className="flex flex-col gap-6 lg:col-span-7">
           <ProductBasicsSection form={form} loading={loading} statuses={statuses} />
           <ProductImagesSection loading={loading} images={images} />
         </div>
 
-        <div className="lg:col-span-5 space-y-8">
+        <div className="flex flex-col gap-6 lg:col-span-5">
           <ProductPricingSection form={form} loading={loading} />
           <ProductTaxonomySection
             form={form}
@@ -55,20 +56,21 @@ export function ProductForm({
           />
 
           {readOnlyReason && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
-          <button
+          <Button
             type="submit"
+            size="lg"
             disabled={loading || !!readOnlyReason}
             title={readOnlyReason}
-            className="w-full h-24 bg-foreground text-background hover:text-primary-foreground rounded-[2rem] font-black uppercase italic text-xl hover:bg-primary transition-all shadow-2xl"
+            className="w-full"
           >
             {loading ? (
-              <Loader2 className="animate-spin mx-auto" />
+              <Loader2 className="animate-spin" />
             ) : initialData ? (
-              t("ingredients.confirm")
+              t("product.save")
             ) : (
-              t("ingredients.forge")
+              t("product.create")
             )}
-          </button>
+          </Button>
         </div>
       </form>
     </Form>

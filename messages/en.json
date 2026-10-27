@@ -142,7 +142,7 @@
     },
     "error": {
       "title": "Sign-in error",
-    "invalidKey": "Something went wrong while signing you in. Try again.",
+      "invalidKey": "Something went wrong while signing you in. Try again.",
       "missingToken": "This link is incomplete. Request a new one.",
       "back": "Back to sign in"
     },
@@ -210,11 +210,19 @@
       "save": "Save address"
     },
     "inventory": {
-      "newProduct": "New Artifact",
+      "newProduct": "New product",
       "createProduct": "Create a new product",
-      "allCategories": "All Categories",
-      "allSubFlows": "All Sub-Flows",
-      "preview": "Preview"
+      "allCategories": "All categories",
+      "allSubFlows": "All subcategories",
+      "preview": "Preview",
+      "title": "Inventory",
+      "editProduct": "Edit product",
+      "addProduct": "Add product",
+      "showMore": "Show more",
+      "empty": "No products found",
+      "price": "Price",
+      "stock": "Stock",
+      "deleteConfirm": "Delete \"{name}\"? This cannot be undone."
     },
     "ingredients": {
       "create": "Create ingredient",
@@ -245,8 +253,8 @@
       "categoryCreated": "Category forged successfully!",
       "categoryRemoved": "Category removed.",
       "ingredientSaved": "Ingredient saved successfully!",
-      "productSaved": "Artifact stored.",
-      "productRemoved": "Product removed from the dreamscape.",
+      "productSaved": "Product saved.",
+      "productRemoved": "Product removed.",
       "voiceRemoved": "Voice removed."
     },
     "tiles": {
@@ -255,8 +263,30 @@
       "profileDesc": "Update your profile and security details."
     },
     "product": {
-      "createTitle": "Create a new product",
-      "modifying": "Modifying: {name}"
+      "createTitle": "Add a new product",
+      "modifying": "Editing {name}",
+      "save": "Save changes",
+      "create": "Add product",
+      "basics": "Details",
+      "images": "Images",
+      "pricing": "Pricing",
+      "categories": "Categories",
+      "ingredients": "Ingredients",
+      "name": "Name",
+      "slug": "Slug",
+      "weight": "Weight",
+      "weightPlaceholder": "For example 500g",
+      "status": "Status",
+      "noStatus": "No status",
+      "description": "Description",
+      "priceLabel": "Price",
+      "pricePlaceholder": "Regular price",
+      "promoPrice": "Promo price",
+      "promoPlaceholder": "Price while on sale",
+      "stockLabel": "Stock",
+      "upload": "Upload images",
+      "removeImage": "Remove image",
+      "imageHint": "Square photos up to 2048 × 2048 pixels look best."
     },
     "search": {
       "comments": "Search by product or content...",
@@ -278,7 +308,7 @@
     },
     "validation": {
       "nameRequired": "The name is required",
-      "promoTooHigh": "The price cannot be lower than the promo price",
+      "promoTooHigh": "The promo price must be lower than the price.",
       "fileTooLarge": "File {name} is too large (max 8MB).",
       "uploadTooLarge": "The images may not exceed 50MB in total."
     },
@@ -303,7 +333,10 @@
     "filters": {
       "stock": "Filter by stock",
       "category": "Filter by category",
-      "subCategory": "Filter by sub-category"
+      "subCategory": "Filter by sub-category",
+      "stockAll": "All stock",
+      "stockLow": "Low stock (5 or fewer)",
+      "stockEmpty": "Out of stock"
     },
     "actions": {
       "edit": "Edit {name}",

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { MainCategoryWithChildren } from "@/lib/db-inventory";
 
 export interface InventoryFilterState {
@@ -59,14 +58,18 @@ export function InventoryFilters({
     categories.find((c) => c.id === filters.categoryId)?.children || [];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="md:col-span-2 relative group">
-        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 group-focus-within:text-primary-text transition-colors" />
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="relative md:col-span-2">
+        <Search
+          aria-hidden
+          className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+        />
         <input
-          type="text"
+          type="search"
           value={search}
+          aria-label={t("search.products")}
           placeholder={t("search.products")}
-          className="w-full bg-card/60 border rounded-full py-5 pl-14 pr-8 font-black italic uppercase text-[10px] tracking-widest outline-none focus:ring-2 ring-primary/10 transition-all"
+          className="h-9 w-full rounded-md border bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
@@ -77,15 +80,11 @@ export function InventoryFilters({
         onChange={(e) =>
           apply({ stock: e.target.value === "all" ? null : e.target.value })
         }
-        className={cn(
-          "rounded-full px-6 font-black italic uppercase text-[10px] tracking-widest outline-none h-[62px] cursor-pointer border transition-all",
-          filters.stockStatus !== "all" &&
-            "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
-        )}
+        className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 cursor-pointer"
       >
-        <option value="all">Stock: All</option>
-        <option value="low">Stock: Low (≤5)</option>
-        <option value="empty">Stock: Out</option>
+        <option value="all">{t("filters.stockAll")}</option>
+        <option value="low">{t("filters.stockLow")}</option>
+        <option value="empty">{t("filters.stockEmpty")}</option>
       </select>
 
       <select
@@ -95,9 +94,9 @@ export function InventoryFilters({
           // Podkategoria należy do poprzedniej kategorii, więc znika razem z nią.
           apply({ category: e.target.value || null, sub: null })
         }
-        className="border rounded-full px-6 font-black italic uppercase text-[10px] tracking-widest outline-none h-[62px] cursor-pointer transition-colors"
+        className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 cursor-pointer"
       >
-        <option value="">All Categories</option>
+        <option value="">{t("inventory.allCategories")}</option>
         {categories.map((c) => (
           <option key={c.id} value={c.id}>
             {c.name}
@@ -110,9 +109,9 @@ export function InventoryFilters({
         disabled={!filters.categoryId}
         value={filters.subCategoryId}
         onChange={(e) => apply({ sub: e.target.value || null })}
-        className="border rounded-full px-6 font-black italic uppercase text-[10px] tracking-widest outline-none h-[62px] disabled:opacity-40 cursor-pointer"
+        className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <option value="">All Sub-Flows</option>
+        <option value="">{t("inventory.allSubFlows")}</option>
         {subCategories.map((s) => (
           <option key={s.id} value={s.id}>
             {s.name}

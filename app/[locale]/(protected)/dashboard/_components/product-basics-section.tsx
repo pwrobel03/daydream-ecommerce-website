@@ -1,9 +1,7 @@
 "use client";
 
-import { Tag } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
-  
   FormControl,
   FormField,
   FormItem,
@@ -30,28 +28,25 @@ export function ProductBasicsSection({
   const t = useTranslations("dashboard");
 
   return (
-  <div className="bg-card/60 p-10 rounded-[2rem] border space-y-6">
-    <div className="flex items-center gap-3">
-      <Tag size={18} className="text-primary-text" />
-      <h2 className="text-xl font-black italic uppercase tracking-tight">
-        Artifact Essence
-      </h2>
-    </div>
+  <div className="flex flex-col gap-4 rounded-lg border bg-card p-6">
+    <h2 className="text-lg font-semibold leading-[1.35]">
+      {t("product.basics")}
+    </h2>
 
-    <div className="grid grid-cols-1 gap-6">
+    <div className="grid grid-cols-1 gap-4">
       <FormField
         control={form.control}
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
-              Name
+            <FormLabel className="text-sm font-medium">
+              {t("product.name")}
             </FormLabel>
             <FormControl>
               <Input
                 {...field}
                 disabled={loading}
-                className="rounded-md font-black"
+                className="rounded-md"
               />
             </FormControl>
             <FormMessage />
@@ -63,13 +58,13 @@ export function ProductBasicsSection({
         name="slug"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
-              Slug
+            <FormLabel className="text-sm font-medium">
+              {t("product.slug")}
             </FormLabel>
             <FormControl>
               <Input
                 {...field}
-                className="rounded-md h-12 border-none font-black cursor-not-allowed"
+                className="cursor-not-allowed bg-muted"
                 readOnly
                 onClick={(e) => {
                   e.preventDefault();
@@ -82,22 +77,21 @@ export function ProductBasicsSection({
       />
     </div>
 
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <FormField
         control={form.control}
         name="weight"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
-              Weight
+            <FormLabel className="text-sm font-medium">
+              {t("product.weight")}
             </FormLabel>
             <FormControl>
               <Input
                 disabled={loading}
                 {...field}
                 value={field.value ?? ""}
-                className="rounded-md font-black"
-                placeholder="Like: 500g"
+                placeholder={t("product.weightPlaceholder")}
                 autoComplete="off"
               />
             </FormControl>
@@ -110,8 +104,8 @@ export function ProductBasicsSection({
         name="statusId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
-              Status
+            <FormLabel className="text-sm font-medium">
+              {t("product.status")}
             </FormLabel>
             <Select
               disabled={loading}
@@ -119,13 +113,13 @@ export function ProductBasicsSection({
               defaultValue={field.value ?? ""}
             >
               <FormControl>
-                <SelectTrigger className="rounded-md font-black w-full">
-                  <SelectValue placeholder={t("labels.status")} />
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t("product.status")} />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent className="rounded-md">
+              <SelectContent>
                 <SelectItem disabled={loading} value="none">
-                  No Status
+                  {t("product.noStatus")}
                 </SelectItem>
                 {statuses.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
@@ -145,15 +139,15 @@ export function ProductBasicsSection({
       name="description"
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-xs font-black uppercase tracking-widest text-foreground/70">
-            Description
+          <FormLabel className="text-sm font-medium">
+            {t("product.description")}
           </FormLabel>
           <FormControl>
             <Textarea
               disabled={loading}
               {...field}
               value={field.value ?? ""}
-              className="rounded-md min-h-30 font-black"
+              className="min-h-30"
             />
           </FormControl>
           <FormMessage />

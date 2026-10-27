@@ -37,12 +37,12 @@ async function ProductPageContent({
   if (!isNew && !product) notFound();
 
   return (
-    <div className="space-y-12 pb-20 p-10">
-      <header className="flex flex-col gap-2 border-b pb-10">
-        <h1 className="text-5xl sm:text-7xl font-black italic uppercase tracking-tighter">
-          {isNew ? t("inventory.newProduct") : t("ingredients.editEssence")}
+    <div className="flex flex-col gap-6 pb-6">
+      <header className="flex flex-col gap-1 border-b pb-6">
+        <h1 className="text-2xl font-semibold leading-tight">
+          {isNew ? t("inventory.newProduct") : t("inventory.editProduct")}
         </h1>
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 ml-1">
+        <p className="break-words text-muted-foreground">
           {isNew ? t("product.createTitle") : t("product.modifying", { name: product?.name ?? "" })}
         </p>
       </header>

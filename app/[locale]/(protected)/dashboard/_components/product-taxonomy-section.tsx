@@ -1,6 +1,6 @@
 "use client";
 
-import { Layers, Beaker } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import type {
@@ -18,20 +18,19 @@ export function ProductTaxonomySection({
   categories: MainCategoryWithChildren[];
   ingredients: IngredientOption[];
 }) {
+  const t = useTranslations("dashboard");
+
   return (
-  <div className="bg-card/60 p-10 rounded-[2rem] border space-y-8">
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Layers size={16} className="text-primary-text" />
-        <h3 className="font-black uppercase italic text-sm">
-          Taxonomy
-        </h3>
-      </div>
-      <div className="max-h-60 overflow-y-auto pr-2 space-y-2">
+  <div className="flex flex-col gap-6 rounded-lg border bg-card p-6">
+    <div className="flex flex-col gap-4">
+      <h2 className="text-lg font-semibold leading-[1.35]">
+        {t("product.categories")}
+      </h2>
+      <div className="flex max-h-60 flex-col gap-2 overflow-y-auto pr-2">
         {categories.map((cat) => (
           <div
             key={cat.id}
-            className="flex items-center gap-3 p-2 rounded-md hover:bg-input/40 cursor-pointer"
+            className="flex items-center gap-3 rounded-md p-2 transition-colors duration-150 ease-out hover:bg-accent"
           >
             <Checkbox
               disabled={loading}
@@ -46,12 +45,11 @@ export function ProductTaxonomySection({
                     : current.filter((id) => id !== cat.id)
                 );
               }}
-              // Stylizujemy tło przez klasę:
               className="border data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
             />
             <label
               htmlFor={cat.id}
-              className="text-xs font-black uppercase tracking-widest cursor-pointer select-none"
+              className="flex-1 cursor-pointer select-none break-words text-sm"
             >
               {cat.name}
             </label>
@@ -60,14 +58,11 @@ export function ProductTaxonomySection({
       </div>
     </div>
 
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Beaker size={16} className="text-primary-text" />
-        <h3 className="font-black uppercase italic text-sm">
-          Ingredients
-        </h3>
-      </div>
-      <div className="flex flex-wrap gap-2 overflow-y-auto max-h-60">
+    <div className="flex flex-col gap-4">
+      <h2 className="text-lg font-semibold leading-[1.35]">
+        {t("product.ingredients")}
+      </h2>
+      <div className="flex max-h-60 flex-wrap gap-2 overflow-y-auto">
         {ingredients.map((ing) => (
           <button
             type="button"
@@ -83,10 +78,10 @@ export function ProductTaxonomySection({
               );
             }}
             className={cn(
-              "px-4 py-2 rounded-full text-[8px] font-black uppercase tracking-widest border transition-all",
+              "rounded-full border px-3 py-1 text-sm transition-colors duration-150 ease-out",
               form.watch("ingredientIds")?.includes(ing.id)
-                ? "bg-primary text-primary-foreground"
-                : "bg-input/50"
+                ? "border-primary bg-primary text-primary-foreground"
+                : "bg-background hover:bg-accent"
             )}
           >
             {ing.name}

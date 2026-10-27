@@ -10,7 +10,8 @@ import { Edit3, Image as ImageIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteProduct } from "@/actions/admin/inventory";
 import PriceFormatter from "@/components/PriceFormatter";
-import ProductStatusBadge from "@/components/product-status-badge";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { InventoryProduct } from "@/lib/db-inventory";
 
@@ -21,7 +22,7 @@ export function InventoryList({ products }: { products: InventoryProduct[] }) {
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = (id: string, name: string) => {
-    if (!window.confirm(`Delete "${name}" forever?`)) return;
+    if (!window.confirm(t("inventory.deleteConfirm", { name }))) return;
 
     startTransition(async () => {
       const res = await deleteProduct(id);
@@ -39,129 +40,101 @@ export function InventoryList({ products }: { products: InventoryProduct[] }) {
 
   if (products.length === 0) {
     return (
-      <div className="p-20 text-center border-2 border-dashed rounded-[4rem] opacity-20">
-        <p className="font-black italic uppercase tracking-[0.6em] text-sm">
-          The Vault is Empty
-        </p>
-      </div>
+      <p className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
+        {t("inventory.empty")}
+      </p>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <ul className="flex flex-col gap-4">
       {products.map((product) => (
-        <div
+        <li
           key={product.id}
-          className="group bg-card/60 p-8 rounded-[2.5rem] border border-none flex items-center justify-between hover:shadow-2xl transition-all duration-500 relative overflow-hidden min-h-[140px]"
+          className="flex flex-wrap items-center gap-4 rounded-lg border bg-card p-4 transition-colors duration-150 ease-out hover:bg-accent"
         >
-          {/* OBRAZEK POD NAPISEM (ABSOLUTE) */}
-          <div className="absolute left-0 top-0 w-64 h-full pointer-events-none opacity-[0.80] group-hover:opacity-[0.20] transition-opacity duration-700 z-10">
+          <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-muted">
             {product.images?.[0]?.url ? (
               <Image
                 src={product.images[0].url}
                 alt=""
                 fill
+                sizes="64px"
                 className="object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <ImageIcon size={60} />
-              </div>
+              <ImageIcon
+                aria-hidden
+                className="absolute inset-0 m-auto size-6 text-muted-foreground"
+              />
             )}
-            {/* Gradient zanikający w stronę tekstu */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/60" />
           </div>
 
-          {/* TREŚĆ (Z-INDEX 10) */}
-          <div className="relative z-10 flex-grow flex flex-col md:flex-row gap-8 w-full">
-            {/* Info o produkcie */}
-            <div className="w-full space-y-3">
-              <Link href={`/product/${product.slug}`}>
-                <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-[0.8] cursor-pointer">
-                  {product.name}
-                </h3>
-              </Link>
-              <div className="flex flex-wrap gap-2 pt-2">
-                {product.categories.map((cat) => (
-                  <ProductStatusBadge
-                    key={cat.id}
-                    name={cat.name}
-                    color={""}
-                    className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-white/50"
-                  />
-                ))}
-                {product.status && (
-                  <ProductStatusBadge
-                    name={product.status.name}
-                    color={product.status.color || ""}
-                    className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm"
-                  />
+          <div className="flex min-w-48 flex-1 flex-col gap-2">
+            <Link
+              href={`/product/${product.slug}`}
+              className="line-clamp-2 break-words font-medium hover:underline"
+            >
+              {product.name}
+            </Link>
+            <div className="flex flex-wrap gap-2">
+              {product.categories.map((cat) => (
+                <Badge key={cat.id} variant="outline">
+                  {cat.name}
+                </Badge>
+              ))}
+              {product.status && (
+                <Badge variant="secondary">{product.status.name}</Badge>
+              )}
+            </div>
+          </div>
+
+          <dl className="flex items-center gap-6 tabular-nums">
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs text-muted-foreground">{t("inventory.price")}</dt>
+              <dd className="font-medium">
+                <PriceFormatter
+                  amount={product.promoPrice || product.price}
+                  className="font-medium"
+                />
+              </dd>
+            </div>
+            <div className="flex flex-col gap-1">
+              <dt className="text-xs text-muted-foreground">{t("inventory.stock")}</dt>
+              <dd
+                className={cn(
+                  "font-medium",
+                  product.stock <= 5 && "text-destructive"
                 )}
-              </div>
+              >
+                {product.stock}
+              </dd>
             </div>
+          </dl>
 
-            {/* Sekcja danych: Cena, Stock, Akcje */}
-            <div className="flex flex-wrap items-center gap-8 lg:gap-16">
-              {/* Cena */}
-              <div className="space-y-1 mx-auto">
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-70">
-                  Market Value
-                </p>
-                <div className="text-3xl font-black tracking-tighter text-foreground">
-                  {product.promoPrice ? (
-                    <PriceFormatter amount={product.promoPrice} />
-                  ) : (
-                    <PriceFormatter amount={product.price} />
-                  )}
-                </div>
-              </div>
-
-              {/* Stock */}
-              <div className="space-y-1 text-center mx-auto">
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-70">
-                  Stock
-                </p>
-                <p
-                  className={cn(
-                    "text-3xl font-black italic leading-none",
-                    product.stock <= 5 ? "text-primary-text animate-pulse" : ""
-                  )}
-                >
-                  {product.stock}
-                </p>
-              </div>
-
-              {/* Przyciski Akcji */}
-              <div className="flex items-center gap-3 border-l border-black/5 pl-8">
-                <button
-                  onClick={() =>
-                    router.push(`/dashboard/inventory/${product.id}`)
-                  }
-                  aria-label={t("actions.edit", { name: product.name })}
-                  className="w-12 h-12 rounded-full border bg-card flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all duration-500 shadow-sm group/btn"
-                >
-                  <Edit3
-                    size={18}
-                    className="group-hover/btn:rotate-12 transition-transform"
-                  />
-                </button>
-                <button
-                  onClick={() => handleDelete(product.id, product.name)}
-                  disabled={isPending || !!readOnlyReason}
-                  title={readOnlyReason}
-                  aria-label={t("actions.delete", { name: product.name })}
-                  className="w-12 h-12 rounded-full border bg-card flex items-center justify-center hover:bg-destructive hover:text-white transition-all duration-500 shadow-sm group/btn"
-                >
-                  <Trash2
-                    size={18}
-                    className="group-hover/btn:scale-110 transition-transform"
-                  />
-                </button>
-              </div>
-            </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => router.push(`/dashboard/inventory/${product.id}`)}
+              aria-label={t("actions.edit", { name: product.name })}
+            >
+              <Edit3 />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handleDelete(product.id, product.name)}
+              disabled={isPending || !!readOnlyReason}
+              title={readOnlyReason}
+              aria-label={t("actions.delete", { name: product.name })}
+              className="hover:bg-destructive hover:text-destructive-foreground"
+            >
+              <Trash2 />
+            </Button>
           </div>
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

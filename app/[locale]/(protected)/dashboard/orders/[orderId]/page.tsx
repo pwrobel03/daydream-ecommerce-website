@@ -3,20 +3,23 @@ import { Suspense } from "react";
 import { getSession } from "@/lib/session";
 import { getUserOrderDetails } from "@/lib/db-orders";
 import { notFound, redirect } from "next/navigation";
+import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import PriceFormatter from "@/components/PriceFormatter";
 import { OrderItemCard } from "../../_components/order-item-card";
-import { MapPin, CreditCard, Package } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { OrderStatusBadge } from "../../_components/orders-list";
 import { RetryPaymentButton } from "../../_components/retry-payment-button";
 
 async function OrderDetailsPageContent({
   params,
 }: {
-  params: Promise<{ orderId: string }>;
+  params: Promise<{ locale: string; orderId: string }>;
 }) {
+  const { locale, orderId } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("dashboard.orderDetail");
+  const tDashboard = await getTranslations("dashboard");
+  const format = await getFormatter();
   const session = await getSession();
-  const { orderId } = await params;
 
   if (!session?.user?.id) redirect("/auth/login");
 
@@ -24,111 +27,98 @@ async function OrderDetailsPageContent({
 
   if (!order) notFound();
 
+  const createdAt = new Date(order.createdAt);
+
   return (
-    <div className="container mx-auto py-20">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-end gap-8 mb-16 border-b pb-12">
-        <div>
-          <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">
-            Order Detail
-          </h1>
-          <p className="text-xs font-black uppercase tracking-[0.5em] opacity-70 mt-4">
-            Reference: {order.id}
+    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 md:px-0">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0 space-y-2">
+          <h1 className="text-2xl font-semibold leading-tight">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground">
+            {t("number")}{" "}
+            <span className="font-mono tabular-nums break-all">{order.id}</span>
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <span
-            className={cn(
-              "px-6 py-2 rounded-full text-xs font-black uppercase italic tracking-widest",
-              order.isPaid
-                ? "bg-green-500 text-white"
-                : "bg-amber-500 text-black"
-            )}
+          <OrderStatusBadge status={order.status} />
+          <time
+            dateTime={createdAt.toISOString()}
+            className="text-sm text-muted-foreground tabular-nums"
           >
-            {order.status}
-          </span>
-          <p className="text-sm text-right font-bold opacity-70">
-            {format(new Date(order.createdAt), "dd MMMM yyyy, HH:mm")}
-          </p>
+            {format.dateTime(createdAt, {
+              dateStyle: "medium",
+              timeStyle: "short",
+              timeZone: "Europe/Warsaw",
+            })}
+          </time>
         </div>
-      </div>
+      </header>
 
-      <div className="flex flex-col gap-16">
-        {/* Lewa kolumna: Produkty */}
-        <div className="lg:col-span-12 space-y-6">
-          <h2 className="text-3xl font-black italic uppercase tracking-tight flex items-center gap-3">
-            <Package className="text-primary-text" /> Manifest
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold leading-[1.35]">{t("items")}</h2>
+        <div className="space-y-3">
+          {order.items.map((item) => (
+            <OrderItemCard key={item.id} item={item} />
+          ))}
+        </div>
+      </section>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <section className="space-y-3 rounded-lg border bg-card p-5">
+          <h2 className="text-lg font-semibold leading-[1.35]">
+            {tDashboard("labels.deliveryAddress")}
           </h2>
-          <div className="space-y-4">
-            {order.items.map((item) => (
-              <OrderItemCard key={item.id} item={item} />
-            ))}
-          </div>
-        </div>
-
-        {/* Dane dostawy i płatności */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 space-y-8 lg:gap-12">
-          {/* Adres */}
-          <div className="lg:col-span-6 bg-card p-10 rounded-[2rem] shadow-xl space-y-6">
-            <h3 className="text-xl font-black italic uppercase tracking-widest flex items-center gap-3">
-              <MapPin size={20} className="text-primary-text" /> Destination
-            </h3>
-            {order.address ? (
-              <div className="space-y-1 font-bold uppercase text-sm tracking-tight opacity-70">
-                <p className="text-lg">{order.address.fullName}</p>
-                <p>{order.address.street}</p>
-                <p>
-                  {order.address.zipCode} {order.address.city}
-                </p>
-                <p className="pt-4 text-sm opacity-70">
-                  Phone: {order.address.phone}
-                </p>
-              </div>
-            ) : (
-              <p className="italic opacity-30">No address provided</p>
-            )}
-          </div>
-
-          {/* Podsumowanie finansowe */}
-          <div className="lg:col-span-6 bg-card p-10 rounded-[2rem] space-y-8 shadow-xl">
-            <h3 className="text-xl font-black italic uppercase tracking-widest flex items-center gap-3">
-              <CreditCard size={20} /> Settlement
-            </h3>
-
-            <div className="space-y-4">
-              <div className="flex justify-between border-b pb-4 text-primary-text">
-                <span className="text-sm font-black uppercase">Status</span>
-                <span className="font-black uppercase italic tracking-tighter text-xs">
-                  {order.status}
-                </span>
-              </div>
-              <div className="flex justify-between pt-4">
-                <span className="text-sm font-black uppercase opacity-70">
-                  Grand Total
-                </span>
-                <span className="text-2xl font-black italic tracking-tighter text-primary-text">
-                  <PriceFormatter amount={order.totalAmount} />
-                </span>
-              </div>
+          {order.address ? (
+            <div className="space-y-1 text-sm break-words">
+              <p className="font-medium">{order.address.fullName}</p>
+              <p>{order.address.street}</p>
+              <p className="tabular-nums">
+                {order.address.zipCode} {order.address.city}
+              </p>
+              <p className="pt-2 text-muted-foreground tabular-nums">
+                {t("phone")}: {order.address.phone}
+              </p>
             </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {tDashboard("orders.noAddress")}
+            </p>
+          )}
+        </section>
 
-            {!order.isPaid && order.status === "PENDING" && (
-              // <button className="w-full py-6 bg-primary text-primary-foreground rounded-full font-black italic uppercase text-lg hover:scale-105 transition-all shadow-xl active:scale-95">
-              //   Retry Payment
-              // </button>
-              <RetryPaymentButton orderId={order.id} />
-            )}
-          </div>
-        </div>
+        <section className="space-y-4 rounded-lg border bg-card p-5">
+          <h2 className="text-lg font-semibold leading-[1.35]">{t("payment")}</h2>
+          <dl className="space-y-2 text-sm">
+            <div className="flex items-center justify-between gap-4">
+              <dt className="text-muted-foreground">{tDashboard("labels.status")}</dt>
+              <dd>
+                <OrderStatusBadge status={order.status} />
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-4 border-t pt-2">
+              <dt className="text-muted-foreground">{t("total")}</dt>
+              <dd>
+                <PriceFormatter
+                  amount={Number(order.totalAmount)}
+                  className="text-lg tabular-nums"
+                />
+              </dd>
+            </div>
+          </dl>
+
+          {!order.isPaid && order.status === "PENDING" && (
+            <RetryPaymentButton orderId={order.id} />
+          )}
+        </section>
       </div>
     </div>
   );
 }
 
-
 export default function OrderDetailsPage(props: {
-  params: Promise<{ orderId: string }>;
+  params: Promise<{ locale: string; orderId: string }>;
 }) {
+  // orderId is dynamic: awaiting params in the shell would block the whole route.
   return (
     <Suspense fallback={<RowsSkeleton />}>
       <OrderDetailsPageContent {...props} />

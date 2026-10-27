@@ -188,8 +188,8 @@
       "SHIPPED": "Shipped",
       "DELIVERED": "Delivered",
       "CANCELLED": "Cancelled",
-      "creditValid": "Credit Valid",
-      "creditMissing": "Credit Missing"
+      "creditValid": "Payment received",
+      "creditMissing": "Awaiting payment"
     },
     "orders": {
       "recent": "Recent Orders",
@@ -197,7 +197,22 @@
       "noAddress": "No address provided",
       "statusChangeFailed": "Could not change the order status.",
       "statusLabel": "Status",
-      "customer": "Customer {tag}"
+      "customer": "Customer {tag}",
+      "title": "Orders",
+      "count": "{count, plural, one {# order} other {# orders}}",
+      "empty": "No orders yet",
+      "emptySearch": "No orders match your search",
+      "searchLabel": "Search orders",
+      "searchPlaceholder": "Search by order ID or customer",
+      "listCaption": "Orders, newest first",
+      "order": "Order",
+      "address": "Delivery address",
+      "items": "Items",
+      "total": "Total",
+      "statusColumn": "Status",
+      "changeStatus": "Order status for {number}",
+      "addressMissing": "No address provided",
+      "hiddenInDemo": "Hidden in demo"
     },
     "address": {
       "title": "Address Book",
@@ -340,7 +355,6 @@
       "identity": "Identity",
       "status": "Status",
       "preview": "Preview",
-      "awaitingPayment": "Awaiting Payment",
       "update": "Update"
     },
     "validation": {
@@ -365,7 +379,10 @@
       "product": "Product",
       "units": "Units",
       "noSales": "No sales in this range yet.",
-      "revenueCaption": "Revenue and order count for each day in the selected range"
+      "revenueCaption": "Revenue and order count for each day in the selected range",
+      "dayColumn": "Day",
+      "ordersColumn": "Orders",
+      "chartRevenue": "Revenue"
     },
     "filters": {
       "stock": "Filter by stock",
@@ -412,6 +429,30 @@
       "email": "Email",
       "currentPassword": "Current password",
       "newPassword": "New password"
+    },
+    "orderList": {
+      "title": "Orders",
+      "subtitle": "Your past orders and where they stand.",
+      "empty": "No orders yet",
+      "emptyHint": "Orders you place will show up here.",
+      "view": "View order {number}"
+    },
+    "orderDetail": {
+      "title": "Order details",
+      "number": "Order number",
+      "items": "Items",
+      "quantity": "Quantity {count}",
+      "each": "each",
+      "phone": "Phone",
+      "payment": "Payment",
+      "total": "Total",
+      "retryPayment": "Retry payment"
+    },
+    "notAllowed": {
+      "title": "Access denied",
+      "description": "This area is for administrators and the demo admin only.",
+      "hint": "If you think this is a mistake, ask an administrator to check your role.",
+      "back": "Back to your account"
     }
   },
   "reviews": {

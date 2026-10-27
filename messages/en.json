@@ -170,7 +170,17 @@
       "title": "Address Book",
       "subtitle": "Manage your delivery and billing locations.",
       "cityPlaceholder": "City Name...",
-      "namePlaceholder": "Enter Name..."
+      "namePlaceholder": "Enter Name...",
+      "contact": "Contact",
+      "location": "Address",
+      "fullName": "Full name",
+      "phone": "Phone",
+      "street": "Street and number",
+      "zipCode": "Postal code",
+      "city": "City",
+      "phonePlaceholder": "+48 123 456 789",
+      "zipPlaceholder": "00-000",
+      "save": "Save address"
     },
     "inventory": {
       "newProduct": "New Artifact",
@@ -196,13 +206,13 @@
       "forging": "Forging..."
     },
     "feedback": {
-      "saved": "Registry Updated",
+      "saved": "Saved.",
       "storageError": "An error occurred during storage.",
       "unexpected": "An unexpected error occurred.",
       "connectionError": "Connection error",
-      "transmissionError": "Critical transmission error",
+      "transmissionError": "Something went wrong. Try again.",
       "paymentSessionError": "Payment session error",
-      "settingsSaved": "Settings updated!",
+      "settingsSaved": "Settings saved.",
       "emailChanged": "Email updated & verification link sent!",
       "emailNotSent": "Email updated, but we could not send the e-mail right now. Try again later.",
       "categoryCreated": "Category forged successfully!",
@@ -274,12 +284,34 @@
     },
     "deleteAccount": {
       "title": "Delete account",
-      "warning": "This permanently deletes your account, orders, addresses and Voices. It cannot be undone.",
+      "warning": "This permanently deletes your account, orders, addresses and reviews. It cannot be undone.",
       "password": "Current password",
       "email": "Type your e-mail to confirm",
       "confirm": "I understand that this cannot be undone",
       "submit": "Delete my account",
       "failed": "Could not delete the account. Check your input and try again."
+    },
+    "sidebar": {
+      "title": "Account",
+      "personal": "Personal",
+      "management": "Management"
+    },
+    "overview": {
+      "greeting": "Hello, {name}",
+      "greetingNoName": "Hello",
+      "intro": "Check your orders, manage your addresses and update your account details.",
+      "orderCount": "{count, plural, one {# order} other {# orders}}",
+      "backToStore": "Back to the store"
+    },
+    "profile": {
+      "title": "Profile",
+      "subtitle": "Update your name, email and password.",
+      "details": "Your details",
+      "password": "Password",
+      "name": "Name",
+      "email": "Email",
+      "currentPassword": "Current password",
+      "newPassword": "New password"
     }
   },
   "reviews": {

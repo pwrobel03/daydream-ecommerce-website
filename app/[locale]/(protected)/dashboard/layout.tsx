@@ -11,9 +11,9 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Container className="flex min-h-screen flex flex-col md:flex-row">
+    <Container className="flex min-h-screen flex-col md:flex-row">
       {/* SIDEBAR - Wspólny dla wszystkich zalogowanych */}
-      <aside className="w-full md:w-80 md:border-r-2 flex-shrink-0 md:sticky md:-top-10 md:h-screen">
+      <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r flex-shrink-0 md:sticky md:top-0 md:h-screen">
         {/* usePathname i useCurrentRole czytają dane żądania, więc pasek boczny
             nie może być prerenderowany razem z powłoką. */}
         <Suspense fallback={<SidebarSkeleton />}>

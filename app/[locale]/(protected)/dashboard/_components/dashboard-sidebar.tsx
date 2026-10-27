@@ -11,9 +11,7 @@ import {
   Layers,
   LayoutDashboard,
   User,
-  
   Package,
-  ShieldCheck,
   Sprout,
   Cctv,
   Van,
@@ -53,30 +51,14 @@ export default function DashboardSidebar() {
   ];
 
   return (
-    <div className="flex flex-col h-full p-8">
-      {/* BRANDING */}
-      <div className="mb-12">
-        <h2 className="text-3xl font-black italic uppercase tracking-tighter">
-          Dashboard
-        </h2>
-        <div className="flex items-center gap-2 mt-1">
-          <div
-            className={cn(
-              "h-1.5 w-1.5 rounded-full animate-pulse",
-              isAdmin ? "bg-primary" : "bg-green-500"
-            )}
-          />
-          <p className="text-lg font-black uppercase tracking-[0.3em] opacity-70">
-            {isAdmin ? t("nav.adminConsole") : t("labels.userDashboard")}
-          </p>
-        </div>
-      </div>
+    <div className="flex h-full flex-col gap-4 p-4 md:gap-6 md:p-6">
+      <h2 className="text-lg font-semibold leading-[1.35]">{t("sidebar.title")}</h2>
 
-      {/* USER SECTION */}
-      <div className="space-y-1 mb-10">
-        <p className="text-lg font-black uppercase tracking-widest opacity-70 mb-4 ml-6">
-          Personal
-        </p>
+      {/* Na wąskim ekranie grupy układają się w przewijany poziomo rząd. */}
+      <nav
+        aria-label={t("sidebar.personal")}
+        className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible"
+      >
         {userMenuItems.map((item) => (
           <SidebarItem
             key={item.href}
@@ -84,26 +66,21 @@ export default function DashboardSidebar() {
             isActive={pathname === item.href}
           />
         ))}
-      </div>
+      </nav>
 
-      {/* ADMIN SECTION - RENDEROWANA WARUNKOWO */}
       {isAdmin && (
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 mb-4 ml-6">
-            <ShieldCheck size={24} className="text-primary-text" />
-            <p className="text-lg font-black uppercase tracking-widest text-primary-text">
-              Management
-            </p>
-          </div>
+        <nav
+          aria-label={t("sidebar.management")}
+          className="flex gap-1 overflow-x-auto border-t pt-4 md:flex-col md:overflow-visible md:pt-6"
+        >
           {adminMenuItems.map((item) => (
             <SidebarItem
               key={item.href}
               item={item}
               isActive={pathname === item.href}
-              isAdmin
             />
           ))}
-        </div>
+        </nav>
       )}
     </div>
   );
@@ -113,28 +90,23 @@ export default function DashboardSidebar() {
 function SidebarItem({
   item,
   isActive,
-  isAdmin = false,
 }: {
   item: { href: string; title: string; icon: LucideIcon };
   isActive: boolean;
-  isAdmin?: boolean;
 }) {
   return (
     <Link
       href={item.href}
+      aria-current={isActive ? "page" : undefined}
       className={cn(
-        "group flex items-center gap-4 px-6 py-4 rounded-[1.5rem] transition-all duration-500",
+        "flex shrink-0 items-center gap-3 whitespace-nowrap rounded-md px-3 py-2 text-sm transition-colors",
         isActive
-          ? "bg-primary text-primary-foreground shadow-xl scale-[1.02]"
-          : "hover:bg-primary/20 hover:text-foreground"
+          ? "bg-accent font-medium text-accent-foreground"
+          : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
       )}
     >
-      <item.icon
-        className={cn("h-4 w-4", isActive && isAdmin ? "text-primary-text" : "")}
-      />
-      <span className="font-black italic uppercase tracking-tight text-xs">
-        {item.title}
-      </span>
+      <item.icon className="h-4 w-4" />
+      {item.title}
     </Link>
   );
 }

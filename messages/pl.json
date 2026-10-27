@@ -170,7 +170,17 @@
       "title": "Adresy",
       "subtitle": "Zarządzaj adresami dostawy i rozliczeniowymi.",
       "cityPlaceholder": "Miasto...",
-      "namePlaceholder": "Wpisz imię i nazwisko..."
+      "namePlaceholder": "Wpisz imię i nazwisko...",
+      "contact": "Kontakt",
+      "location": "Adres",
+      "fullName": "Imię i nazwisko",
+      "phone": "Telefon",
+      "street": "Ulica i numer",
+      "zipCode": "Kod pocztowy",
+      "city": "Miasto",
+      "phonePlaceholder": "+48 123 456 789",
+      "zipPlaceholder": "00-000",
+      "save": "Zapisz adres"
     },
     "inventory": {
       "newProduct": "Nowy produkt",
@@ -196,11 +206,11 @@
       "forging": "Tworzę..."
     },
     "feedback": {
-      "saved": "Zapisano",
+      "saved": "Zapisano.",
       "storageError": "Wystąpił błąd podczas zapisu.",
       "unexpected": "Wystąpił nieoczekiwany błąd.",
       "connectionError": "Błąd połączenia",
-      "transmissionError": "Krytyczny błąd transmisji",
+      "transmissionError": "Coś poszło nie tak. Spróbuj ponownie.",
       "paymentSessionError": "Błąd sesji płatności",
       "settingsSaved": "Ustawienia zapisane.",
       "emailChanged": "E-mail zmieniony — wysłaliśmy link weryfikacyjny.",
@@ -280,6 +290,28 @@
       "confirm": "Rozumiem, że tego nie można cofnąć",
       "submit": "Usuń moje konto",
       "failed": "Nie udało się usunąć konta. Sprawdź dane i spróbuj ponownie."
+    },
+    "sidebar": {
+      "title": "Konto",
+      "personal": "Osobiste",
+      "management": "Zarządzanie"
+    },
+    "overview": {
+      "greeting": "Cześć, {name}",
+      "greetingNoName": "Cześć",
+      "intro": "Sprawdź zamówienia, zarządzaj adresami i zmień dane konta.",
+      "orderCount": "{count, plural, one {# zamówienie} few {# zamówienia} many {# zamówień} other {# zamówienia}}",
+      "backToStore": "Wróć do sklepu"
+    },
+    "profile": {
+      "title": "Profil",
+      "subtitle": "Zmień imię, e-mail i hasło.",
+      "details": "Twoje dane",
+      "password": "Hasło",
+      "name": "Imię i nazwisko",
+      "email": "E-mail",
+      "currentPassword": "Aktualne hasło",
+      "newPassword": "Nowe hasło"
     }
   },
   "reviews": {

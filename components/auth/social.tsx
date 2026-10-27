@@ -14,8 +14,8 @@ export const Social = ({ providers }: { providers: Provider[] }) => {
   const t = useTranslations("auth.oauth");
   if (providers.length === 0) return null;
   return (
-    <div className="space-y-4">
-      <p className="text-[10px] font-black uppercase italic tracking-tighter text-foreground/70 text-center">
+    <div className="space-y-3">
+      <p className="text-muted-foreground text-center text-sm">
         {t("divider")}
       </p>
       <div className="flex items-center gap-x-2 w-full">

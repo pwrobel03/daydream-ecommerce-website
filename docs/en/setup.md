@@ -122,7 +122,7 @@ E2E_PORT_BASE=3200 npm run test:e2e
 ```
 
 The app gets the base port, PostgreSQL base + 1, Redis base + 2, SMTP base + 3 and the Mailpit UI base + 4.
-Without `E2E_PORT_BASE` the ports above stay as they are. The email spec (`tests/e2e/email.spec.ts`) still expects the default Mailpit port, so run it without the variable.
+Without `E2E_PORT_BASE` the ports above stay as they are. The email spec (`tests/e2e/email.spec.ts`) still expects the default Mailpit port, so run it without the variable. The services are stopped and their volumes removed after every run, also when the tests fail or are interrupted.
 
 ## 📸 Screenshots on pull requests
 

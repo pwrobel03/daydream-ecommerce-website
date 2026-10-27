@@ -388,5 +388,62 @@
     "title": "Page not found",
     "body": "The page you are looking for does not exist or has moved.",
     "home": "Back to home"
+  },
+  "home": {
+    "hero": {
+      "title": "Granola and muesli for slow mornings",
+      "lead": "Daydream mixes small batches of granola and muesli from oats, nuts, seeds and fruit. Pick a bag and start the day your way.",
+      "cta": "Browse the catalogue"
+    },
+    "about": {
+      "title": "Why Daydream",
+      "lead": "Daydream started with a simple idea: breakfast should be easy to make and good to eat. We build our mixes from whole grains, nuts, seeds and dried fruit, and keep the ingredient lists short.",
+      "pillars": {
+        "grains": {
+          "title": "Whole grains",
+          "desc": "Oats and other whole grains form the base of every mix."
+        },
+        "nuts": {
+          "title": "Nuts and seeds",
+          "desc": "Nuts and seeds add crunch."
+        },
+        "balance": {
+          "title": "Balanced recipes",
+          "desc": "Each mix balances grains, protein and fruit, so it is not too sweet."
+        },
+        "simple": {
+          "title": "Short ingredient lists",
+          "desc": "Every product page lists what is in the bag."
+        }
+      }
+    },
+    "categories": {
+      "title": "Shop by category",
+      "lead": "Choose a category to see its products.",
+      "open": "Open {name}"
+    },
+    "process": {
+      "title": "How we make it",
+      "lead": "Small batches, made in three steps.",
+      "steps": {
+        "select": {
+          "title": "Choose the ingredients",
+          "desc": "We pick each ingredient for its taste and texture."
+        },
+        "roast": {
+          "title": "Bake slowly",
+          "desc": "The granola is baked at a low temperature until it is crisp."
+        },
+        "pack": {
+          "title": "Seal the bag",
+          "desc": "We pack each mix once it has cooled, to keep it fresh."
+        }
+      }
+    },
+    "sale": {
+      "discount": "{value}% off",
+      "code": "Promo code",
+      "cta": "Browse the catalogue"
+    }
   }
 }

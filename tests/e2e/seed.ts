@@ -57,6 +57,8 @@ async function main() {
   const category = await db.category.create({
     data: { name: "Bars", slug: "bars" },
   });
+  // A second category, so the home page renders a collapsed card for the a11y scan.
+  await db.category.create({ data: { name: "Granola", slug: "granola" } });
 
   const product = await db.product.create({
     data: {

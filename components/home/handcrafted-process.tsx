@@ -1,59 +1,34 @@
-import React from "react";
+import { getTranslations } from "next-intl/server";
 
-export default function HandcraftedProcess() {
+const steps = ["select", "roast", "pack"] as const;
+
+export default async function HandcraftedProcess() {
+  const t = await getTranslations("home.process");
+
   return (
-    <div className="grid grid-cols-1 gap-24 items-center py-16">
-      <div className="space-y-12 flex flex-col">
-        <h2 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-[0.8] mb-8">
-          Handcrafted <br />
-          <span className="text-primary-text">Process.</span>
-        </h2>
-        <h3 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter leading-none text-right">
-          Small Batches, <br />
-          Big Impact.
-        </h3>
-
-        <div className="space-y-10">
-          <div className="flex gap-6">
-            <span className="text-primary-text font-black italic text-2xl">01.</span>
+    <section className="py-16 md:py-24">
+      <h2 className="font-display text-2xl leading-tight tracking-tight text-balance">
+        {t("title")}
+      </h2>
+      <p className="mt-4 max-w-[65ch] text-pretty text-muted-foreground">
+        {t("lead")}
+      </p>
+      {/* The steps happen in this order, so the list is numbered. */}
+      <ol className="mt-12 max-w-[65ch] space-y-8">
+        {steps.map((step, i) => (
+          <li key={step} className="flex gap-6">
+            <span aria-hidden className="font-display text-2xl tabular-nums text-primary-text">
+              {i + 1}
+            </span>
             <div>
-              <h4 className="font-black uppercase italic tracking-widest text-sm mb-2">
-                Raw Selection
-              </h4>
-              <p className="text-muted-foreground text-sm italic leading-relaxed">
-                Each ingredient is hand-picked for its texture and nutritional
-                profile, ensuring only the finest clusters make it into your
-                bag.
+              <h3 className="font-medium">{t(`steps.${step}.title`)}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t(`steps.${step}.desc`)}
               </p>
             </div>
-          </div>
-          <div className="flex gap-6">
-            <span className="text-primary-text font-black italic text-2xl">02.</span>
-            <div>
-              <h4 className="font-black uppercase italic tracking-widest text-sm mb-2">
-                Slow Roasting
-              </h4>
-              <p className="text-muted-foreground text-sm italic leading-relaxed">
-                Our granola is baked at low temperatures to preserve
-                heat-sensitive vitamins and achieve the perfect, signature
-                crunch.
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-6">
-            <span className="text-primary-text font-black italic text-2xl">03.</span>
-            <div>
-              <h4 className="font-black uppercase italic tracking-widest text-sm mb-2">
-                Sealed Integrity
-              </h4>
-              <p className="text-muted-foreground text-sm italic leading-relaxed">
-                Packed immediately after cooling in our high-barrier eco-pouches
-                to maintain freshness and aroma from our kitchen to your table.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }

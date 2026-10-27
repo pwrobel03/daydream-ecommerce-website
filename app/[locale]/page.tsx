@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import DiscountBanner from "@/components/discount-banner";
@@ -39,7 +39,16 @@ async function Hero() {
   );
 }
 
-export default function Home() {
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  // Sections read translations on the server; without the locale set here the
+  // build treats them as request data and fails to prerender the route.
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <Container>
       <Suspense>

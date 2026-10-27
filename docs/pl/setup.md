@@ -122,7 +122,7 @@ E2E_PORT_BASE=3200 npm run test:e2e
 ```
 
 Aplikacja dostaje port bazowy, PostgreSQL bazowy + 1, Redis bazowy + 2, SMTP bazowy + 3, a interfejs Mailpita bazowy + 4.
-Bez `E2E_PORT_BASE` porty zostają takie, jak wyżej. Test maili (`tests/e2e/email.spec.ts`) nadal oczekuje domyślnego portu Mailpita, więc uruchamiaj go bez tej zmiennej.
+Bez `E2E_PORT_BASE` porty zostają takie, jak wyżej. Test maili (`tests/e2e/email.spec.ts`) nadal oczekuje domyślnego portu Mailpita, więc uruchamiaj go bez tej zmiennej. Usługi są zatrzymywane, a ich wolumeny usuwane po każdym przebiegu, także gdy testy się nie powiodą albo zostaną przerwane.
 
 ## 📸 Zrzuty ekranu w pull requestach
 

@@ -16,6 +16,7 @@ PROJECT="daydream-e2e${E2E_PORT_BASE:+-$E2E_PORT_BASE}"
 
 cleanup() { docker compose -p "$PROJECT" -f docker-compose.test.yml down -v >/dev/null 2>&1 || true; }
 trap cleanup EXIT
+trap 'exit 130' INT TERM # EXIT uruchamia sprzątanie także po przerwaniu
 
 docker compose -p "$PROJECT" -f docker-compose.test.yml up -d --wait
 

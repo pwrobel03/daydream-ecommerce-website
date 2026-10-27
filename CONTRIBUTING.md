@@ -56,6 +56,10 @@ E2E suites, including the WCAG A/AA accessibility specs in `tests/e2e/a11y.spec.
 - **E2E tests:** `scripts/e2e.sh` starts `docker-compose.test.yml` (PostgreSQL on 55432, Redis on 56379,
   Mailpit on 51025/58025), applies migrations, seeds `tests/e2e/seed.ts` and runs Playwright against
   `next dev` on port 3100. It removes the containers and volumes when it finishes.
+  To use other ports (for example a second checkout), set `E2E_PORT_BASE`:
+  `E2E_PORT_BASE=3200 npm run test:e2e` puts the app on 3200, PostgreSQL on 3201, Redis on 3202,
+  SMTP on 3203 and the Mailpit UI on 3204. `tests/e2e/email.spec.ts` still expects Mailpit on 58025,
+  so run it with the default ports.
 
 ## Project structure
 

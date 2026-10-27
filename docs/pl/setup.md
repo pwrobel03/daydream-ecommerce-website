@@ -112,6 +112,18 @@ Przy wdrożeniu w Dockerze użyj `scripts/create-admin.sh <email> [imię]`; patr
 - **Błędy typów tras po usunięciu strony** — usuń katalog `.next` i powtórz sprawdzanie
   typów.
 
+## 🧪 Testy end-to-end na innych portach
+
+`npm run test:e2e` używa aplikacji na 3100, PostgreSQL na 55432, Redisa na 56379 i Mailpita na 51025 (SMTP) / 58025 (UI).
+Żeby uruchomić testy na innym wolnym zestawie portów, np. w drugiej kopii repozytorium, ustaw jedną zmienną:
+
+```bash
+E2E_PORT_BASE=3200 npm run test:e2e
+```
+
+Aplikacja dostaje port bazowy, PostgreSQL bazowy + 1, Redis bazowy + 2, SMTP bazowy + 3, a interfejs Mailpita bazowy + 4.
+Bez `E2E_PORT_BASE` porty zostają takie, jak wyżej. Test maili (`tests/e2e/email.spec.ts`) nadal oczekuje domyślnego portu Mailpita, więc uruchamiaj go bez tej zmiennej.
+
 ## 📸 Zrzuty ekranu w pull requestach
 
 Pull request zmieniający UI dostaje jeden komentarz ze zrzutami przed/po

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { Button } from "@/components/ui/button";
 import { ProductGridSkeleton } from "@/components/skeletons";
 import { getVoices } from "@/lib/db-reviews";
 import { VoicesFilters } from "../../_components/voices-filters";
@@ -21,6 +22,7 @@ async function CommentsPageContent({
 }) {
   const { search, rating, take } = await searchParams;
 
+  const t = await getTranslations("dashboard.reviews");
   const currentTake = Number(take) || PAGE_SIZE;
   const currentRating = Number(rating) || null;
 
@@ -36,41 +38,26 @@ async function CommentsPageContent({
   nextParams.set("take", String(currentTake + PAGE_SIZE));
 
   return (
-    <div className="space-y-12">
-      <header className="space-y-10">
-        <div className="flex justify-between items-end border-b">
-          <div className="space-y-1">
-            <h1 className="text-6xl font-black italic uppercase tracking-tighter">
-              Voices Hub
-            </h1>
-            <p className="text-md font-black uppercase tracking-[0.4em] opacity-70 ml-1 pb-10">
-              Active Monitoring ({reviews.length} / {totalCount})
-            </p>
-          </div>
-        </div>
-
-        <VoicesFilters rating={currentRating} />
+    <div className="flex flex-col gap-6 pb-6">
+      <header className="flex flex-col gap-1 border-b pb-6">
+        <h1 className="text-2xl font-semibold leading-tight">{t("title")}</h1>
+        <p className="text-muted-foreground">
+          {t("count", { shown: reviews.length, total: totalCount })}
+        </p>
       </header>
+
+      <VoicesFilters rating={currentRating} />
 
       <VoicesList voices={reviews} />
 
       {reviews.length < totalCount && (
-        <div className="flex justify-center pt-6">
-          {/* Kolejna porcja to większe `take` w adresie, więc działa też bez
-              JavaScriptu i da się do niej wrócić z historii przeglądarki. */}
-          <Link
-            href={`?${nextParams.toString()}`}
-            scroll={false}
-            className="group flex flex-col items-center gap-4"
-          >
-            <div className="w-16 h-16 rounded-full border border-border/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
-              <Plus />
-            </div>
-            <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-70 italic">
-              Reveal More Stories
-            </span>
+        // Kolejna porcja to większe `take` w adresie, więc działa też bez
+        // JavaScriptu i da się do niej wrócić z historii przeglądarki.
+        <Button asChild variant="outline" className="self-center">
+          <Link href={`?${nextParams.toString()}`} scroll={false}>
+            {t("showMore")}
           </Link>
-        </div>
+        </Button>
       )}
     </div>
   );

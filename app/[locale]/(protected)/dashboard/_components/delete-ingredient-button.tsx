@@ -7,9 +7,15 @@ import { Trash2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { deleteIngredient } from "@/actions/admin/ingredients"; // Twoja akcja
+import { deleteIngredient } from "@/actions/admin/ingredients";
 
-export const DeleteIngredientButton = ({ id }: { id: string }) => {
+export const DeleteIngredientButton = ({
+  id,
+  name,
+}: {
+  id: string;
+  name: string;
+}) => {
   const t = useTranslations("dashboard");
   const readOnlyReason = useReadOnlyReason();
   const [loading, setLoading] = useState(false);
@@ -31,18 +37,15 @@ export const DeleteIngredientButton = ({ id }: { id: string }) => {
 
   return (
     <Button
-      variant="destructive"
-      size="sm"
+      variant="outline"
+      size="icon"
       onClick={onDelete}
       disabled={loading || !!readOnlyReason}
       title={readOnlyReason}
-      className="w-10 h-10 rounded-full border bg-card hover:text-white transition-all hover:bg-destructive text-foreground dark:bg-card dark:hover:bg-destructive"
+      aria-label={t("actions.delete", { name })}
+      className="hover:bg-destructive hover:text-destructive-foreground"
     >
-      {loading ? (
-        <Loader2 size={16} className="animate-spin" />
-      ) : (
-        <Trash2 size={16} />
-      )}
+      {loading ? <Loader2 className="animate-spin" /> : <Trash2 />}
     </Button>
   );
 };

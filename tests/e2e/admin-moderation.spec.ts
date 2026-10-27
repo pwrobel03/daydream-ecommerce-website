@@ -14,7 +14,7 @@ async function openModeration(page: import("@playwright/test").Page) {
   test.setTimeout(150_000);
 
   await page.goto("/dashboard/comments");
-  await expect(page.getByRole("heading", { name: /voices hub/i })).toBeVisible({
+  await expect(page.getByRole("heading", { name: "Reviews", level: 1 })).toBeVisible({
     timeout: 60_000,
   });
 }

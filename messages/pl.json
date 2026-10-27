@@ -178,7 +178,7 @@
       "categories": "Kategorie",
       "ingredients": "Składniki",
       "manageOrders": "Zarządzaj zamówieniami",
-      "manageVoices": "Zarządzaj opiniami",
+      "reviews": "Opinie",
       "identity": "Tożsamość",
       "analytics": "Analityka"
     },
@@ -231,20 +231,50 @@
       "deleteConfirm": "Usunąć „{name}”? Tej operacji nie można cofnąć."
     },
     "ingredients": {
+      "title": "Składniki",
+      "add": "Dodaj składnik",
+      "empty": "Brak składników.",
       "create": "Dodaj składnik",
       "edit": "Edytuj składnik",
-      "forge": "Utwórz składnik",
-      "confirm": "Zatwierdź składnik",
-      "editEssence": "Edytuj składnik",
-      "forging": "Zapisuję...",
-      "deleteConfirm": "Na pewno usunąć ten składnik?",
-      "deleted": "Składnik usunięty",
-      "deleteFailed": "Nie udało się usunąć składnika"
+      "note": "Zmiana składnika dotyczy każdego produktu, który go używa.",
+      "name": "Nazwa",
+      "namePlaceholder": "Np. Erytrytol",
+      "icon": "Ikona",
+      "addImage": "Dodaj obraz WebP, PNG lub JPG",
+      "removeImage": "Usuń obraz",
+      "fileTooLarge": "Plik jest za duży (maks. 5 MB).",
+      "cancel": "Anuluj",
+      "save": "Zapisz składnik",
+      "saveFailed": "Nie udało się zapisać składnika.",
+      "deleteConfirm": "Usunąć ten składnik? Tej operacji nie można cofnąć.",
+      "deleted": "Składnik usunięty.",
+      "deleteFailed": "Nie udało się usunąć składnika."
     },
     "categories": {
-      "forge": "Utwórz kategorię",
+      "title": "Kategorie",
+      "createTitle": "Nowa kategoria",
+      "createHint": "Dodaj kategorię główną lub podkategorię.",
+      "note": "Usunięcie kategorii nadrzędnej nie usuwa jej produktów. Zostają bez kategorii.",
+      "listTitle": "Wszystkie kategorie",
+      "name": "Nazwa",
       "namePlaceholder": "Np. Ciemne historie",
-      "forging": "Tworzę..."
+      "image": "Zdjęcie okładki",
+      "description": "Opis",
+      "isSubcategory": "To jest podkategoria",
+      "parent": "Kategoria nadrzędna",
+      "create": "Utwórz kategorię",
+      "creating": "Tworzenie…",
+      "main": "Główna",
+      "products": "{count, plural, one {# produkt} few {# produkty} many {# produktów} other {# produktu}}",
+      "empty": "Brak kategorii. Utwórz pierwszą za pomocą formularza.",
+      "deleteConfirm": "Usunąć „{name}”? Tej operacji nie można cofnąć."
+    },
+    "reviews": {
+      "title": "Opinie",
+      "count": "Wyświetlono {shown} z {total}",
+      "empty": "Brak pasujących opinii.",
+      "showMore": "Pokaż więcej",
+      "deleteConfirm": "Usunąć tę opinię? Tej operacji nie można cofnąć."
     },
     "feedback": {
       "saved": "Zapisano.",
@@ -261,7 +291,8 @@
       "ingredientSaved": "Składnik zapisany.",
       "productSaved": "Produkt zapisany.",
       "productRemoved": "Produkt usunięty.",
-      "voiceRemoved": "Opinia usunięta."
+      "voiceRemoved": "Opinia usunięta.",
+      "uploadFailed": "Serwer nie mógł przetworzyć żądania. Obraz może być za duży lub uszkodzony (limit 8 MB)."
     },
     "tiles": {
       "ordersDesc": "Śledź bieżące przesyłki i historię zakupów.",
@@ -295,13 +326,13 @@
       "imageHint": "Najlepiej wyglądają kwadratowe zdjęcia do 2048 × 2048 px."
     },
     "search": {
-      "comments": "Szukaj po produkcie lub treści...",
+      "comments": "Szukaj po produkcie lub treści",
       "products": "Szukaj po nazwie..."
     },
     "placeholders": {
       "street": "Ulica i numer",
-      "categoryStory": "Opisz tę kategorię...",
-      "selectParent": "Wybierz nadrzędną..."
+      "categoryStory": "Jakie produkty tu trafią?",
+      "selectParent": "Wybierz kategorię nadrzędną"
     },
     "labels": {
       "deliveryAddress": "Adres dostawy",
@@ -342,7 +373,10 @@
       "subCategory": "Filtruj po podkategorii",
       "stockAll": "Cały magazyn",
       "stockLow": "Niski stan (5 lub mniej)",
-      "stockEmpty": "Brak na stanie"
+      "stockEmpty": "Brak na stanie",
+      "rating": "Filtruj po ocenie",
+      "ratingValue": "{count, plural, one {# gwiazdka} few {# gwiazdki} many {# gwiazdek} other {# gwiazdki}}",
+      "clearRating": "Wyczyść filtr oceny"
     },
     "actions": {
       "edit": "Edytuj {name}",

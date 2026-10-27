@@ -1,20 +1,30 @@
 {
   "nav": {
     "search": "Szukaj",
-    "searchPlaceholder": "SZUKAJ",
+    "searchPlaceholder": "Szukaj",
     "searchLabel": "Szukaj produktów",
     "cart": "Koszyk",
     "account": "Konto",
     "language": "Język",
     "cartCount": "{count, plural, one {# produkt w koszyku} few {# produkty w koszyku} many {# produktów w koszyku} other {# produktu w koszyku}}",
-    "menu": "Otwórz menu"
+    "menu": "Otwórz menu",
+    "allProducts": "Wszystkie produkty",
+    "more": "Więcej",
+    "themeToggle": "Zmień motyw",
+    "themeLight": "Jasny",
+    "themeDark": "Ciemny",
+    "themeSystem": "Systemowy",
+    "close": "Zamknij menu",
+    "tagline": "Naturalnie. Zdrowo. Z pasją.",
+    "home": "Strona główna DayDream"
   },
   "common": {
     "loading": "Ładowanie",
     "tryAgain": "Spróbuj ponownie",
     "somethingBroke": "Coś się zepsuło",
     "errorHelp": "To nasza wina. Błąd został zapisany.",
-    "reference": "Numer referencyjny"
+    "reference": "Numer referencyjny",
+    "backHome": "Wróć na stronę główną"
   },
   "search": {
     "title": "Szukaj",
@@ -71,46 +81,55 @@
       "demoEmail": "E-mail",
       "demoPassword": "Hasło",
       "demoSignIn": "Zaloguj jako demo administrator",
-      "title": "Logowanie",
-      "submit": "Zaloguj",
-      "submitting": "Sprawdzam...",
+      "title": "Zaloguj się",
+      "submit": "Zaloguj się",
+      "submitting": "Logowanie…",
       "email": "E-mail",
       "password": "Hasło",
-      "emailPlaceholder": "UZYTKOWNIK@DAYDREAM.COM",
-      "noAccount": "Załóż konto",
+      "emailPlaceholder": "jan@example.com",
+      "noAccount": "Nie masz konta?",
       "forgot": "Nie pamiętasz hasła?",
-      "systemLabel": "System_Logowanie",
-      "headline": "SKARBIEC",
-      "headlineAccent": "TOŻSAMOŚCI.",
-      "rateLimited": "Zbyt wiele prób. Spróbuj ponownie za 15 minut."
+      "rateLimited": "Zbyt wiele prób. Spróbuj ponownie za 15 minut.",
+      "description": "Witaj ponownie. Zaloguj się na swoje konto.",
+      "register": "Załóż konto",
+      "invalidCredentials": "E-mail lub hasło jest nieprawidłowe. Sprawdź oba pola i spróbuj ponownie.",
+      "success": "Zalogowano. Przenosimy Cię do panelu…"
     },
     "register": {
       "title": "Załóż konto",
       "submit": "Załóż konto",
-      "submitting": "Tworzę...",
+      "submitting": "Zakładanie konta…",
       "name": "Imię",
-      "namePlaceholder": "NP. JAN KOWALSKI",
-      "hasAccount": "Zaloguj się",
-      "systemLabel": "System_Rejestracja",
-      "headline": "NOWY",
-      "headlineAccent": "PROTOKÓŁ.",
+      "namePlaceholder": "Twoje imię",
+      "hasAccount": "Masz już konto?",
       "success": "Wysłaliśmy e-mail potwierdzający. Sprawdź skrzynkę.",
-      "demoNote": "To demo portfolio: dane mogą zostać usunięte w dowolnym momencie."
+      "demoNote": "To demo portfolio: dane mogą zostać usunięte w dowolnym momencie.",
+      "description": "Załóż konto, aby składać zamówienia i je śledzić.",
+      "email": "E-mail",
+      "emailPlaceholder": "jan@example.com",
+      "password": "Hasło",
+      "login": "Zaloguj się"
     },
     "reset": {
       "title": "Reset hasła",
       "submit": "Wyślij link",
-      "submitting": "Wysyłam...",
+      "submitting": "Wysyłanie…",
       "backToLogin": "Wróć do logowania",
-      "success": "Link do zmiany hasła został wysłany na Twój adres e-mail."
+      "success": "Wysłaliśmy link do zmiany hasła na Twój adres e-mail.",
+      "description": "Podaj e-mail, a wyślemy Ci link do ustawienia nowego hasła.",
+      "email": "E-mail",
+      "emailPlaceholder": "jan@example.com"
     },
     "newPassword": {
       "title": "Ustaw nowe hasło",
       "submit": "Zapisz hasło",
-      "submitting": "Zapisuję...",
+      "submitting": "Zapisywanie…",
       "password": "Nowe hasło",
       "confirm": "Powtórz hasło",
-      "success": "Hasło zostało zmienione."
+      "success": "Hasło zostało zmienione.",
+      "description": "Wybierz hasło z co najmniej 8 znakami.",
+      "backToLogin": "Wróć do logowania",
+      "missingToken": "Ten link jest niekompletny. Poproś o nowy."
     },
     "verification": {
       "pending": "Weryfikuję adres e-mail...",
@@ -118,12 +137,13 @@
       "missingToken": "Brak tokena weryfikacyjnego.",
       "failed": "Wystąpił nieoczekiwany błąd.",
       "proceed": "Przejdź do logowania",
-      "back": "Przerwij i wróć"
+      "back": "Wróć do logowania",
+      "title": "Potwierdź adres e-mail"
     },
     "error": {
-      "title": "Błąd uwierzytelniania",
-      "invalidKey": "Nieprawidłowy klucz",
-      "missingToken": "Brak tokena bezpieczeństwa. Operacja przerwana.",
+      "title": "Błąd logowania",
+    "invalidKey": "Podczas logowania coś poszło nie tak. Spróbuj ponownie.",
+      "missingToken": "Ten link jest niekompletny. Poproś o nowy.",
       "back": "Wróć do logowania"
     },
     "user": {
@@ -131,6 +151,14 @@
       "profile": "Profil",
       "logout": "Wyloguj",
       "avatar": "Awatar użytkownika"
+    },
+    "errors": {
+      "emailInvalid": "Podaj poprawny adres e-mail, np. jan@example.com.",
+      "passwordRequired": "Wpisz hasło.",
+      "passwordTooShort": "Użyj co najmniej 8 znaków.",
+      "passwordsDontMatch": "Hasła są różne. Wpisz to samo hasło w obu polach.",
+      "nameRequired": "Wpisz swoje imię.",
+      "verificationRequired": "Wykonaj weryfikację poniżej."
     }
   },
   "dashboard": {
@@ -383,6 +411,13 @@
     }
   },
   "footer": {
-    "privacy": "Prywatność"
+    "privacy": "Prywatność",
+    "copyright": "© {year} DayDream",
+    "demo": "Demo portfolio. Nic tu nie jest na sprzedaż."
+  },
+  "notFound": {
+    "title": "Nie znaleziono strony",
+    "body": "Strony, której szukasz, nie ma albo została przeniesiona.",
+    "home": "Wróć na stronę główną"
   }
 }

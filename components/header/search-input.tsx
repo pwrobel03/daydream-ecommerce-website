@@ -28,7 +28,7 @@ export function SearchInput() {
       </label>
       <Search
         aria-hidden="true"
-        className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40"
+        className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
       />
       <input
         id="site-search"
@@ -36,7 +36,7 @@ export function SearchInput() {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={t("searchPlaceholder")}
-        className="h-11 w-48 rounded-full border bg-transparent pl-11 pr-4 text-[10px] font-black uppercase tracking-widest outline-none transition-all focus:w-64 focus:border-primary"
+        className="h-10 w-40 rounded-full border bg-transparent pl-11 pr-4 text-sm outline-none transition-[width,border-color] duration-200 focus:w-56 focus:border-primary xl:w-48 xl:focus:w-64"
       />
     </form>
   );

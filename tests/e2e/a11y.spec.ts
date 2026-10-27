@@ -8,13 +8,10 @@ import { ADMIN_STATE, E2E_PRODUCT } from "./fixtures";
 const scan = (page: import("@playwright/test").Page) =>
   new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    // Dwa świadome wyłączenia, oba wąskie:
-    // - dekoracja tła w ekranach logowania: obrócony o 90° znacznik przy
-    //   `opacity-10`, pełniący rolę tekstury;
-    // - warstwa wykresu, dla której obok stoi ta sama treść jako tabela.
+    // Jedno świadome, wąskie wyłączenie: warstwa wykresu, dla której obok
+    // stoi ta sama treść jako tabela.
     // Celowo nie wyłączamy `[aria-hidden]` w ogóle: błędne oznaczenie treści
     // jako ukrytej jest częstym błędem i audyt ma je łapać.
-    .exclude(".decor-hidden")
     .exclude("[data-chart-surface]");
 
 const pages = [

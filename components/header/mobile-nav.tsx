@@ -7,7 +7,6 @@ import {
   SheetContent,
   SheetTrigger,
   SheetTitle,
-  
   SheetClose,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -27,70 +26,44 @@ export const MobileNav = ({ categories }: { categories: Category[] }) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="xl:hidden text-foreground"
-        >
-          <Menu className="h-7 w-7" aria-hidden="true" />
+        <Button variant="ghost" size="icon" className="xl:hidden text-foreground">
+          <Menu className="size-5" aria-hidden="true" />
           <span className="sr-only">{t("menu")}</span>
         </Button>
       </SheetTrigger>
 
-      {/* side="top" lub side="left" + w-full h-full sprawi, że zajmiemy cały ekran */}
+      {/* ADR 0016 motion: sheet 300ms ease-out in, 200ms ease-in out (the sheet default is 500/300). */}
       <SheetContent
         side="right"
-        className="w-screen sm:max-w-none h-full border-none bg-background p-0 overflow-auto"
+        className="h-full w-screen overflow-auto rounded-none border-none bg-background p-0 ease-[cubic-bezier(0.16,1,0.3,1)] data-[state=closed]:duration-200 data-[state=closed]:ease-[cubic-bezier(0.4,0,1,1)] data-[state=open]:duration-300 sm:max-w-none"
       >
-        <div className="flex flex-col h-full">
-          {/* NAGŁÓWEK MENU - z przyciskiem zamknięcia w rogu */}
-          <div className="flex items-center justify-between p-2 px-4 border-b border-secondary">
-            <SheetTitle className="text-2xl font-black text-primary-text italic uppercase tracking-tighter">
-              <Link href="/" className="group flex items-center gap-2">
-                <Image src={logo} alt="DayDream Logo" className="h-16 w-auto" />
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between border-b border-border px-4 py-2">
+            <SheetTitle asChild>
+              <Link href="/">
+                <Image src={logo} alt={t("home")} className="h-12 w-auto" />
               </Link>
             </SheetTitle>
-            <SheetClose className="absolute right-4 rounded-full hover:bg-accent transition-colors">
-              <X className="h-7 w-7 text-foreground" />
+            <SheetClose className="flex size-10 items-center justify-center rounded-full transition-colors duration-150 hover:bg-accent">
+              <X className="size-5 text-foreground" aria-hidden="true" />
+              <span className="sr-only">{t("close")}</span>
             </SheetClose>
           </div>
 
-          {/* CENTRUM: KATEGORIE */}
-          <nav className="flex-1 flex flex-col items-center justify-center mt-4 gap-4 md:gap-8">
+          <nav className="flex flex-1 flex-col items-start gap-1 px-4 py-6">
             {categories.map((cat) => (
               <SheetClose key={cat.id} asChild>
                 <Link
                   href={`/category/${cat.slug}`}
-                  className="group flex flex-col items-center gap-1"
+                  className="w-full rounded-md px-3 py-3 text-xl font-medium text-foreground transition-colors duration-150 hover:bg-accent hover:text-primary-text"
                 >
-                  <span className="text-xl md:text-2xl font-bold uppercase tracking-[0.2em] text-foreground transition-all group-hover:text-primary-text group-hover:scale-110">
-                    {cat.name}
-                  </span>
-                  {/* Subtelna linia pod nazwą pojawiająca się przy hoverze */}
-                  <div className="h-1 w-0 bg-primary transition-all group-hover:w-full rounded-full" />
+                  {cat.name}
                 </Link>
               </SheetClose>
             ))}
-
-            {/* DODATKOWE AKCJE NA ŚRODKU */}
-            {/* <div className="mt-12 flex flex-col items-center gap-6">
-              <SheetClose asChild>
-                <Link
-                  href="/account"
-                  className="flex items-center gap-2 text-lg font-semibold text-muted-foreground hover:text-foreground"
-                >
-                  Twoje Konto
-                </Link>
-              </SheetClose>
-            </div> */}
           </nav>
 
-          {/* STOPKA MENU - opcjonalnie social media lub info */}
-          <div className="p-8 text-center">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">
-              Natural. Health. With passion.
-            </p>
-          </div>
+          <p className="p-6 text-sm text-muted-foreground">{t("tagline")}</p>
         </div>
       </SheetContent>
     </Sheet>

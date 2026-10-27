@@ -9,9 +9,9 @@ setup("authenticate as admin", async ({ page }) => {
   setup.setTimeout(150_000);
 
   await page.goto("/auth/login");
-  await page.getByPlaceholder("USER@DAYDREAM.COM").fill(E2E_ADMIN.email);
-  await page.getByPlaceholder("••••••••••••").fill(E2E_ADMIN.password);
-  await page.getByRole("button", { name: /login/i }).click();
+  await page.getByLabel("Email").fill(E2E_ADMIN.email);
+  await page.getByLabel("Password").fill(E2E_ADMIN.password);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.waitForURL(/\/dashboard/, { timeout: 60_000 });
 
   await expect(page).toHaveURL(/\/dashboard/);

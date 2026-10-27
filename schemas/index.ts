@@ -4,49 +4,49 @@ import * as z from 'zod';
 // Schema for login
 export const LoginSchema = z.object({
   email: z.string().trim().toLowerCase().email({
-  message: "Email is required"
+  message: "emailInvalid"
   }),
   password: z.string().min(1, {
-  message: "Password is required"
+  message: "passwordRequired"
   })
 })
 
 // Schema for reset password
 export const ResetPasswordSchema = z.object({
   email: z.string().trim().toLowerCase().email({
-  message: "Email is required"
+  message: "emailInvalid"
   }),
   turnstileToken: z.string().min(1, {
-    message: "Complete the verification"
+    message: "verificationRequired"
   })
 })
 
 // Schema for new password
 export const NewPasswordSchema = z.object({
   password: z.string().min(8, {
-    message: "Minimum password length is 8 characters"
+    message: "passwordTooShort"
   }),
   confirmPassword: z.string().min(8, {
-    message: "Minimum password length is 8 characters"
+    message: "passwordTooShort"
   })
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
+  message: "passwordsDontMatch",
   path: ["confirmPassword"], // set the path of the error to confirmPassword field
 })
 
 // Schema for registration
 export const RegisterSchema = z.object({
   email: z.string().trim().toLowerCase().email({
-    message: "Email is required"
+    message: "emailInvalid"
   }),
   password: z.string().min(8, {
-    message: "Minimum password length is 8 characters"
+    message: "passwordTooShort"
   }),
    name: z.string().min(1, {
-    message: "Name is required"
+    message: "nameRequired"
   }),
   turnstileToken: z.string().min(1, {
-    message: "Complete the verification"
+    message: "verificationRequired"
   })
 })
 

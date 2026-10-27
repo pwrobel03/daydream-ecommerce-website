@@ -71,66 +71,84 @@
       "demoEmail": "Email",
       "demoPassword": "Password",
       "demoSignIn": "Sign in as demo admin",
-      "title": "Login",
-      "submit": "Login",
-      "submitting": "Validating...",
+      "title": "Sign in",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
       "email": "Email",
       "password": "Password",
-      "emailPlaceholder": "USER@DAYDREAM.COM",
-      "noAccount": "Create Account",
+      "emailPlaceholder": "name@example.com",
+      "noAccount": "New here?",
       "forgot": "Forgot password?",
-      "systemLabel": "System_Login",
-      "headline": "IDENTITY",
-      "headlineAccent": "VAULT.",
-      "rateLimited": "Too many attempts. Try again in 15 minutes."
+      "rateLimited": "Too many attempts. Try again in 15 minutes.",
+      "description": "Welcome back. Sign in to your account.",
+      "register": "Create an account",
+      "invalidCredentials": "The email or password is wrong. Check both and try again.",
+      "success": "Signed in. Taking you to your dashboard…"
     },
     "register": {
-      "title": "Create Account",
-      "submit": "Create Account",
-      "submitting": "Synthesizing...",
+      "title": "Create account",
+      "submit": "Create account",
+      "submitting": "Creating account…",
       "name": "Name",
-      "namePlaceholder": "EX: DAYDREAM USER",
-      "hasAccount": "Login",
-      "systemLabel": "System_Registration",
-      "headline": "NEW",
-      "headlineAccent": "PROTOCOL.",
-      "success": "Confirmation email sent! Please check your inbox.",
-      "demoNote": "This is a portfolio demo: data may be deleted at any time."
+      "namePlaceholder": "Your name",
+      "hasAccount": "Already have an account?",
+      "success": "Confirmation email sent. Check your inbox.",
+      "demoNote": "This is a portfolio demo: data may be deleted at any time.",
+      "description": "Create an account to place orders and track them.",
+      "email": "Email",
+      "emailPlaceholder": "name@example.com",
+      "password": "Password",
+      "login": "Sign in"
     },
     "reset": {
       "title": "Reset password",
-      "submit": "Send Reset Link",
-      "submitting": "Dispatching...",
-      "backToLogin": "Go back to Login",
-      "success": "Password reset link has been sent to your email!"
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "backToLogin": "Back to sign in",
+      "success": "We sent a reset link to your email.",
+      "description": "Enter your email and we'll send you a link to set a new password.",
+      "email": "Email",
+      "emailPlaceholder": "name@example.com"
     },
     "newPassword": {
       "title": "Set a new password",
-      "submit": "Update Key",
-      "submitting": "Regenerating...",
+      "submit": "Save password",
+      "submitting": "Saving…",
       "password": "New password",
       "confirm": "Confirm password",
-      "success": "Your password has been successfully updated!"
+      "success": "Your password has been updated.",
+      "description": "Choose a password with at least 8 characters.",
+      "backToLogin": "Back to sign in",
+      "missingToken": "This reset link is incomplete. Request a new one."
     },
     "verification": {
       "pending": "Verifying your email...",
       "success": "Email successfully verified!",
       "missingToken": "Verification token is missing.",
       "failed": "An unexpected error occurred.",
-      "proceed": "Proceed to Login",
-      "back": "Abort & Return"
+      "proceed": "Continue to sign in",
+      "back": "Back to sign in",
+      "title": "Confirm your email"
     },
     "error": {
-      "title": "Authentication Error",
-      "invalidKey": "Invalid Registry Key",
-      "missingToken": "Security token missing. Protocol aborted.",
-      "back": "Go back to Login"
+      "title": "Sign-in error",
+    "invalidKey": "Something went wrong while signing you in. Try again.",
+      "missingToken": "This link is incomplete. Request a new one.",
+      "back": "Back to sign in"
     },
     "user": {
       "dashboard": "Dashboard",
       "profile": "Profile",
       "logout": "Log out",
       "avatar": "User Avatar"
+    },
+    "errors": {
+      "emailInvalid": "Enter a valid email address, like name@example.com.",
+      "passwordRequired": "Enter your password.",
+      "passwordTooShort": "Use at least 8 characters.",
+      "passwordsDontMatch": "The passwords don't match. Type the same password in both fields.",
+      "nameRequired": "Enter your name.",
+      "verificationRequired": "Complete the check below."
     }
   },
   "dashboard": {

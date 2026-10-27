@@ -11,9 +11,9 @@ test.afterAll(async () => {
 
 async function login(page: import("@playwright/test").Page) {
   await page.goto("/auth/login");
-  await page.getByPlaceholder("USER@DAYDREAM.COM").fill(E2E_USER.email);
-  await page.getByPlaceholder("••••••••••••").fill(E2E_USER.password);
-  await page.getByRole("button", { name: /login/i }).click();
+  await page.getByLabel("Email").fill(E2E_USER.email);
+  await page.getByLabel("Password").fill(E2E_USER.password);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.waitForURL(/\/dashboard/, { timeout: 30_000 });
 }
 

@@ -165,7 +165,7 @@
     "nav": {
       "overview": "Przegląd",
       "orders": "Zamówienia",
-      "profile": "Mój profil",
+      "profile": "Profil",
       "address": "Adres dostawy",
       "adminConsole": "Panel administratora",
       "inventory": "Asortyment",
@@ -196,8 +196,8 @@
     "address": {
       "title": "Adresy",
       "subtitle": "Zarządzaj adresami dostawy i rozliczeniowymi.",
-      "cityPlaceholder": "Miasto...",
-      "namePlaceholder": "Wpisz imię i nazwisko...",
+      "cityPlaceholder": "Miasto",
+      "namePlaceholder": "Imię i nazwisko",
       "contact": "Kontakt",
       "location": "Adres",
       "fullName": "Imię i nazwisko",
@@ -263,7 +263,7 @@
       "products": "Szukaj po nazwie..."
     },
     "placeholders": {
-      "street": "Ulica i numer...",
+      "street": "Ulica i numer",
       "categoryStory": "Opisz tę kategorię...",
       "selectParent": "Wybierz nadrzędną..."
     },

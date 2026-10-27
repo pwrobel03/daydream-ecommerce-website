@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/navigation";
@@ -93,8 +94,15 @@ function SidebarItem({
   item: { href: string; title: string; icon: LucideIcon };
   isActive: boolean;
 }) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  // Na wąskim ekranie aktywny link może leżeć poza przewijanym rzędem.
+  useEffect(() => {
+    if (isActive) ref.current?.scrollIntoView({ inline: "nearest", block: "nearest" });
+  }, [isActive]);
+
   return (
     <Link
+      ref={ref}
       href={item.href}
       aria-current={isActive ? "page" : undefined}
       className={cn(

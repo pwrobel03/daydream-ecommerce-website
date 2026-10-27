@@ -313,7 +313,7 @@
       "title": "Delete account",
       "warning": "This permanently deletes your account, orders, addresses and reviews. It cannot be undone.",
       "password": "Current password",
-      "email": "Type your e-mail to confirm",
+      "email": "Type your email to confirm",
       "confirm": "I understand that this cannot be undone",
       "submit": "Delete my account",
       "failed": "Could not delete the account. Check your input and try again."

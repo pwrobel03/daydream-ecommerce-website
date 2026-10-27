@@ -61,7 +61,7 @@ async function DashboardPageContent() {
               <h2 className="text-lg font-semibold leading-[1.35]">{card.title}</h2>
               <p className="text-sm text-muted-foreground">{card.description}</p>
             </div>
-            {card.count && <p className="mt-auto text-sm font-medium">{card.count}</p>}
+            {card.count !== undefined && <p className="mt-auto text-sm font-medium">{card.count}</p>}
           </Link>
         ))}
       </div>

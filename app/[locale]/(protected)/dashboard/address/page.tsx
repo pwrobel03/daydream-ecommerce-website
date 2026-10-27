@@ -4,7 +4,7 @@ import { getSession } from "@/lib/session";
 import { getUserAddress } from "@/lib/db-orders";
 import { redirect } from "next/navigation";
 import { AddressForm } from "../_components/address-form";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 async function AddressPageContent() {
   const t = await getTranslations("dashboard");
@@ -27,7 +27,15 @@ async function AddressPageContent() {
   );
 }
 
-export default function AddressPage() {
+export default async function AddressPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  // Bez deklaracji języka w powłoce tłumaczenia w Suspense wciągają trasę w tryb dynamiczny.
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <Suspense fallback={<FormSkeleton />}>
       <AddressPageContent />

@@ -419,5 +419,62 @@
     "title": "Nie znaleziono strony",
     "body": "Strony, której szukasz, nie ma albo została przeniesiona.",
     "home": "Wróć na stronę główną"
+  },
+  "home": {
+    "hero": {
+      "title": "Granola i musli na powolne poranki",
+      "lead": "Daydream miesza w małych partiach granolę i musli z płatków owsianych, orzechów, nasion i owoców. Wybierz opakowanie i zacznij dzień po swojemu.",
+      "cta": "Przeglądaj katalog"
+    },
+    "about": {
+      "title": "Dlaczego Daydream",
+      "lead": "Daydream zaczęło się od prostego pomysłu: śniadanie ma być łatwe do przygotowania i dobre w smaku. Nasze mieszanki powstają z pełnych ziaren, orzechów, nasion i suszonych owoców, a składy są krótkie.",
+      "pillars": {
+        "grains": {
+          "title": "Pełne ziarna",
+          "desc": "Płatki owsiane i inne pełne ziarna to baza każdej mieszanki."
+        },
+        "nuts": {
+          "title": "Orzechy i nasiona",
+          "desc": "Orzechy i nasiona dodają chrupkości."
+        },
+        "balance": {
+          "title": "Wyważone receptury",
+          "desc": "Każda mieszanka łączy zboża, białko i owoce, więc nie jest zbyt słodka."
+        },
+        "simple": {
+          "title": "Krótkie składy",
+          "desc": "Na stronie każdego produktu znajdziesz listę składników."
+        }
+      }
+    },
+    "categories": {
+      "title": "Kategorie",
+      "lead": "Wybierz kategorię, aby zobaczyć jej produkty.",
+      "open": "Otwórz: {name}"
+    },
+    "process": {
+      "title": "Jak to robimy",
+      "lead": "Małe partie, trzy etapy.",
+      "steps": {
+        "select": {
+          "title": "Dobieramy składniki",
+          "desc": "Każdy składnik wybieramy ze względu na smak i konsystencję."
+        },
+        "roast": {
+          "title": "Powoli pieczemy",
+          "desc": "Granolę pieczemy w niskiej temperaturze, aż będzie chrupiąca."
+        },
+        "pack": {
+          "title": "Zamykamy opakowanie",
+          "desc": "Pakujemy każdą mieszankę po ostudzeniu, aby zachować świeżość."
+        }
+      }
+    },
+    "sale": {
+      "discount": "{value}% taniej",
+      "code": "Kod rabatowy",
+      "cta": "Przeglądaj katalog"
+    }
   }
 }

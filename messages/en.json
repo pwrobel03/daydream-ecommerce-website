@@ -165,16 +165,15 @@
     "nav": {
       "overview": "Overview",
       "orders": "Orders",
-      "profile": "My Profile",
-      "address": "Address Book",
+      "profile": "Profile",
+      "address": "Delivery address",
       "adminConsole": "Admin Console",
       "inventory": "Inventory",
       "categories": "Categories",
       "ingredients": "Ingredients",
-      "manageOrders": "Manage Orders",
-      "manageVoices": "Manage Voices",
+      "manageOrders": "Manage orders",
+      "manageVoices": "Manage reviews",
       "identity": "Identity",
-      "accountSettings": "Account Settings",
       "analytics": "Analytics"
     },
     "status": {
@@ -197,8 +196,18 @@
     "address": {
       "title": "Address Book",
       "subtitle": "Manage your delivery and billing locations.",
-      "cityPlaceholder": "City Name...",
-      "namePlaceholder": "Enter Name..."
+      "cityPlaceholder": "City",
+      "namePlaceholder": "Full name",
+      "contact": "Contact",
+      "location": "Address",
+      "fullName": "Full name",
+      "phone": "Phone",
+      "street": "Street and number",
+      "zipCode": "Postal code",
+      "city": "City",
+      "phonePlaceholder": "+48 123 456 789",
+      "zipPlaceholder": "00-000",
+      "save": "Save address"
     },
     "inventory": {
       "newProduct": "New Artifact",
@@ -224,14 +233,14 @@
       "forging": "Forging..."
     },
     "feedback": {
-      "saved": "Registry Updated",
+      "saved": "Saved.",
       "storageError": "An error occurred during storage.",
       "unexpected": "An unexpected error occurred.",
       "connectionError": "Connection error",
-      "transmissionError": "Critical transmission error",
+      "transmissionError": "Something went wrong. Try again.",
       "paymentSessionError": "Payment session error",
-      "settingsSaved": "Settings updated!",
-      "emailChanged": "Email updated & verification link sent!",
+      "settingsSaved": "Settings saved.",
+      "emailChanged": "Email updated. We sent you a verification link.",
       "emailNotSent": "Email updated, but we could not send the e-mail right now. Try again later.",
       "categoryCreated": "Category forged successfully!",
       "categoryRemoved": "Category removed.",
@@ -254,7 +263,7 @@
       "products": "Search by name..."
     },
     "placeholders": {
-      "street": "Street & Number...",
+      "street": "Street and number",
       "categoryStory": "Tell the story of this category...",
       "selectParent": "Select parent..."
     },
@@ -302,12 +311,34 @@
     },
     "deleteAccount": {
       "title": "Delete account",
-      "warning": "This permanently deletes your account, orders, addresses and Voices. It cannot be undone.",
+      "warning": "This permanently deletes your account, orders, addresses and reviews. It cannot be undone.",
       "password": "Current password",
-      "email": "Type your e-mail to confirm",
+      "email": "Type your email to confirm",
       "confirm": "I understand that this cannot be undone",
       "submit": "Delete my account",
       "failed": "Could not delete the account. Check your input and try again."
+    },
+    "sidebar": {
+      "title": "Account",
+      "personal": "Personal",
+      "management": "Management"
+    },
+    "overview": {
+      "greeting": "Hello, {name}",
+      "greetingNoName": "Hello",
+      "intro": "Check your orders, manage your addresses and update your account details.",
+      "orderCount": "{count, plural, one {# order} other {# orders}}",
+      "backToStore": "Back to the store"
+    },
+    "profile": {
+      "title": "Profile",
+      "subtitle": "Update your name, email and password.",
+      "details": "Your details",
+      "password": "Password",
+      "name": "Name",
+      "email": "Email",
+      "currentPassword": "Current password",
+      "newPassword": "New password"
     }
   },
   "reviews": {

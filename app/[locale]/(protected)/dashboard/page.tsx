@@ -3,138 +3,75 @@ import { Suspense } from "react";
 import { getSession } from "@/lib/session";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@/lib/db";
-import Link from "next/link";
-import { Package, MapPin, UserCog, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Link } from "@/i18n/navigation";
+import { Package, MapPin, UserCog } from "lucide-react";
 
 async function DashboardPageContent() {
   const t = await getTranslations("dashboard");
   const session = await getSession();
-  const userName = session?.user?.name?.split(" ")[0] || "User";
+  // Nazwa bywa pusta albo bardzo długa — pierwszy człon, a bez niego samo powitanie.
+  const firstName = session?.user?.name?.trim().split(/\s+/)[0];
 
-  // Pobieramy liczbę zamówień, aby dashboard był bardziej personalny
   const orderCount = await db.order.count({
     where: { userId: session?.user?.id },
   });
 
   const cards = [
     {
-      title: t("orders.recent"),
+      title: t("nav.orders"),
       description: t("tiles.ordersDesc"),
       href: "/dashboard/orders",
       icon: Package,
-      count: orderCount,
-      color: "bg-blue-500",
+      count: t("overview.orderCount", { count: orderCount }),
     },
     {
       title: t("nav.address"),
       description: t("tiles.addressDesc"),
       href: "/dashboard/address",
       icon: MapPin,
-      color: "bg-green-500",
     },
     {
-      title: t("nav.accountSettings"),
+      title: t("nav.profile"),
       description: t("tiles.profileDesc"),
       href: "/dashboard/profile",
       icon: UserCog,
-      color: "bg-orange-500",
     },
   ];
 
   return (
-    <div className="container mx-auto py-20 max-w-7xl">
-      {/* --- POWITANIE --- */}
-      <header className="mb-20 space-y-6">
-        <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black italic uppercase tracking-tighter leading-none">
-          Welcome, <span className="text-primary-text">{userName}</span>
+    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 md:px-0">
+      <header className="space-y-2">
+        <h1 className="text-2xl font-semibold leading-tight break-words">
+          {firstName
+            ? t("overview.greeting", { name: firstName })
+            : t("overview.greetingNoName")}
         </h1>
-        <div className="border-l-4 pl-8 py-2">
-          <p className="text-xl md:text-2xl font-bold italic tracking-tight text-balance leading-relaxed">
-            We&apos;re glad you visited! In your account settings, you can check
-            your
-            <span className="text-primary-text"> recent orders </span>, manage
-            <span className="text-primary-text"> addresses</span> and change your{" "}
-            <span className="text-primary-text"> account details</span>.
-          </p>
-        </div>
+        <p className="max-w-prose text-muted-foreground">{t("overview.intro")}</p>
       </header>
 
-      {/* --- GRID KART --- */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {cards.map((card) => (
           <Link
-            key={card.title}
+            key={card.href}
             href={card.href}
-            className="group relative bg-card/60 border rounded-[2rem] p-10 transition-all hover:shadow-2xl hover:-translate-y-2 overflow-hidden"
+            className="group flex flex-col gap-3 rounded-lg border bg-card p-5 transition-colors hover:bg-accent"
           >
-            {/* Dekoracyjne tło ikony */}
-            <div
-              className={cn(
-                "absolute -right-4 -top-4 w-32 h-32 opacity-5 transition-transform group-hover:scale-110 group-hover:rotate-12",
-                "flex items-center justify-center"
-              )}
-            >
-              <card.icon size={120} />
+            <card.icon size={20} className="text-muted-foreground" />
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold leading-[1.35]">{card.title}</h2>
+              <p className="text-sm text-muted-foreground">{card.description}</p>
             </div>
-
-            <div className="relative z-10 flex flex-col h-full justify-between gap-12">
-              <div className="space-y-4">
-                <div
-                  className="w-12 h-12 bg-foreground text-background rounded-2xl flex items-center justify-center group-hover:bg-primary
-                  group-hover:text-primary-foreground
-                 transition-colors"
-                >
-                  <card.icon size={24} />
-                </div>
-                <div>
-                  <h3 className="text-3xl font-black italic uppercase tracking-tighter">
-                    {card.title}
-                  </h3>
-                  <p className="text-sm font-bold opacity-70 uppercase tracking-tight mt-2">
-                    {card.description}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                {card.count !== undefined ? (
-                  <span className="text-xs font-black bg-input/50 px-4 py-2 rounded-full uppercase tracking-widest">
-                    {card.count} items
-                  </span>
-                ) : (
-                  <div />
-                )}
-                <div className="w-10 h-10 rounded-full border flex items-center justify-center group-hover:bg-foreground group-hover:text-background transition-all">
-                  <ArrowRight size={20} />
-                </div>
-              </div>
-            </div>
+            {card.count !== undefined && <p className="mt-auto text-sm font-medium">{card.count}</p>}
           </Link>
         ))}
       </div>
 
-      {/* --- SEKRETNA SEKCJA (Optional Status) --- */}
-      <div className="mt-20 p-12 bg-foreground rounded-[3rem] text-background flex flex-col md:flex-row items-center justify-between gap-8">
-        <div className="space-y-2 text-center md:text-left">
-          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-primary-text">
-            daydream Membership
-          </p>
-          <h4 className="text-4xl font-black italic uppercase tracking-tighter">
-            Your Essence is secured.
-          </h4>
-        </div>
-        <Link
-          href="/"
-          className="px-10 py-5 bg-background text-foreground rounded-full font-black uppercase italic hover:bg-primary hover:text-primary-foreground transition-all"
-        >
-          Return to Store
-        </Link>
-      </div>
+      <Link href="/" className="inline-block text-sm underline underline-offset-4">
+        {t("overview.backToStore")}
+      </Link>
     </div>
   );
 }
-
 
 export default async function DashboardPage({
   params,

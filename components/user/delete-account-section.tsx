@@ -39,11 +39,11 @@ export const DeleteAccountSection = () => {
   };
 
   return (
-    <Card className="bg-card/60 rounded-[2.5rem] border border-destructive/40 shadow-none overflow-hidden">
-      <CardContent className="p-8 md:p-12 space-y-6">
-        <div className="flex items-center gap-3">
-          <Trash2 className="text-destructive" size={20} />
-          <h2 className="text-sm font-black uppercase tracking-[0.4em] opacity-70">{t("title")}</h2>
+    <Card className="border-destructive/40">
+      <CardContent className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Trash2 className="text-destructive" size={18} />
+          <h2 className="text-lg font-semibold leading-[1.35]">{t("title")}</h2>
         </div>
         <p className="text-sm text-muted-foreground">{t("warning")}</p>
 
@@ -58,7 +58,6 @@ export const DeleteAccountSection = () => {
             onChange={(e) => setValue(e.target.value)}
             disabled={isPending}
             autoComplete="off"
-            className="h-14"
           />
         </div>
 

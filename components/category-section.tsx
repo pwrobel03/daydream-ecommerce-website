@@ -2,96 +2,84 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { CategoryCard } from "@/lib/db-categories";
 
 export const CategorySection = ({ categories }: { categories: CategoryCard[] }) => {
+  const t = useTranslations("home.categories");
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
+  if (categories.length === 0) return null;
+
   return (
-    <section className="w-full px-4 md:px-8 py-16">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-12 space-y-2">
-          <span className="text-primary-text font-black uppercase tracking-[0.4em] text-[10px]">
-            Choose Your Base
-          </span>
-          <h2 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-[0.8] mb-8">
-            Explore Our
-            <span className="text-primary-text"> Worlds.</span>
-          </h2>
-          <p className="italic">
-            Click content to explore your favourite category
-          </p>
-        </div>
+    <section className="py-16 md:py-24">
+      <h2 className="font-display text-2xl leading-tight tracking-tight text-balance">
+        {t("title")}
+      </h2>
+      <p className="mt-4 max-w-[65ch] text-pretty text-muted-foreground">
+        {t("lead")}
+      </p>
 
-        <div className="flex flex-col md:flex-row h-150 w-full gap-4 overflow-hidden">
-          {categories.map((category, index) => {
-            const isActive = activeIndex === index;
-            const flexBasis = isActive ? "flex-[5]" : "flex-[0.4]";
+      <div className="mt-12 flex h-150 w-full flex-col gap-4 overflow-hidden md:flex-row">
+        {categories.map((category, index) => {
+          const isActive = activeIndex === index;
 
-            return (
-              <Link
-                key={category.id}
-                href={`/category/${category.slug}`}
-                onMouseEnter={() => setActiveIndex(index)}
-                className={`relative bg-card/60 h-full transition-[flex] duration-700 ease-[cubic-bezier(0.4, 0, 0.2, 1)] overflow-hidden rounded-[2.5rem] group ${flexBasis} will-change-[flex]`}
+          return (
+            <Link
+              key={category.id}
+              href={`/category/${category.slug}`}
+              aria-label={t("open", { name: category.name })}
+              onMouseEnter={() => setActiveIndex(index)}
+              onFocus={() => setActiveIndex(index)}
+              // The expanding panel is the one functional motion: it shows which card is open.
+              className={`relative min-h-0 min-w-0 overflow-hidden rounded-lg border bg-card transition-[flex] duration-200 ease-out ${
+                isActive ? "flex-[5]" : "flex-[0.4]"
+              }`}
+            >
+              {category.image && (
+                <Image
+                  src={category.image}
+                  alt=""
+                  fill
+                  priority={index === 0}
+                  sizes="(max-width: 768px) 100vw, 60vw"
+                  className="object-cover"
+                />
+              )}
+
+              {/* Collapsed: the name, read along the strip. */}
+              <div
+                aria-hidden
+                className={`absolute inset-0 z-10 flex items-center justify-center bg-foreground/50 transition-opacity duration-150 ${
+                  isActive ? "opacity-0" : "opacity-100"
+                }`}
               >
-                {/* 1. TŁO: ZDJĘCIE */}
-                {category.image && (
-                  <div className="absolute inset-0 z-0">
-                    <Image
-                      src={category.image}
-                      alt={category.name}
-                      fill
-                      priority={index === 0}
-                      className="object-cover transition-transform duration-1000 ease-out scale-105"
-                    />
-                    <div
-                      className={`absolute inset-0 bg-foreground/50 transition-opacity duration-700 ${
-                        isActive ? "opacity-0" : "opacity-40"
-                      }`}
-                    />
-                  </div>
-                )}
+                <span className="max-h-full overflow-hidden px-2 text-lg font-medium text-white md:rotate-180 md:[writing-mode:vertical-lr]">
+                  {category.name}
+                </span>
+              </div>
 
-                {/* 2. TEKST PIONOWY */}
-                <div
-                  className={`absolute inset-0 flex items-center justify-center z-10 transition-opacity duration-500 ${
-                    isActive ? "opacity-0" : "opacity-100"
-                  }`}
-                >
-                  <span className="md:rotate-180 md:[writing-mode:vertical-lr] font-black italic uppercase text-2xl tracking-tighter text-white/90 drop-shadow-xl select-none">
+              {/* Expanded: opaque panel keeps the text readable over any image. */}
+              <div
+                className={`absolute inset-x-0 bottom-0 z-20 p-4 transition-opacity duration-150 ${
+                  isActive ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <div className="rounded-lg border bg-card p-6">
+                  <h3 className="font-display text-2xl leading-tight wrap-anywhere text-foreground">
                     {category.name}
-                  </span>
+                  </h3>
+                  {category.description && (
+                    <p className="mt-2 line-clamp-3 max-w-[40ch] text-sm text-muted-foreground">
+                      {category.description}
+                    </p>
+                  )}
                 </div>
-
-                {/* 3. SZKLANY PANEL - SMOOTH TRANSITION */}
-                <div className="absolute inset-0 flex flex-col justify-end p-8 z-20">
-                  <div
-                    className={`bg-input/90 border border-primary/40 rounded-[2rem] shadow-2xl relative overflow-hidden transition-[opacity,transform] duration-200 ease-out ${
-                      isActive ? "opacity-80 translate-y-0" : "opacity-0 translate-y-5"
-                    }`}
-                  >
-                    <div className="p-8">
-                      {/* <span className="text-[10px] font-black uppercase tracking-widest text-primary-text mb-2 block">
-                        Category 0{index + 1}
-                      </span> */}
-                      <h3 className="text-3xl md:text-4xl font-black italic uppercase tracking-tighter mb-4 text-foreground leading-none">
-                        {category.name}
-                      </h3>
-                      <p className="text-foreground/80 text-sm mb-6 font-medium leading-relaxed max-w-[280px]">
-                        {category.description}
-                      </p>
-                      {/* <div className="flex items-center gap-2 text-primary-text font-black uppercase text-[10px] tracking-widest group-hover:gap-4 transition-all duration-300">
-                        Enter World <ArrowRight className="h-4 w-4" />
-                      </div> */}
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

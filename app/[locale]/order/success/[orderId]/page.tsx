@@ -1,7 +1,13 @@
+import { Suspense } from "react";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
-export default async function SuccessPage() {
+type Params = Promise<{ locale: string }>;
+
+async function SuccessContent({ params }: { params: Params }) {
+  // Without the locale set here the build treats translations as request data.
+  const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations("orderSuccess");
 
   return (
@@ -14,5 +20,13 @@ export default async function SuccessPage() {
         {t("back")}
       </Link>
     </div>
+  );
+}
+
+export default function SuccessPage({ params }: { params: Params }) {
+  return (
+    <Suspense>
+      <SuccessContent params={params} />
+    </Suspense>
   );
 }

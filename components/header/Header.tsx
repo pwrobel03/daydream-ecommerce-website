@@ -27,21 +27,20 @@ const Header = async () => {
   const categories = await getNavCategories();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-secondary bg-background/80 backdrop-blur-md transition-all">
-      <Container className="container mx-auto flex min-h-20 items-center justify-between px-4">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="group flex items-center gap-2">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
+      <Container className="container mx-auto flex min-h-20 items-center justify-between gap-2 px-4">
+        <div className="flex shrink-0 items-center">
+          <Link href="/" className="flex items-center">
             <Image
               src={logoDark}
-              alt="DayDream Logo Light"
-              className="h-16 w-auto block dark:hidden group-hover:scale-x-105 transition-transform"
+              alt={t("home")}
+              className="h-12 w-auto block dark:hidden sm:h-16"
               priority
             />
-            {/* Logo dla trybu Ciemnego (widoczne tylko w trybie dark) */}
             <Image
               src={logoLight}
-              alt="DayDream Logo Dark"
-              className="h-16 w-auto hidden dark:block group-full group-hover:scale-x-105 transition-transform"
+              alt={t("home")}
+              className="h-12 w-auto hidden dark:block sm:h-16"
               priority
             />
           </Link>
@@ -49,7 +48,7 @@ const Header = async () => {
 
         <DesktopNav categories={categories} />
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1 sm:gap-3">
           <ModeToggle />
 
           {/* `asChild` daje jeden element <a> zamiast <button> w <a> —
@@ -59,10 +58,10 @@ const Header = async () => {
             asChild
             variant="ghost"
             size="icon"
-            className="relative text-foreground hover:bg-accent transition-all rounded-full"
+            className="relative text-foreground"
           >
             <Link href="/cart">
-              <ShoppingBasket className="h-12 w-12" aria-hidden="true" />
+              <ShoppingBasket className="size-5" aria-hidden="true" />
               <span className="sr-only">{t("cart")}</span>
               {/* Licznik używa hooka useCart */}
               <CartCounter />

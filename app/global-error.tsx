@@ -1,6 +1,10 @@
 "use client";
 
-// Łapie błędy z samego layoutu głównego, więc musi renderować własne <html>.
+import en from "@/messages/en.json";
+import pl from "@/messages/pl.json";
+
+// Łapie błędy z samego layoutu głównego, więc nie ma providera next-intl ani
+// znanego języka — pokazujemy oba (wspólne klucze z `common`).
 export default function GlobalError({
   error,
   reset,
@@ -10,18 +14,18 @@ export default function GlobalError({
 }) {
   return (
     <html lang="en">
-      <body style={{ display: "grid", placeItems: "center", minHeight: "100vh", fontFamily: "sans-serif" }}>
+      <body style={{ display: "grid", placeItems: "center", minHeight: "100vh", fontFamily: "system-ui, sans-serif" }}>
         <div style={{ textAlign: "center", padding: "2rem" }}>
-          <h2 style={{ fontSize: "1.75rem", fontWeight: 900, textTransform: "uppercase", fontStyle: "italic" }}>
-            Something broke
+          <h2 style={{ fontSize: "1.75rem", fontWeight: 600 }}>
+            {en.common.somethingBroke} / <span lang="pl">{pl.common.somethingBroke}</span>
           </h2>
           {error.digest && (
-            <p style={{ opacity: 0.5, fontSize: "0.75rem", letterSpacing: "0.2em" }}>
-              Reference: {error.digest}
+            <p style={{ opacity: 0.7, fontSize: "0.875rem" }}>
+              {en.common.reference}: {error.digest}
             </p>
           )}
-          <button onClick={reset} style={{ marginTop: "1.5rem", padding: "0.75rem 2rem", borderRadius: 999, cursor: "pointer" }}>
-            Try again
+          <button onClick={reset} style={{ marginTop: "1.5rem", padding: "0.75rem 1.5rem", borderRadius: 6, cursor: "pointer" }}>
+            {en.common.tryAgain} / <span lang="pl">{pl.common.tryAgain}</span>
           </button>
         </div>
       </body>

@@ -309,7 +309,6 @@
       "identity": "Tożsamość",
       "status": "Status",
       "preview": "Podgląd",
-      "awaitingPayment": "Oczekuje na płatność",
       "update": "Zapisz"
     },
     "validation": {
@@ -378,6 +377,24 @@
       "email": "E-mail",
       "currentPassword": "Aktualne hasło",
       "newPassword": "Nowe hasło"
+    },
+    "orderList": {
+      "title": "Zamówienia",
+      "subtitle": "Twoje zamówienia i ich status.",
+      "empty": "Brak zamówień",
+      "emptyHint": "Tutaj pojawią się złożone zamówienia.",
+      "view": "Zobacz zamówienie {number}"
+    },
+    "orderDetail": {
+      "title": "Szczegóły zamówienia",
+      "number": "Numer zamówienia",
+      "items": "Produkty",
+      "quantity": "Ilość: {count}",
+      "each": "za sztukę",
+      "phone": "Telefon",
+      "payment": "Płatność",
+      "total": "Razem",
+      "retryPayment": "Ponów płatność"
     }
   },
   "reviews": {

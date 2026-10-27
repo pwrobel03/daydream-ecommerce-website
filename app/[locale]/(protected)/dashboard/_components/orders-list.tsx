@@ -1,140 +1,84 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 
 import PriceFormatter from "@/components/PriceFormatter";
-import { cn } from "@/lib/utils";
-import {
-  ChevronRight,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  Package,
-  Van,
-} from "lucide-react";
-import { format } from "date-fns";
-import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { ChevronRight, Package } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import type { UserOrder } from "@/lib/db-orders";
 
 interface OrdersListProps {
   orders: UserOrder[];
 }
 
+const STATUS_VARIANT = {
+  PAID: "default",
+  SHIPPED: "default",
+  DELIVERED: "default",
+  CANCELLED: "destructive",
+  PENDING: "secondary",
+} as const;
+
+export function OrderStatusBadge({ status }: { status: string }) {
+  const t = useTranslations("dashboard");
+  const known = status in STATUS_VARIANT;
+
+  return (
+    <Badge variant={known ? STATUS_VARIANT[status as keyof typeof STATUS_VARIANT] : "secondary"}>
+      {known ? t(`status.${status as keyof typeof STATUS_VARIANT}`) : status}
+    </Badge>
+  );
+}
+
 export function OrdersList({ orders }: OrdersListProps) {
+  const t = useTranslations("dashboard");
+  const format = useFormatter();
+
   if (orders.length === 0) {
     return (
-      <div className="h-96 flex flex-col items-center justify-center border-2 border-dashed border-black/5 rounded-[3rem]">
-        <Package size={48} className="opacity-10 mb-4" />
-        <p className="text-sm font-black uppercase opacity-70 italic">
-          No history found
-        </p>
+      <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed py-16 text-center">
+        <Package size={24} className="text-muted-foreground" />
+        <p className="font-medium">{t("orderList.empty")}</p>
+        <p className="text-sm text-muted-foreground">{t("orderList.emptyHint")}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {orders.map((order) => (
-        <div
-          key={order.id}
-          className="group relative bg-card/40 border rounded-[2rem] p-8 transition-all hover:shadow-2xl hover:border-transparent"
-        >
-          <div className="flex flex-col lg:flex-row justify-between gap-12">
-            {/* Sekcja 1: Główne Info */}
-            <div className="space-y-6 flex-grow flex">
-              <div className="flex flex-wrap items-center gap-4">
-                <span className="text-[10px] font-black uppercase tracking-widest px-4 py-2 bg-primary text-primary-foreground rounded-full">
-                  #{order.id.slice(-8)}
-                </span>
-                <div className="flex items-center gap-2 text-[10px] font-black uppercase opacity-70 italic">
-                  <Clock size={12} />
-                  {format(new Date(order.createdAt), "dd MMM yyyy • HH:mm")}
-                </div>
-              </div>
-            </div>
-
-            {/* Sekcja 2: Status i Kwota */}
-            <div className="flex flex-row flex-wrap lg:flex-col justify-between lg:justify-center items-end gap-4 min-w-[200px]">
-              <div className="text-right">
-                <p className="text-[10px] font-black uppercase opacity-70 mb-1">
-                  Total
-                </p>
-                <p className="text-4xl font-black italic tracking-tighter">
-                  <PriceFormatter amount={Number(order.totalAmount)} />
-                </p>
-              </div>
-
-              <StatusIndicator status={order.status} isPaid={order.isPaid} />
-            </div>
-
-            {/* Link / Akcja */}
+    <ul className="space-y-3">
+      {orders.map((order) => {
+        const number = order.id.slice(-8);
+        return (
+          <li key={order.id}>
             <Link
               href={`/dashboard/orders/${order.id}`}
-              className="flex items-center justify-center lg:pl-6 border-t lg:border-t-0 lg:border-l cursor-pointer group/link"
+              aria-label={t("orderList.view", { number })}
+              className="flex items-center gap-4 rounded-lg border bg-card p-4 transition-colors hover:bg-accent"
             >
-              <ChevronRight className="mt-2 lg:mt-0 opacity-40 rotate-90 lg:rotate-0 group-hover:opacity-100 group-hover:translate-y-2 lg:group-hover:translate-y-0 lg:group-hover:translate-x-2 transition-all" />
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="font-mono text-sm font-medium tabular-nums">#{number}</p>
+                <time
+                  dateTime={new Date(order.createdAt).toISOString()}
+                  className="block text-sm text-muted-foreground tabular-nums"
+                >
+                  {format.dateTime(new Date(order.createdAt), {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                    timeZone: "Europe/Warsaw",
+                  })}
+                </time>
+              </div>
+              <OrderStatusBadge status={order.status} />
+              <PriceFormatter
+                amount={Number(order.totalAmount)}
+                className="tabular-nums"
+              />
+              <ChevronRight size={16} className="shrink-0 text-muted-foreground" />
             </Link>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function StatusIndicator({
-  status,
-  isPaid,
-}: {
-  status: string;
-  isPaid: boolean;
-}) {
-  const t = useTranslations("dashboard");
-  const configs: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
-    PAID: {
-      color: "text-green-500",
-      icon: <CheckCircle2 size={14} />,
-      label: t("status.PAID"),
-    },
-    PENDING: {
-      color: "text-amber-500",
-      icon: <Clock size={14} />,
-      label: t("status.PENDING"),
-    },
-    CANCELLED: {
-      color: "text-red-500",
-      icon: <XCircle size={14} />,
-      label: t("status.CANCELLED"),
-    },
-    SHIPPED: {
-      color: "text-green-500",
-      icon: <Van size={14} />,
-      label: t("status.SHIPPED"),
-    },
-    DELIVERED: {
-      color: "text-green-500",
-      icon: <Package size={14} />,
-      label: t("status.DELIVERED"),
-    },
-  };
-
-  const current = configs[status] || { color: "text-zinc-400", label: status };
-
-  return (
-    <div className="flex flex-col flex-wrap items-end my-auto">
-      <div
-        className={cn(
-          "flex items-center gap-2 font-black uppercase italic text-xs tracking-widest",
-          current.color
-        )}
-      >
-        {current.icon}
-        {current.label}
-      </div>
-      {!isPaid && status !== "CANCELLED" && (
-        <span className="text-[8px] font-black uppercase bg-destructive/20 text-destructive px-2 py-0.5 rounded-full mt-1">
-          {t("labels.awaitingPayment")}
-        </span>
-      )}
-    </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

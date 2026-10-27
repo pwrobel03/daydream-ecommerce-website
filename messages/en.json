@@ -1,20 +1,30 @@
 {
   "nav": {
     "search": "Search",
-    "searchPlaceholder": "SEARCH",
+    "searchPlaceholder": "Search",
     "searchLabel": "Search products",
     "cart": "Cart",
     "account": "Account",
     "language": "Language",
     "cartCount": "{count, plural, one {# item in cart} other {# items in cart}}",
-    "menu": "Open menu"
+    "menu": "Open menu",
+    "allProducts": "All products",
+    "more": "More",
+    "themeToggle": "Toggle theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "close": "Close menu",
+    "tagline": "Natural. Health. With passion.",
+    "home": "DayDream home"
   },
   "common": {
     "loading": "Loading",
     "tryAgain": "Try again",
     "somethingBroke": "Something broke",
     "errorHelp": "This one is on us. The error has been logged.",
-    "reference": "Reference"
+    "reference": "Reference",
+    "backHome": "Back to home"
   },
   "search": {
     "title": "Search",
@@ -370,6 +380,13 @@
     }
   },
   "footer": {
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "copyright": "© {year} DayDream",
+    "demo": "A portfolio demo. Nothing here is for sale."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for does not exist or has moved.",
+    "home": "Back to home"
   }
 }

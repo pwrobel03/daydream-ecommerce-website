@@ -29,21 +29,21 @@ export function LanguageSwitcher() {
 
   return (
     <div className="flex items-center gap-1" role="group" aria-label={t("language")}>
-      <Languages aria-hidden="true" className="h-4 w-4 opacity-40" />
+      <Languages aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
       {routing.locales.map((code) => (
         <button
-          key={code}
+          key={code.toUpperCase()}
           type="button"
           onClick={() => switchTo(code)}
           disabled={isPending || code === locale}
           aria-current={code === locale ? "true" : undefined}
           className={
             code === locale
-              ? "px-2 text-[10px] font-black uppercase tracking-widest"
-              : "px-2 text-[10px] font-black uppercase tracking-widest opacity-70 hover:opacity-100 transition-opacity"
+              ? "px-2 text-sm font-semibold"
+              : "px-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground"
           }
         >
-          {code}
+          {code.toUpperCase()}
         </button>
       ))}
     </div>

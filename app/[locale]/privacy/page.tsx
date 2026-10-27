@@ -37,20 +37,20 @@ async function PrivacyContent() {
   };
 
   return (
-    <Container className="max-w-3xl py-12 space-y-8">
-      <h1 className="text-4xl font-black italic uppercase tracking-tighter">
+    <Container className="max-w-[65ch] space-y-8 py-12">
+      <h1 className="font-display text-4xl leading-tight tracking-tight text-balance">
         {t("title")}
       </h1>
-      <p>{t("intro")}</p>
+      <p className="text-pretty">{t("intro")}</p>
       {sections.map(({ id, kind }) => (
         <section key={id} className="space-y-3">
-          <h2 className="text-xl font-bold">{t(`sections.${id}.heading`)}</h2>
+          <h2 className="font-display text-2xl leading-snug text-balance">{t(`sections.${id}.heading`)}</h2>
           {kind === "body" ? (
-            <p>{t(`sections.${id}.body`, values)}</p>
+            <p className="text-pretty">{t(`sections.${id}.body`, values)}</p>
           ) : (
             <ul className="list-disc space-y-2 pl-6">
               {Object.keys(t.raw(`sections.${id}.items`)).map((key) => (
-                <li key={key}>{t(`sections.${id}.items.${key}`, values)}</li>
+                <li key={key} className="text-pretty">{t(`sections.${id}.items.${key}`, values)}</li>
               ))}
             </ul>
           )}

@@ -100,4 +100,3 @@ is `4000 0000 0000 0002`. See [ADR 0005](../adr/0005-stripe-test-mode-only.md).
 | Area | Limitation |
 | :--- | :--- |
 | **Image storage** | Uploads are written to `UPLOAD_DIR` on the local filesystem. This works in development and on a host with a persistent disk, but not on serverless hosting, where the filesystem is read-only and ephemeral. |
-| **Retried payment sessions** | `recreateStripeSession` replaces `stripeSessionId`. A payment completed in the older session is not matched to the order and leaves it unpaid; the older session's expiry event can still cancel the order. |

@@ -50,10 +50,10 @@ Projekt korzysta z **Prisma ORM**.
    npx prisma generate
    ```
 
-2. **Wypchnij schemat:**
+2. **Zastosuj migracje:**
 
    ```bash
-   npx prisma db push
+   npx prisma migrate deploy
    ```
 
 3. **Seed:**
@@ -61,7 +61,7 @@ Projekt korzysta z **Prisma ORM**.
    zamówienia. Zalecane — bez tego sklep renderuje się pusty.
 
    ```bash
-   npx prisma db seed
+   npx tsx --env-file=.env prisma/seed.ts
    ```
 
 ---
@@ -90,12 +90,16 @@ npm run dev
 
 Aplikacja pod [http://localhost:3000](http://localhost:3000).
 
-Żeby zalogować się jako administrator, ustaw rolę bezpośrednio w bazie — nie ma
-mechanizmu samodzielnego nadania uprawnień:
+Żeby zalogować się jako administrator, utwórz prywatnego admina skryptem — nie ma
+mechanizmu samodzielnego nadania uprawnień. Skrypt czyta hasło (min. 12 znaków) ze
+standardowego wejścia; ponowne uruchomienie dla tego samego e-maila resetuje hasło:
 
-```sql
-UPDATE "User" SET role = 'ADMIN' WHERE email = 'ty@example.com';
+```bash
+printf '%s\n' 'haslo-min-12-znakow' | npx tsx --env-file=.env scripts/create-admin.ts ty@example.com "Twoje Imię"
 ```
+
+Przy wdrożeniu w Dockerze użyj `scripts/create-admin.sh <email> [imię]`; patrz
+[instrukcja wdrożenia](./deployment.md).
 
 ---
 
@@ -103,18 +107,17 @@ UPDATE "User" SET role = 'ADMIN' WHERE email = 'ty@example.com';
 
 - **Aplikacja kończy się przy starcie listą zmiennych środowiskowych** — to `lib/env.ts`
   robi swoją robotę. Komunikat wskazuje każdy problematyczny klucz.
-- **Zmiany w schemacie nie są widoczne** — uruchom ponownie `npx prisma db push`,
+- **Zmiany w schemacie nie są widoczne** — uruchom `npx prisma migrate deploy`,
   a potem `npx prisma generate`.
 - **Błędy typów tras po usunięciu strony** — usuń katalog `.next` i powtórz sprawdzanie
   typów.
-- **`npm run lint` wywala się na `compat is not defined`** — flat config ESLinta jest
-  obecnie zepsuty, patrz `markdown/improvement.md`.
 
 ## 📸 Zrzuty ekranu w pull requestach
 
 Pull request zmieniający UI dostaje jeden komentarz ze zrzutami przed/po
 (`.github/workflows/screenshots.yml`). Workflow buduje i seeduje tak samo gałąź PR i gałąź bazową
-(`tests/e2e/seed.ts`), robi zrzuty każdej strony w rozmiarach 1440×900 i 390×844, po angielsku,
+(`tests/e2e/seed.ts`), robi zrzuty każdej strony w rozmiarach 1440×900 i 390×844, po angielsku, w motywie jasnym i ciemnym
+(pliki `<name>-<desktop|mobile>-<light|dark>.png`; zrzut sprawdza, że klasa `dark` jest ustawiona),
 i porównuje je piksel po pikselu. To informacja dla recenzenta, nie bramka.
 
 Aby dodać stronę, dopisz wpis do `tests/screenshots/routes.ts`:

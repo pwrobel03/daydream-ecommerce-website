@@ -34,12 +34,13 @@ Business logic lives in `@/actions`, split into domain folders.
 | `inventory.ts`   | `getInventoryProducts`, `upsertProduct`, `deleteProduct`     |
 | `categories.ts`  | `createCategory`, `getCategories`, `deleteCategory`          |
 | `ingredients.ts` | `upsertIngredient`, `deleteIngredient`                       |
-| `orders.ts`      | `getAdminOrders`, `updateOrderStatus`                        |
+| `orders.ts`      | `updateOrderStatus`                                          |
 | `reviews.ts`     | `getVoices`, `deleteVoice`                                   |
 
 Every export in this domain calls `requireAdmin()` from `@/lib/guards`, which throws when
 the session role is not `ADMIN`. The guard throws rather than returning an error so a call
-site cannot ignore the result and continue.
+site cannot ignore the result and continue. The admin order list, `getAdminOrders`, lives in
+`@/lib/db-orders`.
 
 ### 🔐 Auth domain (`@/actions/auth/`)
 

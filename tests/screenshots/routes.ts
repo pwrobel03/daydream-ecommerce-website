@@ -23,9 +23,13 @@ export const routes: Route[] = [
   { name: "product", path: `/product/${E2E_PRODUCT.slug}`, mask: ["time"] },
   // The cart is behind sign-in, so it is captured as the demo admin.
   { name: "cart", path: "/cart", admin: true },
+  { name: "search", path: "/search?q=bar" },
   { name: "sign-in", path: "/auth/login" },
   { name: "registration", path: "/auth/register" },
+  { name: "forgot-password", path: "/auth/forgot-password" },
   { name: "privacy", path: "/privacy" },
+  { name: "account-profile", path: "/dashboard/profile", admin: true },
+  { name: "account-orders", path: "/dashboard/orders", admin: true, mask: ["time"] },
   { name: "admin-dashboard", path: "/dashboard", admin: true, mask: ["time"] },
   { name: "admin-analytics", path: "/dashboard/analytics", admin: true, mask: ["time"] },
   { name: "admin-inventory", path: "/dashboard/inventory", admin: true, mask: ["time"] },

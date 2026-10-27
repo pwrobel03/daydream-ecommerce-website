@@ -91,14 +91,17 @@ export async function updateReview(
     return failFrom(error, "UNAUTHORIZED", "You must be signed in.");
   }
 
+  const validated = ReviewSchema.omit({ productId: true }).safeParse(values);
+  if (!validated.success) return fail("INVALID_INPUT", "Invalid fields!");
+
   try {
     // `userId` w predykacie, nie samo `id` — bez niego wystarczyło znać cudze
     // id opinii, żeby ją nadpisać.
     const updatedReview = await db.review.update({
       where: { id: reviewId, userId: session.user.id },
       data: {
-        rating: values.rating,
-        content: values.content,
+        rating: validated.data.rating,
+        content: validated.data.content,
       },
       select: reviewSelect,
     });

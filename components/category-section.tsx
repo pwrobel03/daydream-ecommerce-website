@@ -68,8 +68,8 @@ export const CategorySection = ({ categories }: { categories: CategoryCard[] }) 
                 {/* 3. SZKLANY PANEL - SMOOTH TRANSITION */}
                 <div className="absolute inset-0 flex flex-col justify-end p-8 z-20">
                   <div
-                    className={`bg-input/90 glass-layer border border-primary/40 rounded-[2rem] shadow-2xl relative overflow-hidden  ${
-                      isActive ? "glass-layer-active" : "glass-layer-hidden"
+                    className={`bg-input/90 border border-primary/40 rounded-[2rem] shadow-2xl relative overflow-hidden transition-[opacity,transform] duration-200 ease-out ${
+                      isActive ? "opacity-80 translate-y-0" : "opacity-0 translate-y-5"
                     }`}
                   >
                     <div className="p-8">

@@ -14,6 +14,8 @@ body {
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-young-serif);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -57,104 +59,80 @@ body {
 }
 
 :root {
-  --radius: 0.75rem;
-  /* Podstawowe kolory - Naturalny krem i ciemny brąz */
-  --background: rgb(252, 250, 245);
-  --foreground: rgb(43, 34, 28);
-  
-  /* Karty i Popovery */
-  --card: rgb(255, 255, 255);
-  --card-foreground: rgb(43, 34, 28);
-  --popover: rgb(255, 255, 255);
-  --popover-foreground: rgb(43, 34, 28);
-  
-  /* Primary - Kolor prażonego ziarna */
-  /* --primary: rgb(143, 90, 36); */
-  --primary: rgb(159, 169, 83);
-  --primary-text: rgb(64, 68, 34);
-  /* Ciemny atrament na oliwce: 6,14:1. Prawie-biały dawał 2,43:1, więc
-     każdy wypełniony przycisk w jasnym motywie był poniżej progu.
-     Sama zieleń bez zmian — to etykieta zależy od motywu, nie marka. */
-  --primary-foreground: rgb(43, 34, 28);
-  
-  /* Secondary - Szałwiowa zieleń (Eko/Bio) */
-  /* --secondary: rgb(221, 231, 203); */
-  --secondary: rgb(76, 103, 66);
-  --secondary-foreground: rgb(252, 250, 245);
+  --radius: 0.5rem;
+  --background: #FAF8F3;
+  --foreground: #27221D;
+  --card: #FFFFFF;
+  --card-foreground: #27221D;
+  --popover: #FFFFFF;
+  --popover-foreground: #27221D;
+  --primary: #55602B;
+  --primary-text: #55602B;
+  --primary-foreground: #FAF8F3;
+  --secondary: #ECE8E0;
+  --secondary-foreground: #27221D;
+  --muted: #F0EDE6;
+  --muted-foreground: #6A6258;
+  --accent: #ECEDE1;
+  --accent-foreground: #27221D;
+  --destructive: #B3261E;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2DDD3;
+  --input: #D3CCBF;
+  --ring: #6B7834;
 
-  
-  /* Muted i Accent */
-  --muted: rgb(241, 236, 226);
-  --muted-foreground: rgb(120, 110, 100);
-  --accent: rgb(255, 245, 225);
-  --accent-foreground: rgb(143, 90, 36);
-  
-  --destructive: rgb(200, 50, 50);
-  --border: rgb(228, 220, 205);
-  --input: rgb(228, 220, 205);
-  --ring: rgb(143, 90, 36);
+  --chart-1: #6B7834;
+  --chart-2: #8C7B5E;
+  --chart-3: #B9AE8E;
+  --chart-4: #4A4238;
+  --chart-5: #C9C2B0;
 
-  /* Wykresy (utrzymane w tonacji ziemistej) */
-  --chart-1: rgb(143, 90, 36);
-  --chart-2: rgb(85, 107, 47);
-  --chart-3: rgb(210, 180, 140);
-  --chart-4: rgb(139, 69, 19);
-  --chart-5: rgb(188, 143, 143);
-
-  /* Sidebar */
-  --sidebar: rgb(250, 248, 242);
-  --sidebar-foreground: rgb(43, 34, 28);
-  --sidebar-primary: rgb(143, 90, 36);
-  --sidebar-primary-foreground: rgb(252, 250, 245);
-  --sidebar-accent: rgb(221, 231, 203);
-  --sidebar-accent-foreground: rgb(45, 60, 35);
-  --sidebar-border: rgb(228, 220, 205);
-  --sidebar-ring: rgb(143, 90, 36);
+  --sidebar: #FAF8F3;
+  --sidebar-foreground: #27221D;
+  --sidebar-primary: #55602B;
+  --sidebar-primary-foreground: #FAF8F3;
+  --sidebar-accent: #ECEDE1;
+  --sidebar-accent-foreground: #27221D;
+  --sidebar-border: #E2DDD3;
+  --sidebar-ring: #6B7834;
 }
 
 .dark {
-  /* Tryb ciemny - Głęboki, ziemisty brąz/czarny */
-  --background: rgb(28, 25, 23);
-  --foreground: rgb(252, 250, 245);
-  
-  --card: rgb(43, 34, 28);
-  --card-foreground: rgb(252, 250, 245);
-  --popover: rgb(43, 34, 28);
-  --popover-foreground: rgb(252, 250, 245);
-  
-  --primary: rgb(76, 103, 66);
-  --primary-text: rgb(103, 140, 90);
-  --primary-foreground: rgb(252, 250, 245);
-  
-  --secondary: rgb(60, 70, 45);
-  --secondary-foreground: rgb(221, 231, 203);
-  
-  --muted: rgb(50, 45, 40);
-  --muted-foreground: rgb(180, 170, 160);
-  --accent: rgb(65, 55, 45);
-  --accent-foreground: rgb(252, 250, 245);
-  
-  --destructive: rgb(150, 40, 40);
-  --border: rgb(65, 55, 50);
-  --input: rgb(65, 55, 50);
-  --ring: rgb(190, 130, 70);
+  --background: #1B1916;
+  --foreground: #ECE8E0;
+  --card: #23211D;
+  --card-foreground: #ECE8E0;
+  --popover: #23211D;
+  --popover-foreground: #ECE8E0;
+  --primary: #B4BF6E;
+  --primary-text: #B4BF6E;
+  --primary-foreground: #1B1916;
+  --secondary: #2B2824;
+  --secondary-foreground: #ECE8E0;
+  --muted: #2B2824;
+  --muted-foreground: #A69E92;
+  --accent: #2F3125;
+  --accent-foreground: #ECE8E0;
+  --destructive: #E5776C;
+  --destructive-foreground: #1B1916;
+  --border: #37332D;
+  --input: #46413A;
+  --ring: #B4BF6E;
 
-  /* Wykresy Dark Mode */
-  --chart-1: rgb(190, 130, 70);
-  --chart-2: rgb(120, 140, 80);
-  --chart-3: rgb(160, 120, 90);
-  --chart-4: rgb(200, 160, 100);
-  --chart-5: rgb(140, 100, 80);
+  --chart-1: #B4BF6E;
+  --chart-2: #C2AE84;
+  --chart-3: #8A8170;
+  --chart-4: #E0D9C8;
+  --chart-5: #6E6656;
 
-  /* Sidebar Dark Mode */
-  --sidebar: rgb(35, 30, 28);
-  --sidebar-foreground: rgb(252, 250, 245);
-  --sidebar-primary: rgb(190, 130, 70);
-  --sidebar-primary-foreground: rgb(28, 25, 23);
-  --sidebar-accent: rgb(60, 70, 45);
-  --sidebar-accent-foreground: rgb(221, 231, 203);
-  --sidebar-border: rgb(65, 55, 50);
-  --sidebar-ring: rgb(190, 130, 70);
+  --sidebar: #1B1916;
+  --sidebar-foreground: #ECE8E0;
+  --sidebar-primary: #B4BF6E;
+  --sidebar-primary-foreground: #1B1916;
+  --sidebar-accent: #2F3125;
+  --sidebar-accent-foreground: #ECE8E0;
+  --sidebar-border: #37332D;
+  --sidebar-ring: #B4BF6E;
 }
 
 @layer base {
@@ -166,57 +144,6 @@ body {
   }
 }
 
-/* Twój dedykowany efekt hover - zróbmy go w stylu "Organic & Soft" */
-.hoverEffect {
-    /* transition-all musi mieć zdefiniowany czas, aby nie "skakało" */
-    @apply transition-all duration-300 ease-out;
-    
-    /* Stan spoczynku - opcjonalnie lekki cień, by odróżnić od tła */
-    @apply shadow-sm;
-  }
-
-  .hoverEffect:hover {
-    /* Wyraźniejsze powiększenie (1.02 -> 1.04) */
-    @apply scale-[1.02] -translate-y-1;
-    
-    /* Mocniejszy, widoczny cień (zmień /5 na /15 lub /20) */
-    @apply shadow-xl shadow-accent/20;
-    
-    /* Zmiana koloru obramowania na brązowy przy najechaniu */
-    @apply border-accent/30;
-  }
-
-  .hoverEffect:active {
-    /* Efekt "wciśnięcia" przy kliknięciu */
-    @apply scale-95 duration-100;
-  }
-  
-@layer components {
-  .glass-layer {
-    /* Rozmycie jest STAŁE, nie animujemy go */
-    backdrop-filter: blur(32px);
-    background-color: hsl(var(--background) / 0.15);
-    opacity: 0;
-    
-    /* Animujemy tylko przezroczystość i transformację - to jest ultra płynne */
-    transition: 
-      opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
-      transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    will-change: opacity, transform;
-    /* background-color: white; */
-  }
-
-  .glass-layer-active {
-    opacity: 0.8;
-    transform: translateY(0);
-  }
-
-  .glass-layer-hidden {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-}
 /*
  * Respektowanie systemowego ustawienia ograniczenia ruchu.
  *
@@ -235,11 +162,5 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
-  }
-
-  /* Warstwa tła animuje wyłącznie dekorację — może zniknąć bez straty. */
-  .glass-layer {
-    transition: none !important;
-    will-change: auto;
   }
 }

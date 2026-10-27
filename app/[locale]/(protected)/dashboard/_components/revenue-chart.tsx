@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormatter } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import {
   Bar,
   BarChart,
@@ -24,6 +24,7 @@ export function RevenueChart({
   points: RevenuePoint[];
   caption: string;
 }) {
+  const t = useTranslations("dashboard.analytics");
   const format = useFormatter();
 
   const money = (value: number) =>
@@ -45,9 +46,9 @@ export function RevenueChart({
         <caption>{caption}</caption>
         <thead>
           <tr>
-            <th scope="col">Day</th>
-            <th scope="col">Revenue</th>
-            <th scope="col">Orders</th>
+            <th scope="col">{t("dayColumn")}</th>
+            <th scope="col">{t("revenue")}</th>
+            <th scope="col">{t("ordersColumn")}</th>
           </tr>
         </thead>
         <tbody>
@@ -65,9 +66,8 @@ export function RevenueChart({
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={points} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
           <CartesianGrid
-            strokeDasharray="3 3"
             vertical={false}
-            className="stroke-border/40"
+            stroke="var(--border)"
           />
           <XAxis
             dataKey="day"
@@ -75,29 +75,31 @@ export function RevenueChart({
             tickFormatter={(day: string) => day.slice(5)}
             tickLine={false}
             axisLine={false}
-            className="text-[10px] font-black uppercase tracking-widest"
+            tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
           />
           <YAxis
             tickFormatter={money}
             tickLine={false}
             axisLine={false}
             width={72}
-            className="text-[10px] font-black uppercase tracking-widest"
+            tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
           />
           <Tooltip
-            cursor={{ className: "fill-primary/10" }}
+            cursor={{ fill: "var(--muted)", opacity: 0.5 }}
             contentStyle={{
-              borderRadius: "1rem",
+              borderRadius: "var(--radius)",
               border: "1px solid var(--border)",
               background: "var(--card)",
-              fontSize: "12px",
+              fontSize: "14px",
+              color: "var(--card-foreground)",
             }}
             formatter={(value) => money(Number(value))}
           />
           <Bar
             dataKey="revenue"
-            radius={[6, 6, 0, 0]}
-            className="fill-primary"
+            name={t("chartRevenue")}
+            radius={[4, 4, 0, 0]}
+            fill="var(--chart-1)"
             // Wykres pokazuje historię, nie zmianę stanu — animacja przy
             // każdym renderze byłaby ozdobnikiem, a nie informacją.
             isAnimationActive={false}

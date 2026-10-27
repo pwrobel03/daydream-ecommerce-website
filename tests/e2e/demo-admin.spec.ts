@@ -17,5 +17,5 @@ test("the demo admin opens the inventory but cannot delete", async ({ page }) =>
 
   await page.goto("/dashboard/manage-orders");
   // Orders are readable; the buyer's data is masked on the server (tests/integration/admin-orders-masking.test.ts).
-  await expect(page.getByRole("heading", { name: "Terminal" })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole("heading", { name: "Orders" })).toBeVisible({ timeout: 60_000 });
 });

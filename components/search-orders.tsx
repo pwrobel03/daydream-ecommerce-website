@@ -1,11 +1,12 @@
-// app/admin/_components/search-orders.tsx
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
 export function SearchOrders({ defaultValue }: { defaultValue: string }) {
+  const t = useTranslations("dashboard.orders");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -23,13 +24,17 @@ export function SearchOrders({ defaultValue }: { defaultValue: string }) {
 
   return (
     <div className="relative w-full max-w-md">
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-20" />
+      <Search
+        aria-hidden
+        className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+      />
       <input
-        type="text"
-        placeholder="SEARCH BY ID OR CLIENT..."
+        type="search"
+        aria-label={t("searchLabel")}
+        placeholder={t("searchPlaceholder")}
         defaultValue={defaultValue}
         onChange={(e) => handleSearch(e.target.value)}
-        className="w-full bg-transparent border-2 border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 font-black italic uppercase tracking-tighter focus:border-primary outline-none transition-all"
+        className="h-9 w-full rounded-md border bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
       />
     </div>
   );

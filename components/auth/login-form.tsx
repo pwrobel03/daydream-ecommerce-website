@@ -15,7 +15,7 @@ import { FormError } from "./form-error";
 import { FormSuccess } from "./form-success";
 import { login } from "@/actions/auth/login";
 import { signIn } from "next-auth/react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Social } from "./social";
 import { DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD } from "@/lib/demo";
 

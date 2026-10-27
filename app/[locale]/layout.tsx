@@ -7,7 +7,7 @@ import { connection } from "next/server";
 import { HeaderSkeleton } from "@/components/skeletons";
 import type { Metadata } from "next";
 import { env } from "@/lib/env";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Young_Serif } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/sonner";
 import "../globals.css";
@@ -18,12 +18,18 @@ import { DemoNotice } from "@/components/demo-notice";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
+});
+
+const youngSerif = Young_Serif({
+  variable: "--font-young-serif",
+  weight: "400",
+  subsets: ["latin", "latin-ext"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -98,7 +104,7 @@ export default async function RootLayout({
       >
         {/* Dodajemy min-h-screen do body, aby tło zawsze wypełniało ekran */}
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+          className={`${geistSans.variable} ${geistMono.variable} ${youngSerif.variable} antialiased min-h-screen flex flex-col`}
         >
           <NextIntlClientProvider messages={messages}>
             <ThemeProvider

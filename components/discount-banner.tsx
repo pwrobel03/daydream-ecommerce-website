@@ -110,7 +110,7 @@ const DiscountBanner = ({ sales }: SaleHeroProps) => {
                     <div className="pt-8">
                       <Button
                         size="lg"
-                        className="h-14 rounded-full px-10 hoverEffect font-bold uppercase tracking-widest text-xs group/btn shadow-xl shadow-primary/30"
+                        className="h-14 rounded-full px-10 font-bold uppercase tracking-widest text-xs group/btn shadow-xl shadow-primary/30"
                       >
                         <ShoppingBag className="mr-3 h-5 w-5" />
                         Explore Collection

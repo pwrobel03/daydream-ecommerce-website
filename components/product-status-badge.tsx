@@ -17,7 +17,13 @@ const ProductStatusBadge = ({ name, color, className }: ProductProps) => {
         className
       )}
     >
-      <span className="font-black uppercase tracking-[0.2em] text-white leading-none">
+      <span
+        className={cn(
+          "font-black uppercase tracking-[0.2em] leading-none",
+          // Tło domyślne to --secondary, które w obu motywach wymaga ciemnego tekstu.
+          color ? "text-white" : "text-secondary-foreground"
+        )}
+      >
         {name}
       </span>
     </div>

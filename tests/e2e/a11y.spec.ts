@@ -36,24 +36,34 @@ const adminPages = [
   { name: "inventory", path: "/dashboard/inventory" },
 ];
 
-test.describe("accessibility", () => {
-  for (const { name, path } of pages) {
-    test(`${name} has no WCAG A/AA violations`, async ({ page }) => {
-      test.setTimeout(120_000);
-
-      await page.goto(path);
-      const results = await scan(page).analyze();
-
-      // Pełna lista w komunikacie, żeby regresja mówiła co i gdzie,
-      // zamiast samego "oczekiwano 0".
-      expect(
-        results.violations.flatMap((v) =>
-          v.nodes.map((node) => `${v.id} :: ${node.target.join(" ")}`)
-        )
-      ).toEqual([]);
+for (const theme of ["light", "dark"]) {
+  test.describe(`accessibility (${theme})`, () => {
+    // next-themes czyta wybór z localStorage przed pierwszym malowaniem.
+    test.beforeEach(async ({ context }) => {
+      await context.addInitScript(
+        (t) => localStorage.setItem("theme", t),
+        theme
+      );
     });
-  }
-});
+
+    for (const { name, path } of pages) {
+      test(`${name} has no WCAG A/AA violations`, async ({ page }) => {
+        test.setTimeout(120_000);
+
+        await page.goto(path);
+        const results = await scan(page).analyze();
+
+        // Pełna lista w komunikacie, żeby regresja mówiła co i gdzie,
+        // zamiast samego "oczekiwano 0".
+        expect(
+          results.violations.flatMap((v) =>
+            v.nodes.map((node) => `${v.id} :: ${node.target.join(" ")}`)
+          )
+        ).toEqual([]);
+      });
+    }
+  });
+}
 
 // Audyt automatyczny nie sprawdza obsługi klawiaturą — a to ta połowa, która
 // decyduje o tym, czy da się w ogóle kupić bez myszy.

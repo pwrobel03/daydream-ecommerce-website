@@ -50,10 +50,7 @@ async function CategoryPageContent({
       <header className="max-w-7xl mx-auto px-6 pt-16 pb-12 border-b border-black/5 dark:border-white/5 mb-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="max-w-2xl">
-            <SubTitle
-              text="Daydream Archive"
-              className="uppercase font-black tracking-[0.2em]"
-            />
+            <SubTitle text="Daydream Archive" />
             <h1 className="text-6xl md:text-8xl font-black italic uppercase tracking-tighter mt-4 mb-6 leading-[0.8]">
               {category.name}
             </h1>

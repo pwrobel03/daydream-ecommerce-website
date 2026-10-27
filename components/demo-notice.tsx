@@ -8,10 +8,10 @@ export async function DemoNotice() {
   return (
     <div
       role="note"
-      className="bg-muted text-foreground px-4 py-2 text-center text-sm font-medium"
+      className="bg-muted text-foreground px-4 py-2 text-center text-sm"
     >
       {t("notice")}{" "}
-      <Link href="/privacy" className="underline">
+      <Link href="/privacy" className="underline underline-offset-4">
         {t("privacyLink")}
       </Link>
     </div>

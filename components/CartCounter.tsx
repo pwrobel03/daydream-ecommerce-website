@@ -19,9 +19,9 @@ export const CartCounter = () => {
     <>
       <span
         aria-hidden="true"
-        className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-[10px] font-bold text-secondary-foreground border-2 border-background shadow-md animate-in fade-in zoom-in duration-300"
+        className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-background bg-secondary px-1 text-xs font-medium tabular-nums text-secondary-foreground"
       >
-        {totalItems}
+        {totalItems > 99 ? "99+" : totalItems}
       </span>
       <span className="sr-only">{t("cartCount", { count: totalItems })}</span>
     </>

@@ -1,20 +1,30 @@
 {
   "nav": {
     "search": "Szukaj",
-    "searchPlaceholder": "SZUKAJ",
+    "searchPlaceholder": "Szukaj",
     "searchLabel": "Szukaj produktów",
     "cart": "Koszyk",
     "account": "Konto",
     "language": "Język",
     "cartCount": "{count, plural, one {# produkt w koszyku} few {# produkty w koszyku} many {# produktów w koszyku} other {# produktu w koszyku}}",
-    "menu": "Otwórz menu"
+    "menu": "Otwórz menu",
+    "allProducts": "Wszystkie produkty",
+    "more": "Więcej",
+    "themeToggle": "Zmień motyw",
+    "themeLight": "Jasny",
+    "themeDark": "Ciemny",
+    "themeSystem": "Systemowy",
+    "close": "Zamknij menu",
+    "tagline": "Naturalnie. Zdrowo. Z pasją.",
+    "home": "Strona główna DayDream"
   },
   "common": {
     "loading": "Ładowanie",
     "tryAgain": "Spróbuj ponownie",
     "somethingBroke": "Coś się zepsuło",
     "errorHelp": "To nasza wina. Błąd został zapisany.",
-    "reference": "Numer referencyjny"
+    "reference": "Numer referencyjny",
+    "backHome": "Wróć na stronę główną"
   },
   "search": {
     "title": "Szukaj",
@@ -352,6 +362,13 @@
     }
   },
   "footer": {
-    "privacy": "Prywatność"
+    "privacy": "Prywatność",
+    "copyright": "© {year} DayDream",
+    "demo": "Demo portfolio. Nic tu nie jest na sprzedaż."
+  },
+  "notFound": {
+    "title": "Nie znaleziono strony",
+    "body": "Strony, której szukasz, nie ma albo została przeniesiona.",
+    "home": "Wróć na stronę główną"
   }
 }

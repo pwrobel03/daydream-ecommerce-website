@@ -33,7 +33,7 @@ test.describe("checkout", () => {
     await page.goto("/cart");
     await expect(page.getByText(E2E_PRODUCT.name).first()).toBeVisible();
 
-    await page.getByRole("button", { name: /secure flow/i }).click();
+    await page.getByRole("button", { name: /continue to delivery/i }).click();
 
     // Rezerwacja kończy się przekierowaniem na krok adresowy z id zamówienia.
     await page.waitForURL(/\/cart\/delivery\/[a-z0-9]+/i, { timeout: 30_000 });

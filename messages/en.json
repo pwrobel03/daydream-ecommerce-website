@@ -35,22 +35,26 @@
     "soldOut": "Sold out"
   },
   "cart": {
-    "title": "Your Bag",
+    "title": "Cart",
     "quantityLimit": "You can order at most {max} units of one product.",
-    "summary": "Summary",
-    "grandTotal": "Grand Total",
+    "summary": "Order summary",
+    "grandTotal": "Total",
     "couponCode": "Coupon code",
-    "couponOptional": "OPTIONAL",
-    "checkout": "Secure Flow",
-    "fixIssues": "Fix Issues",
-    "stockProblem": "Please resolve stock issues before checkout",
-    "empty": "Empty Bag",
-    "findDream": "Find a Dream",
-    "verifyingStock": "Verifying Stock...",
-    "reserved": "Stock Reserved. Redirecting...",
+    "couponOptional": "Optional",
+    "checkout": "Continue to delivery",
+    "fixIssues": "Fix the items marked above",
+    "stockProblem": "Some items are out of stock or over the available quantity. Fix them to continue.",
+    "empty": "Your cart is empty",
+    "findDream": "Browse products",
+    "verifyingStock": "Checking prices and stock…",
+    "reserved": "Items reserved. Taking you to delivery…",
     "removedUnavailable": "Removed from your cart, no longer available: {names}",
     "syncFailed": "We could not verify prices and stock right now.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "outOfStock": "Out of stock",
+    "overLimit": "Only {stock} in stock. Reduce the quantity to continue.",
+    "remove": "Remove {name} from the cart",
+    "itemQuantity": "Quantity: {count}"
   },
   "errors": {
     "orderStatusConflict": "This order status cannot be changed to that value.",
@@ -142,7 +146,7 @@
     },
     "error": {
       "title": "Sign-in error",
-    "invalidKey": "Something went wrong while signing you in. Try again.",
+      "invalidKey": "Something went wrong while signing you in. Try again.",
       "missingToken": "This link is incomplete. Request a new one.",
       "back": "Back to sign in"
     },
@@ -476,5 +480,31 @@
       "code": "Promo code",
       "cta": "Browse the catalogue"
     }
+  },
+  "delivery": {
+    "title": "Delivery",
+    "reservation": "Reservation {id}",
+    "savedAddress": "We filled in your saved address. Check it before you pay.",
+    "recipient": "Recipient",
+    "address": "Address",
+    "fullName": "Full name",
+    "phone": "Phone",
+    "street": "Street and number",
+    "zipCode": "Postal code",
+    "city": "City",
+    "fullNamePlaceholder": "Jane Doe",
+    "streetPlaceholder": "Main Street 1/2",
+    "payment": "Continue to payment",
+    "redirecting": "Taking you to payment…",
+    "errFullName": "Enter the recipient's full name.",
+    "errStreet": "Enter the street and number.",
+    "errCity": "Enter the city.",
+    "errZipCode": "Enter a postal code.",
+    "errPhone": "Enter a phone number."
+  },
+  "orderSuccess": {
+    "title": "Thank you for your order",
+    "body": "We received your payment.",
+    "back": "Back to the shop"
   }
 }

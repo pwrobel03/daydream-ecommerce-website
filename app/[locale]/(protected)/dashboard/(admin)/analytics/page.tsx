@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { Button } from "@/components/ui/button";
 import { RowsSkeleton } from "@/components/skeletons";
 import {
   getAnalyticsSummary,
@@ -56,96 +57,85 @@ async function AnalyticsContent({
   ];
 
   return (
-    <div className="space-y-16 pb-20">
-      <header className="flex flex-col md:flex-row justify-between md:items-end gap-8 border-b pb-10">
-        <div className="space-y-1">
-          <h1 className="text-5xl sm:text-7xl font-black italic uppercase tracking-tighter">
-            {t("title")}
-          </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 ml-1">
+    <div className="flex flex-col gap-6 pb-6">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b pb-6">
+        <div>
+          <h1 className="text-2xl font-semibold leading-tight">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground">
             {t("subtitle", { days: range })}
           </p>
         </div>
 
         <nav aria-label={t("rangeLabel")} className="flex gap-2">
           {RANGES.map((option) => (
-            <Link
+            <Button
               key={option}
-              href={`?days=${option}`}
-              aria-current={option === range ? "page" : undefined}
-              className={
-                option === range
-                  ? "px-6 py-3 rounded-full bg-primary text-primary-foreground font-black uppercase italic text-[10px] tracking-widest"
-                  : "px-6 py-3 rounded-full border font-black uppercase italic text-[10px] tracking-widest hover:bg-primary/10 transition-colors"
-              }
+              asChild
+              size="sm"
+              variant={option === range ? "default" : "outline"}
             >
-              {t("rangeOption", { days: option })}
-            </Link>
+              <Link
+                href={`?days=${option}`}
+                aria-current={option === range ? "page" : undefined}
+              >
+                {t("rangeOption", { days: option })}
+              </Link>
+            </Button>
           ))}
         </nav>
       </header>
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
-          <div key={card.label} className="bg-card/60 border rounded-[2rem] p-8 space-y-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-70">
-              {card.label}
-            </p>
-            <p className="text-4xl font-black tracking-tighter">{card.value}</p>
+          <div key={card.label} className="rounded-lg border bg-card p-4">
+            <p className="text-sm text-muted-foreground">{card.label}</p>
+            <p className="mt-1 text-2xl font-semibold tabular-nums">{card.value}</p>
             {card.hint && (
-              <p className="text-[10px] font-black uppercase tracking-widest opacity-70">
-                {card.hint}
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{card.hint}</p>
             )}
           </div>
         ))}
       </section>
 
-      <section className="bg-card/60 border rounded-[2rem] p-8 space-y-8">
-        <h2 className="text-xl font-black italic uppercase tracking-tight">
-          {t("revenueChart")}
-        </h2>
+      <section className="space-y-4 rounded-lg border bg-card p-4">
+        <h2 className="text-lg font-semibold leading-[1.35]">{t("revenueChart")}</h2>
         <RevenueChart points={revenue} caption={t("revenueCaption")} />
       </section>
 
-      <section className="bg-card/60 border rounded-[2rem] p-8 space-y-8">
-        <h2 className="text-xl font-black italic uppercase tracking-tight">
-          {t("topProducts")}
-        </h2>
+      <section className="space-y-4 rounded-lg border bg-card p-4">
+        <h2 className="text-lg font-semibold leading-[1.35]">{t("topProducts")}</h2>
 
         {topProducts.length === 0 ? (
-          <p className="text-sm font-black uppercase tracking-widest opacity-70">
-            {t("noSales")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("noSales")}</p>
         ) : (
-          <table className="w-full text-left">
-            <caption className="sr-only">{t("topProductsCaption")}</caption>
-            <thead>
-              <tr className="text-[10px] font-black uppercase tracking-[0.3em] opacity-70">
-                <th scope="col" className="pb-4">{t("product")}</th>
-                <th scope="col" className="pb-4 text-right">{t("units")}</th>
-                <th scope="col" className="pb-4 text-right">{t("revenue")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topProducts.map((product) => (
-                <tr key={product.productId} className="border-t">
-                  <td className="py-4">
-                    <Link
-                      href={`/product/${product.slug}`}
-                      className="font-black italic uppercase tracking-tight hover:text-primary-text transition-colors"
-                    >
-                      {product.name}
-                    </Link>
-                  </td>
-                  <td className="py-4 text-right font-black">{product.quantity}</td>
-                  <td className="py-4 text-right font-black">
-                    {money(product.revenue)}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <caption className="sr-only">{t("topProductsCaption")}</caption>
+              <thead>
+                <tr className="text-muted-foreground">
+                  <th scope="col" className="pb-3 font-medium">{t("product")}</th>
+                  <th scope="col" className="pb-3 text-right font-medium">{t("units")}</th>
+                  <th scope="col" className="pb-3 text-right font-medium">{t("revenue")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {topProducts.map((product) => (
+                  <tr key={product.productId} className="border-t">
+                    <td className="max-w-0 truncate py-3 pr-4">
+                      <Link
+                        href={`/product/${product.slug}`}
+                        className="hover:underline"
+                      >
+                        {product.name}
+                      </Link>
+                    </td>
+                    <td className="py-3 text-right tabular-nums">{product.quantity}</td>
+                    <td className="py-3 text-right tabular-nums">{money(product.revenue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </div>

@@ -188,8 +188,8 @@
       "SHIPPED": "Wysłane",
       "DELIVERED": "Dostarczone",
       "CANCELLED": "Anulowane",
-      "creditValid": "Płatność potwierdzona",
-      "creditMissing": "Brak płatności"
+      "creditValid": "Płatność otrzymana",
+      "creditMissing": "Oczekuje na płatność"
     },
     "orders": {
       "recent": "Ostatnie zamówienia",
@@ -197,7 +197,22 @@
       "noAddress": "Nie podano adresu",
       "statusChangeFailed": "Nie udało się zmienić statusu zamówienia.",
       "statusLabel": "Status",
-      "customer": "Klient {tag}"
+      "customer": "Klient {tag}",
+      "title": "Zamówienia",
+      "count": "{count, plural, one {# zamówienie} few {# zamówienia} many {# zamówień} other {# zamówienia}}",
+      "empty": "Brak zamówień",
+      "emptySearch": "Żadne zamówienie nie pasuje do wyszukiwania",
+      "searchLabel": "Szukaj zamówień",
+      "searchPlaceholder": "Szukaj po numerze zamówienia lub kliencie",
+      "listCaption": "Zamówienia od najnowszych",
+      "order": "Zamówienie",
+      "address": "Adres dostawy",
+      "items": "Pozycje",
+      "total": "Suma",
+      "statusColumn": "Status",
+      "changeStatus": "Status zamówienia {number}",
+      "addressMissing": "Nie podano adresu",
+      "hiddenInDemo": "Ukryte w wersji demo"
     },
     "address": {
       "title": "Adresy",
@@ -325,7 +340,7 @@
       "revenue": "Przychód",
       "paidOrders": "Opłacone zamówienia",
       "averageOrder": "Średnie zamówienie",
-      "conversion": "Konwersja checkoutu",
+      "conversion": "Konwersja zamówień",
       "conversionHint": "{abandoned, plural, =0 {brak porzuconych} one {# porzucone} few {# porzucone} many {# porzuconych} other {# porzuconych}}",
       "revenueChart": "Przychód dzień po dniu",
       "topProducts": "Najlepsze produkty",
@@ -333,7 +348,10 @@
       "product": "Produkt",
       "units": "Sztuk",
       "noSales": "Brak sprzedaży w tym zakresie.",
-      "revenueCaption": "Przychód i liczba zamówień dla każdego dnia w wybranym zakresie"
+      "revenueCaption": "Przychód i liczba zamówień dla każdego dnia w wybranym zakresie",
+      "dayColumn": "Dzień",
+      "ordersColumn": "Zamówienia",
+      "chartRevenue": "Przychód"
     },
     "filters": {
       "stock": "Filtruj po stanie",
@@ -395,6 +413,12 @@
       "payment": "Płatność",
       "total": "Razem",
       "retryPayment": "Ponów płatność"
+    },
+    "notAllowed": {
+      "title": "Brak dostępu",
+      "description": "Ta część jest tylko dla administratorów i konta demo administratora.",
+      "hint": "Jeśli to pomyłka, poproś administratora o sprawdzenie Twojej roli.",
+      "back": "Wróć do konta"
     }
   },
   "reviews": {

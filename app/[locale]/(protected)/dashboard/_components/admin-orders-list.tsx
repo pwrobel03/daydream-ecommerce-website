@@ -1,34 +1,27 @@
-// app/admin/_components/admin-orders-list.tsx
 "use client";
 
-import { useTranslations } from "next-intl";
-import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
-
 import { useState } from "react";
-import { format } from "date-fns";
+import { useFormatter, useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { RefreshCw } from "lucide-react";
+import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 import { updateOrderStatus } from "@/actions/admin/orders";
 import { nextOrderStatus } from "@/lib/order-transitions";
 import PriceFormatter from "@/components/PriceFormatter";
-import { cn } from "@/lib/utils";
-import {
-  MapPin,
-  Package,
-  RefreshCw,
-  User,
-  Phone,
-  ChevronDown,
-} from "lucide-react";
 import { OrderStatus } from "@/lib/generated/prisma/client";
 import type { AdminOrder, MaskedAdminOrder, getAdminOrders } from "@/lib/db-orders";
+import { OrderStatusBadge } from "./orders-list";
 
 export function AdminOrdersList({
   result,
+  searching = false,
 }: {
   result: Awaited<ReturnType<typeof getAdminOrders>>;
+  searching?: boolean;
 }) {
   const orders: (AdminOrder | MaskedAdminOrder)[] = result.orders;
   const t = useTranslations("dashboard");
+  const format = useFormatter();
   const readOnlyReason = useReadOnlyReason();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -46,199 +39,119 @@ export function AdminOrdersList({
 
   if (orders.length === 0) {
     return (
-      <div className="py-20 text-center border-2 border-dashed border-black/5 rounded-[3rem]">
-        <p className="text-muted-foreground font-black italic text-xl uppercase tracking-tighter opacity-70">
-          Archive Empty / Sector Clear
-        </p>
-      </div>
+      <p className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
+        {searching ? t("orders.emptySearch") : t("orders.empty")}
+      </p>
     );
   }
 
   return (
-    <div className="w-full overflow-x-auto overflow-y-auto max-h-[650px]">
-      <table className="w-full text-left">
+    <div className="max-h-[650px] w-full overflow-auto rounded-lg border">
+      <table className="w-full text-left text-sm">
+        <caption className="sr-only">{t("orders.listCaption")}</caption>
         <thead>
-          <tr className="uppercase font-black italic text-[10px] tracking-widest text-muted-foreground/60">
-            {/* 2. NAGŁÓWKI: sticky top-0 + bg-background + z-index */}
-            <th className="sticky top-0 z-20 py-4 text-sm bg-background">
-              ID / Registry
-            </th>
-            <th className="sticky top-0 z-20 py-4 text-sm bg-background">
-              Destination
-            </th>
-            <th className="sticky top-0 z-20 py-4 text-sm bg-background">
-              Manifest
-            </th>
-            <th className="sticky top-0 z-20 py-4 text-sm bg-background">
-              Value
-            </th>
-            <th className="sticky top-0 z-20 py-4 text-sm bg-background">
-              Status Protocol
-            </th>
+          <tr className="text-muted-foreground">
+            {(["order", "address", "items", "total", "statusColumn"] as const).map((key) => (
+              <th
+                key={key}
+                scope="col"
+                className="sticky top-0 z-10 border-b bg-background px-4 py-3 font-medium"
+              >
+                {t(`orders.${key}`)}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody className="divide-y">
-          {orders.map((order) => (
-            <tr key={order.id} className="group px-4 transition-colors">
-              {/* KOLUMNA 1: ID */}
-              <td className="py-8 px-2">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-mono font-bold text-primary-text italic">
-                    #{order.id.slice(-12).toUpperCase()}
-                  </span>
-                  <span className="font-black tracking-tighter italic uppercase text-lg leading-none mt-1">
-                    {format(new Date(order.createdAt), "dd.MM.yyyy")}
-                  </span>
-                  <div className="flex items-center gap-1 mt-2 opacity-40">
-                    <User className="w-3 h-3" />
-                    <span className="text-[9px] uppercase font-black tracking-tighter">
-                      {"customerTag" in order
-                        ? t("orders.customer", { tag: order.customerTag })
-                        : order.user.name}
-                    </span>
-                  </div>
-                </div>
-              </td>
+          {orders.map((order) => {
+            const masked = "customerTag" in order;
+            const number = order.id.slice(-8);
+            const next = nextOrderStatus(order.status);
 
-              {/* KOLUMNA 2: ADRES */}
-              {"customerTag" in order ? (
-                // The demo admin never receives the address (ADR 0009).
-                <td className="py-8 px-2" />
-              ) : order.address ? (
-                <td className="py-8 px-2">
-                  <div className="flex items-start gap-3 max-w-[280px]">
-                    <MapPin className="w-4 h-4 mt-1 opacity-20 shrink-0 text-primary-text" />
-                    <div className="flex flex-col text-[11px] font-bold uppercase leading-tight tracking-tighter">
-                      <span className="text-foreground font-black italic mb-1">
-                        {order.address?.fullName}
-                      </span>
-                      <span className="opacity-50">
-                        {order.address?.street}
-                      </span>
-                      <span className="opacity-50">
-                        {order.address?.zipCode} {order.address?.city}
-                      </span>
-                      <div className="flex items-center gap-1 mt-2 text-primary-text font-mono text-[9px]">
-                        <Phone className="w-3 h-3 opacity-40" />{" "}
-                        {order.address?.phone}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-              ) : (
-                <td className="py-8 px-2">
-                  <div className="flex items-start gap-3 max-w-[280px]">
-                    <MapPin className="w-4 h-4 opacity-20 shrink-0 text-primary-text" />
-                    <div className="flex flex-col text-[11px] font-bold uppercase leading-tight tracking-tighter">
-                      <span className="text-foreground font-black italic mb-1">
-                        Address is missing
-                      </span>
-                    </div>
-                  </div>
-                </td>
-              )}
-
-              {/* KOLUMNA 3: PRZEDMIOTY */}
-              <td className="py-8 px-2">
-                <div className="flex items-start gap-3">
-                  <Package className="w-4 h-4 mt-1 opacity-20 shrink-0" />
-                  <div className="flex flex-col gap-2">
-                    {order.items?.map((item, idx: number) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <span className="text-[9px] font-black border border-primary/20 px-1.5 py-0.5 rounded italic">
-                          {item.quantity}X
-                        </span>
-                        <span className="text-[10px] font-bold uppercase truncate max-w-[150px]">
-                          {item.product?.name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </td>
-
-              {/* KOLUMNA 4: CENA */}
-              <td className="py-8 px-2 text-right">
-                <div className="flex flex-col">
-                  <span className="text-3xl font-black italic tracking-tighter leading-none">
-                    <PriceFormatter amount={Number(order.totalAmount)} />
-                  </span>
-                  <div
-                    className={cn(
-                      "text-[8px] font-black uppercase tracking-[0.2em] mt-3 inline-flex items-center justify-start gap-1.5",
-                      order.isPaid ? "text-emerald-500" : "text-destructive"
-                    )}
+            return (
+              <tr key={order.id} className="align-top">
+                <td className="px-4 py-4">
+                  <p className="font-mono font-medium tabular-nums">#{number}</p>
+                  <time
+                    dateTime={new Date(order.createdAt).toISOString()}
+                    className="block text-muted-foreground tabular-nums"
                   >
-                    <div
-                      className={cn(
-                        "w-1 h-1 rounded-full",
-                        order.isPaid
-                          ? "bg-emerald-500 shadow-[0_0_8px_green]"
-                          : "bg-destructive"
-                      )}
-                    />
-                    {order.isPaid ? t("status.creditValid") : t("status.creditMissing")}
-                  </div>
-                </div>
-              </td>
+                    {format.dateTime(new Date(order.createdAt), {
+                      dateStyle: "medium",
+                      timeZone: "Europe/Warsaw",
+                    })}
+                  </time>
+                  {/* break-all: a 254-character e-mail has no break opportunity */}
+                  <p className="mt-1 max-w-56 break-all text-muted-foreground">
+                    {masked ? t("orders.customer", { tag: order.customerTag }) : order.user.name}
+                  </p>
+                </td>
 
-              {/* KOLUMNA 5: STATUS (POWRÓT DO TWOJEGO STYLU) */}
-              <td className="py-8 px-2 text-center">
-                <div className="relative inline-block min-w-[140px]">
-                  {/* Wskaźnik ładowania po lewej */}
-                  {loadingId === order.id && (
-                    <RefreshCw className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-primary-text" />
+                <td className="px-4 py-4">
+                  {masked ? (
+                    // The demo admin never receives the address (ADR 0009).
+                    <span className="text-muted-foreground">{t("orders.hiddenInDemo")}</span>
+                  ) : order.address ? (
+                    <div className="max-w-64 break-words">
+                      <span className="block font-medium">{order.address.fullName}</span>
+                      <span className="block text-muted-foreground">{order.address.street}</span>
+                      <span className="block text-muted-foreground">
+                        {order.address.zipCode} {order.address.city}
+                      </span>
+                      <span className="block text-muted-foreground tabular-nums">
+                        {order.address.phone}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">{t("orders.addressMissing")}</span>
                   )}
+                </td>
 
-                  {/* Customowa strzałka po prawej */}
-                  <div
-                    className={cn(
-                      "absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-300",
-                      "group-hover/select:translate-y-[-30%]", // Mały efekt przy najechaniu
-                      order.status === "DELIVERED" && "text-emerald-500",
-                      order.status === "PENDING" && "text-amber-500",
-                      order.status === "PAID" && "text-blue-500",
-                      order.status === "SHIPPED" && "text-primary-text",
-                      order.status === "CANCELLED" && "text-destructive"
+                <td className="px-4 py-4">
+                  <ul className="flex flex-col gap-1">
+                    {order.items?.map((item, idx) => (
+                      <li key={idx} className="flex max-w-64 gap-2">
+                        <span className="tabular-nums text-muted-foreground">{item.quantity}×</span>
+                        <span className="truncate">{item.product?.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+
+                <td className="px-4 py-4">
+                  <PriceFormatter
+                    amount={Number(order.totalAmount)}
+                    className="font-medium tabular-nums"
+                  />
+                  <p className="text-muted-foreground">
+                    {order.isPaid ? t("status.creditValid") : t("status.creditMissing")}
+                  </p>
+                </td>
+
+                <td className="px-4 py-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <OrderStatusBadge status={order.status} />
+                    {next && (
+                      <select
+                        aria-label={t("orders.changeStatus", { number })}
+                        value={order.status}
+                        disabled={loadingId === order.id || !!readOnlyReason}
+                        title={readOnlyReason}
+                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                        className="h-9 cursor-pointer rounded-md border bg-background px-2 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <option value={order.status}>{t(`status.${order.status}`)}</option>
+                        <option value={next}>{t(`status.${next}`)}</option>
+                      </select>
                     )}
-                  >
-                    <ChevronDown className="w-4 h-4 stroke-[3px]" />
+                    {loadingId === order.id && (
+                      <RefreshCw aria-hidden className="size-4 animate-spin text-muted-foreground" />
+                    )}
                   </div>
-
-                  <select
-                    value={order.status}
-                    disabled={loadingId === order.id || !!readOnlyReason || !nextOrderStatus(order.status)}
-                    title={readOnlyReason}
-                    onChange={(e) =>
-                      handleStatusChange(order.id, e.target.value)
-                    }
-                    className={cn(
-                      "appearance-none bg-transparent border-2 pl-6 pr-10 py-3 rounded-2xl text-[10px] font-black uppercase italic tracking-widest cursor-pointer outline-none transition-all duration-300 w-full",
-                      // KOLORYSTYKA NEXUS
-                      order.status === "DELIVERED" &&
-                        "border-emerald-500/30 text-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10",
-                      order.status === "PENDING" &&
-                        "border-amber-500/30 text-amber-500 bg-amber-500/5 hover:bg-amber-500/10",
-                      order.status === "PAID" &&
-                        "border-blue-500/30 text-blue-500 bg-blue-500/5 hover:bg-blue-500/10",
-                      order.status === "SHIPPED" &&
-                        "border-primary/40 text-primary-text bg-primary/5 hover:bg-primary/10",
-                      order.status === "CANCELLED" &&
-                        "border-destructive/30 text-destructive bg-destructive/5 hover:bg-destructive/10",
-                      loadingId === order.id && "opacity-70 cursor-wait"
-                    )}
-                  >
-                    <option value={order.status}>{t(`status.${order.status}`)}</option>
-                    {nextOrderStatus(order.status) && (
-                      <option value={nextOrderStatus(order.status)!}>
-                        {t(`status.${nextOrderStatus(order.status)!}`)}
-                      </option>
-                    )}
-                  </select>
-                </div>
-              </td>
-            </tr>
-          ))}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

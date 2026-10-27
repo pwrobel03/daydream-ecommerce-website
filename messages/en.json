@@ -374,7 +374,7 @@
   "home": {
     "hero": {
       "title": "Granola and muesli for slow mornings",
-      "lead": "Daydream mixes small batches of granola and muesli from oats, nuts, seeds and fruit. Pick a jar and start the day your way.",
+      "lead": "Daydream mixes small batches of granola and muesli from oats, nuts, seeds and fruit. Pick a bag and start the day your way.",
       "cta": "Browse the catalogue"
     },
     "about": {
@@ -387,7 +387,7 @@
         },
         "nuts": {
           "title": "Nuts and seeds",
-          "desc": "Nuts and seeds add crunch and keep you full for longer."
+          "desc": "Nuts and seeds add crunch."
         },
         "balance": {
           "title": "Balanced recipes",

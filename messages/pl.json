@@ -374,7 +374,7 @@
   "home": {
     "hero": {
       "title": "Granola i musli na powolne poranki",
-      "lead": "Daydream miesza w małych partiach granolę i musli z płatków owsianych, orzechów, nasion i owoców. Wybierz słoik i zacznij dzień po swojemu.",
+      "lead": "Daydream miesza w małych partiach granolę i musli z płatków owsianych, orzechów, nasion i owoców. Wybierz opakowanie i zacznij dzień po swojemu.",
       "cta": "Przeglądaj katalog"
     },
     "about": {
@@ -387,7 +387,7 @@
         },
         "nuts": {
           "title": "Orzechy i nasiona",
-          "desc": "Orzechy i nasiona dodają chrupkości i na dłużej sycą."
+          "desc": "Orzechy i nasiona dodają chrupkości."
         },
         "balance": {
           "title": "Wyważone receptury",

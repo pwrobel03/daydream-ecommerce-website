@@ -17,7 +17,7 @@ export default async function HandcraftedProcess() {
       <ol className="mt-12 max-w-[65ch] space-y-8">
         {steps.map((step, i) => (
           <li key={step} className="flex gap-6">
-            <span className="font-display text-2xl tabular-nums text-primary-text">
+            <span aria-hidden className="font-display text-2xl tabular-nums text-primary-text">
               {i + 1}
             </span>
             <div>

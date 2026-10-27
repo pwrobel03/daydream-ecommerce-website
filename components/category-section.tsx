@@ -33,7 +33,7 @@ export const CategorySection = ({ categories }: { categories: CategoryCard[] }) 
               onMouseEnter={() => setActiveIndex(index)}
               onFocus={() => setActiveIndex(index)}
               // The expanding panel is the one functional motion: it shows which card is open.
-              className={`relative min-h-0 min-w-0 overflow-hidden rounded-lg border bg-card transition-[flex] duration-200 ease-out ${
+              className={`relative min-h-0 min-w-0 overflow-hidden rounded-lg border bg-card focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring transition-[flex] duration-200 ease-out ${
                 isActive ? "flex-[5]" : "flex-[0.4]"
               }`}
             >
@@ -51,7 +51,7 @@ export const CategorySection = ({ categories }: { categories: CategoryCard[] }) 
               {/* Collapsed: the name, read along the strip. */}
               <div
                 aria-hidden
-                className={`absolute inset-0 z-10 flex items-center justify-center bg-foreground/50 transition-opacity duration-150 ${
+                className={`absolute inset-0 z-10 flex items-center justify-center bg-black/60 transition-opacity duration-150 ${
                   isActive ? "opacity-0" : "opacity-100"
                 }`}
               >

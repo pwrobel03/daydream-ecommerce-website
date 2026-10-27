@@ -31,7 +31,7 @@ async function login(page: Page) {
 async function startCheckout(page: Page) {
   await login(page);
   await page.goto(`/product/${E2E_PRODUCT.slug}`);
-  await page.getByRole("button", { name: /grab the dream/i }).first().click();
+  await page.getByRole("button", { name: /add to cart/i }).first().click();
   await page.goto("/cart");
   await page.getByRole("button", { name: /secure flow/i }).click();
   await page.waitForURL(/\/cart\/delivery\/[a-z0-9]+/i, { timeout: 30_000 });

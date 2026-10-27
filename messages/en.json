@@ -598,9 +598,7 @@
     "inCart": "In your cart",
     "subtotal": "Subtotal",
     "increased": "Quantity increased",
-    "decreased": "Quantity decreased",
-    "decrease": "Decrease quantity",
-    "increase": "Increase quantity"
+    "decreased": "Quantity decreased"
   },
   "pagination": {
     "previous": "Previous",

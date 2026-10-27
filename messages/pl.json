@@ -598,9 +598,7 @@
     "inCart": "W koszyku",
     "subtotal": "Suma częściowa",
     "increased": "Zwiększono ilość",
-    "decreased": "Zmniejszono ilość",
-    "decrease": "Zmniejsz ilość",
-    "increase": "Zwiększ ilość"
+    "decreased": "Zmniejszono ilość"
   },
   "pagination": {
     "previous": "Poprzednia",

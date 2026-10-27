@@ -54,7 +54,7 @@
     "outOfStock": "Out of stock",
     "overLimit": "Only {stock} in stock. Reduce the quantity to continue.",
     "remove": "Remove {name} from the cart",
-    "itemQuantity": "Quantity: {count}"
+    "processing": "Processing"
   },
   "errors": {
     "orderStatusConflict": "This order status cannot be changed to that value.",
@@ -485,8 +485,6 @@
     "title": "Delivery",
     "reservation": "Reservation {id}",
     "savedAddress": "We filled in your saved address. Check it before you pay.",
-    "recipient": "Recipient",
-    "address": "Address",
     "fullName": "Full name",
     "phone": "Phone",
     "street": "Street and number",
@@ -500,7 +498,8 @@
     "errStreet": "Enter the street and number.",
     "errCity": "Enter the city.",
     "errZipCode": "Enter a postal code.",
-    "errPhone": "Enter a phone number."
+    "errPhone": "Enter a phone number.",
+    "processing": "Processing"
   },
   "orderSuccess": {
     "title": "Thank you for your order",

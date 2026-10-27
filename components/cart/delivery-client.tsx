@@ -127,7 +127,7 @@ export function DeliveryClient({ order, savedAddress }: DeliveryClientProps) {
             disabled={loading || !!readOnlyReason}
             title={readOnlyReason}
           >
-            {loading ? <Loader2 className="animate-spin" /> : t("payment")}
+            {loading ? <Loader2 className="animate-spin" aria-label={t("processing")} /> : t("payment")}
           </Button>
         </form>
       </Form>

@@ -204,7 +204,7 @@ const CartPage = () => {
               onClick={handleSecureFlow}
             >
               {isPending ? (
-                <Loader2 className="animate-spin" />
+                <Loader2 className="animate-spin" aria-label={t("processing")} />
               ) : (
                 <>
                   {hasErrors ? t("fixIssues") : t("checkout")}

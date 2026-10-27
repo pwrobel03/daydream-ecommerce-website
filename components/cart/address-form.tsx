@@ -37,7 +37,7 @@ export function AddressForm({
   const t = useTranslations("delivery");
   const schema = z.object({
     fullName: z.string().min(3, t("errFullName")),
-    street: z.string().min(3, t("errStreet")),
+    street: z.string().min(5, t("errStreet")),
     city: z.string().min(2, t("errCity")),
     zipCode: z.string().min(5, t("errZipCode")),
     phone: z.string().min(9, t("errPhone")),
@@ -82,7 +82,7 @@ export function AddressForm({
         ))}
 
         <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
-          {isLoading ? <Loader2 className="animate-spin" /> : t("payment")}
+          {isLoading ? <Loader2 className="animate-spin" aria-label={t("processing")} /> : t("payment")}
         </Button>
       </form>
     </Form>

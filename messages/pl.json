@@ -54,7 +54,7 @@
     "outOfStock": "Brak w magazynie",
     "overLimit": "Na stanie jest tylko {stock}. Zmniejsz ilość, aby kontynuować.",
     "remove": "Usuń z koszyka: {name}",
-    "itemQuantity": "Ilość: {count}"
+    "processing": "Przetwarzanie"
   },
   "errors": {
     "orderStatusConflict": "Status tego zamówienia nie może zostać zmieniony na tę wartość.",
@@ -485,8 +485,6 @@
     "title": "Dostawa",
     "reservation": "Rezerwacja {id}",
     "savedAddress": "Uzupełniliśmy Twój zapisany adres. Sprawdź go przed zapłatą.",
-    "recipient": "Odbiorca",
-    "address": "Adres",
     "fullName": "Imię i nazwisko",
     "phone": "Telefon",
     "street": "Ulica i numer",
@@ -500,7 +498,8 @@
     "errStreet": "Podaj ulicę i numer.",
     "errCity": "Podaj miejscowość.",
     "errZipCode": "Podaj kod pocztowy.",
-    "errPhone": "Podaj numer telefonu."
+    "errPhone": "Podaj numer telefonu.",
+    "processing": "Przetwarzanie"
   },
   "orderSuccess": {
     "title": "Dziękujemy za zamówienie",

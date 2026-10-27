@@ -43,6 +43,25 @@ for (const theme of ["light", "dark"]) {
       );
     });
 
+    // Koszyk przekierowuje anonimowych odwiedzających, więc skan idzie przez sesję.
+    test.describe("signed in", () => {
+      test.use({ storageState: ADMIN_STATE });
+
+      test("cart has no WCAG A/AA violations", async ({ page }) => {
+        test.setTimeout(120_000);
+
+        await page.goto("/cart");
+        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        const results = await scan(page).analyze();
+
+        expect(
+          results.violations.flatMap((v) =>
+            v.nodes.map((node) => `${v.id} :: ${node.target.join(" ")}`)
+          )
+        ).toEqual([]);
+      });
+    });
+
     for (const { name, path } of pages) {
       test(`${name} has no WCAG A/AA violations`, async ({ page }) => {
         test.setTimeout(120_000);

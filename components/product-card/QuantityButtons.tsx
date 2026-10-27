@@ -14,6 +14,7 @@ const QuantityButtons = ({ product }: { product: CartProduct }) => {
   const { addItem, removeItem, getItemCount, isMounted } = useCart();
   const itemCount = isMounted ? getItemCount(product?.id) : 0;
   const t = useTranslations("cart");
+  const tq = useTranslations("addToCart");
   const maxUnits = Math.min(MAX_UNITS_PER_LINE, product?.stock ?? 0);
   const isAtLimit = itemCount >= maxUnits;
 
@@ -22,52 +23,48 @@ const QuantityButtons = ({ product }: { product: CartProduct }) => {
       toast.error(t("quantityLimit", { max: maxUnits }));
       return;
     }
-    toast.success("Quantity increased");
+    toast.success(tq("increased"));
     addItem(product);
   };
 
   return (
-    <div className="flex items-center p-1 rounded-full border ">
+    <div className="flex items-center rounded-md border p-0.5">
       {/* MINUS */}
       <Button
         variant="ghost"
-        size="icon"
-        className="h-8 w-8 rounded-full bg-card/60 hover:shadow-sm transition-all hover:text-primary-text"
+        size="icon-sm"
+        aria-label={tq("decrease")}
         onClick={() => {
           removeItem(product.id);
-          toast.success("Quantity decreased");
+          toast.success(tq("decreased"));
         }}
         aria-label={t("decrease")}
         disabled={itemCount === 0 || !isMounted}
       >
-        <Minus className="w-3 h-3" />
+        <Minus />
       </Button>
 
       {/* LICZNIK */}
-      <div className="px-3 min-w-[2.5rem] flex flex-col items-center">
-        <span
-          className={cn(
-            "text-sm font-black italic transition-colors",
-            isAtLimit ? "text-primary-text" : ""
-          )}
-        >
-          {itemCount}
-        </span>
-      </div>
+      <span
+        className={cn(
+          "min-w-8 text-center text-sm font-medium tabular-nums",
+          isAtLimit && "text-primary-text"
+        )}
+      >
+        {itemCount}
+      </span>
 
       {/* PLUS */}
       <Button
         variant="ghost"
-        size="icon"
-        className={cn(
-          "h-8 w-8 rounded-full transition-all bg-card/60 hover:text-primary-text",
-          isAtLimit ? "opacity-30 cursor-not-allowed" : ""
-        )}
+        size="icon-sm"
+        aria-label={tq("increase")}
+        className={cn(isAtLimit && "opacity-50")}
         onClick={handleIncrease}
         aria-label={t("increase")}
         disabled={!isMounted}
       >
-        <Plus className="w-3 h-3" />
+        <Plus />
       </Button>
     </div>
   );

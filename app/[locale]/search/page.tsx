@@ -1,6 +1,7 @@
 import { Suspense } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
+import SubTitle from "@/components/sub-title";
 import Container from "@/components/Container";
 import PriceFormatter from "@/components/PriceFormatter";
 import { searchProducts } from "@/lib/db-search";
@@ -28,21 +29,20 @@ async function Results({ searchParams }: SearchPageProps) {
 
   if (query.length < 2) {
     return (
-      <p className="text-sm font-black uppercase tracking-widest opacity-70 italic">
-        {t("tooShort")}
-      </p>
+      <p className="text-muted-foreground">{t("tooShort")}</p>
     );
   }
 
   if (hits.length === 0) {
     return (
-      <div className="space-y-4">
-        <p className="text-2xl font-black italic uppercase tracking-tighter">
+      <div className="space-y-2">
+        <p className="text-lg font-medium break-words">
           {t("noMatches", { query })}
         </p>
+        <p className="text-muted-foreground">{t("noMatchesHelp")}</p>
         <Link
           href="/category/all"
-          className="text-[10px] font-black uppercase tracking-[0.3em] underline opacity-70"
+          className="inline-block text-primary-text underline underline-offset-4"
         >
           {t("browseInstead")}
         </Link>
@@ -52,37 +52,37 @@ async function Results({ searchParams }: SearchPageProps) {
 
   return (
     <>
-      <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70">
+      <p className="text-sm text-muted-foreground break-words">
         {t("results", { count: hits.length, query })}
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {hits.map((hit) => (
           <Link
             key={hit.id}
             href={`/product/${hit.slug}`}
-            className="group space-y-4"
+            className="group space-y-3"
           >
-            <div className="relative aspect-square overflow-hidden rounded-[2rem] bg-accent">
+            <div className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
               {hit.imageUrl && (
                 <Image
                   src={hit.imageUrl}
                   alt={hit.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 25vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover "
                 />
               )}
               {hit.stock === 0 && (
-                <span className="absolute top-4 left-4 rounded-full bg-destructive px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white">
+                <span className="absolute top-3 left-3 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
                   {t("soldOut")}
                 </span>
               )}
             </div>
-            <h2 className="text-lg font-black italic uppercase tracking-tighter">
+            <h2 className="line-clamp-2 break-words text-base font-medium leading-[1.4]">
               {hit.name}
             </h2>
-            <PriceFormatter amount={hit.promoPrice ?? hit.price} />
+            <PriceFormatter amount={hit.promoPrice ?? hit.price} className="tabular-nums" />
           </Link>
         ))}
       </div>
@@ -102,9 +102,7 @@ export default async function SearchPage(
 
   return (
     <Container className="py-20 space-y-10">
-      <h1 className="text-6xl font-black italic uppercase tracking-tighter">
-        {t("title")}
-      </h1>
+      <SubTitle text={t("title")} className="mb-0" />
       {/* searchParams to dane żądania — nie da się ich prerenderować. */}
       <Suspense fallback={<ProductGridSkeleton count={8} />}>
         <Results {...props} />

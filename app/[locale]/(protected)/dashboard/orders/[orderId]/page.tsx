@@ -12,13 +12,14 @@ import { RetryPaymentButton } from "../../_components/retry-payment-button";
 async function OrderDetailsPageContent({
   params,
 }: {
-  params: Promise<{ orderId: string }>;
+  params: Promise<{ locale: string; orderId: string }>;
 }) {
+  const { locale, orderId } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations("dashboard.orderDetail");
   const tDashboard = await getTranslations("dashboard");
   const format = await getFormatter();
   const session = await getSession();
-  const { orderId } = await params;
 
   if (!session?.user?.id) redirect("/auth/login");
 
@@ -114,12 +115,10 @@ async function OrderDetailsPageContent({
   );
 }
 
-export default async function OrderDetailsPage(props: {
+export default function OrderDetailsPage(props: {
   params: Promise<{ locale: string; orderId: string }>;
 }) {
-  const { locale } = await props.params;
-  setRequestLocale(locale);
-
+  // orderId is dynamic: awaiting params in the shell would block the whole route.
   return (
     <Suspense fallback={<RowsSkeleton />}>
       <OrderDetailsPageContent {...props} />

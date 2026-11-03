@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -96,8 +97,7 @@ export function CategoryForm({
       }
     } catch {
       toast.error(t("feedback.connectionError"), {
-        description:
-          "The server could not process the request. Your're image could be too large or corrupted. Our limit is 8MB",
+        description: t("feedback.uploadFailed"),
       });
     } finally {
       setLoading(false);
@@ -108,22 +108,19 @@ export function CategoryForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 p-10 rounded-[2.5rem] border shadow-sm"
+        className="flex flex-col gap-6 rounded-lg border bg-card p-6"
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-6">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-black italic uppercase text-md tracking-widest">
-                  Name
-                </FormLabel>
+                <FormLabel>{t("categories.name")}</FormLabel>
                 <FormControl>
                   <Input
                     placeholder={t("categories.namePlaceholder")}
                     {...field}
-                    className="rounded-xl h-12"
                   />
                 </FormControl>
                 <FormMessage />
@@ -132,15 +129,12 @@ export function CategoryForm({
           />
 
           <FormItem>
-            <FormLabel className="font-black italic uppercase text-md tracking-widest">
-              Cover Image
-            </FormLabel>
+            <FormLabel>{t("categories.image")}</FormLabel>
             <FormControl>
               <Input
                 type="file"
                 ref={fileInputRef}
                 onChange={(e) => form.setValue("image", e.target.files)}
-                className="rounded-xl h-12 pt-2 cursor-pointer"
               />
             </FormControl>
           </FormItem>
@@ -151,14 +145,11 @@ export function CategoryForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-black italic uppercase text-md tracking-widest">
-                Description
-              </FormLabel>
+              <FormLabel>{t("categories.description")}</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder={t("placeholders.categoryStory")}
                   {...field}
-                  className="rounded-[1.5rem] min-h-[100px]"
                 />
               </FormControl>
               <FormMessage />
@@ -166,7 +157,7 @@ export function CategoryForm({
           )}
         />
 
-        <div className="flex flex-col gap-6 p-6 bg-input/30 rounded-[2rem] border">
+        <div className="flex flex-col gap-4 rounded-lg border bg-muted p-4">
           <FormField
             control={form.control}
             name="isSubcategory"
@@ -176,13 +167,10 @@ export function CategoryForm({
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    className="w-6 h-6 rounded-md data-[state=checked]:bg-primary"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel className="font-black italic uppercase text-xs tracking-widest">
-                    This is a subcategory
-                  </FormLabel>
+                  <FormLabel>{t("categories.isSubcategory")}</FormLabel>
                 </div>
               </FormItem>
             )}
@@ -193,26 +181,20 @@ export function CategoryForm({
               control={form.control}
               name="parentId"
               render={({ field }) => (
-                <FormItem className="animate-in slide-in-from-top-2 duration-300">
-                  <FormLabel className="font-black italic uppercase text-[10px] tracking-widest">
-                    Parent Category
-                  </FormLabel>
+                <FormItem>
+                  <FormLabel>{t("categories.parent")}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="rounded-xl h-12">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder={t("placeholders.selectParent")} />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="rounded-xl shadow-2xl">
+                    <SelectContent>
                       {parentCategories.map((cat) => (
-                        <SelectItem
-                          key={cat.id}
-                          value={cat.id}
-                          className="font-medium"
-                        >
+                        <SelectItem key={cat.id} value={cat.id}>
                           {cat.name}
                         </SelectItem>
                       ))}
@@ -226,14 +208,13 @@ export function CategoryForm({
         </div>
 
         {readOnlyReason && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
-        <button
+        <Button
           type="submit"
           disabled={loading || !!readOnlyReason}
           title={readOnlyReason}
-          className="w-full h-16 bg-foreground text-background hover:text-primary-foreground rounded-full font-black italic uppercase tracking-widest hover:bg-primary transition-all disabled:opacity-40 active:scale-95"
         >
-          {loading ? t("categories.forging") : t("categories.forge")}
-        </button>
+          {loading ? t("categories.creating") : t("categories.create")}
+        </Button>
       </form>
     </Form>
   );

@@ -8,6 +8,7 @@ import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
 import { Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteVoice } from "@/actions/admin/reviews";
+import { Button } from "@/components/ui/button";
 import type { AdminVoice } from "@/lib/db-reviews";
 
 export function VoicesList({ voices }: { voices: AdminVoice[] }) {
@@ -17,6 +18,8 @@ export function VoicesList({ voices }: { voices: AdminVoice[] }) {
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = (id: string) => {
+    if (!window.confirm(t("reviews.deleteConfirm"))) return;
+
     startTransition(async () => {
       const res = await deleteVoice(id);
       if (!res.ok) {
@@ -31,57 +34,74 @@ export function VoicesList({ voices }: { voices: AdminVoice[] }) {
     });
   };
 
+  if (voices.length === 0) {
+    return (
+      <p className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
+        {t("reviews.empty")}
+      </p>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 gap-6 relative">
+    <ul className="flex flex-col gap-4">
       {voices.map((voice) => (
-        <div
+        <li
           key={voice.id}
-          className="bg-card/60 p-4 rounded-[1rem] flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500"
+          className="flex items-start gap-4 rounded-lg border bg-card p-4"
         >
-          <div className="flex items-center gap-4 w-64 flex-shrink-0">
-            <div className="w-12 h-12 rounded-full bg-accent relative overflow-hidden">
-              {voice.user.image && (
-                <Image src={voice.user.image} alt="" fill className="object-cover" />
-              )}
-            </div>
-            <div>
-              <p className="text-sm font-black uppercase tracking-widest leading-none">
-                {voice.user.name}
-              </p>
-              <div className="mt-2 flex gap-1.5 text-primary-text">
+          <div className="relative size-10 shrink-0 overflow-hidden rounded-full bg-muted">
+            {voice.user.image && (
+              <Image
+                src={voice.user.image}
+                alt=""
+                fill
+                sizes="40px"
+                className="object-cover"
+              />
+            )}
+          </div>
+
+          <div className="flex min-w-0 flex-1 flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <p className="break-words font-medium">{voice.user.name}</p>
+              <div
+                role="img"
+                aria-label={t("filters.ratingValue", { count: voice.rating })}
+                className="flex gap-0.5"
+              >
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={i < voice.rating ? "fill-primary" : "text-zinc-200"}
-                    size={16}
+                    aria-hidden
+                    className={
+                      i < voice.rating
+                        ? "fill-primary text-primary"
+                        : "text-muted-foreground/40"
+                    }
+                    size={14}
                   />
                 ))}
               </div>
             </div>
+            <p className="break-words text-sm text-muted-foreground">
+              {voice.product.name}
+            </p>
+            <p className="whitespace-pre-line break-words">{voice.content}</p>
           </div>
 
-          <div className="flex items-center justify-around w-full gap-2">
-            <div className="flex-grow">
-              <p className="text-sm font-black uppercase tracking-widest text-primary-text mb-1">
-                {voice.product.name}
-              </p>
-              <p className="text-md font-medium italic leading-tight">
-                &ldquo;{voice.content}&rdquo;
-              </p>
-            </div>
-
-            <button
-              onClick={() => handleDelete(voice.id)}
-              disabled={isPending || !!readOnlyReason}
-              title={readOnlyReason}
-              aria-label={t("actions.delete", { name: voice.product.name })}
-              className="w-14 h-14 rounded-full border flex items-center justify-center hover:bg-destructive hover:text-white transition-all duration-500 shrink-0 disabled:opacity-40"
-            >
-              <Trash2 size={20} />
-            </button>
-          </div>
-        </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleDelete(voice.id)}
+            disabled={isPending || !!readOnlyReason}
+            title={readOnlyReason}
+            aria-label={t("actions.delete", { name: voice.product.name })}
+            className="shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+          >
+            <Trash2 />
+          </Button>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }

@@ -29,16 +29,12 @@ async function IngredientPageContent({ params }: IngredientPageProps) {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl capitalize font-bold tracking-tight">
-            {isNew ? t("ingredients.create") : t("ingredients.edit")}
-          </h2>
-        </div>
-      </div>
-
-      <hr className="my-6" />
+    <div className="flex flex-col gap-6 pb-6">
+      <header className="border-b pb-6">
+        <h1 className="text-2xl font-semibold leading-tight">
+          {isNew ? t("ingredients.create") : t("ingredients.edit")}
+        </h1>
+      </header>
 
       <IngredientForm initialData={ingredient} />
     </div>

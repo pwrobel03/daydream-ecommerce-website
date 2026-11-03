@@ -1,12 +1,6 @@
 "use client";
 
-import React from "react";
-import {
-  Trash2,
-  ChevronRight,
-  Package,
-  Image as ImageIcon,
-} from "lucide-react";
+import { ChevronRight, Image as ImageIcon, Trash2 } from "lucide-react";
 import { deleteCategory } from "@/actions/admin/categories";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -14,6 +8,8 @@ import { useRouter } from "next/navigation";
 import type { CategoryListItem } from "@/lib/db-inventory";
 import { useTranslations } from "next-intl";
 import { useReadOnlyReason } from "@/hooks/use-read-only-reason";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface CategoryListProps {
   initialCategories: CategoryListItem[];
@@ -30,10 +26,7 @@ export default function CategoryList({ initialCategories }: CategoryListProps) {
   const categories = initialCategories;
 
   const handleDelete = async (id: string, name: string) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete "${name}"?`
-    );
-    if (!confirmDelete) return;
+    if (!window.confirm(t("categories.deleteConfirm", { name }))) return;
 
     const res = await deleteCategory(id);
     if (!res.ok) return toast.error(res.message);
@@ -43,99 +36,97 @@ export default function CategoryList({ initialCategories }: CategoryListProps) {
     router.refresh();
   };
 
+  const deleteButton = (id: string, name: string) => (
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={() => handleDelete(id, name)}
+      disabled={!!readOnlyReason}
+      title={readOnlyReason}
+      aria-label={t("actions.delete", { name })}
+      className="shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+    >
+      <Trash2 />
+    </Button>
+  );
+
   const mainCategories = categories.filter((c) => !c.parentId);
 
-  return (
-    <div className="space-y-8">
-      {mainCategories.length === 0 && (
-        <div className="p-20 text-center border-2 border-dashed rounded-[3rem] opacity-20">
-          <p className="font-black italic uppercase tracking-widest text-sm text-zinc-900">
-            No structures found
-          </p>
-        </div>
-      )}
+  if (mainCategories.length === 0) {
+    return (
+      <p className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
+        {t("categories.empty")}
+      </p>
+    );
+  }
 
+  return (
+    <ul className="flex flex-col gap-4">
       {mainCategories.map((main) => {
         const children = categories.filter((c) => c.parentId === main.id);
 
         return (
-          <div key={main.id} className="space-y-4">
-            <div className="group bg-card/60 p-6 rounded-[2.5rem] flex items-center gap-6 hover:shadow-xl transition-all duration-500">
-              <div className="w-16 h-16 rounded-[1.5rem] overflow-hidden flex-shrink-0 relative border">
+          <li key={main.id} className="flex flex-col gap-2">
+            <div className="flex items-center gap-4 rounded-lg border bg-card p-4">
+              <div className="relative size-12 shrink-0 overflow-hidden rounded-md bg-muted">
                 {main.image ? (
                   <Image
                     src={main.image}
                     alt=""
                     fill
+                    sizes="48px"
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ImageIcon size={20} />
-                  </div>
+                  <ImageIcon
+                    aria-hidden
+                    className="absolute inset-0 m-auto size-5 text-muted-foreground"
+                  />
                 )}
               </div>
-              <div className="w-full flex flex-col lg:flex-row">
-                <div className="flex-grow flex flex-col">
-                  <div className="flex gap-2 flex flex-col">
-                    <h3 className="text-2xl font-black italic uppercase tracking-tighter">
-                      {main.name}
-                    </h3>
-                    <span className="px-3 py-0.5 max-w-32 rounded-full text-[12px] font-black uppercase tracking-widest bg-primary/40">
-                      Parent
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-row mt-2">
-                  <div className="flex items-center gap-4 opacity-70 font-black uppercase text-xs tracking-widest">
-                    <span className="flex items-center gap-1">
-                      <Package size={10} /> {main._count.products || 0}{" "}
-                      Products
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => handleDelete(main.id, main.name)}
-                    disabled={!!readOnlyReason}
-                    title={readOnlyReason}
-                    className="w-8 h-8 ml-4 rounded-full border flex items-center justify-center hover:bg-destructive hover:text-white transition-all flex-shrink-0"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <p className="line-clamp-2 break-words font-medium">
+                  {main.name}
+                </p>
+                <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                  <Badge variant="secondary">{t("categories.main")}</Badge>
+                  <span>
+                    {t("categories.products", { count: main._count.products })}
+                  </span>
                 </div>
               </div>
+              {deleteButton(main.id, main.name)}
             </div>
 
             {children.length > 0 && (
-              <div className="ml-12 space-y-3 border-l-2 pl-8 relative">
+              <ul className="ml-6 flex flex-col gap-2 border-l pl-4">
                 {children.map((sub) => (
-                  <div
+                  <li
                     key={sub.id}
-                    className="group bg-card/40 p-4 pr-6 rounded-[1.5rem] border flex items-center gap-4 transition-all duration-300"
+                    className="flex items-center gap-3 rounded-lg border bg-card p-3"
                   >
-                    <ChevronRight size={14} className="text-primary-text" />
-                    <div className="flex-grow">
-                      <p className="text-sm font-black italic uppercase tracking-tight">
+                    <ChevronRight
+                      aria-hidden
+                      className="size-4 shrink-0 text-muted-foreground"
+                    />
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <p className="line-clamp-2 break-words font-medium">
                         {sub.name}
                       </p>
-                      <p className="text-xs font-black uppercase tracking-widest opacity-70">
-                        {sub._count.products || 0} Products
+                      <p className="text-sm text-muted-foreground">
+                        {t("categories.products", {
+                          count: sub._count.products,
+                        })}
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleDelete(sub.id, sub.name)}
-                      disabled={!!readOnlyReason}
-                      title={readOnlyReason}
-                      className="hover:text-destructive transition-colors p-2 flex-shrink-0"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+                    {deleteButton(sub.id, sub.name)}
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
-          </div>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 }

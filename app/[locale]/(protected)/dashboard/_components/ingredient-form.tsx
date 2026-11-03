@@ -54,7 +54,7 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       if (selectedFile.size > 5 * 1024 * 1024) {
-        toast.error("Plik jest za duży (max 5MB)");
+        toast.error(t("ingredients.fileTooLarge"));
         return;
       }
       setFile(selectedFile);
@@ -86,76 +86,67 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
       router.push("/dashboard/ingredients");
       router.refresh();
     } catch {
-      toast.error("Wystąpił błąd podczas zapisywania.");
+      toast.error(t("ingredients.saveFailed"));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 flex flex-col items-center">
-      <GiveInNotice note="When you edit an ingredient, you change it in all products that contain it!" />
+    <div className="flex max-w-2xl flex-col gap-6">
+      <GiveInNotice note={t("ingredients.note")} />
 
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 w-full items-center"
-      >
-        <div className="flex flex-col gap-8">
-          {/* Sekcja Tekstowa */}
-          <div className="space-y-8">
-            <div className="flex flex-col gap-4">
-              <label className="text-sm uppercase tracking-widest font-black">
-                Ingredient name
-              </label>
-              <Input
-                {...form.register("name")}
-                placeholder="etc. Erytrytol"
-                className="font-black"
-                disabled={loading}
-              />
-              {form.formState.errors.name && (
-                <p className="text-destructive text-xs">
-                  {form.formState.errors.name.message}
-                </p>
-              )}
-            </div>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="ingredient-name" className="text-sm font-medium">
+              {t("ingredients.name")}
+            </label>
+            <Input
+              id="ingredient-name"
+              {...form.register("name")}
+              placeholder={t("ingredients.namePlaceholder")}
+              disabled={loading}
+            />
+            {form.formState.errors.name && (
+              <p className="text-sm text-destructive">
+                {form.formState.errors.name.message}
+              </p>
+            )}
           </div>
 
-          {/* Sekcja Zdjęcia */}
-          <div className="space-y-4 gap-4 flex flex-col">
-            <label className="text-sm uppercase tracking-widest font-black mb-10">
-              Ingredient icon
-            </label>
-            <div className="border-2 border-dashed rounded-[2rem] p-8 flex flex-col items-center justify-center relative min-h-[250px] bg-card/50">
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-medium">{t("ingredients.icon")}</span>
+            <div className="relative flex min-h-48 flex-col items-center justify-center rounded-lg border border-dashed bg-card p-6">
               {preview ? (
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 shadow-xl">
+                <div className="relative flex items-center justify-center">
+                  <div className="relative size-28 overflow-hidden rounded-full border">
                     <Image
                       src={preview}
                       alt={t("labels.preview")}
                       fill
+                      sizes="112px"
                       className="object-cover"
                     />
                   </div>
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="icon"
+                    aria-label={t("ingredients.removeImage")}
                     onClick={() => {
                       setFile(null);
                       setPreview(null);
                     }}
-                    className="absolute top-0 right-0 p-2 bg-destructive/80 text-white rounded-full hover:bg-destructive transition"
+                    className="absolute -right-12 top-0"
                   >
-                    <X size={16} />
-                  </button>
+                    <X />
+                  </Button>
                 </div>
               ) : (
-                <label className="cursor-pointer flex flex-col items-center group">
-                  <div className="p-4 bg-input/40 rounded-full shadow-sm group-hover:scale-110 transition duration-200">
-                    <Upload className="text-primary-text" size={32} />
-                  </div>
-                  <span className="mt-4 text-sm font-medium">
-                    Add image WebP/PNG/JPG
-                  </span>
+                <label className="flex cursor-pointer flex-col items-center gap-3 text-center">
+                  <Upload aria-hidden className="size-8 text-muted-foreground" />
+                  <span className="text-sm">{t("ingredients.addImage")}</span>
                   <input
                     disabled={loading}
                     type="file"
@@ -169,25 +160,23 @@ export const IngredientForm = ({ initialData }: IngredientFormProps) => {
           </div>
         </div>
 
-        <div className="flex justify-end gap-4 border-t pt-8">
+        <div className="flex flex-wrap items-center justify-end gap-3 border-t pt-6">
+          {readOnlyReason && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
           <Button
             type="button"
             variant="outline"
             onClick={() => router.back()}
             disabled={loading}
-            className="cursor-pointer"
           >
-            Cancel
+            {t("ingredients.cancel")}
           </Button>
-          {readOnlyReason && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
           <Button
             type="submit"
             disabled={loading || !!readOnlyReason}
             title={readOnlyReason}
-            className="min-w-[150px] cursor-pointer"
           >
-            {loading ? <Loader2 className="animate-spin mr-2" /> : null}
-            Save Ingredient
+            {loading ? <Loader2 className="animate-spin" /> : null}
+            {t("ingredients.save")}
           </Button>
         </div>
       </form>

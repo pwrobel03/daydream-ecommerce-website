@@ -2,6 +2,7 @@ import { RowsSkeleton } from "@/components/skeletons";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Plus, Edit3 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { getIngredients } from "@/lib/db-inventory";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -9,91 +10,71 @@ import Image from "next/image";
 import { DeleteIngredientButton } from "@/app/[locale]/(protected)/dashboard/_components/delete-ingredient-button";
 
 async function IngredientsListPageContent() {
+  const t = await getTranslations("dashboard");
   const ingredients = await getIngredients();
 
   const fallbackImage = "/static/placeholder-ingredient.webp";
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-12">
-      {/* Header w stylu NEXUS */}
-      <header className="flex justify-between items-end border-b pb-10">
-        <div className="space-y-1">
-          <h1 className="text-7xl font-black italic uppercase tracking-tighter">
-            Alchemical library
-          </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70 ml-1">
-            Manage your recipe
-          </p>
-        </div>
-      </header>
-      <Link href="/dashboard/ingredients/new" className="flex mb-10">
-        <Button className="rounded-full h-14 px-8 transition-all hover:scale-105 active:scale-95 group">
-          <Plus className="mr-2 h-5 w-5 transition-transform group-hover:rotate-90" />
-          Forge New Essence
+    <div className="flex flex-col gap-6 pb-6">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b pb-6">
+        <h1 className="text-2xl font-semibold leading-tight">
+          {t("ingredients.title")}
+        </h1>
+        <Button asChild>
+          <Link href="/dashboard/ingredients/new">
+            <Plus aria-hidden />
+            {t("ingredients.add")}
+          </Link>
         </Button>
-      </Link>
+      </header>
 
-      {/* Grid Składników */}
       {ingredients.length === 0 ? (
-        <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed">
-          <p className="font-medium italic">
-            Your ingredients library is currently empty...
-          </p>
-        </div>
+        <p className="rounded-lg border border-dashed p-12 text-center text-muted-foreground">
+          {t("ingredients.empty")}
+        </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {ingredients.map((item) => (
-            <div
+            <li
               key={item.id}
-              className="group relative rounded-[1rem] p-6 shadow-sm hover:shadow-xl transition-all bg-card/60 duration-300"
+              className="flex items-center gap-3 rounded-lg border bg-card p-3"
             >
-              {/* Ikona Składnika */}
-              <div className="flex justify-center mb-6">
-                <div className="relative w-24 h-24 rounded-full p-1 shadow-inner">
-                  <div className="relative w-full h-full rounded-full overflow-hidden border-2 shadow-sm">
-                    <Image
-                      src={item.image || fallbackImage}
-                      alt={item.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  </div>
-                </div>
+              <div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-muted">
+                <Image
+                  src={item.image || fallbackImage}
+                  alt=""
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                />
               </div>
 
-              {/* Treść */}
-              <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold group-hover:text-primary-text transition-colors">
-                  {item.name}
-                </h3>
-              </div>
+              <p className="line-clamp-2 min-w-0 flex-1 break-words font-medium">
+                {item.name}
+              </p>
 
-              {/* Akcje - pojawiają się przy hover lub są subtelnie widoczne */}
-              <div className="mt-8 flex items-center justify-center gap-3">
-                <Link href={`/dashboard/ingredients/${item.id}`}>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="w-10 h-10 rounded-full border bg-card flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all duration-500 shadow-sm group/btn text-foreground"
-                  >
-                    <Edit3
-                      size={16}
-                      className="group-hover/btn:rotate-12 transition-transform"
-                    />
-                  </Button>
-                </Link>
-
+              <div className="flex shrink-0 items-center gap-2">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="icon"
+                  aria-label={t("actions.edit", { name: item.name })}
+                >
+                  <Link href={`/dashboard/ingredients/${item.id}`}>
+                    <Edit3 />
+                  </Link>
+                </Button>
                 {/* Osobny komponent dla usuwania, by obsłużyć Client Side Action */}
-                <DeleteIngredientButton id={item.id} />
+                <DeleteIngredientButton id={item.id} name={item.name} />
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );
 }
-
 
 export default function IngredientsListPage() {
   return (

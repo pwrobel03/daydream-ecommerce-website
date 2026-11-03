@@ -457,9 +457,37 @@
     }
   },
   "reviews": {
-    "shared": "Opinia dodana.",
+    "shared": "Opinia opublikowana.",
     "updated": "Opinia zaktualizowana.",
-    "deleted": "Twój głos został usunięty."
+    "deleted": "Opinia usunięta.",
+    "title": "Opinie",
+    "count": "{count, plural, one {# opinia} few {# opinie} many {# opinii} other {# opinii}}",
+    "average": "Średnia ocena: {value} na 5",
+    "showing": "Pokazano {shown} z {total}",
+    "empty": "Nie ma jeszcze opinii. Napisz pierwszą.",
+    "loginPrompt": "Zaloguj się, aby napisać opinię.",
+    "showMore": "Pokaż więcej",
+    "loading": "Ładowanie",
+    "yourReview": "Twoja opinia",
+    "rating": "{count, plural, one {# gwiazdka} few {# gwiazdki} many {# gwiazdek} other {# gwiazdki}} z 5",
+    "edit": "Edytuj opinię",
+    "delete": "Usuń opinię",
+    "formTitleNew": "Napisz opinię",
+    "formTitleEdit": "Edytuj opinię",
+    "ratingLabel": "Twoja ocena",
+    "contentLabel": "Twoja opinia",
+    "placeholder": "Jak ci smakowało?",
+    "setRating": "{count, plural, one {# gwiazdka} few {# gwiazdki} many {# gwiazdek} other {# gwiazdki}}",
+    "publish": "Opublikuj opinię",
+    "update": "Zapisz zmiany",
+    "publishing": "Publikowanie",
+    "updating": "Zapisywanie",
+    "cancel": "Anuluj",
+    "cancelEdit": "Anuluj edycję",
+    "ratingRequired": "Wybierz ocenę.",
+    "tooShort": "Napisz co najmniej 3 znaki.",
+    "tooLong": "Opinia może mieć najwyżej 2000 znaków.",
+    "avatarFallback": "Anonimowy recenzent"
   },
   "demo": {
     "notice": "Demo portfolio, nie prawdziwy sklep. Nic nie jest sprzedawane, żadne prawdziwe pieniądze nie są przesyłane, a dane mogą zostać usunięte w dowolnym momencie.",
@@ -638,5 +666,11 @@
     "previous": "Poprzednia",
     "next": "Następna",
     "page": "Strona {current} z {total}"
+  },
+  "product": {
+    "galleryImage": "{name}, zdjęcie {index} z {total}",
+    "showImage": "Pokaż zdjęcie {index}",
+    "description": "O produkcie",
+    "ingredients": "Składniki"
   }
 }

@@ -457,9 +457,37 @@
     }
   },
   "reviews": {
-    "shared": "Story shared!",
-    "updated": "Your story has been updated!",
-    "deleted": "Your voice has been removed."
+    "shared": "Review published.",
+    "updated": "Review updated.",
+    "deleted": "Review deleted.",
+    "title": "Reviews",
+    "count": "{count, plural, one {# review} other {# reviews}}",
+    "average": "Average rating: {value} out of 5",
+    "showing": "Showing {shown} of {total}",
+    "empty": "No reviews yet. Be the first to write one.",
+    "loginPrompt": "Log in to write a review.",
+    "showMore": "Show more",
+    "loading": "Loading",
+    "yourReview": "Your review",
+    "rating": "{count, plural, one {# star} other {# stars}} out of 5",
+    "edit": "Edit your review",
+    "delete": "Delete your review",
+    "formTitleNew": "Write a review",
+    "formTitleEdit": "Edit your review",
+    "ratingLabel": "Your rating",
+    "contentLabel": "Your review",
+    "placeholder": "What did you think of it?",
+    "setRating": "{count, plural, one {# star} other {# stars}}",
+    "publish": "Publish review",
+    "update": "Save changes",
+    "publishing": "Publishing",
+    "updating": "Saving",
+    "cancel": "Cancel",
+    "cancelEdit": "Cancel editing",
+    "ratingRequired": "Choose a rating.",
+    "tooShort": "Write at least 3 characters.",
+    "tooLong": "Keep it under 2,000 characters.",
+    "avatarFallback": "Anonymous reviewer"
   },
   "demo": {
     "notice": "Portfolio demo, not a real shop. Nothing is sold, no real money moves, and data may be deleted at any time.",
@@ -638,5 +666,11 @@
     "previous": "Previous",
     "next": "Next",
     "page": "Page {current} of {total}"
+  },
+  "product": {
+    "galleryImage": "{name}, photo {index} of {total}",
+    "showImage": "Show photo {index}",
+    "description": "About this product",
+    "ingredients": "Ingredients"
   }
 }

@@ -2,7 +2,9 @@
 
 import { Star, Pencil, Trash2 } from "lucide-react";
 import type { StoreVoice } from "@/actions/store/reviews";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTransition } from "react";
 import { deleteReview } from "@/actions/store/reviews";
@@ -21,6 +23,7 @@ export default function UserReviewCard({
   onDelete,
 }: UserReviewCardProps) {
   const t = useTranslations("reviews");
+  const locale = useLocale();
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
@@ -40,60 +43,49 @@ export default function UserReviewCard({
   };
 
   return (
-    <div className="group relative animate-in fade-in zoom-in-95 duration-700">
-      <div className="absolute rounded-[3.5rem] blur-xl opacity-50 transition duration-1000" />
-
-      <div className="relative bg-card/60 border border-primary/20 p-10 rounded-[3rem] shadow-2xl">
-        <div className="flex justify-between items-start mb-8">
-          <div className="flex flex-col gap-2">
-            <span className="px-4 py-1.5 w-fit bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-primary/20">
-              Your Voice
-            </span>
-            <span className="text-[10px] font-bold opacity-70 uppercase tracking-widest ml-1 gap-4 flex">
-              <span>
-                {new Date(review.createdAt).toLocaleDateString("pl-PL")}
-              </span>
-              <span>
-                {new Date(review.createdAt).toLocaleTimeString("pl-PL", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            </span>
-          </div>
-
-          {/* AKCJE: Edit & Delete */}
-          <div className="flex gap-2 transition-opacity">
-            <button
-              onClick={onEdit}
-              className="p-3 rounded-full bg-card border-border border hover:bg-primary hover:text-primary-foreground transition-all"
-            >
-              <Pencil className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={isPending}
-              className="p-3 rounded-full bg-card border-border border hover:bg-destructive hover:text-white transition-all disabled:opacity-50"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
+    <div className="rounded-lg border border-primary/40 bg-card p-6">
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-medium">{t("yourReview")}</span>
+          <time
+            dateTime={new Date(review.createdAt).toISOString()}
+            className="text-sm tabular-nums text-muted-foreground"
+          >
+            {new Date(review.createdAt).toLocaleDateString(locale)}
+          </time>
         </div>
 
-        <blockquote className="text-3xl font-medium italic leading-tight text-foreground">
-          &ldquo;{review.content}&rdquo;
-        </blockquote>
-
-        <div className="mt-8 flex gap-1.5 text-primary-text">
-          {[...Array(5)].map((_, i) => (
-            <Star
-              key={i}
-              className={i < review.rating ? "fill-primary" : "text-zinc-200"}
-              size={16}
-            />
-          ))}
+        <div className="flex gap-2">
+          <Button variant="outline" size="icon" onClick={onEdit} aria-label={t("edit")}>
+            <Pencil aria-hidden />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleDelete}
+            disabled={isPending}
+            aria-label={t("delete")}
+          >
+            <Trash2 aria-hidden />
+          </Button>
         </div>
       </div>
+
+      <span
+        className="mb-3 flex gap-0.5 text-primary-text"
+        role="img"
+        aria-label={t("rating", { count: review.rating })}
+      >
+        {Array.from({ length: 5 }, (_, i) => (
+          <Star
+            key={i}
+            className={cn("size-4", i < review.rating ? "fill-current" : "text-muted-foreground/40")}
+            aria-hidden
+          />
+        ))}
+      </span>
+
+      <p className="whitespace-pre-line break-words text-pretty">{review.content}</p>
     </div>
   );
 }

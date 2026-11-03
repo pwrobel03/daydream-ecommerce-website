@@ -2,70 +2,67 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import ProductStatusBadge from "../product-status-badge";
 import type { ProductDetail } from "@/lib/db-products";
 
 export default function ProductGallery({
+  name,
   images,
   status,
 }: {
+  name: string;
   images: ProductDetail["images"];
   status: ProductDetail["status"];
 }) {
-  const [active, setActive] = useState<string>(images[0]?.url ?? "");
+  const t = useTranslations("product");
+  const [activeIndex, setActiveIndex] = useState(0);
 
   if (!images || images.length === 0) return null;
 
   return (
-    <div className="relative w-full flex flex-col items-center group">
-      {/* 1. KONTENER ZDJĘCIA */}
-      <div className="relative w-full aspect-square lg:aspect-square overflow-hidden rounded-[3rem] max-h-180">
-        <div className="absolute" />
+    <div className="flex w-full flex-col gap-4">
+      <div className="relative aspect-square w-full overflow-hidden rounded-lg border bg-muted">
         <Image
-          key={active}
-          src={active}
-          alt="Product Display"
+          key={images[activeIndex].url}
+          src={images[activeIndex].url}
+          alt={t("galleryImage", {
+            name,
+            index: activeIndex + 1,
+            total: images.length,
+          })}
           fill
           priority
-          className="object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+          sizes="(max-width: 1024px) 100vw, 58vw"
+          className="object-cover"
         />
+        {status && (
+          <div className="absolute left-3 top-3 z-10">
+            <ProductStatusBadge name={status.name} color={status.color ?? ""} />
+          </div>
+        )}
       </div>
 
-      {/* 2. FLOATING NAV (Bez zmian - działa dobrze z ujemnym marginesem) */}
-      <div className="relative z-20 m-10 px-4 w-full flex justify-center">
-        <div className="flex gap-3 p-2.5 rounded-full bg-card/50 absolute bottom-20">
-          {images.map((img) => (
+      {images.length > 1 && (
+        <div className="flex flex-wrap gap-3">
+          {images.map((img, i) => (
             <button
               key={img.id}
-              onClick={() => setActive(img.url)}
+              type="button"
+              onClick={() => setActiveIndex(i)}
+              aria-label={t("showImage", { index: i + 1 })}
+              aria-pressed={i === activeIndex}
               className={cn(
-                "relative w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden border-2 transition-all duration-500",
-                active === img.url
-                  ? "border-primary scale-110 shadow-inner"
-                  : "border-transparent opacity-40 hover:opacity-100"
+                "relative size-16 overflow-hidden rounded-md border-2 transition-opacity",
+                i === activeIndex
+                  ? "border-primary"
+                  : "border-transparent opacity-70 hover:opacity-100"
               )}
             >
-              <Image
-                src={img.url}
-                alt="thumbnail"
-                fill
-                className="object-cover"
-                sizes="56px"
-              />
+              <Image src={img.url} alt="" fill className="object-cover" sizes="64px" />
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* 3. STATUS BADGE (Bez zmian) */}
-      {status && (
-        <div className="absolute top-6 left-6 z-10">
-          <ProductStatusBadge
-            name={status.name}
-            color={status.color ?? "#000000"}
-            className="px-8 py-5 text-xl opacity-80"
-          />
         </div>
       )}
     </div>

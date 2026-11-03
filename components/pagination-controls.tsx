@@ -1,5 +1,6 @@
-// app/admin/_components/pagination-controls.tsx
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
@@ -14,6 +15,7 @@ export function PaginationControls({
   totalPages,
   searchQuery,
 }: PaginationProps) {
+  const t = useTranslations("pagination");
   const createPageUrl = (page: number) => {
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
@@ -24,44 +26,43 @@ export function PaginationControls({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pt-12 border-t border-black/5 dark:border-white/5">
+    <div className="flex flex-col items-center justify-between gap-4 border-t pt-6 sm:flex-row">
+      <span className="text-sm text-muted-foreground tabular-nums">
+        {t("page", { current: currentPage, total: totalPages })}
+      </span>
+
       <div className="flex items-center gap-2">
-        <span className="text-[10px] font-black uppercase tracking-widest opacity-70 italic">
-          Navigator Mode:
-        </span>
-        <span className="text-xl font-black italic tracking-tighter">
-          {currentPage} <span className="opacity-20">/</span> {totalPages}
-        </span>
-      </div>
+        <Button
+          asChild
+          variant="outline"
+          aria-disabled={currentPage <= 1}
+          className={cn(currentPage <= 1 && "pointer-events-none opacity-50")}
+        >
+          <Link
+            href={createPageUrl(currentPage - 1)}
+            tabIndex={currentPage <= 1 ? -1 : undefined}
+          >
+            <ArrowLeft />
+            {t("previous")}
+          </Link>
+        </Button>
 
-      <div className="flex items-center gap-4">
-        {/* PREVIOUS PAGE */}
-        <Link
-          href={createPageUrl(currentPage - 1)}
+        <Button
+          asChild
+          variant="outline"
+          aria-disabled={currentPage >= totalPages}
           className={cn(
-            "group flex items-center gap-3 px-8 py-4 border rounded-2xl transition-all hover:bg-primary hover:border-primary hover:text-primary-foreground",
-            currentPage <= 1 && "pointer-events-none opacity-10"
+            currentPage >= totalPages && "pointer-events-none opacity-50"
           )}
         >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          <span className="font-black italic uppercase tracking-tighter">
-            Prev Log
-          </span>
-        </Link>
-
-        {/* NEXT PAGE */}
-        <Link
-          href={createPageUrl(currentPage + 1)}
-          className={cn(
-            "group flex items-center gap-3 px-8 py-4 border rounded-2xl transition-all hover:bg-primary hover:border-primary hover:text-primary-foreground",
-            currentPage >= totalPages && "pointer-events-none opacity-10"
-          )}
-        >
-          <span className="font-black italic uppercase tracking-tighter">
-            Next Log
-          </span>
-          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-        </Link>
+          <Link
+            href={createPageUrl(currentPage + 1)}
+            tabIndex={currentPage >= totalPages ? -1 : undefined}
+          >
+            {t("next")}
+            <ArrowRight />
+          </Link>
+        </Button>
       </div>
     </div>
   );

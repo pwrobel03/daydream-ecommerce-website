@@ -53,7 +53,7 @@ for (const theme of ["light", "dark"]) {
         // Skan pustego koszyka pomija wiersze, podsumowanie i kupon — dodajemy produkt.
         await page.goto(`/product/${E2E_PRODUCT.slug}`);
         await page
-          .getByRole("button", { name: /grab the dream/i })
+          .getByRole("button", { name: /add to cart/i })
           .first()
           .click();
 

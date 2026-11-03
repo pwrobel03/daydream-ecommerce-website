@@ -1,4 +1,3 @@
-import { twMerge } from "tailwind-merge";
 import PriceFormatter from "../PriceFormatter";
 
 interface PriceViewProps {
@@ -10,22 +9,19 @@ interface PriceViewProps {
 const PriceView = ({ price, discount, label, className }: PriceViewProps) => {
   if (!price) return null;
   return (
-    <div className="flex items-center justify-between gap-5">
-      <div className="flex items-center gap-2">
-        {price && !discount && (
-          <PriceFormatter amount={price} className={className} />
-        )}
-        {price && discount && (
-          <div className="flex flex-row justify-center items-center gap-2">
-            <PriceFormatter
-              amount={price}
-              className={twMerge("line-through text-xs font-medium", className)}
-            />
-            <PriceFormatter amount={discount} className={className} />
-          </div>
-        )}
-      </div>
-      <p className="text-gray-500">{label}</p>
+    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 tabular-nums">
+      {discount ? (
+        <>
+          <PriceFormatter amount={discount} className={className} />
+          <PriceFormatter
+            amount={price}
+            className="text-sm font-normal text-muted-foreground line-through"
+          />
+        </>
+      ) : (
+        <PriceFormatter amount={price} className={className} />
+      )}
+      {label && <p className="text-sm text-muted-foreground">{label}</p>}
     </div>
   );
 };
